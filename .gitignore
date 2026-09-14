@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local data lake (rebuild with `uv run saa-data ingest`)
+/data/
+
+# Reference papers (third-party copyrighted; keep local)
+Ang_etal_Agents.pdf
+*.pdf

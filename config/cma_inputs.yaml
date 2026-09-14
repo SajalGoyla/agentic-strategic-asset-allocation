@@ -1,0 +1,75 @@
+# Data requirements of the six CMA methods (+ auto-blend) run by every asset-class agent
+# (Ang, Azimbayev & Kim 2026, Exhibit 4 and Section 3.3). Horizon in the paper: 3-year nominal.
+# `inputs` maps each logical input to the curated datasets that supply it; `methods` lists
+# which inputs each method consumes and the known gaps in the free-data implementation.
+
+inputs:
+  total_return_history:
+    description: Monthly total returns per asset class since 1990 (ETF, spliced with backfill/proxy before inception)
+    datasets: [market/prices_daily, factors/french]
+  risk_free_rate:
+    description: Current and historical T-bill yield / return
+    datasets: [macro/fred_observations, factors/french, rates/treasury_par_curve]
+  macro_regime_history:
+    description: Point-in-time macro indicators to label historical regimes (and NBER dates to evaluate them)
+    datasets: [macro/fred_observations]
+  covariance_inputs:
+    description: Asset return history used for the covariance agent and BL reverse optimisation
+    datasets: [market/prices_daily]
+  market_cap_weights:
+    description: Relative market value of each asset class for BL equilibrium (ETF AUM is only a weak proxy)
+    datasets: [market/fund_snapshot]
+  equity_valuation:
+    description: Dividend yield, earnings, CAPE, P/E and earnings yield
+    datasets: [valuation/shiller_us_equity, market/fund_snapshot, market/prices_daily]
+  growth_and_inflation_expectations:
+    description: Long-run real growth and inflation expectations for building-block models
+    datasets: [surveys/spf_median, macro/fred_observations]
+  bond_yields_and_spreads:
+    description: Yield to maturity, spreads, term premium and duration for fixed-income builders
+    datasets: [rates/treasury_par_curve, macro/fred_observations, market/fund_snapshot]
+  survey_forecasts:
+    description: Consensus long-horizon return forecasts
+    datasets: [surveys/spf_median]
+
+methods:
+  historical_erp:
+    name: Historical ERP + Rf
+    paper: "Exhibit 4 method 1: long-run realised equity premium added to the current risk-free rate"
+    inputs: [total_return_history, risk_free_rate]
+    gaps: ETF histories start 1993-2010; splice backfill funds or French proxies for a 1990+ sample.
+  regime_adjusted:
+    name: Regime-adjusted ERP
+    paper: "Method 2: historical premium conditioned on the current macro regime"
+    inputs: [total_return_history, risk_free_rate, macro_regime_history]
+    gaps: Needs historical regime labels from the macro agent's scoring applied point-in-time.
+  bl_equilibrium:
+    name: Black-Litterman equilibrium
+    paper: "Method 3: implied returns from market-capitalisation weights (Black and Litterman 1992)"
+    inputs: [covariance_inputs, market_cap_weights, risk_free_rate]
+    gaps: No free source of asset-class market values; needs a documented manual input (see docs/data_sources.md).
+  inverse_gordon:
+    name: Inverse Gordon building block
+    paper: "Method 4: dividend yield + earnings growth + valuation change (Grinold and Kroner 2002); buyback yield ~1-3% for US LC"
+    inputs: [equity_valuation, growth_and_inflation_expectations]
+    gaps: Full history only for the S&P 500 (Shiller). Other equity classes rely on ETF distributions and snapshot P/E; buyback yield is not in any free feed.
+  implied_erp_cape:
+    name: CAPE-implied ERP
+    paper: "Method 5: earnings yield as return proxy (Campbell and Shiller 1998 CAPE)"
+    inputs: [equity_valuation, risk_free_rate]
+    gaps: CAPE history only for the S&P 500; non-US and style CAPE (paper cites EM ~13, US Growth ~31) need FMP, Research Affiliates or Bloomberg.
+  survey_consensus:
+    name: Survey / analyst consensus
+    paper: "Method 6: expert consensus forecasts or the macro agent view"
+    inputs: [survey_forecasts]
+    gaps: SPF covers the S&P 500, 10y Treasuries and T-bills only; other classes need published institutional CMAs entered manually.
+  auto_blend:
+    name: Auto-blend
+    paper: "Method 7: confidence-weighted average of methods 1-6"
+    inputs: []
+    gaps: Computed from method outputs; no additional data.
+
+fixed_income_builder:
+  paper: "Section 3.3: IG corporates use a separate fixed-income CMA builder emphasising credit-spread duration"
+  inputs: [bond_yields_and_spreads, risk_free_rate, growth_and_inflation_expectations]
+  gaps: Long credit-spread history only via Moody's Aaa/Baa; ICE BofA series on FRED cover ~3 years. Default/recovery assumptions are not ingested.

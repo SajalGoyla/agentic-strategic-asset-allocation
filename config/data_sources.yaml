@@ -1,0 +1,76 @@
+# Source settings for `uv run saa-data ingest`.
+# Secrets (FRED_API_KEY) belong in .env, never in this file.
+
+data_dir: data          # relative to the repo root; override with SAA_DATA_DIR
+keep_raw: true          # archive exact source payloads under data/raw/<source>/<run_id>/
+
+http:
+  user_agent: "agentic-saa-research/0.1 (Columbia Business School academic research)"
+  timeout_s: 60
+  max_retries: 4
+  backoff_s: 1.5
+
+fred:
+  observation_start: 1960-01-01
+  vintage_start: 1990-01-01     # ALFRED history from here; the paper's data history starts Jan 1990
+  vintage_chunk_years: 5
+  min_request_interval_s: 0.6   # FRED allows 120 requests/minute
+
+yahoo:
+  max_retries: 3
+  pause_s: 1.0
+  fund_snapshot: true           # append ETF P/E, yield, duration, AUM each run (point-in-time history)
+
+french:
+  base_url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp
+  release_lag_days: 60
+  datasets:
+    - name: F-F_Research_Data_Factors
+      description: US Mkt-RF, SMB, HML, RF (1926-). Long-run ERP and risk-free rate; US Large Cap backfill
+    - name: F-F_Research_Data_5_Factors_2x3
+      description: US five-factor returns (1963-). Factor tilts for CRO reports and CMA validation
+    - name: F-F_Momentum_Factor
+      description: US momentum (1927-). Technical-signal validation
+    - name: 6_Portfolios_2x3
+      description: US size x book-to-market value-weighted portfolios (1926-). Small/Value/Growth backfill
+    - name: Developed_ex_US_3_Factors
+      description: Developed ex-US market, SMB, HML in USD (1990-). International Developed backfill
+    - name: Emerging_5_Factors
+      description: Emerging markets five factors in USD (1989-). Emerging Markets backfill
+
+treasury:
+  base_url: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv
+  min_request_interval_s: 0.3
+  curves:
+    nominal: {type: daily_treasury_yield_curve, start_year: 1990}
+    real: {type: daily_treasury_real_yield_curve, start_year: 2003}
+
+shiller:
+  homepage: https://shillerdata.com/
+  fallback_url: http://www.econ.yale.edu/~shiller/data/ie_data.xls   # frozen at 2023-09
+  release_lag_days: 60
+
+spf:
+  url: https://www.philadelphiafed.org/-/media/frbp/assets/surveys-and-data/survey-of-professional-forecasters/historical-data/medianlevel.xlsx
+  release_lag_days: 45
+  variables:
+    - STOCK10    # 10y annual-average S&P 500 return (Q1 surveys)
+    - BOND10     # 10y annual-average 10-year Treasury return (Q1 surveys)
+    - BILL10     # 10y annual-average 3-month T-bill return (Q1 surveys)
+    - CPI10      # 10y annual-average CPI inflation
+    - PCE10      # 10y annual-average PCE inflation
+    - RGDP10     # 10y annual-average real GDP growth (Q1 surveys)
+    - PROD10     # 10y annual-average productivity growth (Q1 surveys)
+    - CPI5YR     # 5y annual-average CPI inflation
+    - PCE5YR     # 5y annual-average PCE inflation
+    - CPI        # quarterly CPI inflation path
+    - CORECPI    # quarterly core CPI inflation path
+    - TBILL      # 3-month T-bill rate path
+    - TBOND      # 10-year Treasury yield path
+    - BAABOND    # Moody's Baa corporate yield path
+    - UNEMP      # unemployment rate path
+
+validation:
+  stale_days: {d: 7, w: 14, m: 45, q: 120, a: 400}   # allowed age beyond period end (+ release lag)
+  max_abs_daily_return: 0.25
+  max_gap_days: 10
