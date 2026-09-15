@@ -105,7 +105,9 @@ class YahooSource(Source):
             try:
                 frame = normalize_history(self._history(ticker), ticker)
                 frames.append(frame)
-                log.info("yahoo %-6s %6d rows from %s", ticker, len(frame), frame["date"].min().date())
+                log.info(
+                    "yahoo %-6s %6d rows from %s", ticker, len(frame), frame["date"].min().date()
+                )
             except Exception as exc:
                 result.warnings.append(f"{ticker}: price download failed ({exc})")
             if cfg.fund_snapshot and ticker in universe.tickers:

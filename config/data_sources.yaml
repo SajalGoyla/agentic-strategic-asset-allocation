@@ -70,6 +70,23 @@ spf:
     - BAABOND    # Moody's Baa corporate yield path
     - UNEMP      # unemployment rate path
 
+worldbank:
+  page: https://www.worldbank.org/en/research/commodity-markets
+  fallback_url: https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Historical-Data-Monthly.xlsx
+  release_lag_days: 5
+
+wrds:
+  enabled: true                 # skipped automatically when WRDS credentials are missing
+  release_lag_days: 1
+  treasury_series: [b1ret, b2ret, b5ret, b7ret, b10ret, b20ret, b30ret, t30ret, t90ret]
+
+history:
+  earliest: 1980-01-31          # no spliced returns stored before this month
+  target_start: 1990-01-31      # paper: data history from Jan 1990
+  backtest_start: 1996-01-31    # paper: backtest 1996-2026
+  month_end_tolerance_days: 7   # a month counts only if a price exists within 7 days of month end
+  max_abs_monthly_return: 0.5
+
 validation:
   stale_days: {d: 7, w: 14, m: 45, q: 120, a: 400}   # allowed age beyond period end (+ release lag)
   max_abs_daily_return: 0.25

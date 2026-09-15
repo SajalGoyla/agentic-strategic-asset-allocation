@@ -11,20 +11,42 @@ review, and a CIO ensemble. See `Agentic_SAA_12Week_Project_Plan.md` for scope a
 ```bash
 uv sync                      # Python >= 3.11; creates .venv with runtime + dev dependencies
 cp .env.example .env         # add FRED_API_KEY (free) for revision vintages and metadata
-uv run saa-data ingest       # fetch all sources, write the versioned lake, validate
+uv run saa-data ingest       # fetch all sources, build asset return history, validate
 uv run saa-data status       # dataset versions, row counts, date ranges
 uv run saa-data validate     # re-run data-quality checks
+uv run saa-data build-history  # rebuild spliced monthly returns without re-downloading
 uv run pytest
 ```
 
 Ingest a subset with `uv run saa-data ingest --sources fred yahoo`. Available sources are
-`fred`, `yahoo`, `french`, `treasury`, `shiller` and `spf`.
+`fred`, `yahoo`, `french`, `treasury`, `shiller`, `spf`, `worldbank` and `wrds`. All are public
+except `wrds` (licensed CRSP data), which is skipped without WRDS credentials.
+
+## WRDS (licensed, optional)
+
+The pipeline runs on public data alone. With a WRDS account, do a one-time login so later
+connections are non-interactive (approve the Duo prompt if one appears):
+
+```bash
+# 1. add WRDS_USERNAME=<your username> to .env
+# 2. in your own terminal: prompts for the password, tests it, and saves it to
+#    %APPDATA%\postgresql\pgpass.conf (~/.pgpass on macOS/Linux), never to the repo
+uv run saa-data wrds-login
+# 3. see which relevant WRDS tables your subscription can read
+uv run saa-data wrds-check
+```
+
+Queries use `psycopg2` directly. The official `wrds` package is not used because it pins
+SQLAlchemy < 2, which pandas 3 cannot use.
+
+WRDS data is licensed to you: it stays in the git-ignored `data/` folder and must never be
+committed, published, or put in shared dashboards.
 
 ## Layout
 
 ```
 config/
-  universe.yaml        18 asset classes: ETF proxy, backfill fund, history proxy, CMA series
+  universe.yaml        the 18 asset classes: ETF, pre-ETF history chain, CMA series
   macro_series.yaml    FRED series by macro dimension, release lags, vintage flags
   cma_inputs.yaml      data inputs for the 6 CMA methods (+ auto-blend), with known gaps
   data_sources.yaml    source endpoints, rate limits, validation thresholds
@@ -32,10 +54,13 @@ src/saa/
   config.py            typed config loading and cross-validation
   cli.py               `saa-data` command
   data/
-    sources/           one connector per source (FRED, Yahoo, French, Treasury, Shiller, SPF)
+    sources/           one connector per source (FRED, Yahoo, French, Treasury, Shiller, SPF, World Bank, WRDS)
+    wrds_client.py     psycopg2 WRDS client and password-file login
+    wrds_access.py     `saa-data wrds-check`: which WRDS tables the account can read
     datasets.py        canonical dataset schemas (the contract with the agents)
     lake.py            versioned parquet lake + catalog
-    pipeline.py        fetch -> archive raw -> merge -> write -> validate
+    history.py         18-asset monthly returns: ETF spliced with public proxies, with diagnostics
+    pipeline.py        fetch -> archive raw -> merge -> write -> build history -> validate
     validation.py      freshness, coverage, outlier and key checks
     store.py           DataStore: point-in-time read API for agents and skills
 docs/data_sources.md   source rationale, point-in-time rules, gaps and alternatives
@@ -51,7 +76,10 @@ serve point-in-time views:
 from saa.data import DataStore
 
 store = DataStore()
-monthly = store.returns(freq="M")                              # 18 ETFs, total returns
+history = store.asset_returns(start="1990-01-31")              # 18 assets, monthly, ETF + proxies
+sources = store.asset_returns(field="source")                  # which source each month used
+links = store.history_links()                                  # proxy tracking error vs. ETF
+monthly = store.returns(freq="M")                              # ETF-only returns (from inception)
 growth = store.macro(dimension="growth", as_of="2020-03-31", freq="M")  # only data public then
 curve = store.yield_curve("nominal", as_of="2026-03-31")
 cape = store.shiller()["cape"]

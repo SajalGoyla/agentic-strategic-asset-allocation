@@ -10,6 +10,7 @@ import pandas as pd
 
 from saa.config import Config, load_config
 from saa.data.datasets import DATASETS, DatasetSpec
+from saa.data.history import LINKS, RETURNS, build_history
 from saa.data.lake import DataLake, new_run_id
 from saa.data.sources import SOURCE_REGISTRY
 from saa.data.validation import ValidationReport, validate_lake
@@ -41,6 +42,29 @@ def merge_with_previous(
     return new, notes
 
 
+def build_history_datasets(config: Config, lake: DataLake, run_id: str) -> dict:
+    """Rebuild the derived long-history return tables from the latest source datasets."""
+    t0 = time.monotonic()
+    run = {"status": "ok", "datasets": {}, "warnings": [], "error": None}
+    if not lake.has_dataset("market/prices_daily"):
+        run.update(status="skipped", error="market/prices_daily not ingested")
+        return run
+    try:
+        returns, links, notes = build_history(config, lake)
+        run["warnings"].extend(notes)
+        for name, frame in ((RETURNS, returns), (LINKS, links)):
+            run["datasets"][name] = lake.write_dataset(
+                name, frame, run_id=run_id, source="derived"
+            )["rows"]
+    except Exception as exc:
+        log.exception("history build failed")
+        run.update(status="failed", error=repr(exc))
+    if run["status"] == "ok" and run["warnings"]:
+        run["status"] = "ok_with_warnings"
+    run["seconds"] = round(time.monotonic() - t0, 1)
+    return run
+
+
 def run_ingestion(
     config: Config | None = None,
     sources: list[str] | None = None,
@@ -65,6 +89,11 @@ def run_ingestion(
             continue
 
         run["warnings"].extend(result.warnings)
+        if result.skipped:
+            run["warnings"].append(f"skipped: {result.skipped}")
+            run.update(status="skipped", seconds=round(time.monotonic() - t0, 1))
+            source_runs.append(run)
+            continue
         if config.settings.keep_raw:
             for filename, payload in result.raw.items():
                 lake.write_raw(name, run_id, filename, payload)
@@ -91,10 +120,11 @@ def run_ingestion(
     summary = {
         "run_id": run_id,
         "started_at": started_at.isoformat(timespec="seconds"),
-        "finished_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "fred_mode": "api" if config.fred_api_key else "graph_csv",
         "sources": source_runs,
+        "history": build_history_datasets(config, lake, run_id),
     }
+    summary["finished_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     report = None
     if validate:
         report = validate_lake(config, lake)

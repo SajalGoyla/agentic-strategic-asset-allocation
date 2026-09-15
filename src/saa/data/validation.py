@@ -10,6 +10,7 @@ import pandas as pd
 
 from saa.config import Config
 from saa.data.datasets import DATASETS
+from saa.data.history import last_complete_month_end, monthly_from_daily
 from saa.data.lake import DataLake
 from saa.data.sources.fred import period_end
 
@@ -59,7 +60,10 @@ def validate_lake(config: Config, lake: DataLake, today: date | None = None) -> 
     frames: dict[str, pd.DataFrame] = {}
     for name, spec in DATASETS.items():
         if not lake.has_dataset(name):
-            report.add(name, "exists", FAIL, "dataset has not been ingested")
+            if spec.optional:
+                report.info.setdefault("optional_not_ingested", []).append(name)
+            else:
+                report.add(name, "exists", FAIL, "dataset has not been ingested")
             continue
         df = lake.read_dataset(name)
         frames[name] = df
@@ -79,11 +83,44 @@ def validate_lake(config: Config, lake: DataLake, today: date | None = None) -> 
         "rates/treasury_par_curve": _check_treasury,
         "valuation/shiller_us_equity": _check_shiller,
         "surveys/spf_median": _check_spf,
+        "commodities/worldbank_monthly": _check_worldbank,
+        "market/asset_returns_monthly": _check_asset_history,
     }
     for name, check in checks.items():
         if name in frames:
             check(config, frames[name], report, today)
+    if "wrds/crsp_stock_monthly" in frames and "market/prices_daily" in frames:
+        _check_crsp_vs_yahoo(
+            config, frames["wrds/crsp_stock_monthly"], frames["market/prices_daily"], report
+        )
     return report
+
+
+def _check_crsp_vs_yahoo(
+    config: Config, crsp: pd.DataFrame, prices: pd.DataFrame, report: ValidationReport
+):
+    """Yahoo adjusted-close returns should reproduce CRSP total returns for the same ETF."""
+    tolerance = config.settings.history.month_end_tolerance_days
+    for asset in config.universe.assets:
+        if not asset.crsp_permno:
+            continue
+        crsp_ret = crsp.loc[crsp["permno"] == asset.crsp_permno].set_index("date")["ret"]
+        try:
+            yahoo_ret = monthly_from_daily(prices, asset.ticker, tolerance)
+        except KeyError:
+            continue
+        both = pd.concat([crsp_ret, yahoo_ret], axis=1, keys=["crsp", "yahoo"]).dropna()
+        if len(both) < 12:
+            continue
+        diff = both["crsp"] - both["yahoo"]
+        tracking, gap = diff.std() * np.sqrt(12), diff.mean() * 12
+        report.add(
+            "market/prices_daily",
+            "matches_crsp",
+            PASS if tracking <= 0.01 and abs(gap) <= 0.005 else WARN,
+            f"{len(both)} months vs CRSP: tracking {tracking:.2%}, mean gap {gap:+.2%}/yr",
+            asset.ticker,
+        )
 
 
 def _age_status(age_days: int, allowed_days: int) -> str:
@@ -96,21 +133,39 @@ def _check_prices(config: Config, df: pd.DataFrame, report: ValidationReport, to
     groups = {str(t): g.sort_values("date") for t, g in df.groupby("ticker", observed=True)}
     coverage = {}
     for asset in config.universe.assets:
-        entry: dict[str, str] = {"ticker": asset.ticker}
-        for role, ticker in (("etf", asset.ticker), ("backfill", asset.backfill_ticker)):
-            if ticker is None:
-                continue
+        entry: dict = {"ticker": asset.ticker, "proxies": {}}
+        roles = [("etf", asset.ticker)] + [("proxy", t) for t in asset.proxy_tickers]
+        for role, ticker in roles:
             g = groups.get(ticker)
             if g is None:
-                report.add(name, "present", FAIL if role == "etf" else WARN, f"{role} ticker has no data", ticker)
+                report.add(
+                    name,
+                    "present",
+                    FAIL if role == "etf" else WARN,
+                    f"{role} ticker has no data",
+                    ticker,
+                )
                 continue
             first, last = g["date"].iloc[0], g["date"].iloc[-1]
-            entry[f"{role}_first"] = first.date().isoformat()
-            entry[f"{role}_last"] = last.date().isoformat()
-
             lag = int(np.busday_count(last.date(), today.date()))
+            if role == "proxy":
+                # Proxies only supply pre-ETF history; staleness is informational.
+                entry["proxies"][ticker] = first.date().isoformat()
+                if lag > 10:
+                    report.add(
+                        name, "freshness", WARN, f"proxy last observation {last.date()}", ticker
+                    )
+                continue
+            entry["etf_first"] = first.date().isoformat()
+            entry["etf_last"] = last.date().isoformat()
             status = PASS if lag <= 3 else WARN if lag <= 10 else FAIL
-            report.add(name, "freshness", status, f"last observation {last.date()} ({lag} business days ago)", ticker)
+            report.add(
+                name,
+                "freshness",
+                status,
+                f"last observation {last.date()} ({lag} business days ago)",
+                ticker,
+            )
 
             if role == "etf":
                 # Yahoo histories often begin a few weeks after launch (e.g. EFA)
@@ -135,18 +190,30 @@ def _check_prices(config: Config, df: pd.DataFrame, report: ValidationReport, to
             report.add(name, "return_outliers", WARN if len(jumps) else PASS, detail, ticker)
 
             gaps = int((g["date"].diff().dt.days > v.max_gap_days).sum())
-            report.add(name, "gaps", WARN if gaps else PASS, f"{gaps} gaps > {v.max_gap_days} calendar days", ticker)
+            report.add(
+                name,
+                "gaps",
+                WARN if gaps else PASS,
+                f"{gaps} gaps > {v.max_gap_days} calendar days",
+                ticker,
+            )
         coverage[asset.id] = entry
 
     report.info["price_coverage"] = coverage
-    starts = {a.ticker: groups[a.ticker]["date"].iloc[0] for a in config.universe.assets if a.ticker in groups}
+    starts = {
+        a.ticker: groups[a.ticker]["date"].iloc[0]
+        for a in config.universe.assets
+        if a.ticker in groups
+    }
     if starts:
         limiting = max(starts, key=starts.get)
         report.info["common_etf_history_start"] = starts[limiting].date().isoformat()
         report.info["common_etf_history_limited_by"] = limiting
 
 
-def _check_fund_snapshot(config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp):
+def _check_fund_snapshot(
+    config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp
+):
     name = "market/fund_snapshot"
     latest = df[df["snapshot_date"] == df["snapshot_date"].max()]
     missing = sorted(set(config.universe.tickers) - set(latest["ticker"].astype(str)))
@@ -154,7 +221,8 @@ def _check_fund_snapshot(config: Config, df: pd.DataFrame, report: ValidationRep
         name,
         "coverage",
         WARN if missing else PASS,
-        f"latest snapshot {latest['snapshot_date'].max().date()} missing {missing}" if missing
+        f"latest snapshot {latest['snapshot_date'].max().date()} missing {missing}"
+        if missing
         else f"latest snapshot {latest['snapshot_date'].max().date()} covers all ETFs",
     )
 
@@ -184,16 +252,26 @@ def _check_macro(config: Config, df: pd.DataFrame, report: ValidationReport, tod
 def _check_french(config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp):
     name = "factors/french"
     latest = df.groupby("dataset", observed=True)["date"].max()
-    allowed = 2 * config.settings.validation.stale_days["m"] + config.settings.french.release_lag_days
+    allowed = (
+        2 * config.settings.validation.stale_days["m"] + config.settings.french.release_lag_days
+    )
     for ds in config.settings.french.datasets:
         if ds.name not in latest.index:
             report.add(name, "present", FAIL, "dataset missing", ds.name)
             continue
         age = (today - latest[ds.name]).days
-        report.add(name, "freshness", _age_status(age, allowed), f"last month {latest[ds.name].date()} ({age}d ago)", ds.name)
+        report.add(
+            name,
+            "freshness",
+            _age_status(age, allowed),
+            f"last month {latest[ds.name].date()} ({age}d ago)",
+            ds.name,
+        )
 
 
-def _check_treasury(config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp):
+def _check_treasury(
+    config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp
+):
     name = "rates/treasury_par_curve"
     allowed = config.settings.validation.stale_days["d"]
     for curve in config.settings.treasury.curves:
@@ -202,9 +280,21 @@ def _check_treasury(config: Config, df: pd.DataFrame, report: ValidationReport, 
             report.add(name, "present", FAIL, "curve missing", curve)
             continue
         age = (today - g["date"].max()).days
-        report.add(name, "freshness", _age_status(age, allowed), f"last date {g['date'].max().date()} ({age}d ago)", curve)
+        report.add(
+            name,
+            "freshness",
+            _age_status(age, allowed),
+            f"last date {g['date'].max().date()} ({age}d ago)",
+            curve,
+        )
         out_of_range = int(((g["yield_pct"] < -3) | (g["yield_pct"] > 25)).sum())
-        report.add(name, "yield_range", FAIL if out_of_range else PASS, f"{out_of_range} yields outside [-3%, 25%]", curve)
+        report.add(
+            name,
+            "yield_range",
+            FAIL if out_of_range else PASS,
+            f"{out_of_range} yields outside [-3%, 25%]",
+            curve,
+        )
 
 
 def _check_shiller(config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp):
@@ -213,7 +303,98 @@ def _check_shiller(config: Config, df: pd.DataFrame, report: ValidationReport, t
     last_cape = df.loc[df["cape"].notna(), "date"].max()
     allowed = config.settings.validation.stale_days["m"] + config.settings.shiller.release_lag_days
     age = (today - last).days
-    report.add(name, "freshness", _age_status(age, allowed), f"last month {last.date()} ({age}d ago); last CAPE {last_cape.date()}")
+    report.add(
+        name,
+        "freshness",
+        _age_status(age, allowed),
+        f"last month {last.date()} ({age}d ago); last CAPE {last_cape.date()}",
+    )
+
+
+def _check_worldbank(
+    config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp
+):
+    name = "commodities/worldbank_monthly"
+    needed = {
+        h.commodity for a in config.universe.assets for h in a.history if h.source == "worldbank"
+    }
+    present = set(df["series"].astype(str))
+    for commodity in sorted(needed):
+        report.add(
+            name,
+            "present",
+            PASS if commodity in present else FAIL,
+            "used by asset history",
+            commodity,
+        )
+    last = df["date"].max()
+    allowed = (
+        2 * config.settings.validation.stale_days["m"] + config.settings.worldbank.release_lag_days
+    )
+    age = (today - last).days
+    report.add(
+        name, "freshness", _age_status(age, allowed), f"last month {last.date()} ({age}d ago)"
+    )
+
+
+def _check_asset_history(
+    config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp
+):
+    name = "market/asset_returns_monthly"
+    h = config.settings.history
+    target = pd.Timestamp(h.target_start) + pd.offsets.MonthEnd(0)
+    backtest = pd.Timestamp(h.backtest_start) + pd.offsets.MonthEnd(0)
+    expected_last = last_complete_month_end(today)
+    coverage = {}
+    starts = {}
+    for asset in config.universe.assets:
+        g = df[df["asset_id"] == asset.id].sort_values("date")
+        if g.empty:
+            report.add(name, "present", FAIL, "no monthly return history", asset.id)
+            continue
+        first, last = g["date"].iloc[0], g["date"].iloc[-1]
+        starts[asset.id] = first
+        status = PASS if first <= target else WARN if first <= backtest else FAIL
+        report.add(
+            name,
+            "history_start",
+            status,
+            f"returns from {first.date()} (target {target.date()}, backtest needs {backtest.date()})",
+            asset.id,
+        )
+        missing = pd.date_range(first, last, freq="ME").difference(pd.DatetimeIndex(g["date"]))
+        detail = f"{len(missing)} missing months"
+        if len(missing):
+            detail += f": {[d.date().isoformat() for d in missing[:5]]}"
+        report.add(name, "continuity", FAIL if len(missing) else PASS, detail, asset.id)
+        report.add(
+            name,
+            "freshness",
+            PASS if last >= expected_last else WARN,
+            f"last month {last.date()} (expected {expected_last.date()})",
+            asset.id,
+        )
+        big = g[g["ret"].abs() > h.max_abs_monthly_return]
+        report.add(
+            name,
+            "return_outliers",
+            WARN if len(big) else PASS,
+            f"{len(big)} months with |return| > {h.max_abs_monthly_return:.0%}",
+            asset.id,
+        )
+        mix = g.groupby("source", observed=True)["date"].agg(["min", "max", "count"])
+        coverage[asset.id] = {
+            "start": first.date().isoformat(),
+            "sources": {
+                str(src): f"{row['min'].date()}..{row['max'].date()} ({row['count']} months)"
+                for src, row in mix.sort_values("min").iterrows()
+            },
+        }
+    report.info["asset_history"] = coverage
+    if starts:
+        limiting = max(starts, key=starts.get)
+        report.info["common_history_start"] = starts[limiting].date().isoformat()
+        report.info["common_history_limited_by"] = limiting
 
 
 def _check_spf(config: Config, df: pd.DataFrame, report: ValidationReport, today: pd.Timestamp):
@@ -227,4 +408,10 @@ def _check_spf(config: Config, df: pd.DataFrame, report: ValidationReport, today
         cadence = dates.diff().dt.days.tail(8).median()
         allowed = 400 if cadence > 100 else 200
         age = (today - dates.iloc[-1]).days
-        report.add(name, "freshness", _age_status(age, allowed), f"latest survey {dates.iloc[-1].date()} ({age}d ago)", var)
+        report.add(
+            name,
+            "freshness",
+            _age_status(age, allowed),
+            f"latest survey {dates.iloc[-1].date()} ({age}d ago)",
+            var,
+        )

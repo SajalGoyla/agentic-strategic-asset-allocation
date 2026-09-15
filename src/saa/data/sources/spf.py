@@ -41,7 +41,10 @@ def parse_spf_workbook(
             continue
         value_cols = [c for c in sheet.columns if c not in ("YEAR", "QUARTER")]
         long = sheet.melt(
-            id_vars=["YEAR", "QUARTER"], value_vars=value_cols, var_name="column", value_name="value"
+            id_vars=["YEAR", "QUARTER"],
+            value_vars=value_cols,
+            var_name="column",
+            value_name="value",
         )
         long["value"] = pd.to_numeric(long["value"], errors="coerce")
         long = long.dropna(subset=["value", "YEAR", "QUARTER"])

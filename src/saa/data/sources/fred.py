@@ -47,13 +47,18 @@ def estimate_available_from(dates: pd.Series, series: MacroSeries) -> pd.Series:
     return period_end(dates, series.frequency) + pd.Timedelta(days=series.release_lag_days)
 
 
-def vintage_windows(start: date, chunk_years: int, today: date | None = None) -> list[tuple[str, str]]:
+def vintage_windows(
+    start: date, chunk_years: int, today: date | None = None
+) -> list[tuple[str, str]]:
     """Split the real-time period into non-overlapping windows to keep API responses small.
     FRED clips realtime_start/realtime_end to the requested window, so windows tile exactly."""
     today = today or date.today()
     windows, cur = [], start
     while True:
-        nxt = cur.replace(year=cur.year + chunk_years)
+        try:
+            nxt = cur.replace(year=cur.year + chunk_years)
+        except ValueError:  # 29 February
+            nxt = cur.replace(year=cur.year + chunk_years, day=28)
         if nxt > today:
             windows.append((cur.isoformat(), OPEN_ENDED))
             return windows
@@ -61,7 +66,9 @@ def vintage_windows(start: date, chunk_years: int, today: date | None = None) ->
         cur = nxt
 
 
-def parse_observations_json(pages: list[dict], series: MacroSeries, *, vintage: bool) -> pd.DataFrame:
+def parse_observations_json(
+    pages: list[dict], series: MacroSeries, *, vintage: bool
+) -> pd.DataFrame:
     rows = [obs for page in pages for obs in page.get("observations", [])]
     if not rows:
         return pd.DataFrame(columns=OBS_COLUMNS)
@@ -72,7 +79,9 @@ def parse_observations_json(pages: list[dict], series: MacroSeries, *, vintage: 
     df["date"] = pd.to_datetime(df["date"])
     if vintage:
         df["realtime_start"] = pd.to_datetime(df["realtime_start"])
-        df["realtime_end"] = pd.to_datetime(df["realtime_end"].where(df["realtime_end"] != OPEN_ENDED))
+        df["realtime_end"] = pd.to_datetime(
+            df["realtime_end"].where(df["realtime_end"] != OPEN_ENDED)
+        )
         df["available_from"] = df["realtime_start"]
     else:
         df["realtime_start"] = pd.NaT
@@ -145,41 +154,73 @@ class FredSource(Source):
     def _start(self, series: MacroSeries) -> str:
         return (series.start or self.settings.fred.observation_start).isoformat()
 
-    def _observations_api(self, series: MacroSeries, result: FetchResult) -> pd.DataFrame:
-        fred = self.settings.fred
-        windows = (
-            vintage_windows(fred.vintage_start, fred.vintage_chunk_years)
-            if series.vintages
-            else [None]
-        )
-        pages = []
-        for window in windows:
-            params = {
+    def _pages(self, series: MacroSeries, window: tuple[str, str] | None) -> list[dict]:
+        params = {
+            "series_id": series.id,
+            "api_key": self.api_key,
+            "file_type": "json",
+            "observation_start": self._start(series),
+            "limit": 100000,
+        }
+        if window:
+            params["realtime_start"], params["realtime_end"] = window
+        pages, offset = [], 0
+        while True:
+            params["offset"] = offset
+            page = get(
+                self.session,
+                f"{API_URL}/series/observations",
+                params=params,
+                timeout=self.settings.http.timeout_s,
+                throttle=self.throttle,
+            ).json()
+            pages.append(page)
+            n = len(page.get("observations", []))
+            offset += n
+            if n == 0 or offset >= int(page.get("count", 0)):
+                return pages
+
+    def _first_vintage(self, series: MacroSeries) -> date | None:
+        payload = get(
+            self.session,
+            f"{API_URL}/series/vintagedates",
+            params={
                 "series_id": series.id,
                 "api_key": self.api_key,
                 "file_type": "json",
-                "observation_start": self._start(series),
-                "limit": 100000,
-            }
-            if window:
-                params["realtime_start"], params["realtime_end"] = window
-            offset = 0
-            while True:
-                params["offset"] = offset
-                page = get(
-                    self.session,
-                    f"{API_URL}/series/observations",
-                    params=params,
-                    timeout=self.settings.http.timeout_s,
-                    throttle=self.throttle,
-                ).json()
-                pages.append(page)
-                n = len(page.get("observations", []))
-                offset += n
-                if n == 0 or offset >= int(page.get("count", 0)):
-                    break
-        result.raw[f"{series.id}.json"] = json.dumps(pages).encode("utf-8")
-        return parse_observations_json(pages, series, vintage=series.vintages)
+                "limit": 1,
+            },
+            timeout=self.settings.http.timeout_s,
+            throttle=self.throttle,
+        ).json()
+        dates = payload.get("vintage_dates") or []
+        return date.fromisoformat(dates[0]) if dates else None
+
+    def _observations_api(self, series: MacroSeries, result: FetchResult) -> pd.DataFrame:
+        latest_pages = self._pages(series, None)
+        result.raw[f"{series.id}.json"] = json.dumps(latest_pages).encode("utf-8")
+        latest = parse_observations_json(latest_pages, series, vintage=False)
+        if not series.vintages:
+            return latest
+
+        # ALFRED rejects real-time windows that start before a series' first vintage.
+        first = self._first_vintage(series)
+        if first is None:
+            result.warnings.append(f"{series.id}: no ALFRED vintages; using latest values")
+            return latest
+        fred = self.settings.fred
+        start = max(fred.vintage_start, first)
+        vintage_pages = [
+            page
+            for window in vintage_windows(start, fred.vintage_chunk_years)
+            for page in self._pages(series, window)
+        ]
+        result.raw[f"{series.id}_vintages.json"] = json.dumps(vintage_pages).encode("utf-8")
+        vintages = parse_observations_json(vintage_pages, series, vintage=True)
+        # Dates that became public before the first vintage keep latest (revised) values with
+        # estimated release dates, so as-of queries still cover the early sample.
+        backfill = latest[latest["available_from"] < pd.Timestamp(start)]
+        return pd.concat([vintages, backfill], ignore_index=True)
 
     def _observations_csv(self, series: MacroSeries, result: FetchResult) -> pd.DataFrame:
         text = get(

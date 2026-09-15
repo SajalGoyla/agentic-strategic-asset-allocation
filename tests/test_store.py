@@ -78,6 +78,24 @@ def test_evaluation_only_series_blocked_as_of(store):
     assert store.macro("USREC", as_of="2022-01-01", allow_lookahead=True)["USREC"].tolist() == [1.0]
 
 
+def test_pre_vintage_backfill_rows_cover_early_as_of_dates(tmp_config):
+    lake = DataLake(tmp_config.settings.data_dir)
+    obs = pd.DataFrame(
+        [
+            # estimated row from latest values (released before the first ALFRED vintage)
+            ("GDPC1", "2019-10-01", 99.0, NaT, NaT, "2020-01-30"),
+            # first vintage, clipped to the vintage start
+            ("GDPC1", "2019-10-01", 98.0, "2020-03-01", NaT, "2020-03-01"),
+        ],
+        columns=["series_id", "date", "value", "realtime_start", "realtime_end", "available_from"],
+    )
+    lake.write_dataset("macro/fred_observations", obs, run_id="r1", source="test")
+    store = DataStore(tmp_config)
+    assert store.macro("GDPC1", as_of="2020-02-01")["GDPC1"].tolist() == [99.0]
+    assert store.macro("GDPC1", as_of="2020-04-01")["GDPC1"].tolist() == [98.0]
+    assert store.macro("GDPC1")["GDPC1"].tolist() == [98.0]  # vintage wins over estimate
+
+
 def test_provenance_pins_versions(store):
     store.prices("SPY")
     assert store.provenance()["market/prices_daily"]["run_id"] == "r1"

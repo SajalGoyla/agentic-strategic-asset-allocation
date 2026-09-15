@@ -1,15 +1,25 @@
 # 18-asset IPS universe (Ang, Azimbayev & Kim 2026, Section 4: 6 equity, 8 fixed income,
-# REITs, gold, commodities, cash). The paper does not publish tickers: it uses Bloomberg
-# index histories from Jan 1990 (e.g. SPTR Index for US Large Cap) and notes each class is
-# investable through ETFs. Tickers below are our choice of the longest-lived, most liquid ETF
-# proxy for each class.
+# REITs, gold, commodities, cash). This list is the complete investment universe.
 #
-# ticker           investable ETF proxy (Yahoo symbol)
-# inception        ETF launch date; history before this needs a backfill
-# backfill_ticker  long-history index mutual fund on Yahoo used to extend returns before
-#                  ETF inception (stored unspliced; splicing is a historical-analysis decision)
-# history_proxy    academic series that can extend history further (French library / FRED)
-# cma_series       FRED series the asset-class agent needs for yield/valuation building blocks
+# The paper does not publish tickers; it uses Bloomberg index histories from Jan 1990 and
+# notes each class is investable through ETFs. Tickers are the longest-lived liquid ETF proxy.
+#
+# ticker       investable ETF (Yahoo symbol) - always the first source of monthly returns
+# inception    ETF launch date
+# crsp_permno  CRSP permanent security id of the ETF (WRDS), used to cross-check Yahoo returns
+# history      ordered proxies used ONLY for months before the ETF (or where it has no month-end
+#              price). They are not additional assets. Order follows measured tracking error vs.
+#              the ETF (see market/asset_history_links and docs/asset_data_map.md).
+#                yahoo          mutual fund / index / futures adjusted close (public)
+#                french         Ken French library returns, sum or mean of columns (public)
+#                par_bond       synthetic constant-maturity bond return from FRED yields (public)
+#                worldbank      World Bank monthly average commodity price (public)
+#                crsp_treasury  CRSP fixed-term Treasury index returns (WRDS, licensed)
+#                crsp_stock     CRSP monthly return of a listed security by permno (WRDS, licensed)
+#                crsp_fund      CRSP mutual fund monthly return by ticker (WRDS, licensed)
+#              Licensed links are skipped without WRDS credentials; the public links after them
+#              keep the pipeline working for collaborators.
+# cma_series   FRED series the asset-class agent uses for yield / valuation building blocks
 
 assets:
   # ------------------------------------------------------------------ equity
@@ -19,8 +29,10 @@ assets:
     ticker: SPY
     benchmark: "S&P 500 (paper uses Bloomberg SPTR Index)"
     inception: 1993-01-22
-    backfill_ticker: VFINX
-    history_proxy: "french:F-F_Research_Data_Factors Mkt-RF + RF (US total market, 1926-)"
+    crsp_permno: 84398
+    history:
+      - {source: yahoo, ticker: VFINX, kind: index_fund}
+      - {source: french, dataset: F-F_Research_Data_Factors, columns: [Mkt-RF, RF], combine: sum, kind: academic_index}
     cma_series: [DGS10, DTB3]
     notes: Valuation inputs (CAPE, dividends, earnings) come from the Shiller dataset.
 
@@ -30,8 +42,10 @@ assets:
     ticker: IWM
     benchmark: Russell 2000
     inception: 2000-05-22
-    backfill_ticker: NAESX
-    history_proxy: "french:6_Portfolios_2x3 mean of SMALL LoBM, ME1 BM2, SMALL HiBM"
+    crsp_permno: 88222
+    history:
+      - {source: yahoo, ticker: NAESX, kind: index_fund}
+      - {source: french, dataset: 6_Portfolios_2x3, columns: [SMALL LoBM, ME1 BM2, SMALL HiBM], combine: mean, kind: academic_index}
 
   - id: us_value
     name: US Value
@@ -39,8 +53,10 @@ assets:
     ticker: IWD
     benchmark: Russell 1000 Value
     inception: 2000-05-22
-    backfill_ticker: VIVAX
-    history_proxy: "french:6_Portfolios_2x3 BIG HiBM"
+    crsp_permno: 88219
+    history:
+      - {source: yahoo, ticker: VIVAX, kind: index_fund}
+      - {source: french, dataset: 6_Portfolios_2x3, columns: [BIG HiBM], kind: academic_index}
 
   - id: us_growth
     name: US Growth
@@ -48,8 +64,10 @@ assets:
     ticker: IWF
     benchmark: Russell 1000 Growth
     inception: 2000-05-22
-    backfill_ticker: VIGRX
-    history_proxy: "french:6_Portfolios_2x3 BIG LoBM"
+    crsp_permno: 88220
+    history:
+      - {source: yahoo, ticker: VIGRX, kind: index_fund}
+      - {source: french, dataset: 6_Portfolios_2x3, columns: [BIG LoBM], kind: academic_index}
 
   - id: intl_developed
     name: International Developed
@@ -57,7 +75,12 @@ assets:
     ticker: EFA
     benchmark: MSCI EAFE
     inception: 2001-08-14
-    history_proxy: "french:Developed_ex_US_3_Factors Mkt-RF + RF (USD, 1990-)"
+    crsp_permno: 89129
+    history:
+      # Russell International Developed Markets fund (from 1983; not on Yahoo) tracks EFA at
+      # 2.5% TE vs 2.9% for the French series, and starts 7 years earlier.
+      - {source: crsp_fund, ticker: RINSX, kind: active_fund}
+      - {source: french, dataset: Developed_ex_US_3_Factors, columns: [Mkt-RF, RF], combine: sum, kind: academic_index}
     cma_series: [IRLTLT01DEM156N, IRLTLT01JPM156N, IRLTLT01GBM156N]
 
   - id: emerging_markets
@@ -66,8 +89,10 @@ assets:
     ticker: EEM
     benchmark: MSCI Emerging Markets
     inception: 2003-04-07
-    backfill_ticker: VEIEX
-    history_proxy: "french:Emerging_5_Factors Mkt-RF + RF (USD, 1989-)"
+    crsp_permno: 89730
+    history:
+      - {source: yahoo, ticker: VEIEX, kind: index_fund}
+      - {source: french, dataset: Emerging_5_Factors, columns: [Mkt-RF, RF], combine: sum, kind: academic_index}
 
   # ------------------------------------------------------------------ fixed income
   - id: short_treasuries
@@ -76,8 +101,12 @@ assets:
     ticker: SHY
     benchmark: ICE US Treasury 1-3 Year
     inception: 2002-07-22
-    backfill_ticker: VFISX
-    history_proxy: "fred:DGS2 constant-maturity yield (synthetic duration-based returns, 1976-)"
+    crsp_permno: 89470
+    history:
+      # CRSP 2y index and synthetic DGS2 both track SHY at 0.3% TE; CRSP is observed index data.
+      - {source: crsp_treasury, columns: [b2ret], kind: index}
+      - {source: par_bond, series: [DGS2], maturity_years: 2, kind: synthetic}
+      - {source: yahoo, ticker: VFISX, kind: index_fund}
     cma_series: [DGS1, DGS2, DGS3]
 
   - id: intermediate_treasuries
@@ -86,8 +115,12 @@ assets:
     ticker: IEF
     benchmark: ICE US Treasury 7-10 Year
     inception: 2002-07-22
-    backfill_ticker: VFITX
-    history_proxy: "fred:DGS7/DGS10 constant-maturity yields (synthetic returns, 1962-)"
+    crsp_permno: 89469
+    history:
+      # CRSP 7y/10y indexes 0.6% TE vs synthetic 0.8% and VFITX 2.2%
+      - {source: crsp_treasury, columns: [b7ret, b10ret], kind: index}
+      - {source: par_bond, series: [DGS7, DGS10], maturity_years: 8.5, kind: synthetic}
+      - {source: yahoo, ticker: VFITX, kind: index_fund}
     cma_series: [DGS7, DGS10]
 
   - id: long_treasuries
@@ -96,8 +129,12 @@ assets:
     ticker: TLT
     benchmark: ICE US Treasury 20+ Year
     inception: 2002-07-22
-    backfill_ticker: VUSTX
-    history_proxy: "fred:DGS20/DGS30 constant-maturity yields (synthetic returns, 1962-)"
+    crsp_permno: 89468
+    history:
+      # CRSP 20y/30y indexes 1.5% TE; synthetic 1.5% (DGS20 missing 1987-1993); VUSTX 2.3%
+      - {source: crsp_treasury, columns: [b20ret, b30ret], kind: index}
+      - {source: par_bond, series: [DGS20, DGS30], maturity_years: 25, kind: synthetic}
+      - {source: yahoo, ticker: VUSTX, kind: index_fund}
     cma_series: [DGS20, DGS30]
 
   - id: ig_corporates
@@ -106,10 +143,13 @@ assets:
     ticker: LQD
     benchmark: iBoxx USD Liquid Investment Grade
     inception: 2002-07-22
-    backfill_ticker: VWESX
-    history_proxy: "fred:BAA/AAA Moody's yields (1919-)"
+    crsp_permno: 89467
+    history:
+      # Invesco Corporate Bond (CRSP from 1965): 3.3% TE, mean gap -0.1%; VFICX 3.6%; VWESX 4.5%
+      - {source: crsp_fund, ticker: ACCBX, kind: active_fund}
+      - {source: yahoo, ticker: VFICX, kind: active_fund}
+      - {source: yahoo, ticker: VWESX, kind: active_fund}
     cma_series: [BAMLC0A0CMEY, BAMLC0A0CM, BAA, AAA, BAA10Y]
-    notes: VWESX is long-duration IG; adjust for duration mismatch before splicing.
 
   - id: hy_corporates
     name: High-Yield Corporates
@@ -117,9 +157,12 @@ assets:
     ticker: HYG
     benchmark: iBoxx USD Liquid High Yield
     inception: 2007-04-04
-    backfill_ticker: VWEHX
+    crsp_permno: 91933
+    history:
+      # CRSP search found nothing materially better than VWEHX (best 4.5% vs 4.6%)
+      - {source: yahoo, ticker: VWEHX, kind: active_fund}
     cma_series: [BAMLH0A0HYM2EY, BAMLH0A0HYM2]
-    notes: FRED keeps only ~3 years of ICE BofA HY data; use HYG distribution yield from the fund snapshot for longer context.
+    notes: FRED keeps only ~3 years of ICE BofA HY data; HYG distribution yield in the fund snapshot is the current-yield input.
 
   - id: intl_sovereigns
     name: International Sovereign Bonds
@@ -127,6 +170,10 @@ assets:
     ticker: BWX
     benchmark: Bloomberg Global Treasury ex-US Capped
     inception: 2007-10-02
+    crsp_permno: 92360
+    history:
+      # RPIBX remained the best of 227 CRSP international bond funds tested (1.9% TE)
+      - {source: yahoo, ticker: RPIBX, kind: active_fund}
     cma_series: [IRLTLT01DEM156N, IRLTLT01JPM156N, IRLTLT01GBM156N, IRLTLT01FRM156N, IRLTLT01CAM156N]
 
   - id: intl_corporates
@@ -135,8 +182,12 @@ assets:
     ticker: PICB
     benchmark: S&P International Corporate Bond
     inception: 2010-06-02
+    crsp_permno: 93421
+    history:
+      # RPIBX remained the best of 400 CRSP funds tested (4.0-4.2% TE)
+      - {source: yahoo, ticker: RPIBX, kind: active_fund}
     cma_series: [IRLTLT01DEM156N, IRLTLT01GBM156N]
-    notes: Shortest ETF history in the universe (limits the common sample to mid-2010). No free long-history yield series; rely on fund snapshot yield/duration.
+    notes: No international corporate bond fund with long history exists; pre-2010 history is shared with intl_sovereigns.
 
   - id: usd_em_debt
     name: USD Emerging Market Debt
@@ -144,9 +195,12 @@ assets:
     ticker: EMB
     benchmark: J.P. Morgan EMBI Global Core
     inception: 2007-12-17
-    backfill_ticker: PREMX
+    crsp_permno: 92491
+    history:
+      # FNMIX remained the best of 34 CRSP emerging debt funds (5.0% TE); none starts earlier
+      - {source: yahoo, ticker: FNMIX, kind: active_fund}
     cma_series: [BAMLEMCBPIEY, DGS10]
-    notes: PREMX is actively managed; BAMLEMCBPIEY is EM corporate (not sovereign) and limited to ~3 years on FRED.
+    notes: Public and CRSP history both start with FNMIX in mid-1993.
 
   # ------------------------------------------------------------------ real assets and cash
   - id: reits
@@ -155,7 +209,10 @@ assets:
     ticker: VNQ
     benchmark: MSCI US IMI Real Estate 25/50
     inception: 2004-09-23
-    backfill_ticker: VGSIX
+    crsp_permno: 90350
+    history:
+      - {source: yahoo, ticker: VGSIX, kind: index_fund}
+      - {source: yahoo, ticker: FRESX, kind: active_fund}
     cma_series: [DGS10, DFII10]
 
   - id: gold
@@ -164,8 +221,15 @@ assets:
     ticker: GLD
     benchmark: LBMA Gold Price PM
     inception: 2004-11-18
+    crsp_permno: 90448
+    history:
+      - {source: yahoo, ticker: GC=F, kind: futures}
+      # Central Fund of Canada (gold+silver bullion, listed 1986): 11.4% TE vs 13.7% for
+      # World Bank monthly average prices
+      - {source: crsp_stock, ticker: CEF, permno: 69251, kind: bullion_fund}
+      - {source: worldbank, commodity: Gold, kind: monthly_average_price}
     cma_series: [DFII10, T5YIFR, DTWEXBGS]
-    notes: No free long gold history is ingested yet (FRED dropped LBMA prices); see docs/data_sources.md.
+    notes: Pre-2000 gold history is a gold+silver bullion fund (WRDS) or World Bank monthly averages (public).
 
   - id: commodities
     name: Commodities
@@ -173,7 +237,12 @@ assets:
     ticker: DBC
     benchmark: DBIQ Optimum Yield Diversified Commodity
     inception: 2006-02-03
+    crsp_permno: 91129
+    history:
+      # CRSP commodity funds start 1997 or later and track no better (7.6%+ TE)
+      - {source: yahoo, ticker: ^SPGSCI, kind: index}
     cma_series: [DCOILWTICO, DCOILBRENTEU, PCOPPUSDM, DTB3]
+    notes: S&P GSCI is energy-heavy relative to DBC; weakest proxy in the universe (~7% tracking error).
 
   - id: cash
     name: Cash
@@ -181,7 +250,10 @@ assets:
     ticker: BIL
     benchmark: Bloomberg 1-3 Month US Treasury Bill
     inception: 2007-05-25
-    history_proxy: "french:F-F_Research_Data_Factors RF / fred:DTB3"
+    crsp_permno: 92027
+    history:
+      - {source: crsp_treasury, columns: [t30ret], kind: index}
+      - {source: french, dataset: F-F_Research_Data_Factors, columns: [RF], kind: academic_index}
     cma_series: [DTB3, DGS1MO, DFF]
 
 reference_tickers: []

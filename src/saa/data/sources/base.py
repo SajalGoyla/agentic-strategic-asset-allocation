@@ -22,6 +22,8 @@ class FetchResult:
     # filename -> exact payload bytes, archived under raw/<source>/<run_id>/
     raw: dict[str, bytes] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    # reason the source deliberately did not run (e.g. no WRDS credentials); not a failure
+    skipped: str | None = None
 
 
 class Source(ABC):

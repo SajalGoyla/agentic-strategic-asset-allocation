@@ -40,7 +40,9 @@ def parse_treasury_csv(text: str, curve: str) -> pd.DataFrame:
         return pd.DataFrame(columns=_COLUMNS)
     tenors = {c: tenor_months(c) for c in df.columns if c != "Date"}
     tenors = {c: m for c, m in tenors.items() if m is not None}
-    long = df.melt(id_vars="Date", value_vars=list(tenors), var_name="label", value_name="yield_pct")
+    long = df.melt(
+        id_vars="Date", value_vars=list(tenors), var_name="label", value_name="yield_pct"
+    )
     long["yield_pct"] = pd.to_numeric(long["yield_pct"], errors="coerce")
     long = long.dropna(subset=["yield_pct"]).copy()
     long["date"] = pd.to_datetime(long["Date"], format="%m/%d/%Y")
@@ -82,7 +84,9 @@ class TreasurySource(Source):
                 result.raw[f"{curve}_{year}.csv"] = text.encode("utf-8")
             if failed:
                 # An incomplete curve would silently shorten history; keep the previous version.
-                result.warnings.append(f"{curve}: curve dropped, {len(failed)} years failed: {failed[:3]}")
+                result.warnings.append(
+                    f"{curve}: curve dropped, {len(failed)} years failed: {failed[:3]}"
+                )
                 continue
             frames.extend(curve_frames)
             log.info("treasury %s: %d years", curve, len(curve_frames))

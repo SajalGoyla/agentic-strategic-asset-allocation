@@ -40,7 +40,9 @@ def parse_french_csv(text: str) -> pd.DataFrame:
         raise ValueError("no monthly or daily table found")
 
     codes = [r[0] for r in rows]
-    values = pd.DataFrame([r[1:] for r in rows], columns=header).apply(pd.to_numeric, errors="coerce")
+    values = pd.DataFrame([r[1:] for r in rows], columns=header).apply(
+        pd.to_numeric, errors="coerce"
+    )
     values = values.mask(values.isin(_MISSING)) / 100.0
     if len(codes[0]) == 6:
         index = pd.to_datetime(codes, format="%Y%m") + pd.offsets.MonthEnd(0)
@@ -63,9 +65,7 @@ class FrenchSource(Source):
 
     def fetch(self) -> FetchResult:
         cfg = self.settings.french
-        result = FetchResult(
-            self.name, expected_entities={DATASET: {d.name for d in cfg.datasets}}
-        )
+        result = FetchResult(self.name, expected_entities={DATASET: {d.name for d in cfg.datasets}})
         frames = []
         for ds in cfg.datasets:
             filename = f"{ds.name}_CSV.zip"
@@ -82,7 +82,9 @@ class FrenchSource(Source):
                 result.warnings.append(f"{ds.name}: download/parse failed ({exc!r})")
                 continue
             frames.append(to_long(wide, ds.name, cfg.release_lag_days))
-            log.info("french %-32s %s..%s", ds.name, wide.index.min().date(), wide.index.max().date())
+            log.info(
+                "french %-32s %s..%s", ds.name, wide.index.min().date(), wide.index.max().date()
+            )
         if frames:
             result.tables[DATASET] = pd.concat(frames, ignore_index=True)
         return result

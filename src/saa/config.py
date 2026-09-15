@@ -23,6 +23,64 @@ AssetGroup = Literal["equity", "fixed_income", "real_assets", "cash"]
 
 
 # --------------------------------------------------------------------------- universe
+class HistorySource(BaseModel):
+    """One link in an asset's return-history chain, used for months before the ETF existed."""
+
+    source: Literal[
+        "yahoo", "french", "par_bond", "worldbank", "crsp_treasury", "crsp_stock", "crsp_fund"
+    ]
+    kind: str
+    ticker: str | None = None
+    permno: int | None = None
+    dataset: str | None = None
+    columns: list[str] = Field(default_factory=list)
+    combine: Literal["sum", "mean"] = "sum"
+    series: list[str] = Field(default_factory=list)
+    maturity_years: float | None = None
+    commodity: str | None = None
+
+    @model_validator(mode="after")
+    def _required(self) -> HistorySource:
+        required = {
+            "yahoo": ["ticker"],
+            "french": ["dataset", "columns"],
+            "par_bond": ["series", "maturity_years"],
+            "worldbank": ["commodity"],
+            "crsp_treasury": ["columns"],
+            "crsp_stock": ["permno"],
+            "crsp_fund": ["ticker"],
+        }[self.source]
+        missing = [f for f in required if not getattr(self, f)]
+        if missing:
+            raise ValueError(f"{self.source} history link needs {missing}")
+        return self
+
+    @property
+    def label(self) -> str:
+        if self.source == "yahoo":
+            return str(self.ticker)
+        if self.source == "french":
+            if self.combine == "sum":
+                joined = " + ".join(self.columns)
+            else:
+                joined = f"mean({', '.join(self.columns)})"
+            return f"french:{self.dataset}[{joined}]"
+        if self.source == "par_bond":
+            return f"par_bond:{'/'.join(self.series)}@{self.maturity_years:g}y"
+        if self.source == "crsp_treasury":
+            return f"crsp:mcti[{'/'.join(self.columns)}]"
+        if self.source == "crsp_stock":
+            return f"crsp:{self.ticker or 'permno'}({self.permno})"
+        if self.source == "crsp_fund":
+            return f"crsp_fund:{self.ticker}"
+        return f"worldbank:{self.commodity}"
+
+    @property
+    def licensed(self) -> bool:
+        """WRDS/CRSP links: licensed data, available only with WRDS credentials."""
+        return self.source.startswith("crsp")
+
+
 class Asset(BaseModel):
     id: str
     name: str
@@ -30,10 +88,14 @@ class Asset(BaseModel):
     ticker: str
     benchmark: str
     inception: date
-    backfill_ticker: str | None = None
-    history_proxy: str | None = None
+    crsp_permno: int | None = None
+    history: list[HistorySource] = Field(default_factory=list)
     cma_series: list[str] = Field(default_factory=list)
     notes: str | None = None
+
+    @property
+    def proxy_tickers(self) -> list[str]:
+        return [h.ticker for h in self.history if h.source == "yahoo" and h.ticker]
 
 
 class Universe(BaseModel):
@@ -54,9 +116,19 @@ class Universe(BaseModel):
         return [a.ticker for a in self.assets]
 
     def all_tickers(self) -> list[str]:
-        """ETF tickers, backfill proxies and reference tickers (de-duplicated, ordered)."""
-        seq = self.tickers + [a.backfill_ticker for a in self.assets if a.backfill_ticker]
+        """ETF tickers, Yahoo history proxies and reference tickers (de-duplicated, ordered)."""
+        seq = self.tickers + [t for a in self.assets for t in a.proxy_tickers]
         return list(dict.fromkeys(seq + self.reference_tickers))
+
+    def crsp_permnos(self) -> list[int]:
+        """CRSP securities to pull: the ETFs (for cross-checks) and crsp_stock history links."""
+        seq = [a.crsp_permno for a in self.assets if a.crsp_permno]
+        seq += [h.permno for a in self.assets for h in a.history if h.source == "crsp_stock"]
+        return list(dict.fromkeys(p for p in seq if p))
+
+    def crsp_fund_tickers(self) -> list[str]:
+        seq = [h.ticker for a in self.assets for h in a.history if h.source == "crsp_fund"]
+        return list(dict.fromkeys(t for t in seq if t))
 
     def get(self, asset_id: str) -> Asset:
         for asset in self.assets:
@@ -156,6 +228,26 @@ class SpfSettings(BaseModel):
     variables: list[str]
 
 
+class WorldBankSettings(BaseModel):
+    page: str
+    fallback_url: str
+    release_lag_days: int = 5
+
+
+class WrdsSettings(BaseModel):
+    enabled: bool = True
+    release_lag_days: int = 1
+    treasury_series: list[str] = Field(default_factory=list)
+
+
+class HistorySettings(BaseModel):
+    earliest: date
+    target_start: date
+    backtest_start: date
+    month_end_tolerance_days: int = 7
+    max_abs_monthly_return: float = 0.5
+
+
 class ValidationSettings(BaseModel):
     stale_days: dict[str, int]
     max_abs_daily_return: float = 0.25
@@ -172,6 +264,9 @@ class Settings(BaseModel):
     treasury: TreasurySettings
     shiller: ShillerSettings
     spf: SpfSettings
+    worldbank: WorldBankSettings
+    wrds: WrdsSettings = Field(default_factory=WrdsSettings)
+    history: HistorySettings
     validation: ValidationSettings
 
 
@@ -189,6 +284,30 @@ def _read_yaml(path: Path) -> dict:
         return yaml.safe_load(fh)
 
 
+def _cross_validate(settings: Settings, universe: Universe, macro: MacroCatalog) -> None:
+    fred_ids = set(macro.ids)
+    missing = sorted({s for a in universe.assets for s in a.cma_series} - fred_ids)
+    if missing:
+        raise ValueError(f"universe.yaml cma_series not declared in macro_series.yaml: {missing}")
+
+    french = {d.name for d in settings.french.datasets}
+    for asset in universe.assets:
+        for link in asset.history:
+            if link.source == "par_bond" and not set(link.series) <= fred_ids:
+                raise ValueError(
+                    f"{asset.id}: par_bond series {link.series} not in macro_series.yaml"
+                )
+            if link.source == "french" and link.dataset not in french:
+                raise ValueError(
+                    f"{asset.id}: French dataset {link.dataset} not in data_sources.yaml"
+                )
+            treasury = set(settings.wrds.treasury_series)
+            if link.source == "crsp_treasury" and not set(link.columns) <= treasury:
+                raise ValueError(
+                    f"{asset.id}: CRSP Treasury columns {link.columns} not in wrds.treasury_series"
+                )
+
+
 def load_config(config_dir: Path | str | None = None) -> Config:
     """Load and cross-validate all configuration. Secrets come from the environment/.env."""
     load_dotenv(PROJECT_ROOT / ".env")
@@ -202,10 +321,7 @@ def load_config(config_dir: Path | str | None = None) -> Config:
 
     universe = Universe.model_validate(_read_yaml(config_dir / "universe.yaml"))
     macro = MacroCatalog.model_validate(_read_yaml(config_dir / "macro_series.yaml"))
-
-    missing = sorted({s for a in universe.assets for s in a.cma_series} - set(macro.ids))
-    if missing:
-        raise ValueError(f"universe.yaml cma_series not declared in macro_series.yaml: {missing}")
+    _cross_validate(settings, universe, macro)
 
     return Config(
         settings=settings,

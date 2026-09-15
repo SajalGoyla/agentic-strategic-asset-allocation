@@ -1,32 +1,34 @@
 # Data requirements of the six CMA methods (+ auto-blend) run by every asset-class agent
-# (Ang, Azimbayev & Kim 2026, Exhibit 4 and Section 3.3). Horizon in the paper: 3-year nominal.
-# `inputs` maps each logical input to the curated datasets that supply it; `methods` lists
-# which inputs each method consumes and the known gaps in the free-data implementation.
+# (Ang, Azimbayev & Kim 2026, Exhibit 4 and Section 3.3). Paper horizon: 3-year nominal.
+#
+# Project constraint: public, automatable data only -- no paid feeds and no manual inputs.
+# `inputs` maps each logical input to curated datasets. `methods` lists what each method
+# consumes, which asset groups use it, and the public-data approach / limitation.
 
 inputs:
   total_return_history:
-    description: Monthly total returns per asset class since 1990 (ETF, spliced with backfill/proxy before inception)
-    datasets: [market/prices_daily, factors/french]
+    description: Monthly total returns per asset class from 1990 (ETF spliced with public proxies)
+    datasets: [market/asset_returns_monthly, market/asset_history_links]
   risk_free_rate:
     description: Current and historical T-bill yield / return
     datasets: [macro/fred_observations, factors/french, rates/treasury_par_curve]
   macro_regime_history:
-    description: Point-in-time macro indicators to label historical regimes (and NBER dates to evaluate them)
+    description: Point-in-time macro indicators to label historical regimes (NBER dates only to evaluate)
     datasets: [macro/fred_observations]
   covariance_inputs:
-    description: Asset return history used for the covariance agent and BL reverse optimisation
-    datasets: [market/prices_daily]
-  market_cap_weights:
-    description: Relative market value of each asset class for BL equilibrium (ETF AUM is only a weak proxy)
+    description: Asset return history for the covariance agent and BL reverse optimisation
+    datasets: [market/asset_returns_monthly, market/prices_daily]
+  market_cap_weights_proxy:
+    description: ETF assets under management as the public proxy for relative asset-class size
     datasets: [market/fund_snapshot]
   equity_valuation:
-    description: Dividend yield, earnings, CAPE, P/E and earnings yield
+    description: Dividends, earnings, CAPE (S&P 500) and ETF trailing P/E / distribution yield
     datasets: [valuation/shiller_us_equity, market/fund_snapshot, market/prices_daily]
   growth_and_inflation_expectations:
-    description: Long-run real growth and inflation expectations for building-block models
+    description: Long-run real growth and inflation expectations
     datasets: [surveys/spf_median, macro/fred_observations]
   bond_yields_and_spreads:
-    description: Yield to maturity, spreads, term premium and duration for fixed-income builders
+    description: Treasury curve, corporate / sovereign yields, spreads, term premium, ETF yield and duration
     datasets: [rates/treasury_par_curve, macro/fred_observations, market/fund_snapshot]
   survey_forecasts:
     description: Consensus long-horizon return forecasts
@@ -35,41 +37,56 @@ inputs:
 methods:
   historical_erp:
     name: Historical ERP + Rf
-    paper: "Exhibit 4 method 1: long-run realised equity premium added to the current risk-free rate"
+    paper: "Exhibit 4 method 1: long-run realised risk premium added to the current risk-free rate"
+    applies_to: [equity, fixed_income, real_assets]
     inputs: [total_return_history, risk_free_rate]
-    gaps: ETF histories start 1993-2010; splice backfill funds or French proxies for a 1990+ sample.
+    approach: Average monthly excess return over T-bills (1990+) plus the current 3-month T-bill yield.
+    limitation: Pre-ETF months come from proxies; weigh by asset_history_links tracking error.
   regime_adjusted:
     name: Regime-adjusted ERP
     paper: "Method 2: historical premium conditioned on the current macro regime"
+    applies_to: [equity, fixed_income, real_assets]
     inputs: [total_return_history, risk_free_rate, macro_regime_history]
-    gaps: Needs historical regime labels from the macro agent's scoring applied point-in-time.
+    approach: Excess returns averaged over past months classified in the current regime, with regimes scored from macro data as of each month.
+    limitation: Few recession months since 1990 (1990-91, 2001, 2008-09, 2020), so estimates are noisy.
   bl_equilibrium:
     name: Black-Litterman equilibrium
     paper: "Method 3: implied returns from market-capitalisation weights (Black and Litterman 1992)"
-    inputs: [covariance_inputs, market_cap_weights, risk_free_rate]
-    gaps: No free source of asset-class market values; needs a documented manual input (see docs/data_sources.md).
+    applies_to: [equity, fixed_income, real_assets]
+    inputs: [covariance_inputs, market_cap_weights_proxy, risk_free_rate]
+    approach: Reverse optimisation using ETF AUM (fund_snapshot.total_assets) as market weights.
+    limitation: AUM reflects ETF popularity, not asset-class size (SPY is >1,000x PICB); consider shrinking toward equal weights.
   inverse_gordon:
     name: Inverse Gordon building block
-    paper: "Method 4: dividend yield + earnings growth + valuation change (Grinold and Kroner 2002); buyback yield ~1-3% for US LC"
+    paper: "Method 4: dividend yield + earnings growth + valuation change (Grinold and Kroner 2002)"
+    applies_to: [equity]
     inputs: [equity_valuation, growth_and_inflation_expectations]
-    gaps: Full history only for the S&P 500 (Shiller). Other equity classes rely on ETF distributions and snapshot P/E; buyback yield is not in any free feed.
+    approach: Yield from Shiller (US LC) or trailing 12-month ETF distributions; growth from SPF RGDP10 + CPI10; valuation change from current P/E vs. its long-run level.
+    limitation: No public buyback yield; long-run P/E history exists only for the S&P 500.
   implied_erp_cape:
     name: CAPE-implied ERP
     paper: "Method 5: earnings yield as return proxy (Campbell and Shiller 1998 CAPE)"
+    applies_to: [equity]
     inputs: [equity_valuation, risk_free_rate]
-    gaps: CAPE history only for the S&P 500; non-US and style CAPE (paper cites EM ~13, US Growth ~31) need FMP, Research Affiliates or Bloomberg.
+    approach: 1/CAPE for US Large Cap (Shiller); 1/trailing P/E from the ETF snapshot for the other equity classes and REITs.
+    limitation: Trailing P/E is noisier than CAPE; snapshot history only accumulates from the first ingestion.
   survey_consensus:
     name: Survey / analyst consensus
     paper: "Method 6: expert consensus forecasts or the macro agent view"
+    applies_to: [equity, fixed_income, cash]
     inputs: [survey_forecasts]
-    gaps: SPF covers the S&P 500, 10y Treasuries and T-bills only; other classes need published institutional CMAs entered manually.
+    approach: SPF STOCK10 for US equity, BOND10 for Treasuries, BILL10 for cash; other assets use the paper's alternative (macro agent view).
+    limitation: No public consensus forecast for international, credit, REIT, gold or commodity returns.
   auto_blend:
     name: Auto-blend
     paper: "Method 7: confidence-weighted average of methods 1-6"
+    applies_to: [equity, fixed_income, real_assets, cash]
     inputs: []
-    gaps: Computed from method outputs; no additional data.
+    approach: Computed from method outputs.
+    limitation: None.
 
 fixed_income_builder:
-  paper: "Section 3.3: IG corporates use a separate fixed-income CMA builder emphasising credit-spread duration"
+  paper: "Section 3.3: fixed-income CMA builder emphasising yield and credit-spread duration"
   inputs: [bond_yields_and_spreads, risk_free_rate, growth_and_inflation_expectations]
-  gaps: Long credit-spread history only via Moody's Aaa/Baa; ICE BofA series on FRED cover ~3 years. Default/recovery assumptions are not ingested.
+  approach: Starting yield (Treasury curve, FRED yields, ETF distribution yield) + roll-down - expected credit losses, scaled by ETF duration.
+  limitation: Default and recovery rates are not in any public feed; use documented literature constants in code.

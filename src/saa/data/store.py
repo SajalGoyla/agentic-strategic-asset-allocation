@@ -36,7 +36,9 @@ def _earliest(*values: DateLike | None) -> pd.Timestamp | None:
     return min(stamps) if stamps else None
 
 
-def _between(df: pd.DataFrame, col: str, start: DateLike | None, end: DateLike | None) -> pd.DataFrame:
+def _between(
+    df: pd.DataFrame, col: str, start: DateLike | None, end: DateLike | None
+) -> pd.DataFrame:
     if start is not None:
         df = df[df[col] >= pd.Timestamp(start)]
     if end is not None:
@@ -61,8 +63,11 @@ def point_in_time(obs: pd.DataFrame, as_of: DateLike) -> pd.DataFrame:
 
 
 def latest_vintage(obs: pd.DataFrame) -> pd.DataFrame:
-    # Non-vintage rows have realtime_end NaT; vintage rows still in force are open-ended.
-    return obs[obs["realtime_end"].isna()]
+    """Current values: open-ended vintage rows, else estimated (non-vintage) rows.
+    Both have realtime_end NaT; where both exist for a date the vintage row wins."""
+    current = obs[obs["realtime_end"].isna()]
+    current = current.sort_values(["series_id", "date", "realtime_start"], na_position="first")
+    return current.drop_duplicates(["series_id", "date"], keep="last")
 
 
 class DataStore:
@@ -88,7 +93,8 @@ class DataStore:
     def provenance(self) -> dict[str, dict]:
         """Dataset versions read so far; embed in agent outputs for reproducibility."""
         return {
-            name: {"run_id": v["run_id"], "sha256": v["sha256"]} for name, v in self._versions.items()
+            name: {"run_id": v["run_id"], "sha256": v["sha256"]}
+            for name, v in self._versions.items()
         }
 
     @property
@@ -136,6 +142,30 @@ class DataStore:
             rets = rets[rets.index >= pd.Timestamp(start)]
         return rets
 
+    def asset_returns(
+        self,
+        assets: str | Iterable[str] | None = None,
+        *,
+        start: DateLike | None = None,
+        end: DateLike | None = None,
+        as_of: DateLike | None = None,
+        field: str = "ret",
+    ) -> pd.DataFrame:
+        """Long-history monthly total returns (date x asset_id) for the 18 asset classes,
+        ETF spliced with public proxies. ``field="source"`` shows which source each month
+        came from; ``history_links()`` scores each proxy against its ETF."""
+        ids = _as_list(assets) or [a.id for a in self.universe.assets]
+        df = self._load("market/asset_returns_monthly")
+        df = df[df["asset_id"].isin(ids)]
+        if as_of is not None:
+            df = df[df["available_from"] <= pd.Timestamp(as_of)]
+        df = _between(df, "date", start, end)
+        wide = df.pivot(index="date", columns="asset_id", values=field)
+        return wide.reindex(columns=[i for i in ids if i in wide.columns])
+
+    def history_links(self) -> pd.DataFrame:
+        return self._load("market/asset_history_links")
+
     def fund_snapshot(
         self, tickers: str | Iterable[str] | None = None, *, as_of: DateLike | None = None
     ) -> pd.DataFrame:
@@ -145,7 +175,12 @@ class DataStore:
         df = df[df["ticker"].isin(tickers)]
         if as_of is not None:
             df = df[df["snapshot_date"] <= pd.Timestamp(as_of)]
-        return df.sort_values("snapshot_date").groupby("ticker", observed=True).tail(1).set_index("ticker")
+        return (
+            df.sort_values("snapshot_date")
+            .groupby("ticker", observed=True)
+            .tail(1)
+            .set_index("ticker")
+        )
 
     # ------------------------------------------------------------------ macro
     def _series_ids(self, series_ids, dimension, as_of, allow_lookahead) -> list[str]:
@@ -255,6 +290,24 @@ class DataStore:
         if as_of is not None:
             df = df[df["available_from"] <= pd.Timestamp(as_of)]
         return _between(df, "date", start, end).set_index("date").drop(columns="available_from")
+
+    def commodity_prices(
+        self,
+        series: str | Iterable[str],
+        *,
+        start: DateLike | None = None,
+        end: DateLike | None = None,
+        as_of: DateLike | None = None,
+    ) -> pd.DataFrame:
+        """World Bank monthly average prices (date x series), e.g. ``"Gold"``."""
+        names = _as_list(series)
+        df = self._load("commodities/worldbank_monthly")
+        df = df[df["series"].isin(names)]
+        if as_of is not None:
+            df = df[df["available_from"] <= pd.Timestamp(as_of)]
+        return _between(df, "date", start, end).pivot(
+            index="date", columns="series", values="value"
+        )
 
     def survey(
         self,
