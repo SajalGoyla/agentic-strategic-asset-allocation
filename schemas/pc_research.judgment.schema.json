@@ -1,0 +1,51 @@
+{
+  "additionalProperties": false,
+  "description": "\u00a73.4: the PC-researcher \"explores the literature on portfolio construction methods,\nidentifies objectives not yet represented in the pipeline, and proposes a novel method not\nspanned by the current registry\". In the March 2026 run it proposed maximum entropy.\n\nKept as its own contract because the proposal is a *method*, not a portfolio: the pipeline\nmay promote it into the agent registry in later runs.",
+  "properties": {
+    "implementation_notes": {
+      "title": "Implementation Notes",
+      "type": "string"
+    },
+    "method_name": {
+      "title": "Method Name",
+      "type": "string"
+    },
+    "not_spanned_by": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Not Spanned By",
+      "type": "array"
+    },
+    "objective": {
+      "title": "Objective",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "reference": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reference"
+    }
+  },
+  "required": [
+    "method_name",
+    "objective",
+    "reference",
+    "not_spanned_by",
+    "implementation_notes",
+    "rationale"
+  ],
+  "title": "PcResearchBody",
+  "type": "object"
+}

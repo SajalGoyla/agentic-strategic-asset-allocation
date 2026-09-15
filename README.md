@@ -5,7 +5,8 @@ for macro regime classification, capital market assumptions, portfolio construct
 review, and a CIO ensemble. See `Agentic_SAA_12Week_Project_Plan.md` for scope and milestones.
 
 **Current status:** Phase 1 data layer (ingestion, validation, point-in-time access) and
-the IPS that governs every downstream agent (`docs/ips.md`, draft pending faculty ratification).
+the IPS that governs every downstream agent (`docs/ips.md`, draft pending faculty
+ratification), plus the output contracts every agent reads and writes (`docs/contracts.md`).
 
 ## Setup
 
@@ -17,6 +18,7 @@ uv run saa-data status       # dataset versions, row counts, date ranges
 uv run saa-data validate     # re-run data-quality checks
 uv run saa-data build-history  # rebuild spliced monthly returns without re-downloading
 uv run saa-skill historical-analysis [--as-of YYYY-MM-DD]  # per-asset stats and correlations
+uv run saa-contracts        # regenerate schemas/ after changing a contract model
 uv run pytest
 ```
 
@@ -56,6 +58,7 @@ config/
 src/saa/
   config.py            typed config loading and cross-validation
   ips.py               IPS model and check_compliance(), shared by the CRO and CIO agents
+  contracts/           agent output contracts: one model per JSON file the pipeline writes
   cli.py               `saa-data` command
   data/
     sources/           one connector per source (FRED, Yahoo, French, Treasury, Shiller, SPF, World Bank, WRDS)
@@ -71,6 +74,8 @@ src/saa/
     historical_analysis/  returns, risk, drawdowns, correlations -> historical_stats.json
 docs/data_sources.md   source rationale, point-in-time rules, gaps and alternatives
 docs/ips.md            the IPS in narrative form, and the numbers awaiting ratification
+docs/contracts.md      the output contracts, and the paper rules they validate
+schemas/               generated JSON Schemas (`uv run saa-contracts`)
 data/                  (git-ignored) raw payloads, curated versions, run logs, reports
 ```
 

@@ -1,0 +1,468 @@
+{
+  "$defs": {
+    "CroReportBody": {
+      "additionalProperties": false,
+      "description": "One standardised risk report. The CRO scores and comments; it never votes.",
+      "properties": {
+        "backtest_sharpe": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backtest Sharpe"
+        },
+        "backtest_volatility_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backtest Volatility Pct"
+        },
+        "commentary": {
+          "title": "Commentary",
+          "type": "string"
+        },
+        "concentration_hhi": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concentration Hhi"
+        },
+        "effective_n": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective N"
+        },
+        "ex_ante_tracking_error_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ex Ante Tracking Error Pct"
+        },
+        "ex_ante_volatility_pct": {
+          "title": "Ex Ante Volatility Pct",
+          "type": "number"
+        },
+        "factor_tilts": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Factor Tilts",
+          "type": "object"
+        },
+        "ips_compliance": {
+          "$ref": "#/$defs/IpsCompliance"
+        },
+        "max_drawdown_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown Pct"
+        },
+        "portfolio_agent_id": {
+          "title": "Portfolio Agent Id",
+          "type": "string"
+        },
+        "risk_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Risk Score",
+          "type": "number"
+        },
+        "var_95_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Var 95 Pct"
+        }
+      },
+      "required": [
+        "portfolio_agent_id",
+        "ex_ante_volatility_pct",
+        "ips_compliance",
+        "risk_score",
+        "commentary"
+      ],
+      "title": "CroReportBody",
+      "type": "object"
+    },
+    "DatasetVersion": {
+      "additionalProperties": false,
+      "description": "One entry from ``DataStore.provenance()``.",
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "sha256"
+      ],
+      "title": "DatasetVersion",
+      "type": "object"
+    },
+    "Header": {
+      "additionalProperties": false,
+      "description": "Machine-written envelope. Agents never generate this.",
+      "properties": {
+        "agent": {
+          "title": "Agent",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/InputRef"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "ips_status": {
+          "title": "Ips Status",
+          "type": "string"
+        },
+        "ips_version": {
+          "title": "Ips Version",
+          "type": "number"
+        },
+        "model_calls": {
+          "items": {
+            "$ref": "#/$defs/ModelCall"
+          },
+          "title": "Model Calls",
+          "type": "array"
+        },
+        "pipeline_run_id": {
+          "title": "Pipeline Run Id",
+          "type": "string"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "provenance": {
+          "additionalProperties": {
+            "$ref": "#/$defs/DatasetVersion"
+          },
+          "title": "Provenance",
+          "type": "object"
+        },
+        "report_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Report Path"
+        },
+        "schema_version": {
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        }
+      },
+      "required": [
+        "contract",
+        "agent",
+        "pipeline_run_id",
+        "as_of",
+        "generated_at",
+        "produced_by",
+        "ips_version",
+        "ips_status"
+      ],
+      "title": "Header",
+      "type": "object"
+    },
+    "InputRef": {
+      "additionalProperties": false,
+      "description": "An upstream contract file this agent read, so the run DAG can be reconstructed.",
+      "properties": {
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "contract",
+        "path"
+      ],
+      "title": "InputRef",
+      "type": "object"
+    },
+    "IpsCompliance": {
+      "additionalProperties": false,
+      "description": "\u00a73.5: the CRO checks IPS compliance for every candidate; \u00a73.6: the CIO is bound by it.",
+      "properties": {
+        "compliant": {
+          "title": "Compliant",
+          "type": "boolean"
+        },
+        "not_evaluated": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Not Evaluated",
+          "type": "array"
+        },
+        "violations": {
+          "items": {
+            "$ref": "#/$defs/Violation"
+          },
+          "title": "Violations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "compliant"
+      ],
+      "title": "IpsCompliance",
+      "type": "object"
+    },
+    "ModelCall": {
+      "additionalProperties": false,
+      "description": "One LLM call, for the \u00a76 budget and for the \u00a75.1 monoculture question.\n\nThe paper flags LLM monoculture as a risk and suggests multiple foundation models as a\nmitigation; that cannot be analysed after the fact unless each output records which model\nproduced it.",
+      "properties": {
+        "cache_read_tokens": {
+          "default": 0,
+          "title": "Cache Read Tokens",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
+        },
+        "effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effort"
+        },
+        "input_tokens": {
+          "default": 0,
+          "title": "Input Tokens",
+          "type": "integer"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "output_tokens": {
+          "default": 0,
+          "title": "Output Tokens",
+          "type": "integer"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        }
+      },
+      "required": [
+        "model",
+        "tier"
+      ],
+      "title": "ModelCall",
+      "type": "object"
+    },
+    "Producer": {
+      "description": "Who generated a body: deterministic code, an LLM, or both.",
+      "enum": [
+        "script",
+        "llm",
+        "hybrid"
+      ],
+      "title": "Producer",
+      "type": "string"
+    },
+    "Tier": {
+      "description": "Model routing tier (project plan \u00a76). Recorded so spend is attributable per agent.",
+      "enum": [
+        "flagship",
+        "low_cost"
+      ],
+      "title": "Tier",
+      "type": "string"
+    },
+    "Violation": {
+      "additionalProperties": false,
+      "description": "Mirrors ``saa.ips.Violation`` so compliance can be embedded in a contract.",
+      "properties": {
+        "entity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule",
+        "severity",
+        "message"
+      ],
+      "title": "Violation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "body": {
+      "$ref": "#/$defs/CroReportBody"
+    },
+    "header": {
+      "$ref": "#/$defs/Header"
+    }
+  },
+  "required": [
+    "header",
+    "body"
+  ],
+  "title": "AgentOutput[CroReportBody]",
+  "type": "object"
+}

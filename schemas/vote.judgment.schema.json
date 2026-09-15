@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "description": "One agent's modified-Borda ballot.",
+  "properties": {
+    "bottom_flag": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Bottom Flag"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "top_five": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Top Five",
+      "type": "array"
+    },
+    "voter_agent_id": {
+      "title": "Voter Agent Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "voter_agent_id",
+    "top_five",
+    "bottom_flag",
+    "rationale"
+  ],
+  "title": "VoteBody",
+  "type": "object"
+}

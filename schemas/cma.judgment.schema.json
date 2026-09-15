@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "CmaMethodId": {
+      "description": "The seven candidates of Exhibit 4.",
+      "enum": [
+        "historical_erp",
+        "regime_adjusted",
+        "bl_equilibrium",
+        "inverse_gordon",
+        "implied_erp_cape",
+        "survey_consensus",
+        "auto_blend"
+      ],
+      "title": "CmaMethodId",
+      "type": "string"
+    },
+    "Confidence": {
+      "description": "\u00a74.1 classifies the March 2026 regime at \"medium-high confidence\".",
+      "enum": [
+        "low",
+        "medium",
+        "medium_high",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "Dispersion": {
+      "description": "Exhibit 4 step 1: \"tight <3pp / moderate 3-6pp / wide >6pp\".",
+      "enum": [
+        "tight",
+        "moderate",
+        "wide"
+      ],
+      "title": "Dispersion",
+      "type": "string"
+    },
+    "SelectionMode": {
+      "description": "Exhibit 4 step 5: \"pick one method, define custom weights, or accept blend\".",
+      "enum": [
+        "single_method",
+        "custom_blend",
+        "auto_blend"
+      ],
+      "title": "SelectionMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The CMA judge's structured output -- the LLM half of the asset-class agent.\n\nFields follow the five judgment steps of Exhibit 4, so the rationale is forced to cover\ndispersion, regime, valuation and signal alignment rather than a bare assertion.",
+  "properties": {
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "dispersion": {
+      "$ref": "#/$defs/Dispersion"
+    },
+    "expected_return_pct": {
+      "title": "Expected Return Pct",
+      "type": "number"
+    },
+    "method_weights": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CmaMethodId"
+      },
+      "title": "Method Weights",
+      "type": "object"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "regime_logic": {
+      "title": "Regime Logic",
+      "type": "string"
+    },
+    "selection": {
+      "$ref": "#/$defs/SelectionMode"
+    },
+    "signal_alignment": {
+      "title": "Signal Alignment",
+      "type": "string"
+    },
+    "valuation_context": {
+      "title": "Valuation Context",
+      "type": "string"
+    }
+  },
+  "required": [
+    "selection",
+    "method_weights",
+    "expected_return_pct",
+    "confidence",
+    "dispersion",
+    "regime_logic",
+    "valuation_context",
+    "signal_alignment",
+    "rationale"
+  ],
+  "title": "CmaJudgment",
+  "type": "object"
+}

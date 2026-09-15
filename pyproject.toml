@@ -24,6 +24,7 @@ dependencies = [
 [project.scripts]
 saa-data = "saa.cli:main"
 saa-skill = "saa.skills.cli:main"
+saa-contracts = "saa.contracts.export:main"
 
 [dependency-groups]
 dev = [

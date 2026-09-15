@@ -1,0 +1,289 @@
+{
+  "$defs": {
+    "DatasetVersion": {
+      "additionalProperties": false,
+      "description": "One entry from ``DataStore.provenance()``.",
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "sha256"
+      ],
+      "title": "DatasetVersion",
+      "type": "object"
+    },
+    "Header": {
+      "additionalProperties": false,
+      "description": "Machine-written envelope. Agents never generate this.",
+      "properties": {
+        "agent": {
+          "title": "Agent",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/InputRef"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "ips_status": {
+          "title": "Ips Status",
+          "type": "string"
+        },
+        "ips_version": {
+          "title": "Ips Version",
+          "type": "number"
+        },
+        "model_calls": {
+          "items": {
+            "$ref": "#/$defs/ModelCall"
+          },
+          "title": "Model Calls",
+          "type": "array"
+        },
+        "pipeline_run_id": {
+          "title": "Pipeline Run Id",
+          "type": "string"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "provenance": {
+          "additionalProperties": {
+            "$ref": "#/$defs/DatasetVersion"
+          },
+          "title": "Provenance",
+          "type": "object"
+        },
+        "report_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Report Path"
+        },
+        "schema_version": {
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        }
+      },
+      "required": [
+        "contract",
+        "agent",
+        "pipeline_run_id",
+        "as_of",
+        "generated_at",
+        "produced_by",
+        "ips_version",
+        "ips_status"
+      ],
+      "title": "Header",
+      "type": "object"
+    },
+    "InputRef": {
+      "additionalProperties": false,
+      "description": "An upstream contract file this agent read, so the run DAG can be reconstructed.",
+      "properties": {
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "contract",
+        "path"
+      ],
+      "title": "InputRef",
+      "type": "object"
+    },
+    "ModelCall": {
+      "additionalProperties": false,
+      "description": "One LLM call, for the \u00a76 budget and for the \u00a75.1 monoculture question.\n\nThe paper flags LLM monoculture as a risk and suggests multiple foundation models as a\nmitigation; that cannot be analysed after the fact unless each output records which model\nproduced it.",
+      "properties": {
+        "cache_read_tokens": {
+          "default": 0,
+          "title": "Cache Read Tokens",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
+        },
+        "effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effort"
+        },
+        "input_tokens": {
+          "default": 0,
+          "title": "Input Tokens",
+          "type": "integer"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "output_tokens": {
+          "default": 0,
+          "title": "Output Tokens",
+          "type": "integer"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        }
+      },
+      "required": [
+        "model",
+        "tier"
+      ],
+      "title": "ModelCall",
+      "type": "object"
+    },
+    "Producer": {
+      "description": "Who generated a body: deterministic code, an LLM, or both.",
+      "enum": [
+        "script",
+        "llm",
+        "hybrid"
+      ],
+      "title": "Producer",
+      "type": "string"
+    },
+    "Tier": {
+      "description": "Model routing tier (project plan \u00a76). Recorded so spend is attributable per agent.",
+      "enum": [
+        "flagship",
+        "low_cost"
+      ],
+      "title": "Tier",
+      "type": "string"
+    },
+    "VoteBody": {
+      "additionalProperties": false,
+      "description": "One agent's modified-Borda ballot.",
+      "properties": {
+        "bottom_flag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bottom Flag"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "top_five": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Top Five",
+          "type": "array"
+        },
+        "voter_agent_id": {
+          "title": "Voter Agent Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "voter_agent_id",
+        "top_five",
+        "rationale"
+      ],
+      "title": "VoteBody",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "body": {
+      "$ref": "#/$defs/VoteBody"
+    },
+    "header": {
+      "$ref": "#/$defs/Header"
+    }
+  },
+  "required": [
+    "header",
+    "body"
+  ],
+  "title": "AgentOutput[VoteBody]",
+  "type": "object"
+}
