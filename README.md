@@ -15,6 +15,7 @@ uv run saa-data ingest       # fetch all sources, build asset return history, va
 uv run saa-data status       # dataset versions, row counts, date ranges
 uv run saa-data validate     # re-run data-quality checks
 uv run saa-data build-history  # rebuild spliced monthly returns without re-downloading
+uv run saa-skill historical-analysis [--as-of YYYY-MM-DD]  # per-asset stats and correlations
 uv run pytest
 ```
 
@@ -63,6 +64,8 @@ src/saa/
     pipeline.py        fetch -> archive raw -> merge -> write -> build history -> validate
     validation.py      freshness, coverage, outlier and key checks
     store.py           DataStore: point-in-time read API for agents and skills
+  skills/              deterministic skills agents call (SKILL.md methodology + Python, no LLM)
+    historical_analysis/  returns, risk, drawdowns, correlations -> historical_stats.json
 docs/data_sources.md   source rationale, point-in-time rules, gaps and alternatives
 data/                  (git-ignored) raw payloads, curated versions, run logs, reports
 ```
