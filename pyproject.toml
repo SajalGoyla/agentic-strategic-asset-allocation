@@ -1,0 +1,50 @@
+[project]
+name = "agentic-saa"
+version = "0.1.0"
+description = "Agentic Strategic Asset Allocation pipeline (scaled replication of Ang, Azimbayev & Kim, 2026)"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Sajal Kumar Goyla" },
+    { name = "Shambhawi Bhure" },
+]
+dependencies = [
+    "pandas>=2.2",
+    "pyarrow>=16.0",
+    "requests>=2.31",
+    "yfinance>=0.2.54",
+    "pyyaml>=6.0",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+    "openpyxl>=3.1",
+    "xlrd>=2.0",
+    "psycopg2-binary>=2.9.13",
+]
+
+[project.scripts]
+saa-data = "saa.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/saa"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]  # line length is handled by `ruff format`; long strings/comments are allowed

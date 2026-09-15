@@ -1,0 +1,91 @@
+# WRDS tables that could improve data for the 18 asset classes.
+# `uv run saa-data wrds-check` tests which of these this account can read; connectors are only
+# built for tables that pass. Table names follow WRDS PostgreSQL conventions; a "missing" result
+# may just mean a different library name, so the check also lists the account's relevant libraries.
+#
+# Licence: WRDS data may not be redistributed. Extracts stay in the git-ignored data/ folder and
+# must not be committed, published, or embedded in shared artifacts.
+
+tables:
+  # ---- ETF and US equity returns / market caps
+  - library: crsp
+    table: msf
+    purpose: Monthly total returns, prices and shares outstanding for US-listed securities, including all 18 ETFs
+    improves: ETF returns (all 18), US equity market caps for Black-Litterman weights
+  - library: crsp
+    table: stocknames
+    purpose: Ticker to PERMNO mapping with name history
+    improves: Locating the ETFs and index constituents in CRSP
+  - library: crsp
+    table: msi
+    purpose: CRSP US market index returns (value- and equal-weighted) since 1925
+    improves: US Large Cap long history
+  # ---- Treasuries and cash
+  - library: crsp
+    table: mcti
+    purpose: Monthly fixed-term Treasury index returns (1, 2, 5, 7, 10, 20, 30 years) and 30/90-day T-bill returns
+    improves: Short, Intermediate, Long Treasuries and Cash history (replaces synthetic returns)
+  - library: crsp
+    table: tfz_mth_ft
+    purpose: CRSP fixed-term Treasury indexes (monthly)
+    improves: Alternative source for Treasury term returns
+  # ---- mutual funds (cleaner proxies, survivorship-bias-free)
+  - library: crsp_q_mutualfunds
+    table: monthly_tna_ret_nav
+    purpose: Monthly total returns and assets of US mutual funds
+    improves: Proxy fund returns (VFINX, VWEHX, RPIBX, FNMIX, ...) and search for closer index-fund proxies
+  - library: crsp_q_mutualfunds
+    table: fund_names
+    purpose: Mutual fund names, tickers and objective codes
+    improves: Finding index funds that track EAFE, EMBI, international corporates, gold, commodities
+  # ---- valuation and growth for equity CMAs
+  - library: comp
+    table: funda
+    purpose: Compustat annual fundamentals (earnings, dividends, share repurchases, book equity)
+    improves: CAPE, P/E, dividend and buyback yield for US Large/Small/Value/Growth and REITs
+  - library: crsp
+    table: ccmxpf_linktable
+    purpose: CRSP-Compustat link table
+    improves: Joining index constituents to fundamentals
+  - library: ibes
+    table: statsum_epsus
+    purpose: I/B/E/S consensus EPS forecasts and long-term growth
+    improves: Earnings growth for Inverse Gordon; analyst consensus CMA method
+  - library: comp_global_daily
+    table: g_funda
+    purpose: Compustat Global annual fundamentals
+    improves: Valuation for International Developed and Emerging Markets
+  - library: comp_global_daily
+    table: g_secd
+    purpose: Compustat Global daily prices and shares
+    improves: International market caps and valuation ratios
+  # ---- corporate bonds
+  - library: wrdsapps_bondret
+    table: bondret
+    purpose: WRDS monthly corporate bond returns, yields and spreads (TRACE-based, 2002-)
+    improves: IG and HY yields and spreads beyond FRED's 3-year ICE window
+
+# Library-name prefixes worth reporting even if not listed above (index vendors, bonds, macro).
+library_keywords:
+  - crsp
+  - comp
+  - ibes
+  - msci
+  - ftse
+  - russell
+  - ice
+  - bofa
+  - barclays
+  - jpm
+  - markit
+  - datastream
+  - refinitiv
+  - tfn
+  - gsci
+  - commod
+  - nareit
+  - bond
+  - trace
+  - fisd
+  - mergent
+  - frb
