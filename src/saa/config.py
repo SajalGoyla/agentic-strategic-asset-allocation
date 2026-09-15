@@ -16,6 +16,8 @@ import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, model_validator
 
+from saa.ips import IPS
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 Frequency = Literal["d", "w", "m", "q", "a"]
@@ -275,6 +277,7 @@ class Config:
     settings: Settings
     universe: Universe
     macro: MacroCatalog
+    ips: IPS
     fred_api_key: str | None
     config_dir: Path
 
@@ -282,6 +285,43 @@ class Config:
 def _read_yaml(path: Path) -> dict:
     with path.open(encoding="utf-8") as fh:
         return yaml.safe_load(fh)
+
+
+def _cross_validate_ips(ips: IPS, universe: Universe, macro: MacroCatalog) -> None:
+    """The IPS is written by humans, so catch the ways it can drift from the universe."""
+    asset_ids = {a.id for a in universe.assets}
+    groups = {a.group for a in universe.assets}
+
+    unknown = sorted(set(ips.active_risk.benchmark.weights) - asset_ids)
+    if unknown:
+        raise ValueError(
+            f"ips.yaml benchmark {ips.active_risk.benchmark.id} references assets not in "
+            f"universe.yaml: {unknown}"
+        )
+
+    undeclared = sorted(set(ips.universe.bounds.per_group) - groups)
+    if undeclared:
+        raise ValueError(f"ips.yaml per_group bounds reference unknown groups: {undeclared}")
+
+    uncovered = sorted(groups - set(ips.universe.bounds.per_group))
+    if uncovered:
+        raise ValueError(f"ips.yaml declares no per_group bounds for: {uncovered}")
+
+    if ips.objectives.return_.inflation_series not in set(macro.ids):
+        raise ValueError(
+            f"ips.yaml inflation_series {ips.objectives.return_.inflation_series!r} is not "
+            "declared in macro_series.yaml"
+        )
+
+    # The benchmark is a measuring stick, not a candidate allocation: a 60/40 index is
+    # concentrated by construction and is deliberately *not* held to the portfolio's
+    # diversification bounds. Only well-formedness is checked (the Benchmark model already
+    # enforces that the weights sum to 1).
+    negative = sorted(k for k, v in ips.active_risk.benchmark.weights.items() if v < 0)
+    if negative:
+        raise ValueError(
+            f"ips.yaml benchmark {ips.active_risk.benchmark.id} has negative weights: {negative}"
+        )
 
 
 def _cross_validate(settings: Settings, universe: Universe, macro: MacroCatalog) -> None:
@@ -321,12 +361,15 @@ def load_config(config_dir: Path | str | None = None) -> Config:
 
     universe = Universe.model_validate(_read_yaml(config_dir / "universe.yaml"))
     macro = MacroCatalog.model_validate(_read_yaml(config_dir / "macro_series.yaml"))
+    ips = IPS.model_validate(_read_yaml(config_dir / "ips.yaml"))
     _cross_validate(settings, universe, macro)
+    _cross_validate_ips(ips, universe, macro)
 
     return Config(
         settings=settings,
         universe=universe,
         macro=macro,
+        ips=ips,
         fred_api_key=os.getenv("FRED_API_KEY") or None,
         config_dir=config_dir,
     )

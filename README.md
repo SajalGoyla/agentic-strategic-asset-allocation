@@ -4,7 +4,8 @@ A scaled replication of Ang, Azimbayev & Kim (2026), *The Self-Driving Portfolio
 for macro regime classification, capital market assumptions, portfolio construction, peer
 review, and a CIO ensemble. See `Agentic_SAA_12Week_Project_Plan.md` for scope and milestones.
 
-**Current status:** Phase 1 data layer (ingestion, validation, point-in-time access).
+**Current status:** Phase 1 data layer (ingestion, validation, point-in-time access) and
+the IPS that governs every downstream agent (`docs/ips.md`, draft pending faculty ratification).
 
 ## Setup
 
@@ -51,8 +52,10 @@ config/
   macro_series.yaml    FRED series by macro dimension, release lags, vintage flags
   cma_inputs.yaml      data inputs for the 6 CMA methods (+ auto-blend), with known gaps
   data_sources.yaml    source endpoints, rate limits, validation thresholds
+  ips.yaml             Investment Policy Statement: universe, objectives, risk budget
 src/saa/
   config.py            typed config loading and cross-validation
+  ips.py               IPS model and check_compliance(), shared by the CRO and CIO agents
   cli.py               `saa-data` command
   data/
     sources/           one connector per source (FRED, Yahoo, French, Treasury, Shiller, SPF, World Bank, WRDS)
@@ -67,6 +70,7 @@ src/saa/
   skills/              deterministic skills agents call (SKILL.md methodology + Python, no LLM)
     historical_analysis/  returns, risk, drawdowns, correlations -> historical_stats.json
 docs/data_sources.md   source rationale, point-in-time rules, gaps and alternatives
+docs/ips.md            the IPS in narrative form, and the numbers awaiting ratification
 data/                  (git-ignored) raw payloads, curated versions, run logs, reports
 ```
 
@@ -93,6 +97,29 @@ store.provenance()   # {"market/prices_daily": {"run_id": ..., "sha256": ...}, .
 
 Record `provenance()` in each agent's JSON output. To reproduce a past pipeline run, pass
 the recorded versions to `DataStore(run_ids={...})`.
+
+## Checking a portfolio against the IPS
+
+Every agent reads the IPS; the CRO agent checks each candidate portfolio against it and the
+CIO agent is bound by it. Both call one function, so the rules cannot drift apart:
+
+```python
+from saa.config import load_config
+from saa.ips import PortfolioMetrics, check_compliance
+
+config = load_config()
+metrics = PortfolioMetrics(expected_volatility_pct=9.8, ex_ante_tracking_error_pct=3.1)
+report = check_compliance(weights, metrics, config.ips, config.universe)
+
+report.compliant      # False if any hard violation -- the CIO may not select it
+report.hard           # disqualifying violations
+report.soft           # flag in the board memo, do not disqualify
+report.not_evaluated  # rules no metric was supplied for; not the same as passing
+report.to_dict()      # embed in risk_report.json / cio_decision.json
+```
+
+`config.ips.is_draft` is true until the policy is ratified; agents should say so in their
+output. See `docs/ips.md` for the three layers, the benchmark choice, and the open questions.
 
 ## Data layer design
 
