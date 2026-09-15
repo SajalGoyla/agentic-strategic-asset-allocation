@@ -28,6 +28,7 @@ from saa.contracts.asset_class import (
     SignalCategory,
     Signals,
     SignalsBody,
+    SourceSpan,
     WindowStats,
 )
 from saa.contracts.base import (
@@ -168,6 +169,7 @@ __all__ = [
     "SignalCategory",
     "Signals",
     "SignalsBody",
+    "SourceSpan",
     "Spec",
     "TallyRow",
     "Tier",

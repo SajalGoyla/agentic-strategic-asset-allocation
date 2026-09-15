@@ -2,7 +2,7 @@
   "$defs": {
     "CorrelationRowBody": {
       "additionalProperties": false,
-      "description": "One asset's correlations against the rest of the universe (Exhibit 3 step 2).",
+      "description": "One asset's correlations against the other 17 (Exhibit 3 step 2), by window.",
       "properties": {
         "asset_id": {
           "title": "Asset Id",
@@ -10,19 +10,45 @@
         },
         "correlations": {
           "additionalProperties": {
-            "type": "number"
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object"
           },
           "title": "Correlations",
           "type": "object"
         },
-        "window_years": {
-          "title": "Window Years",
-          "type": "number"
+        "end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "months": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Months",
+          "type": "object"
         }
       },
       "required": [
         "asset_id",
-        "window_years",
+        "months",
         "correlations"
       ],
       "title": "CorrelationRowBody",

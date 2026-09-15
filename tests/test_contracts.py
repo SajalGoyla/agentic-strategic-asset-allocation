@@ -28,6 +28,7 @@ from saa.contracts import (
     Dispersion,
     EnsembleMethod,
     Header,
+    HistoricalStatsBody,
     IpsCompliance,
     MacroJudgment,
     MacroScores,
@@ -43,6 +44,7 @@ from saa.contracts import (
     TallyRow,
     VoteBody,
     VoteTallyBody,
+    WindowStats,
     json_schema,
     read,
     spec,
@@ -310,9 +312,62 @@ def test_dispersion_thresholds_follow_exhibit_4():
 
 def test_correlation_row_rejects_impossible_values():
     with pytest.raises(ValidationError, match=r"outside \[-1, 1\]"):
-        CorrelationRowBody(asset_id="gold", window_years=10, correlations={"reits": 1.4})
+        CorrelationRowBody(
+            asset_id="gold", months={"10y": 120}, correlations={"10y": {"reits": 1.4}}
+        )
     with pytest.raises(ValidationError, match="self-correlation"):
-        CorrelationRowBody(asset_id="gold", window_years=10, correlations={"gold": 0.8})
+        CorrelationRowBody(
+            asset_id="gold", months={"10y": 120}, correlations={"10y": {"gold": 0.8}}
+        )
+    with pytest.raises(ValidationError, match="no month count"):
+        CorrelationRowBody(
+            asset_id="gold", months={"10y": 120}, correlations={"5y": {"reits": 0.3}}
+        )
+
+
+def test_correlation_row_allows_nulls_for_short_windows():
+    """The skill returns null rather than a spurious number when a window lacks history."""
+    row = CorrelationRowBody(
+        asset_id="gold",
+        months={"1y": 12, "10y": 0},
+        correlations={"1y": {"reits": 0.31, "gold": 1.0}, "10y": {"reits": None}},
+    )
+    assert row.correlations["10y"]["reits"] is None
+
+
+def test_historical_stats_matches_the_skill_that_produces_it():
+    """`saa.skills.historical_analysis` writes historical_stats.json; its draft models say they
+    "move into the shared output-contract package once the project schemas are agreed". This
+    pins the two together so they cannot drift apart silently.
+    """
+    from saa.contracts import HistoricalStatsBody, RegimeStats, WindowStats
+    from saa.skills.historical_analysis import models as skill
+
+    ours = set(WindowStats.model_fields)
+    theirs = set(skill.WindowStats.model_fields)
+    assert ours == theirs, f"only in contract {ours - theirs}, only in skill {theirs - ours}"
+
+    # Two intentional differences from the skill's draft:
+    #  - its envelope fields (schema_version, as_of, provenance) move into Header;
+    #  - by_regime moves from the bundle onto the per-asset file, because the regime-adjusted
+    #    CMA method (§3.3 method 2) is per asset and should not have to open a bundle to
+    #    find one asset's numbers.
+    envelope = {"schema_version", "as_of", "provenance"}
+    assert set(HistoricalStatsBody.model_fields) - {"by_regime"} == (
+        set(skill.AssetHistoricalStats.model_fields) - envelope
+    )
+    assert set(RegimeStats.model_fields) == set(skill.RegimeStats.model_fields)
+
+
+def test_historical_stats_window_keys_must_agree():
+    with pytest.raises(ValidationError, match="window keys disagree"):
+        HistoricalStatsBody(
+            asset_id="gold",
+            name="Gold",
+            group="real_assets",
+            ticker="GLD",
+            windows={"10y": WindowStats(window="5y")},
+        )
 
 
 # ------------------------------------------------------------------------------ portfolio

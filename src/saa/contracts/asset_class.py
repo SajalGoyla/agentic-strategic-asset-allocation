@@ -15,6 +15,7 @@ prompt -- a judge that drifts outside the candidate range fails loudly.
 
 from __future__ import annotations
 
+from datetime import date
 from enum import StrEnum
 
 from pydantic import Field, model_validator
@@ -22,21 +23,65 @@ from pydantic import Field, model_validator
 from saa.contracts.base import AgentOutput, Confidence, Contract
 
 # ------------------------------------------------------------------------ historical_stats
+# These two mirror what ``saa.skills.historical_analysis`` actually computes, field for field.
+# That module's models are marked "DRAFT ... these move into the shared output-contract package
+# once the project schemas are agreed"; this is where they move to. Its envelope fields
+# (schema_version, as_of, provenance) become ``Header``; the rest is the body.
+#
+# UNITS: returns and risk figures here are DECIMALS (0.05 = 5%), matching the skill. Every other
+# contract, and ``saa.ips``, uses percent. That split is a project-wide decision still open --
+# see docs/contracts.md. Nothing converts silently: the suffix tells you which you have.
 STATS_CONTRACT = "historical_stats"
 STATS_FILENAME = "historical_stats.json"
 
 
 class WindowStats(Contract):
-    """Trailing statistics over one window. Annualised, in percent except ratios."""
+    """Statistics over one trailing window. Null when the window lacks enough history."""
 
-    years: float | None = None  # None means "since inception of the spliced history"
-    annualised_return_pct: float
-    annualised_volatility_pct: float
-    sharpe_ratio: float  # excess of the T-bill return
-    max_drawdown_pct: float
-    best_month_pct: float | None = None
-    worst_month_pct: float | None = None
-    positive_months_pct: float | None = None
+    window: str  # "1y", "3y", "5y", "10y", "since_1990", "full"
+    start: date | None = None
+    end: date | None = None
+    months: int = 0
+    sufficient: bool = False
+
+    annualized_return: float | None = None  # geometric
+    cumulative_return: float | None = None
+    annualized_volatility: float | None = None
+    sharpe_ratio: float | None = None  # vs the 3-month T-bill
+    sortino_ratio: float | None = None
+
+    max_drawdown: float | None = None  # negative decimal
+    max_drawdown_peak: date | None = None
+    max_drawdown_trough: date | None = None
+    max_drawdown_recovery: date | None = None  # null when not yet recovered
+    max_drawdown_duration_months: int | None = None
+    current_drawdown: float | None = None
+
+    var_95_monthly: float | None = None  # historical VaR, positive loss
+    cvar_95_monthly: float | None = None  # expected shortfall, positive loss
+    skewness: float | None = None
+    excess_kurtosis: float | None = None
+
+    best_month: float | None = None
+    best_month_date: date | None = None
+    worst_month: float | None = None
+    worst_month_date: date | None = None
+    hit_rate: float | None = None
+
+    beta_to_us_large_cap: float | None = None
+    correlation_to_us_large_cap: float | None = None
+    correlation_to_intermediate_treasuries: float | None = None
+    # Share of months served by a pre-ETF proxy rather than the ETF itself.
+    proxy_share: float | None = None
+
+
+class SourceSpan(Contract):
+    """One link of the asset's spliced return history (DataStore.asset_returns(field="source"))."""
+
+    source: str
+    kind: str
+    start: date
+    end: date
     months: int
 
 
@@ -45,18 +90,32 @@ class RegimeStats(Contract):
     per-regime statistics that method reads."""
 
     regime: str
-    annualised_return_pct: float
-    annualised_volatility_pct: float
     months: int
+    annualized_mean_return: float | None = None  # arithmetic
+    annualized_volatility: float | None = None
+    sharpe_ratio: float | None = None
+    hit_rate: float | None = None
 
 
 class HistoricalStatsBody(Contract):
     asset_id: str
-    history_start: str
-    windows: list[WindowStats]
+    name: str
+    group: str
+    ticker: str
+    data_end: date | None = None  # last month-end return used
+    history_start: date | None = None
+    sources: list[SourceSpan] = Field(default_factory=list)
+    windows: dict[str, WindowStats]
+    # ETF daily-return volatility, annualised: "3m", "1y".
+    recent_daily_volatility: dict[str, float | None] = Field(default_factory=dict)
     by_regime: list[RegimeStats] = Field(default_factory=list)
-    # Which proxy supplied each stretch of history, from DataStore.asset_returns(field="source").
-    history_sources: dict[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _windows_keyed_consistently(self) -> HistoricalStatsBody:
+        mismatched = [k for k, v in self.windows.items() if v.window != k]
+        if mismatched:
+            raise ValueError(f"window keys disagree with their WindowStats.window: {mismatched}")
+        return self
 
 
 HistoricalStats = AgentOutput[HistoricalStatsBody]
@@ -68,19 +127,25 @@ CORRELATION_FILENAME = "correlation_row.json"
 
 
 class CorrelationRowBody(Contract):
-    """One asset's correlations against the rest of the universe (Exhibit 3 step 2)."""
+    """One asset's correlations against the other 17 (Exhibit 3 step 2), by window."""
 
     asset_id: str
-    window_years: float
-    correlations: dict[str, float]
+    end: date | None = None
+    months: dict[str, int]  # window -> months in the window
+    correlations: dict[str, dict[str, float | None]]  # window -> other asset_id -> correlation
 
     @model_validator(mode="after")
     def _in_range(self) -> CorrelationRowBody:
-        bad = {k: v for k, v in self.correlations.items() if not -1.0 <= v <= 1.0}
-        if bad:
-            raise ValueError(f"correlations outside [-1, 1]: {bad}")
-        if self.correlations.get(self.asset_id, 1.0) != 1.0:
-            raise ValueError(f"self-correlation for {self.asset_id} must be 1.0")
+        for window, row in self.correlations.items():
+            bad = {k: v for k, v in row.items() if v is not None and not -1.0 <= v <= 1.0}
+            if bad:
+                raise ValueError(f"{window}: correlations outside [-1, 1]: {bad}")
+            own = row.get(self.asset_id)
+            if own is not None and own != 1.0:
+                raise ValueError(f"{window}: self-correlation for {self.asset_id} must be 1.0")
+        unknown = sorted(set(self.correlations) - set(self.months))
+        if unknown:
+            raise ValueError(f"correlation windows with no month count: {unknown}")
         return self
 
 

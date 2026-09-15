@@ -111,6 +111,33 @@ instead. Judgment schemas carry `additionalProperties: false` and mark every pro
 which would let a model silently omit them, so the exporter puts them back. A missing value has
 to be an explicit `null`.
 
+## Open: units
+
+`historical_stats` and `correlation_row` use **decimals** (0.05 = 5%), matching
+`saa.skills.historical_analysis`, which computes them. Every other contract, and `saa.ips`, uses
+**percent** — the paper states its figures that way ("CPI + 3.0–4.0%", "8–12%", "−25%", "6%"),
+and the IPS, CRO, CIO and board memo all follow it.
+
+That split is deliberate for now, not accidental: nothing converts silently, and the field
+suffix tells you which you have (`max_drawdown` is a decimal, `max_drawdown_pct` is percent).
+It still needs settling before the CMA agents land in Week 4, since they read historical stats
+and write percent. Standardising on percent means changing one module; standardising on decimals
+means changing five.
+
+## Migrating the historical-analysis skill
+
+`saa.skills.historical_analysis.models` still defines its own `WindowStats`,
+`AssetHistoricalStats` and `CorrelationRow`, marked "DRAFT ... these move into the shared
+output-contract package once the project schemas are agreed". The contract now mirrors them
+field for field, and `test_historical_stats_matches_the_skill_that_produces_it` fails if either
+side drifts. The remaining step, which belongs in the skill's own PR, is for the skill to emit
+`AgentOutput[HistoricalStatsBody]` through `contracts.write()` so its envelope fields become a
+`Header`. Two intentional differences to adopt at that point:
+
+- `schema_version`, `as_of` and `provenance` move into `Header`.
+- `by_regime` moves from the bundle onto the per-asset file, because §3.3's regime-adjusted CMA
+  method is per asset and should not have to open a bundle to find one asset's numbers.
+
 ## Run directory layout
 
 ```
