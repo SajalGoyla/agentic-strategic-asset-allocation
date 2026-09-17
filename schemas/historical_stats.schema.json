@@ -1,0 +1,789 @@
+{
+  "$defs": {
+    "DatasetVersion": {
+      "additionalProperties": false,
+      "description": "One entry from ``DataStore.provenance()``.",
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "sha256"
+      ],
+      "title": "DatasetVersion",
+      "type": "object"
+    },
+    "Header": {
+      "additionalProperties": false,
+      "description": "Machine-written envelope. Agents never generate this.",
+      "properties": {
+        "agent": {
+          "title": "Agent",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/InputRef"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "ips_status": {
+          "title": "Ips Status",
+          "type": "string"
+        },
+        "ips_version": {
+          "title": "Ips Version",
+          "type": "number"
+        },
+        "model_calls": {
+          "items": {
+            "$ref": "#/$defs/ModelCall"
+          },
+          "title": "Model Calls",
+          "type": "array"
+        },
+        "pipeline_run_id": {
+          "title": "Pipeline Run Id",
+          "type": "string"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "provenance": {
+          "additionalProperties": {
+            "$ref": "#/$defs/DatasetVersion"
+          },
+          "title": "Provenance",
+          "type": "object"
+        },
+        "report_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Report Path"
+        },
+        "schema_version": {
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        }
+      },
+      "required": [
+        "contract",
+        "agent",
+        "pipeline_run_id",
+        "as_of",
+        "generated_at",
+        "produced_by",
+        "ips_version",
+        "ips_status"
+      ],
+      "title": "Header",
+      "type": "object"
+    },
+    "HistoricalStatsBody": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "by_regime": {
+          "items": {
+            "$ref": "#/$defs/RegimeStats"
+          },
+          "title": "By Regime",
+          "type": "array"
+        },
+        "data_end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data End"
+        },
+        "group": {
+          "title": "Group",
+          "type": "string"
+        },
+        "history_start": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "History Start"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "recent_daily_volatility": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Recent Daily Volatility",
+          "type": "object"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "ticker": {
+          "title": "Ticker",
+          "type": "string"
+        },
+        "windows": {
+          "additionalProperties": {
+            "$ref": "#/$defs/WindowStats"
+          },
+          "title": "Windows",
+          "type": "object"
+        }
+      },
+      "required": [
+        "asset_id",
+        "name",
+        "group",
+        "ticker",
+        "windows"
+      ],
+      "title": "HistoricalStatsBody",
+      "type": "object"
+    },
+    "InputRef": {
+      "additionalProperties": false,
+      "description": "An upstream contract file this agent read, so the run DAG can be reconstructed.",
+      "properties": {
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "contract",
+        "path"
+      ],
+      "title": "InputRef",
+      "type": "object"
+    },
+    "ModelCall": {
+      "additionalProperties": false,
+      "description": "One LLM call, for the \u00a76 budget and for the \u00a75.1 monoculture question.\n\nThe paper flags LLM monoculture as a risk and suggests multiple foundation models as a\nmitigation; that cannot be analysed after the fact unless each output records which model\nproduced it.",
+      "properties": {
+        "cache_read_tokens": {
+          "default": 0,
+          "title": "Cache Read Tokens",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
+        },
+        "effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effort"
+        },
+        "input_tokens": {
+          "default": 0,
+          "title": "Input Tokens",
+          "type": "integer"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "output_tokens": {
+          "default": 0,
+          "title": "Output Tokens",
+          "type": "integer"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        }
+      },
+      "required": [
+        "model",
+        "tier"
+      ],
+      "title": "ModelCall",
+      "type": "object"
+    },
+    "Producer": {
+      "description": "Who generated a body: deterministic code, an LLM, or both.",
+      "enum": [
+        "script",
+        "llm",
+        "hybrid"
+      ],
+      "title": "Producer",
+      "type": "string"
+    },
+    "RegimeStats": {
+      "additionalProperties": false,
+      "description": "\u00a73.3 method 2 conditions the historical premium on the macro regime; these are the\nper-regime statistics that method reads.",
+      "properties": {
+        "annualized_mean_return": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Annualized Mean Return"
+        },
+        "annualized_volatility": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Annualized Volatility"
+        },
+        "hit_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hit Rate"
+        },
+        "months": {
+          "title": "Months",
+          "type": "integer"
+        },
+        "regime": {
+          "title": "Regime",
+          "type": "string"
+        },
+        "sharpe_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sharpe Ratio"
+        }
+      },
+      "required": [
+        "regime",
+        "months"
+      ],
+      "title": "RegimeStats",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "description": "One link of the asset's spliced return history (DataStore.asset_returns(field=\"source\")).",
+      "properties": {
+        "end": {
+          "format": "date",
+          "title": "End",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "months": {
+          "title": "Months",
+          "type": "integer"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "start": {
+          "format": "date",
+          "title": "Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "kind",
+        "start",
+        "end",
+        "months"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    },
+    "Tier": {
+      "description": "Model routing tier (project plan \u00a76). Recorded so spend is attributable per agent.",
+      "enum": [
+        "flagship",
+        "low_cost"
+      ],
+      "title": "Tier",
+      "type": "string"
+    },
+    "WindowStats": {
+      "additionalProperties": false,
+      "description": "Statistics over one trailing window. Null when the window lacks enough history.",
+      "properties": {
+        "annualized_return": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Annualized Return"
+        },
+        "annualized_volatility": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Annualized Volatility"
+        },
+        "best_month": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Best Month"
+        },
+        "best_month_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Best Month Date"
+        },
+        "beta_to_us_large_cap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Beta To Us Large Cap"
+        },
+        "correlation_to_intermediate_treasuries": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correlation To Intermediate Treasuries"
+        },
+        "correlation_to_us_large_cap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correlation To Us Large Cap"
+        },
+        "cumulative_return": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cumulative Return"
+        },
+        "current_drawdown": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Drawdown"
+        },
+        "cvar_95_monthly": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cvar 95 Monthly"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "excess_kurtosis": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Excess Kurtosis"
+        },
+        "hit_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hit Rate"
+        },
+        "max_drawdown": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown"
+        },
+        "max_drawdown_duration_months": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown Duration Months"
+        },
+        "max_drawdown_peak": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown Peak"
+        },
+        "max_drawdown_recovery": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown Recovery"
+        },
+        "max_drawdown_trough": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown Trough"
+        },
+        "months": {
+          "default": 0,
+          "title": "Months",
+          "type": "integer"
+        },
+        "proxy_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proxy Share"
+        },
+        "sharpe_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sharpe Ratio"
+        },
+        "skewness": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Skewness"
+        },
+        "sortino_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sortino Ratio"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "sufficient": {
+          "default": false,
+          "title": "Sufficient",
+          "type": "boolean"
+        },
+        "var_95_monthly": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Var 95 Monthly"
+        },
+        "window": {
+          "title": "Window",
+          "type": "string"
+        },
+        "worst_month": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worst Month"
+        },
+        "worst_month_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worst Month Date"
+        }
+      },
+      "required": [
+        "window"
+      ],
+      "title": "WindowStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "body": {
+      "$ref": "#/$defs/HistoricalStatsBody"
+    },
+    "header": {
+      "$ref": "#/$defs/Header"
+    }
+  },
+  "required": [
+    "header",
+    "body"
+  ],
+  "title": "AgentOutput[HistoricalStatsBody]",
+  "type": "object"
+}

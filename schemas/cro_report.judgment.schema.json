@@ -1,0 +1,234 @@
+{
+  "$defs": {
+    "IpsCompliance": {
+      "additionalProperties": false,
+      "description": "\u00a73.5: the CRO checks IPS compliance for every candidate; \u00a73.6: the CIO is bound by it.",
+      "properties": {
+        "compliant": {
+          "title": "Compliant",
+          "type": "boolean"
+        },
+        "not_evaluated": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Not Evaluated",
+          "type": "array"
+        },
+        "violations": {
+          "items": {
+            "$ref": "#/$defs/Violation"
+          },
+          "title": "Violations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "compliant",
+        "violations",
+        "not_evaluated"
+      ],
+      "title": "IpsCompliance",
+      "type": "object"
+    },
+    "Violation": {
+      "additionalProperties": false,
+      "description": "Mirrors ``saa.ips.Violation`` so compliance can be embedded in a contract.",
+      "properties": {
+        "entity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule",
+        "severity",
+        "message",
+        "observed",
+        "limit",
+        "entity"
+      ],
+      "title": "Violation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One standardised risk report. The CRO scores and comments; it never votes.",
+  "properties": {
+    "backtest_sharpe": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backtest Sharpe"
+    },
+    "backtest_volatility_pct": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backtest Volatility Pct"
+    },
+    "commentary": {
+      "title": "Commentary",
+      "type": "string"
+    },
+    "concentration_hhi": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Concentration Hhi"
+    },
+    "effective_n": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective N"
+    },
+    "ex_ante_tracking_error_pct": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ex Ante Tracking Error Pct"
+    },
+    "ex_ante_volatility_pct": {
+      "title": "Ex Ante Volatility Pct",
+      "type": "number"
+    },
+    "factor_tilts": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Factor Tilts",
+      "type": "object"
+    },
+    "ips_compliance": {
+      "$ref": "#/$defs/IpsCompliance"
+    },
+    "max_drawdown_pct": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Drawdown Pct"
+    },
+    "portfolio_agent_id": {
+      "title": "Portfolio Agent Id",
+      "type": "string"
+    },
+    "risk_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Risk Score",
+      "type": "number"
+    },
+    "var_95_pct": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Var 95 Pct"
+    }
+  },
+  "required": [
+    "portfolio_agent_id",
+    "ex_ante_volatility_pct",
+    "backtest_volatility_pct",
+    "var_95_pct",
+    "max_drawdown_pct",
+    "backtest_sharpe",
+    "ex_ante_tracking_error_pct",
+    "effective_n",
+    "concentration_hhi",
+    "factor_tilts",
+    "ips_compliance",
+    "risk_score",
+    "commentary"
+  ],
+  "title": "CroReportBody",
+  "type": "object"
+}

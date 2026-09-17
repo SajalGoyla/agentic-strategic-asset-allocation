@@ -1,0 +1,117 @@
+# Investment Policy Statement (IPS) v0.1 -- the governing document of the pipeline.
+#
+# Ang, Azimbayev & Kim (2026) §3.1 and §5.2: the IPS is written by humans and encodes the
+# institution's objectives and constraints; every agent reads it, the CRO agent checks
+# compliance for every candidate portfolio, and the CIO agent is bound by it. This file is the
+# machine-readable form; docs/ips.md is the narrative form a board would read.
+#
+# Provenance of every number below:
+#   [paper]     stated in Ang et al. §4 (or Exhibit 8 for the CMA horizon)
+#   [proposed]  our choice, pending ratification by Prof. Glasserman -- the paper does not
+#               publish it. Keep this tag until `status: ratified`.
+#
+# Severities: `hard` violations disqualify a portfolio outright (§3.6: IPS compliance is
+# non-negotiable for the CIO). `soft` violations are recorded and surfaced in the board memo
+# but do not disqualify. Structural rules (universe membership, long-only, leverage, weight
+# bounds, weights summing to 1) are always hard and carry no severity field.
+
+version: 0.1
+status: draft # draft | ratified
+ratified_by: null
+ratified_on: null
+
+# --------------------------------------------------------------------- layer 1: universe
+universe:
+  # The 18 permissible asset classes live in config/universe.yaml and are not duplicated here.
+  source: config/universe.yaml
+
+  permitted: # [proposed]
+    long_only: true
+    leverage: false
+    derivatives: false
+
+  # Weight bounds are deliberately WIDE. The deliberation protocol (§3.5) assumes the 10-21 PC
+  # agents produce genuinely different portfolios to review and vote on; bounds tight enough to
+  # feel "safe" collapse heuristic and risk-structured methods onto each other and leave the
+  # peer review with nothing to deliberate. The volatility, drawdown and tracking-error limits
+  # below are the intended binding constraints.
+  bounds: # [proposed]
+    per_asset: { min: 0.00, max: 0.25 }
+    per_group:
+      equity: { min: 0.30, max: 0.70 }
+      fixed_income: { min: 0.20, max: 0.60 }
+      real_assets: { min: 0.00, max: 0.15 }
+      cash: { min: 0.00, max: 0.15 }
+
+# -------------------------------------------------------------------- layer 2: objectives
+objectives:
+  # [paper] "a target real return of CPI + 3.0-4.0%"
+  # A target, not a limit: a portfolio cannot guarantee a return, so breaching it is `soft` and
+  # is reported in the board memo rather than disqualifying the candidate.
+  return:
+    type: real_cpi_plus
+    min_pct: 3.0
+    max_pct: 4.0
+    inflation_series: CPIAUCSL
+    severity: soft
+
+  # [paper] "an expected volatility band of 8-12%"
+  volatility:
+    min_pct: 8.0
+    max_pct: 12.0
+    severity: hard
+
+  # [paper] "a maximum drawdown limit of -25% peak-to-trough"
+  max_drawdown:
+    limit_pct: -25.0
+    severity: hard
+
+  # [paper] Exhibit 8 reports CMAs as "%, nominal, 3-year horizon".
+  cma_horizon_years: 3
+
+# ------------------------------------------------------------------ layer 3: active risk
+active_risk:
+  # [paper] "the portfolio's ex-ante tracking error relative to the 60/40 equity-bond
+  # benchmark must not exceed 6%". The paper does not say which bond index makes up the 40%.
+  #
+  # [proposed] Both legs are drawn from the 18-asset universe so that tracking error is
+  # computed from the same covariance matrix the PC agents already use -- a benchmark holding
+  # an asset outside the universe would require a 19th row in every covariance estimate for
+  # this one constraint. Both legs have return history from 1980 (see docs/asset_data_map.md),
+  # comfortably covering the paper's 1996-2026 backtest window.
+  #
+  # Alternative for faculty review: split the 40% as 70/30 intermediate Treasuries / IG
+  # corporates, a closer match to a US Aggregate index's duration and credit mix.
+  benchmark:
+    id: benchmark_60_40
+    name: 60/40 equity-bond benchmark
+    weights:
+      us_large_cap: 0.60
+      intermediate_treasuries: 0.40
+    rebalance: quarterly
+
+  tracking_error:
+    max_ex_ante_pct: 6.0
+    severity: hard
+
+# ------------------------------------------------------------- governance and operations
+# [paper] §3.6: the board memo covers "a quarterly rebalancing plan with off-cycle drift
+# triggers". The cadence is the paper's; the trigger threshold is ours.
+rebalancing:
+  cadence: quarterly
+  drift_trigger_pct: 5.0 # [proposed] absolute weight drift from target, any single asset
+
+# [paper] §5.2: the IPS sets "escalation triggers"; adjusting them moves the system between
+# autonomy levels. The specific triggers are ours.
+escalation: # [proposed]
+  - condition: hard_violation_unresolved
+    action: escalate_to_human
+    note: No candidate portfolio clears every hard IPS rule after the revision cycle.
+  - condition: regime_confidence_below
+    threshold: 0.40
+    action: flag_in_board_memo
+    note: Macro agent's regime confidence is low; downstream CMAs inherit that uncertainty.
+  - condition: cio_selects_below_composite
+    threshold: 0.30
+    action: flag_in_board_memo
+    note: CIO's chosen ensemble scores poorly on the composite metric; require a rationale.

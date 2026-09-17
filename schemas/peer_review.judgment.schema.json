@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "PcCategory": {
+      "description": "Exhibit 5's four families, plus the researcher's own slot (Exhibit 9 lists it as\n\"E: PC-Researcher\").",
+      "enum": [
+        "heuristic",
+        "return_optimized",
+        "risk_structured",
+        "non_traditional",
+        "pc_researcher"
+      ],
+      "title": "PcCategory",
+      "type": "string"
+    },
+    "ReviewKind": {
+      "description": "Intra-category review \"is more likely to identify technical errors within a shared\nframework\"; inter-category review \"can challenge foundational assumptions\".",
+      "enum": [
+        "intra_category",
+        "inter_category"
+      ],
+      "title": "ReviewKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "$ref": "#/$defs/ReviewKind"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "reviewed_agent_id": {
+      "title": "Reviewed Agent Id",
+      "type": "string"
+    },
+    "reviewed_category": {
+      "$ref": "#/$defs/PcCategory"
+    },
+    "reviewer_agent_id": {
+      "title": "Reviewer Agent Id",
+      "type": "string"
+    },
+    "reviewer_category": {
+      "$ref": "#/$defs/PcCategory"
+    },
+    "score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Score",
+      "type": "number"
+    },
+    "strengths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Strengths",
+      "type": "array"
+    },
+    "technical_errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Technical Errors",
+      "type": "array"
+    },
+    "weaknesses": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Weaknesses",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reviewer_agent_id",
+    "reviewer_category",
+    "reviewed_agent_id",
+    "reviewed_category",
+    "kind",
+    "strengths",
+    "weaknesses",
+    "technical_errors",
+    "score",
+    "rationale"
+  ],
+  "title": "PeerReviewBody",
+  "type": "object"
+}

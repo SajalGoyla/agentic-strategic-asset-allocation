@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "Confidence": {
+      "description": "\u00a74.1 classifies the March 2026 regime at \"medium-high confidence\".",
+      "enum": [
+        "low",
+        "medium",
+        "medium_high",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "DimensionRationale": {
+      "additionalProperties": false,
+      "properties": {
+        "dimension": {
+          "title": "Dimension",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimension",
+        "rationale"
+      ],
+      "title": "DimensionRationale",
+      "type": "object"
+    },
+    "RecessionProbability": {
+      "additionalProperties": false,
+      "description": "\u00a74.1 reports \"a baseline recession probability of 25-35%\" -- a range, not a point.",
+      "properties": {
+        "high_pct": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "High Pct",
+          "type": "number"
+        },
+        "low_pct": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Low Pct",
+          "type": "number"
+        }
+      },
+      "required": [
+        "low_pct",
+        "high_pct"
+      ],
+      "title": "RecessionProbability",
+      "type": "object"
+    },
+    "Regime": {
+      "enum": [
+        "expansion",
+        "late_cycle",
+        "recession",
+        "recovery"
+      ],
+      "title": "Regime",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The LLM's structured output. Passed to ``messages.parse(output_format=...)``.\n\nDeliberately narrow: the model classifies and explains, it does not restate the numbers the\nscript already computed.",
+  "properties": {
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "confidence_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence Score",
+      "type": "number"
+    },
+    "dimension_rationales": {
+      "items": {
+        "$ref": "#/$defs/DimensionRationale"
+      },
+      "title": "Dimension Rationales",
+      "type": "array"
+    },
+    "key_risks": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Key Risks",
+      "type": "array"
+    },
+    "narrative": {
+      "title": "Narrative",
+      "type": "string"
+    },
+    "recession_probability": {
+      "$ref": "#/$defs/RecessionProbability"
+    },
+    "regime": {
+      "$ref": "#/$defs/Regime"
+    },
+    "regime_qualifier": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regime Qualifier"
+    }
+  },
+  "required": [
+    "regime",
+    "regime_qualifier",
+    "confidence",
+    "confidence_score",
+    "recession_probability",
+    "dimension_rationales",
+    "key_risks",
+    "narrative"
+  ],
+  "title": "MacroJudgment",
+  "type": "object"
+}

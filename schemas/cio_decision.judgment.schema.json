@@ -1,0 +1,336 @@
+{
+  "$defs": {
+    "BoardMemo": {
+      "additionalProperties": false,
+      "description": "\u00a73.6: \"a governance document written for non-technical stakeholders\". One field per\nsection the paper requires.",
+      "properties": {
+        "changes_since_last_review": {
+          "title": "Changes Since Last Review",
+          "type": "string"
+        },
+        "expected_performance_vs_benchmark": {
+          "title": "Expected Performance Vs Benchmark",
+          "type": "string"
+        },
+        "ips_compliance_statement": {
+          "title": "Ips Compliance Statement",
+          "type": "string"
+        },
+        "key_risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Risks",
+          "type": "array"
+        },
+        "largest_positions": {
+          "title": "Largest Positions",
+          "type": "string"
+        },
+        "macro_rationale": {
+          "title": "Macro Rationale",
+          "type": "string"
+        },
+        "rebalancing_plan": {
+          "title": "Rebalancing Plan",
+          "type": "string"
+        },
+        "recommendation": {
+          "title": "Recommendation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommendation",
+        "expected_performance_vs_benchmark",
+        "macro_rationale",
+        "largest_positions",
+        "changes_since_last_review",
+        "key_risks",
+        "rebalancing_plan",
+        "ips_compliance_statement"
+      ],
+      "title": "BoardMemo",
+      "type": "object"
+    },
+    "EnsembleMethod": {
+      "description": "\u00a73.6's seven combination techniques, plus picking a single method outright.",
+      "enum": [
+        "single_method",
+        "simple_average",
+        "inverse_tracking_error",
+        "backtest_sharpe_weighted",
+        "meta_optimization",
+        "regime_conditional",
+        "composite_score",
+        "trimmed_mean"
+      ],
+      "title": "EnsembleMethod",
+      "type": "string"
+    },
+    "IpsCompliance": {
+      "additionalProperties": false,
+      "description": "\u00a73.5: the CRO checks IPS compliance for every candidate; \u00a73.6: the CIO is bound by it.",
+      "properties": {
+        "compliant": {
+          "title": "Compliant",
+          "type": "boolean"
+        },
+        "not_evaluated": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Not Evaluated",
+          "type": "array"
+        },
+        "violations": {
+          "items": {
+            "$ref": "#/$defs/Violation"
+          },
+          "title": "Violations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "compliant",
+        "violations",
+        "not_evaluated"
+      ],
+      "title": "IpsCompliance",
+      "type": "object"
+    },
+    "MethodScore": {
+      "additionalProperties": false,
+      "description": "One PC method scored on the six dimensions. Each score is 0-1.",
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "backtest_sharpe": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Backtest Sharpe",
+          "type": "number"
+        },
+        "cma_utilization": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Cma Utilization",
+          "type": "number"
+        },
+        "composite": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Composite",
+          "type": "number"
+        },
+        "diversification": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Diversification",
+          "type": "number"
+        },
+        "estimation_robustness": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Estimation Robustness",
+          "type": "number"
+        },
+        "ips_compliance": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Ips Compliance",
+          "type": "number"
+        },
+        "regime_fit": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Regime Fit",
+          "type": "number"
+        }
+      },
+      "required": [
+        "agent_id",
+        "backtest_sharpe",
+        "ips_compliance",
+        "diversification",
+        "regime_fit",
+        "estimation_robustness",
+        "cma_utilization",
+        "composite"
+      ],
+      "title": "MethodScore",
+      "type": "object"
+    },
+    "Violation": {
+      "additionalProperties": false,
+      "description": "Mirrors ``saa.ips.Violation`` so compliance can be embedded in a contract.",
+      "properties": {
+        "entity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule",
+        "severity",
+        "message",
+        "observed",
+        "limit",
+        "entity"
+      ],
+      "title": "Violation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "board_memo": {
+      "$ref": "#/$defs/BoardMemo"
+    },
+    "dissenting_views": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dissenting Views",
+      "type": "array"
+    },
+    "effective_n": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective N"
+    },
+    "ensemble_method": {
+      "$ref": "#/$defs/EnsembleMethod"
+    },
+    "ensemble_weights": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Ensemble Weights",
+      "type": "object"
+    },
+    "ex_ante_tracking_error_pct": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ex Ante Tracking Error Pct"
+    },
+    "expected_return_pct": {
+      "title": "Expected Return Pct",
+      "type": "number"
+    },
+    "expected_volatility_pct": {
+      "title": "Expected Volatility Pct",
+      "type": "number"
+    },
+    "final_weights": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Final Weights",
+      "type": "object"
+    },
+    "invalidation_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Invalidation Conditions",
+      "type": "array"
+    },
+    "ips_compliance": {
+      "$ref": "#/$defs/IpsCompliance"
+    },
+    "method_scores": {
+      "items": {
+        "$ref": "#/$defs/MethodScore"
+      },
+      "title": "Method Scores",
+      "type": "array"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "sharpe_ratio": {
+      "title": "Sharpe Ratio",
+      "type": "number"
+    }
+  },
+  "required": [
+    "ensemble_method",
+    "ensemble_weights",
+    "final_weights",
+    "method_scores",
+    "expected_return_pct",
+    "expected_volatility_pct",
+    "sharpe_ratio",
+    "effective_n",
+    "ex_ante_tracking_error_pct",
+    "ips_compliance",
+    "dissenting_views",
+    "invalidation_conditions",
+    "rationale",
+    "board_memo"
+  ],
+  "title": "CioDecisionBody",
+  "type": "object"
+}
