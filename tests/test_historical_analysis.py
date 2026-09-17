@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from saa.contracts.registry import read
 from saa.data.lake import DataLake
 from saa.data.store import DataStore
+from saa.run import RunContext
 from saa.skills.historical_analysis import metrics as m
 from saa.skills.historical_analysis import run_historical_analysis, write_outputs
 
@@ -119,11 +121,18 @@ def store(tmp_config):
     return DataStore(tmp_config)
 
 
+@pytest.fixture
+def run(tmp_config, tmp_path):
+    return RunContext.create(
+        tmp_config, as_of="2026-09-15", run_id="20260915T120000Z", root=tmp_path / "run"
+    )
+
+
 def test_run_covers_all_assets_and_windows(store):
     analysis = run_historical_analysis(store, as_of="2026-09-15")
-    assert len(analysis.assets) == 18
+    assert len(analysis.stats) == 18
     assert analysis.data_end.isoformat() == "2026-07-31"
-    spy = next(a for a in analysis.assets if a.asset_id == "us_large_cap")
+    spy = analysis.stats["us_large_cap"]
     ten = spy.windows["10y"]
     assert ten.sufficient and ten.months == 120
     assert ten.proxy_share == 0.0 and spy.windows["full"].proxy_share > 0
@@ -131,12 +140,11 @@ def test_run_covers_all_assets_and_windows(store):
     assert [s.kind for s in spy.sources] == ["index_fund", "etf"]
     assert spy.recent_daily_volatility["3m"] is not None
     assert analysis.risk_free["current_annual_yield_pct"] == pytest.approx(2.4)
-    assert set(spy.provenance) >= {"market/asset_returns_monthly", "macro/fred_observations"}
+    assert set(analysis.provenance) >= {"market/asset_returns_monthly", "macro/fred_observations"}
 
 
 def test_short_history_windows_are_null_not_misleading(store):
-    analysis = run_historical_analysis(store, as_of="2026-09-15")
-    corp = next(a for a in analysis.assets if a.asset_id == "intl_corporates")
+    corp = run_historical_analysis(store, as_of="2026-09-15").stats["intl_corporates"]
     assert corp.windows["5y"].sufficient
     assert not corp.windows["10y"].sufficient
     assert corp.windows["10y"].annualized_return is None
@@ -150,29 +158,56 @@ def test_point_in_time_excludes_returns_not_yet_available(store):
 
 def test_correlation_rows_exclude_self(store):
     analysis = run_historical_analysis(store, as_of="2026-09-15")
-    row = next(r for r in analysis.correlation_rows if r.asset_id == "gold")
+    row = analysis.correlations["gold"]
     assert len(row.correlations["5y"]) == 17 and "gold" not in row.correlations["5y"]
     assert all(-1 <= v <= 1 for v in row.correlations["5y"].values())
     assert row.months["5y"] == 60
     assert analysis.stock_bond_correlation.window_months == 36
 
 
-def test_regime_stats_when_labels_supplied(store):
+def test_regime_labels_fill_by_regime_per_asset(store):
     idx = pd.date_range("1995-01-31", "2026-07-31", freq="ME")
     labels = pd.Series(np.where(idx.year % 2 == 0, "expansion", "recession"), index=idx)
     analysis = run_historical_analysis(store, as_of="2026-09-15", regime_labels=labels)
-    regimes = {s.regime for s in analysis.regime_stats["cash"]}
-    assert regimes == {"expansion", "recession"}
+    assert {r.regime for r in analysis.stats["cash"].by_regime} == {"expansion", "recession"}
+    assert analysis.stats["cash"].by_regime[0].months > 0
+    # Without labels the field stays empty rather than guessing a regime.
+    assert run_historical_analysis(store, as_of="2026-09-15").stats["cash"].by_regime == []
 
 
-def test_write_outputs_produce_strict_json(store, tmp_path):
+def test_outputs_are_valid_contracts_in_the_run_layout(store, run):
     analysis = run_historical_analysis(store, as_of="2026-09-15")
-    out = write_outputs(analysis, tmp_path / "ha")
+    written = write_outputs(analysis, run)
+
+    stats_path = run.root / "cma" / "us_large_cap" / "historical_stats.json"
+    assert stats_path in written
+    stats = read("historical_stats", stats_path)
+    assert stats.body.asset_id == "us_large_cap"
+    assert stats.header.pipeline_run_id == "20260915T120000Z"
+    assert stats.header.agent == "us-large-cap"
+    assert stats.header.as_of.isoformat() == "2026-09-15"
+    assert stats.header.ips_status in {"draft", "ratified"}
+    assert stats.header.report_path == "cma/us_large_cap/analysis.md"
+    assert stats.header.provenance["market/asset_returns_monthly"].run_id == "r1"
+
+    row = read("correlation_row", run.root / "cma" / "gold" / "correlation_row.json")
+    assert row.body.asset_id == "gold"
+
+    assert len(list(run.root.glob("cma/*/historical_stats.json"))) == 18
+    assert (run.root / "reports" / "historical_analysis.md").exists()
+    assert "| US Large Cap (SPY) |" in (run.root / "reports" / "historical_analysis.md").read_text(
+        encoding="utf-8"
+    )
+    assert "# US Large Cap (SPY)" in (run.root / "cma" / "us_large_cap" / "analysis.md").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_written_json_has_no_nan_constants(store, run):
+    write_outputs(run_historical_analysis(store, as_of="2026-09-15"), run)
 
     def reject(constant):
         raise ValueError(f"non-JSON constant {constant}")
 
-    for path in [out / "historical_analysis.json", *out.glob("assets/*/*.json")]:
+    for path in run.root.glob("cma/*/*.json"):
         json.loads(path.read_text(encoding="utf-8"), parse_constant=reject)
-    assert len(list(out.glob("assets/*/historical_stats.json"))) == 18
-    assert "| US Large Cap (SPY) |" in (out / "summary.md").read_text(encoding="utf-8")

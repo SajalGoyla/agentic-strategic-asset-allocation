@@ -4,6 +4,7 @@ Most assertions are anchored to a number or a rule the paper states, so a schema
 silently drifts away from Ang et al. (2026) fails here rather than in Week 9.
 """
 
+import importlib
 from datetime import UTC, date, datetime
 
 import pytest
@@ -335,28 +336,19 @@ def test_correlation_row_allows_nulls_for_short_windows():
     assert row.correlations["10y"]["reits"] is None
 
 
-def test_historical_stats_matches_the_skill_that_produces_it():
-    """`saa.skills.historical_analysis` writes historical_stats.json; its draft models say they
-    "move into the shared output-contract package once the project schemas are agreed". This
-    pins the two together so they cannot drift apart silently.
+def test_the_skill_builds_these_contracts_rather_than_its_own_models():
+    """`saa.skills.historical_analysis` used to carry draft copies of these models, which said
+    they "move into the shared output-contract package once the project schemas are agreed".
+    They have moved: the skill now constructs the contracts directly, so there is one
+    definition and nothing to drift. End-to-end validation lives in test_historical_analysis.py.
     """
-    from saa.contracts import HistoricalStatsBody, RegimeStats, WindowStats
-    from saa.skills.historical_analysis import models as skill
+    from saa.contracts import CorrelationRowBody, HistoricalStatsBody
+    from saa.skills.historical_analysis import analysis as skill
 
-    ours = set(WindowStats.model_fields)
-    theirs = set(skill.WindowStats.model_fields)
-    assert ours == theirs, f"only in contract {ours - theirs}, only in skill {theirs - ours}"
-
-    # Two intentional differences from the skill's draft:
-    #  - its envelope fields (schema_version, as_of, provenance) move into Header;
-    #  - by_regime moves from the bundle onto the per-asset file, because the regime-adjusted
-    #    CMA method (§3.3 method 2) is per asset and should not have to open a bundle to
-    #    find one asset's numbers.
-    envelope = {"schema_version", "as_of", "provenance"}
-    assert set(HistoricalStatsBody.model_fields) - {"by_regime"} == (
-        set(skill.AssetHistoricalStats.model_fields) - envelope
-    )
-    assert set(RegimeStats.model_fields) == set(skill.RegimeStats.model_fields)
+    assert skill.HistoricalStatsBody is HistoricalStatsBody
+    assert skill.CorrelationRowBody is CorrelationRowBody
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("saa.skills.historical_analysis.models")
 
 
 def test_historical_stats_window_keys_must_agree():

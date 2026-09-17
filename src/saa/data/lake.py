@@ -5,7 +5,7 @@ Layout (under ``data_dir``)::
     raw/<source>/<run_id>/<payload>           exact bytes returned by the source (audit trail)
     curated/<dataset>/<run_id>.parquet        schema-conformed table, one file per ingestion run
     catalog.json                              dataset -> versions (rows, date range, sha256)
-    runs/<run_id>.json                        ingestion run log
+    ingestion_runs/<run_id>.json              ingestion run log (pipeline runs live in runs/)
     reports/validation_<run_id>.json          data-quality report
 
 Curated versions are immutable, so a pipeline run can pin exact dataset versions and be

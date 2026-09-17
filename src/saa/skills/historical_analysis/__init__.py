@@ -1,24 +1,26 @@
-"""Historical-analysis skill: return, risk, drawdown and correlation statistics per asset."""
+"""Historical-analysis skill: return, risk, drawdown and correlation statistics per asset.
+
+Writes the shared ``historical_stats`` and ``correlation_row`` contracts; the models live in
+``saa.contracts.asset_class``, not here.
+"""
 
 from saa.skills.historical_analysis.analysis import (
+    AGENT,
     AnalysisSettings,
+    HistoricalAnalysis,
+    StockBondCorrelation,
+    render_asset_report,
     render_summary,
     run_historical_analysis,
     write_outputs,
 )
-from saa.skills.historical_analysis.models import (
-    AssetHistoricalStats,
-    CorrelationRow,
-    HistoricalAnalysis,
-    WindowStats,
-)
 
 __all__ = [
+    "AGENT",
     "AnalysisSettings",
-    "AssetHistoricalStats",
-    "CorrelationRow",
     "HistoricalAnalysis",
-    "WindowStats",
+    "StockBondCorrelation",
+    "render_asset_report",
     "render_summary",
     "run_historical_analysis",
     "write_outputs",

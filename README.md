@@ -130,7 +130,8 @@ output. See `docs/ips.md` for the three layers, the benchmark choice, and the op
 
 - **Config-driven.** Tickers and series IDs live only in `config/`.
 - **Versioned and reproducible.** Each ingestion run writes immutable curated parquet files
-  (`data/curated/<dataset>/<run_id>.parquet`), archives raw payloads, and logs to `data/runs/`.
+  (`data/curated/<dataset>/<run_id>.parquet`), archives raw payloads, and logs to
+  `data/ingestion_runs/`. Pipeline runs (agent outputs) live in `data/runs/<pipeline_run_id>/`.
 - **Resilient.** Per-item failures are recorded as warnings. Entities a source fails to deliver
   are carried forward from the previous version instead of disappearing.
 - **Point-in-time.** Every look-ahead-sensitive row has an `available_from` date, and revised

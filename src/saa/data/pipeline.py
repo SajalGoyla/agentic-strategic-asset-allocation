@@ -130,5 +130,5 @@ def run_ingestion(
         report = validate_lake(config, lake)
         lake.write_json(f"reports/validation_{run_id}.json", report.to_dict())
         summary["validation"] = report.summary()
-    lake.write_json(f"runs/{run_id}.json", summary)
+    lake.write_json(f"ingestion_runs/{run_id}.json", summary)
     return summary, report

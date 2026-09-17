@@ -84,14 +84,19 @@ volatility, Sharpe and hit rate. This is the input to the regime-adjusted ERP CM
 ## Outputs
 
 ```
-<out>/historical_analysis.json            full bundle
-<out>/assets/<asset_id>/historical_stats.json
-<out>/assets/<asset_id>/correlation_row.json
-<out>/summary.md                          human-readable table
+runs/<pipeline_run_id>/cma/<asset_id>/historical_stats.json
+runs/<pipeline_run_id>/cma/<asset_id>/correlation_row.json
+runs/<pipeline_run_id>/cma/<asset_id>/analysis.md        per-asset narrative
+runs/<pipeline_run_id>/reports/historical_analysis.md    table across the 18 assets
 ```
 
-Every output carries `as_of`, `data_end` and `provenance` (dataset versions read). Models are in
-`models.py`, schema version `0.1-draft`.
+The models are the shared contracts `historical_stats` and `correlation_row` in
+`saa.contracts.asset_class`; this skill does not define its own. `saa.run.RunContext` writes
+them, filling the header with the run id, `as_of`, the IPS version and `provenance` (the dataset
+versions read). Returns and risk figures are decimals (0.05 = 5%); see `docs/contracts.md`.
+
+`stock_bond_correlation` is returned by `run_historical_analysis()` for the covariance agent but
+is not a contract file; it appears in the run-level markdown summary.
 
 ## How agents should use it
 
