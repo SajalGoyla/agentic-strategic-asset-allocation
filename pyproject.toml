@@ -9,6 +9,7 @@ authors = [
     { name = "Shambhawi Bhure" },
 ]
 dependencies = [
+    "anthropic>=0.40",
     "pandas>=2.2",
     "pyarrow>=16.0",
     "requests>=2.31",
@@ -25,6 +26,7 @@ dependencies = [
 saa-data = "saa.cli:main"
 saa-skill = "saa.skills.cli:main"
 saa-contracts = "saa.contracts.export:main"
+saa-agent = "saa.agents.cli:main"
 
 [dependency-groups]
 dev = [
@@ -41,6 +43,7 @@ packages = ["src/saa"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-q"
 
 [tool.ruff]

@@ -1,0 +1,123 @@
+# Macro regime scoring: which indicators feed each dimension, how each is transformed, and
+# how much it counts.
+#
+# Ang, Azimbayev & Kim (2026) §3.2 describe "a weighted scoring framework" over four
+# dimensions -- growth, inflation, monetary policy and financial conditions -- but do not
+# publish the indicators, transforms or weights. Everything below is our choice.
+#
+# Each indicator is transformed to a comparable number, mapped to a score in [-1, +1] against
+# its own history, then multiplied by `sign` and averaged within its dimension using `weight`.
+#
+#   transform   level            the value as published
+#               yoy              percent change vs. 12 months earlier
+#               mom_annualised   percent change vs. last month, annualised
+#               diff             change vs. `diff_months` months earlier (default 12)
+#               zscore           standardised against its own trailing history
+#               percentile       rank within its own trailing history
+#
+#   sign        +1 when a HIGHER transformed value means a stronger score for that dimension,
+#               -1 when it means a weaker one. Read each dimension as "+1 is good for risk
+#               assets": growth strong, inflation contained, policy easy, conditions loose.
+#
+#   weight      relative within the dimension; normalised over whichever indicators have data
+#               at the requested as_of, so a missing series reweights rather than skews.
+#
+# After the transform, every indicator is scored by z-scoring the transformed series against
+# `lookback_years` of its own history and squashing with tanh, so one extreme print cannot
+# dominate a dimension. `percentile` skips the z-score and maps [0, 1] onto [-1, +1].
+
+lookback_years: 20 # trailing window each indicator is scored against
+momentum_months: 6 # horizon for the growth-momentum term used in regime classification
+min_indicators: 2 # a dimension needs this many live indicators or its score is unusable
+
+dimensions:
+  # ------------------------------------------------------------------------------ growth
+  # +1 = activity strong and broadening. RECPROUSM156N is deliberately absent: it is a
+  # smoothed recession probability re-estimated after the fact, which makes it a label rather
+  # than a signal (see docs/macro_agent.md).
+  growth:
+    indicators:
+      - {series: PAYEMS, transform: mom_annualised, sign: +1, weight: 0.20}
+      - {series: CFNAI, transform: level, sign: +1, weight: 0.15}
+      - {series: INDPRO, transform: yoy, sign: +1, weight: 0.12}
+      - {series: RSAFS, transform: yoy, sign: +1, weight: 0.10}
+      - {series: GDPC1, transform: yoy, sign: +1, weight: 0.12}
+      - {series: GDPNOW, transform: level, sign: +1, weight: 0.08}
+      - {series: UNRATE, transform: diff, diff_months: 12, sign: -1, weight: 0.10}
+      - {series: ICSA, transform: yoy, sign: -1, weight: 0.05}
+      - {series: JTSJOL, transform: yoy, sign: +1, weight: 0.04}
+      - {series: SAHMREALTIME, transform: level, sign: -1, weight: 0.02}
+      - {series: UMCSENT, transform: yoy, sign: +1, weight: 0.02}
+
+  # --------------------------------------------------------------------------- inflation
+  # +1 = inflation contained and expectations anchored, so every indicator carries sign -1.
+  inflation:
+    indicators:
+      - {series: CPILFESL, transform: yoy, sign: -1, weight: 0.22}
+      - {series: PCEPILFE, transform: yoy, sign: -1, weight: 0.22}
+      - {series: CPIAUCSL, transform: yoy, sign: -1, weight: 0.15}
+      - {series: PCEPI, transform: yoy, sign: -1, weight: 0.11}
+      - {series: T5YIFR, transform: level, sign: -1, weight: 0.10}
+      - {series: T10YIE, transform: level, sign: -1, weight: 0.08}
+      - {series: T5YIE, transform: level, sign: -1, weight: 0.05}
+      - {series: MICH, transform: level, sign: -1, weight: 0.04}
+      - {series: EXPINF10YR, transform: level, sign: -1, weight: 0.03}
+
+  # --------------------------------------------------------------------- monetary_policy
+  # +1 = policy stance easy or easing. The curve spreads enter with sign +1 because inversion
+  # (a negative spread) is the tight, late-cycle reading.
+  monetary_policy:
+    indicators:
+      - {series: DFEDTARU, transform: diff, diff_months: 12, sign: -1, weight: 0.22}
+      - {series: DFF, transform: level, sign: -1, weight: 0.13}
+      - {series: T10Y3M, transform: level, sign: +1, weight: 0.18}
+      - {series: T10Y2Y, transform: level, sign: +1, weight: 0.12}
+      - {series: DFII10, transform: level, sign: -1, weight: 0.15}
+      - {series: DGS2, transform: diff, diff_months: 6, sign: -1, weight: 0.10}
+      - {series: WALCL, transform: yoy, sign: +1, weight: 0.10}
+
+  # ---------------------------------------------------------------- financial_conditions
+  # +1 = conditions loose, spreads tight, volatility low. NFCI and STLFSI4 are already
+  # constructed so that positive means tighter, hence sign -1.
+  financial_conditions:
+    indicators:
+      - {series: NFCI, transform: level, sign: -1, weight: 0.24}
+      - {series: BAA10Y, transform: level, sign: -1, weight: 0.18}
+      - {series: VIXCLS, transform: level, sign: -1, weight: 0.16}
+      - {series: STLFSI4, transform: level, sign: -1, weight: 0.14}
+      - {series: BAMLH0A0HYM2, transform: level, sign: -1, weight: 0.12}
+      - {series: BAMLC0A0CM, transform: level, sign: -1, weight: 0.08}
+      - {series: DTWEXBGS, transform: yoy, sign: -1, weight: 0.08}
+
+# Rules mapping the four dimension scores onto the paper's four regimes. Evaluated top to
+# bottom; the first rule whose conditions all hold wins, and `default` applies if none do.
+#
+# The shape follows the standard cycle: contraction is defined by the level of growth, and
+# whether it is recession or recovery by whether growth is still falling or already turning.
+# Late-cycle is positive but deteriorating growth, or positive growth alongside an inflation
+# or policy squeeze -- which is how §4.1 reaches "late-cycle with stagflationary risk".
+classification:
+  rules:
+    - regime: recession
+      when: {growth_below: -0.35, momentum_below: 0.0}
+    - regime: recovery
+      when: {growth_below: -0.35, momentum_at_least: 0.0}
+    - regime: recovery
+      when: {growth_below: 0.0, momentum_at_least: 0.20}
+    - regime: late_cycle
+      when: {growth_at_least: 0.0, momentum_below: -0.15}
+    - regime: late_cycle
+      when: {growth_at_least: 0.0, inflation_below: -0.30}
+    - regime: late_cycle
+      when: {growth_at_least: 0.0, monetary_policy_below: -0.40}
+    - regime: expansion
+      when: {growth_at_least: 0.0}
+  default: late_cycle
+
+# Confidence in the deterministic call, before the LLM forms its own view. Starts from how
+# far the dimension scores sit from the thresholds they were tested against, then is reduced
+# when dimensions disagree or when indicators are missing.
+confidence:
+  margin_full: 0.30 # distance past a threshold that counts as unambiguous
+  dispersion_penalty: 0.35 # weight on disagreement between the four dimension scores
+  coverage_penalty: 0.50 # weight on the share of configured indicators that had no data

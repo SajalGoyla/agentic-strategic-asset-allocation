@@ -211,84 +211,6 @@
       "title": "ModelCall",
       "type": "object"
     },
-    "PcCategory": {
-      "description": "Exhibit 5's four families, plus the researcher's own slot (Exhibit 9 lists it as\n\"E: PC-Researcher\").",
-      "enum": [
-        "heuristic",
-        "return_optimized",
-        "risk_structured",
-        "non_traditional",
-        "pc_researcher"
-      ],
-      "title": "PcCategory",
-      "type": "string"
-    },
-    "PeerReviewBody": {
-      "additionalProperties": false,
-      "properties": {
-        "kind": {
-          "$ref": "#/$defs/ReviewKind"
-        },
-        "rationale": {
-          "title": "Rationale",
-          "type": "string"
-        },
-        "reviewed_agent_id": {
-          "title": "Reviewed Agent Id",
-          "type": "string"
-        },
-        "reviewed_category": {
-          "$ref": "#/$defs/PcCategory"
-        },
-        "reviewer_agent_id": {
-          "title": "Reviewer Agent Id",
-          "type": "string"
-        },
-        "reviewer_category": {
-          "$ref": "#/$defs/PcCategory"
-        },
-        "score": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Score",
-          "type": "number"
-        },
-        "strengths": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Strengths",
-          "type": "array"
-        },
-        "technical_errors": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Technical Errors",
-          "type": "array"
-        },
-        "weaknesses": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Weaknesses",
-          "type": "array"
-        }
-      },
-      "required": [
-        "reviewer_agent_id",
-        "reviewer_category",
-        "reviewed_agent_id",
-        "reviewed_category",
-        "kind",
-        "strengths",
-        "weaknesses",
-        "score",
-        "rationale"
-      ],
-      "title": "PeerReviewBody",
-      "type": "object"
-    },
     "Producer": {
       "description": "Who generated a body: deterministic code, an LLM, or both.",
       "enum": [
@@ -299,14 +221,98 @@
       "title": "Producer",
       "type": "string"
     },
-    "ReviewKind": {
-      "description": "Intra-category review \"is more likely to identify technical errors within a shared\nframework\"; inter-category review \"can challenge foundational assumptions\".",
+    "Regime": {
       "enum": [
-        "intra_category",
-        "inter_category"
+        "expansion",
+        "late_cycle",
+        "recession",
+        "recovery"
       ],
-      "title": "ReviewKind",
+      "title": "Regime",
       "type": "string"
+    },
+    "RegimeHistoryBody": {
+      "additionalProperties": false,
+      "description": "Month-by-month regime labels (\u00a73.3 method 2, and regime-conditional statistics).\n\nWritten by the same deterministic scorer that produces ``macro-view.json``, so the label\nhistory and the current call can never disagree. ``point_in_time`` records whether each\nmonth was scored from data public at the time or from the latest vintage -- a backtest\nconditioning on these labels needs to know which.",
+      "properties": {
+        "lookback_years": {
+          "title": "Lookback Years",
+          "type": "integer"
+        },
+        "months": {
+          "items": {
+            "$ref": "#/$defs/RegimeMonth"
+          },
+          "title": "Months",
+          "type": "array"
+        },
+        "point_in_time": {
+          "title": "Point In Time",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "months",
+        "point_in_time",
+        "lookback_years"
+      ],
+      "title": "RegimeHistoryBody",
+      "type": "object"
+    },
+    "RegimeMonth": {
+      "additionalProperties": false,
+      "description": "One month's regime label and the dimension scores behind it.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "financial_conditions": {
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Financial Conditions",
+          "type": "number"
+        },
+        "growth": {
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Growth",
+          "type": "number"
+        },
+        "inflation": {
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Inflation",
+          "type": "number"
+        },
+        "monetary_policy": {
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Monetary Policy",
+          "type": "number"
+        },
+        "regime": {
+          "$ref": "#/$defs/Regime"
+        }
+      },
+      "required": [
+        "date",
+        "regime",
+        "confidence",
+        "growth",
+        "inflation",
+        "monetary_policy",
+        "financial_conditions"
+      ],
+      "title": "RegimeMonth",
+      "type": "object"
     },
     "Tier": {
       "description": "Model routing tier (project plan \u00a76). Recorded so spend is attributable per agent.",
@@ -321,7 +327,7 @@
   "additionalProperties": false,
   "properties": {
     "body": {
-      "$ref": "#/$defs/PeerReviewBody"
+      "$ref": "#/$defs/RegimeHistoryBody"
     },
     "header": {
       "$ref": "#/$defs/Header"
@@ -331,6 +337,6 @@
     "header",
     "body"
   ],
-  "title": "AgentOutput[PeerReviewBody]",
+  "title": "AgentOutput[RegimeHistoryBody]",
   "type": "object"
 }

@@ -65,6 +65,9 @@ from saa.contracts.macro import (
     PitQuality,
     RecessionProbability,
     Regime,
+    RegimeHistory,
+    RegimeHistoryBody,
+    RegimeMonth,
     Transform,
 )
 from saa.contracts.portfolio import (
@@ -159,6 +162,9 @@ __all__ = [
     "Producer",
     "RecessionProbability",
     "Regime",
+    "RegimeHistory",
+    "RegimeHistoryBody",
+    "RegimeMonth",
     "RegimeStats",
     "ReviewKind",
     "Scenario",
