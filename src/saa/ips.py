@@ -67,7 +67,10 @@ class UniverseBounds(BaseModel):
 class UniversePolicy(BaseModel):
     source: str
     permitted: Permitted = Field(default_factory=Permitted)
-    bounds: UniverseBounds = Field(default_factory=UniverseBounds)
+    # None when the IPS sets no weight limits at all. The ratified policy does exactly that:
+    # the asset classes are broad enough that ruling out a concentrated allocation would
+    # constrain the portfolio-construction agents rather than protect the portfolio.
+    bounds: UniverseBounds | None = None
 
 
 class ReturnObjective(BaseModel):
@@ -142,7 +145,9 @@ class ActiveRisk(BaseModel):
 
 class Rebalancing(BaseModel):
     cadence: str
-    drift_trigger_pct: float
+    # None when rebalancing is on the calendar only. A drift trigger needs a stated remedy for
+    # a breach, which the ratified policy deliberately does not define.
+    drift_trigger_pct: float | None = None
 
 
 class EscalationTrigger(BaseModel):
@@ -175,7 +180,13 @@ class IPS(BaseModel):
         return self.status == "draft"
 
     def group_bound(self, group: str) -> Bound | None:
+        if self.universe.bounds is None:
+            return None
         return self.universe.bounds.per_group.get(group)
+
+    @property
+    def has_weight_bounds(self) -> bool:
+        return self.universe.bounds is not None
 
 
 # ------------------------------------------------------------------------ compliance check
@@ -317,7 +328,11 @@ def _check_structure(
                 limit=1.0,
             )
 
-    per_asset = ips.universe.bounds.per_asset
+    bounds = ips.universe.bounds
+    if bounds is None:  # the ratified policy sets no weight limits
+        return
+
+    per_asset = bounds.per_asset
     for asset_id, weight in sorted(held.items()):
         if not per_asset.contains(weight):
             report.add(
@@ -333,7 +348,7 @@ def _check_structure(
     by_group: dict[str, float] = {}
     for asset_id, weight in held.items():
         by_group[known[asset_id].group] = by_group.get(known[asset_id].group, 0.0) + weight
-    for group, bound in sorted(ips.universe.bounds.per_group.items()):
+    for group, bound in sorted(bounds.per_group.items()):
         weight = by_group.get(group, 0.0)
         if not bound.contains(weight):
             report.add(

@@ -1,6 +1,14 @@
 import pytest
+from pydantic import ValidationError
 
-from saa.ips import HARD, SOFT, PortfolioMetrics, check_compliance, real_return_pct
+from saa.ips import (
+    HARD,
+    Bound,
+    PortfolioMetrics,
+    UniverseBounds,
+    check_compliance,
+    real_return_pct,
+)
 
 # Ang, Azimbayev & Kim (2026) Exhibit 11: the final allocation from the paper's March 2026 run.
 # Weights are reported to one decimal and sum to 99.8%, so tests that are not about the
@@ -66,24 +74,48 @@ def test_ips_loads_and_matches_the_paper(ips):
     assert ips.objectives.cma_horizon_years == 3
 
 
-def test_draft_status_is_visible_to_agents(ips):
-    # Agents must be able to say they ran against an unratified policy.
-    assert ips.is_draft is (ips.status == "draft")
+def test_the_policy_is_still_a_draft(ips):
+    """Faculty answered the open questions on 2026-09-25 but did not sign the document off.
+
+    Answering individual questions is not ratification, so agents keep recording that they ran
+    against a draft until someone explicitly ratifies it.
+    """
+    assert ips.status == "draft"
+    assert ips.ratified_by is None and ips.ratified_on is None
+    assert ips.is_draft is True
+
+
+def test_ratifying_requires_a_signatory_and_a_date(ips):
+    payload = ips.model_dump(by_alias=True)
+    with pytest.raises(ValidationError, match="needs both ratified_by and ratified_on"):
+        type(ips).model_validate({**payload, "status": "ratified"})
+
+
+def test_benchmark_matches_the_split_faculty_chose(ips):
+    """Faculty, 2026-09-25: equity as proposed, bonds 75% Intermediate Treasuries / 25% IG.
+
+    All three legs sit inside the 18-asset universe, so tracking error is computed from the
+    same covariance matrix the PC agents use rather than needing a 19th row.
+    """
+    weights = ips.active_risk.benchmark.weights
+    assert weights == {
+        "us_large_cap": 0.60,
+        "intermediate_treasuries": 0.30,
+        "ig_corporates": 0.10,
+    }
+    bond_sleeve = weights["intermediate_treasuries"] + weights["ig_corporates"]
+    assert bond_sleeve == pytest.approx(0.40)
+    assert weights["intermediate_treasuries"] / bond_sleeve == pytest.approx(0.75)
 
 
 def test_benchmark_is_a_measuring_stick_not_a_candidate_portfolio(ips, universe):
-    """The 60/40 benchmark is deliberately more concentrated than the IPS lets a *portfolio* be.
+    """The benchmark is a reference index, not an allocation the IPS governs.
 
-    A 60% single-asset weight would be a hard violation for a PC agent's proposal, but the
-    benchmark is a reference index, not an allocation the IPS governs. Load-time validation
-    therefore checks only that it is well-formed, and `check_compliance` is never applied to
-    it. Pinned here so nobody "fixes" the per-asset cap to accommodate the benchmark.
+    Load-time validation checks only that it is well-formed; `check_compliance` is never
+    applied to it. Pinned so the distinction survives any future reintroduction of bounds.
     """
     report = check_compliance(ips.active_risk.benchmark.weights, None, ips, universe)
-    assert {v.entity for v in report.violations if v.rule == "bounds.per_asset"} == {
-        "us_large_cap",
-        "intermediate_treasuries",
-    }
+    assert [v.rule for v in report.violations] == []
 
 
 # ------------------------------------------------------------------------ structural rules
@@ -126,39 +158,41 @@ def test_leverage_is_rejected(ips, universe):
     assert "universe.leverage" in rules(report)
 
 
-def test_per_asset_cap(ips, universe):
-    # Only us_large_cap breaches the 25% cap; every group bound is satisfied.
-    weights = {
-        "us_large_cap": 0.30,
-        "intl_developed": 0.20,
-        "intermediate_treasuries": 0.25,
-        "short_treasuries": 0.15,
-        "cash": 0.10,
-    }
-    report = check_compliance(weights, None, ips, universe)
-    assert rules(report) == {"bounds.per_asset"}
-    violation = report.violations[0]
-    assert violation.entity == "us_large_cap"
-    assert violation.severity == HARD
-    assert violation.limit == 0.25
+def test_the_policy_sets_no_weight_limits(ips, universe):
+    """Faculty, 2026-09-25: "Since the assets are really asset classes, I\'m not sure we need
+    weight limits -- why rule out the possibility of going all in on one asset class."
+
+    The binding constraints are the volatility band, the drawdown limit and tracking error.
+    """
+    assert ips.has_weight_bounds is False
+    assert ips.universe.bounds is None
+    assert ips.group_bound("equity") is None
+
+    # An all-equity portfolio is structurally legal; only the risk limits can reject it.
+    all_equity = {"us_large_cap": 0.5, "intl_developed": 0.5}
+    assert check_compliance(all_equity, None, ips, universe).violations == []
 
 
-def test_per_group_floor_and_cap(ips, universe):
-    # All-equity: breaches the equity cap and every other group's floor.
-    report = check_compliance(
-        {
-            "us_large_cap": 0.2,
-            "us_value": 0.2,
-            "us_growth": 0.2,
-            "us_small_cap": 0.2,
-            "intl_developed": 0.2,
+def test_bounds_still_bind_if_a_future_policy_reintroduces_them(ips, universe):
+    """The machinery is retained, not deleted, so bounds can come back without a code change."""
+    bounded = ips.model_copy(deep=True)
+    bounded.universe.bounds = UniverseBounds(
+        per_asset=Bound(min=0.0, max=0.25),
+        per_group={
+            "equity": Bound(min=0.30, max=0.70),
+            "fixed_income": Bound(min=0.20, max=0.60),
+            "real_assets": Bound(min=0.0, max=0.15),
+            "cash": Bound(min=0.0, max=0.15),
         },
-        None,
-        ips,
-        universe,
     )
-    entities = {v.entity for v in report.violations if v.rule == "bounds.per_group"}
-    assert "equity" in entities and "fixed_income" in entities
+    report = check_compliance({"us_large_cap": 0.5, "intl_developed": 0.5}, None, bounded, universe)
+    assert {v.rule for v in report.violations} == {"bounds.per_asset", "bounds.per_group"}
+
+
+def test_rebalancing_is_calendar_only(ips):
+    """Faculty, 2026-09-25: skip drift triggers, since a trigger needs a stated remedy."""
+    assert ips.rebalancing.cadence == "quarterly"
+    assert ips.rebalancing.drift_trigger_pct is None
 
 
 # ------------------------------------------------------------- objectives and active risk
@@ -166,7 +200,15 @@ def test_real_return_is_fisher_exact():
     assert real_return_pct(6.87, 2.4) == pytest.approx(4.365, abs=1e-3)
 
 
-def test_return_target_is_soft_and_does_not_disqualify(ips, universe):
+def test_every_ips_limit_is_hard(ips, universe):
+    """Faculty, 2026-09-25, asked how strictly the pipeline should hold to the IPS limits:
+    "treat them as hard constraints". Every limit binds, the return target included.
+    """
+    assert ips.objectives.return_.severity == HARD
+    assert ips.objectives.volatility.severity == HARD
+    assert ips.objectives.max_drawdown.severity == HARD
+    assert ips.active_risk.tracking_error.severity == HARD
+
     metrics = PortfolioMetrics(
         expected_return_pct=4.0,
         expected_inflation_pct=2.4,
@@ -176,8 +218,19 @@ def test_return_target_is_soft_and_does_not_disqualify(ips, universe):
     )
     report = check_compliance(normalised(PAPER_PORTFOLIO), metrics, ips, universe)
     violation = next(v for v in report.violations if v.rule == "objectives.return")
-    assert violation.severity == SOFT
-    assert report.compliant is True
+    assert violation.severity == HARD
+    assert report.compliant is False
+
+
+def test_the_return_target_binds_from_above_as_well_as_below(ips, universe):
+    """A consequence worth seeing: earning MORE than CPI + 4% disqualifies a portfolio too."""
+    over = PortfolioMetrics(expected_return_pct=8.0, expected_inflation_pct=2.4)
+    under = PortfolioMetrics(expected_return_pct=4.0, expected_inflation_pct=2.4)
+    weights = normalised(PAPER_PORTFOLIO)
+    for metrics in (over, under):
+        report = check_compliance(weights, metrics, ips, universe)
+        assert "objectives.return" in rules(report)
+        assert report.compliant is False
 
 
 def test_volatility_band_is_breached_on_both_sides(ips, universe):
@@ -225,17 +278,15 @@ def test_the_papers_own_portfolio_breaches_three_of_its_own_limits(ips, universe
     paper's wording faithfully therefore disqualifies the paper's own result.
 
     Structurally the portfolio is fine, and tracking error (2.41% vs. a 6% budget) has plenty
-    of room. The three breaches are policy questions for faculty, not bugs:
+    of room.
 
-    * Volatility 7.54% is *below* the band. Being less risky than policy contemplates is not
-      obviously a fiduciary breach -- a case for making the band's lower bound soft.
-    * Drawdown -25.6% breaches -25%, but that is a 1996-2026 backtest figure, not an ex-ante
-      estimate. Whether the limit binds ex-ante or on the backtest needs deciding.
-    * Real return 4.37% is above the 3-4% band, which conflicts with the below-band
-      volatility -- the portfolio is forecast to earn more while risking less.
+    Resolved by faculty on 2026-09-25: "Those look like cases of bad rounding. Let's treat them
+    as hard constraints." All three limits therefore bind -- on both sides of each band, and on
+    the backtest as well as ex-ante -- and we accept that the paper's own published figures
+    would not clear them.
 
-    See docs/ips.md. Pinned as a test so the tension is visible before the CRO agent (Wk 7)
-    starts rejecting candidates on these rules.
+    Kept as a test because it is the clearest statement of what the CRO agent will enforce from
+    Week 7, and because relaxing any of the three should have to change a test that says why.
     """
     report = check_compliance(normalised(PAPER_PORTFOLIO), PAPER_METRICS, ips, universe)
     assert rules(report) == {
@@ -243,7 +294,11 @@ def test_the_papers_own_portfolio_breaches_three_of_its_own_limits(ips, universe
         "objectives.max_drawdown",
         "objectives.return",
     }
-    assert {v.rule for v in report.hard} == {"objectives.volatility", "objectives.max_drawdown"}
-    assert {v.rule for v in report.soft} == {"objectives.return"}
+    assert {v.rule for v in report.hard} == {
+        "objectives.volatility",
+        "objectives.max_drawdown",
+        "objectives.return",
+    }
+    assert report.soft == []
     assert report.compliant is False
     assert "active_risk.tracking_error" not in rules(report)
