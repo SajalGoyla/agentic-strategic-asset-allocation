@@ -60,6 +60,14 @@ _SPECS = [
         description="Macro regime classification consumed by every downstream agent (§3.2)",
     ),
     Spec(
+        name=macro.HISTORY_CONTRACT,
+        filename=macro.HISTORY_FILENAME,
+        body=macro.RegimeHistoryBody,
+        stage="macro",
+        produced_by=Producer.SCRIPT,
+        description="Month-by-month regime labels for regime-conditional statistics (§3.3)",
+    ),
+    Spec(
         name=ac.STATS_CONTRACT,
         filename=ac.STATS_FILENAME,
         body=ac.HistoricalStatsBody,

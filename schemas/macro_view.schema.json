@@ -150,7 +150,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "0.1.0",
+          "default": "0.2.0",
           "title": "Schema Version",
           "type": "string"
         },
@@ -350,6 +350,19 @@
       "additionalProperties": false,
       "description": "Deterministic output of the regime-scoring script.",
       "properties": {
+        "data_end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data End"
+        },
         "dimensions": {
           "items": {
             "$ref": "#/$defs/DimensionScore"
@@ -367,6 +380,11 @@
           },
           "title": "Pit Quality",
           "type": "array"
+        },
+        "point_in_time": {
+          "default": false,
+          "title": "Point In Time",
+          "type": "boolean"
         }
       },
       "required": [

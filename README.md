@@ -6,7 +6,8 @@ review, and a CIO ensemble. See `Agentic_SAA_12Week_Project_Plan.md` for scope a
 
 **Current status:** Phase 1 data layer (ingestion, validation, point-in-time access) and
 the IPS that governs every downstream agent (`docs/ips.md`, draft pending faculty
-ratification), plus the output contracts every agent reads and writes (`docs/contracts.md`).
+ratification), the output contracts every agent reads and writes (`docs/contracts.md`), and
+the macro regime agent -- stage 1 of the pipeline (`docs/macro_agent.md`).
 
 ## Setup
 
@@ -19,6 +20,7 @@ uv run saa-data validate     # re-run data-quality checks
 uv run saa-data build-history  # rebuild spliced monthly returns without re-downloading
 uv run saa-skill historical-analysis [--as-of YYYY-MM-DD]  # per-asset stats and correlations
 uv run saa-contracts        # regenerate schemas/ after changing a contract model
+uv run saa-agent macro --no-llm   # macro regime scoring, deterministic (no API key)
 uv run pytest
 ```
 
@@ -55,10 +57,14 @@ config/
   cma_inputs.yaml      data inputs for the 6 CMA methods (+ auto-blend), with known gaps
   data_sources.yaml    source endpoints, rate limits, validation thresholds
   ips.yaml             Investment Policy Statement: universe, objectives, risk budget
+  macro_scoring.yaml   macro indicators, transforms, weights and classification rules
 src/saa/
   config.py            typed config loading and cross-validation
   ips.py               IPS model and check_compliance(), shared by the CRO and CIO agents
   contracts/           agent output contracts: one model per JSON file the pipeline writes
+  llm.py               Anthropic client: model routing, structured outputs, retries, cost
+  agents/macro/        the macro regime agent (AGENT.md + agent.py)
+  skills/macro_regime/ the four-dimension scoring framework (SKILL.md + scoring.py)
   cli.py               `saa-data` command
   data/
     sources/           one connector per source (FRED, Yahoo, French, Treasury, Shiller, SPF, World Bank, WRDS)
@@ -75,6 +81,7 @@ src/saa/
 docs/data_sources.md   source rationale, point-in-time rules, gaps and alternatives
 docs/ips.md            the IPS in narrative form, and the numbers awaiting ratification
 docs/contracts.md      the output contracts, and the paper rules they validate
+docs/macro_agent.md    the macro agent, and its validation against NBER recession dates
 schemas/               generated JSON Schemas (`uv run saa-contracts`)
 data/                  (git-ignored) raw payloads, curated versions, run logs, reports
 ```

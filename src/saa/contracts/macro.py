@@ -103,6 +103,13 @@ class MacroScores(Contract):
     dimensions: list[DimensionScore]
     pit_quality: list[PitQuality] = Field(default_factory=list)
     lookback_years: int
+    # The last month that could actually be scored. Monthly growth releases lag by weeks, so
+    # this is normally a month or two behind ``header.as_of``; the gap is the ragged edge, and
+    # a reader needs it to know how stale the call is.
+    data_end: date | None = None
+    # False when the history was scored from the latest vintage of each series rather than
+    # re-queried at every month end. Correct for a live run; not point-in-time for a backtest.
+    point_in_time: bool = False
 
     @model_validator(mode="after")
     def _all_four(self) -> MacroScores:
@@ -170,3 +177,52 @@ class MacroViewBody(Contract):
 
 
 MacroView = AgentOutput[MacroViewBody]
+
+
+# --------------------------------------------------------------------------- regime_history
+HISTORY_CONTRACT = "regime_history"
+HISTORY_FILENAME = "regime_history.json"
+
+
+class RegimeMonth(Contract):
+    """One month's regime label and the dimension scores behind it."""
+
+    date: date
+    regime: Regime
+    confidence: float = Field(ge=0.0, le=1.0)
+    growth: float = Field(ge=-1.0, le=1.0)
+    inflation: float = Field(ge=-1.0, le=1.0)
+    monetary_policy: float = Field(ge=-1.0, le=1.0)
+    financial_conditions: float = Field(ge=-1.0, le=1.0)
+
+
+class RegimeHistoryBody(Contract):
+    """Month-by-month regime labels (§3.3 method 2, and regime-conditional statistics).
+
+    Written by the same deterministic scorer that produces ``macro-view.json``, so the label
+    history and the current call can never disagree. ``point_in_time`` records whether each
+    month was scored from data public at the time or from the latest vintage -- a backtest
+    conditioning on these labels needs to know which.
+    """
+
+    months: list[RegimeMonth]
+    point_in_time: bool
+    lookback_years: int
+
+    @model_validator(mode="after")
+    def _ordered_and_unique(self) -> RegimeHistoryBody:
+        dates = [m.date for m in self.months]
+        if not dates:
+            raise ValueError("regime history is empty")
+        if len(set(dates)) != len(dates):
+            raise ValueError("regime history has duplicate months")
+        if dates != sorted(dates):
+            raise ValueError("regime history must be in ascending date order")
+        return self
+
+    def labels(self) -> dict[date, str]:
+        """Month -> regime label, for `conditional_stats(returns, risk_free, labels)`."""
+        return {m.date: m.regime.value for m in self.months}
+
+
+RegimeHistory = AgentOutput[RegimeHistoryBody]
