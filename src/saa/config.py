@@ -299,13 +299,14 @@ def _cross_validate_ips(ips: IPS, universe: Universe, macro: MacroCatalog) -> No
             f"universe.yaml: {unknown}"
         )
 
-    undeclared = sorted(set(ips.universe.bounds.per_group) - groups)
-    if undeclared:
-        raise ValueError(f"ips.yaml per_group bounds reference unknown groups: {undeclared}")
-
-    uncovered = sorted(groups - set(ips.universe.bounds.per_group))
-    if uncovered:
-        raise ValueError(f"ips.yaml declares no per_group bounds for: {uncovered}")
+    if ips.universe.bounds is not None:
+        per_group = ips.universe.bounds.per_group
+        undeclared = sorted(set(per_group) - groups)
+        if undeclared:
+            raise ValueError(f"ips.yaml per_group bounds reference unknown groups: {undeclared}")
+        uncovered = sorted(groups - set(per_group))
+        if uncovered:
+            raise ValueError(f"ips.yaml declares no per_group bounds for: {uncovered}")
 
     if ips.objectives.return_.inflation_series not in set(macro.ids):
         raise ValueError(

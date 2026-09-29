@@ -4,10 +4,10 @@ A scaled replication of Ang, Azimbayev & Kim (2026), *The Self-Driving Portfolio
 for macro regime classification, capital market assumptions, portfolio construction, peer
 review, and a CIO ensemble. See `Agentic_SAA_12Week_Project_Plan.md` for scope and milestones.
 
-**Current status:** Phase 1 data layer (ingestion, validation, point-in-time access) and
-the IPS that governs every downstream agent (`docs/ips.md`, draft pending faculty
-ratification), the output contracts every agent reads and writes (`docs/contracts.md`), and
-the macro regime agent -- stage 1 of the pipeline (`docs/macro_agent.md`).
+**Current status:** Phase 1 complete. The data layer (ingestion, validation, point-in-time
+access), the IPS that governs every downstream agent (`docs/ips.md`), the output contracts
+every agent reads and writes (`docs/contracts.md`), and the macro regime agent -- stage 1 of
+the pipeline (`docs/macro_agent.md`).
 
 ## Setup
 
@@ -79,7 +79,7 @@ src/saa/
   skills/              deterministic skills agents call (SKILL.md methodology + Python, no LLM)
     historical_analysis/  returns, risk, drawdowns, correlations -> historical_stats.json
 docs/data_sources.md   source rationale, point-in-time rules, gaps and alternatives
-docs/ips.md            the IPS in narrative form, and the numbers awaiting ratification
+docs/ips.md            the IPS in narrative form, and the provenance of every figure
 docs/contracts.md      the output contracts, and the paper rules they validate
 docs/macro_agent.md    the macro agent, and its validation against NBER recession dates
 schemas/               generated JSON Schemas (`uv run saa-contracts`)
@@ -125,7 +125,7 @@ report = check_compliance(weights, metrics, config.ips, config.universe)
 
 report.compliant      # False if any hard violation -- the CIO may not select it
 report.hard           # disqualifying violations
-report.soft           # flag in the board memo, do not disqualify
+report.soft           # flag in the board memo, do not disqualify (none in force today)
 report.not_evaluated  # rules no metric was supplied for; not the same as passing
 report.to_dict()      # embed in risk_report.json / cio_decision.json
 ```

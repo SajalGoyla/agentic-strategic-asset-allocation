@@ -407,6 +407,10 @@ def test_pc_proposal_must_be_fully_invested():
 
 
 def test_pc_proposal_embeds_a_real_compliance_report(config):
+    """A breach found by `saa.ips` travels into the contract verbatim.
+
+    Volatility of 14% is outside the ratified 8-12% band, which is a hard rule.
+    """
     weights = {
         "us_large_cap": 0.30,
         "intl_developed": 0.20,
@@ -415,7 +419,7 @@ def test_pc_proposal_embeds_a_real_compliance_report(config):
         "cash": 0.10,
     }
     report = check_compliance(
-        weights, PortfolioMetrics(expected_volatility_pct=9.5), config.ips, config.universe
+        weights, PortfolioMetrics(expected_volatility_pct=14.0), config.ips, config.universe
     )
     proposal = PcProposalBody(
         agent_id="risk_parity",
@@ -423,14 +427,17 @@ def test_pc_proposal_embeds_a_real_compliance_report(config):
         category=PcCategory.RISK_STRUCTURED,
         weights=weights,
         expected_return_pct=6.0,
-        expected_volatility_pct=9.5,
+        expected_volatility_pct=14.0,
         sharpe_ratio=0.4,
         ips_compliance=IpsCompliance.from_report(report),
         rationale="...",
     )
-    # us_large_cap at 30% breaches the 25% per-asset cap; the contract carries that verbatim.
     assert proposal.ips_compliance.compliant is False
-    assert any(v.rule == "bounds.per_asset" for v in proposal.ips_compliance.violations)
+    violation = next(
+        v for v in proposal.ips_compliance.violations if v.rule == "objectives.volatility"
+    )
+    assert violation.severity == "hard"
+    assert violation.observed == 14.0
 
 
 # --------------------------------------------------------------------------------- review
