@@ -29,7 +29,7 @@ Six stages, each writing JSON contracts plus a markdown narrative that the next 
                              cio_decision.json
 ```
 
-Stages 1 and the shared skills exist today; stages 2-6 are scheduled work (`docs/status.md`).
+Stage 1, the covariance skill behind stage 3, the CMA method calculators behind stage 2, and the shared skills exist today; the stage 2 judge and stages 3-6 are scheduled work (`docs/status.md`).
 
 ## Layers
 
@@ -50,7 +50,9 @@ version, and `provenance()` reports those pins for the output header.
 
 **Skills are deterministic.** A skill is a `SKILL.md` methodology document plus Python that
 computes: `historical_analysis` (returns, risk, drawdowns, correlations per asset) and
-`macro_regime` (transforms, indicator scoring, regime classification). They never call a model,
+`macro_regime` (transforms, indicator scoring, regime classification), `covariance`
+(sample, Ledoit-Wolf, exponential and regime-conditional estimators) and `cma_methods` (every
+candidate expected return per asset, the input to the CMA judge). They never call a model,
 so they are testable, cheap, and identical across runs.
 
 **Agents add judgment.** Following §3.2 an agent is four things: an `AGENT.md` description read

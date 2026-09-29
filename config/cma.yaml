@@ -1,0 +1,110 @@
+# Parameters of the CMA method calculators (src/saa/skills/cma_methods).
+#
+# config/cma_inputs.yaml says which data each method reads; this file holds the numbers the
+# calculators need that no dataset supplies. Every estimate is an arithmetic expected annual
+# return, nominal, in percent, over the IPS horizon (config/ips.yaml: cma_horizon_years).
+#
+# Provenance tags, as in ips.yaml:
+#   [paper]      Ang, Azimbayev & Kim (2026)
+#   [literature] a published source, named inline
+#   [proposed]   ours, not yet reviewed -- change freely, the tests do not pin these values
+
+# Which methods run for which assets, by group (equity, fixed_income, real_assets, cash) or by
+# asset id. Anything not listed is written as unavailable
+# ("not applicable"), so every cma_methods.json lists the same methods in the same order.
+applies_to:
+  historical_erp: [equity, fixed_income, real_assets, cash]
+  regime_adjusted: [equity, fixed_income, real_assets, cash]
+  bl_equilibrium: [equity, fixed_income, real_assets, cash]
+  inverse_gordon: [equity, reits]
+  implied_erp_cape: [equity, reits]
+  survey_consensus: [equity, fixed_income, cash]
+  yield_building_block: [fixed_income, cash]
+
+# Base confidence per method [proposed]. The calculators scale it down for thin data or a
+# fallback input (see `adjustments`), and the auto-blend weights methods by the result.
+# Lower for fixed income on the historical methods: 1990-2026 was a secular fall in yields, so
+# realised bond premia overstate what today's yields can deliver.
+confidence:
+  historical_erp: {default: 0.5, fixed_income: 0.3, cash: 0.3}
+  regime_adjusted: {default: 0.4, fixed_income: 0.25, cash: 0.25}
+  bl_equilibrium: {default: 0.4}
+  inverse_gordon: {default: 0.6}
+  implied_erp_cape: {default: 0.5}
+  survey_consensus: {default: 0.5}
+  yield_building_block: {default: 0.8}
+
+adjustments:
+  # A method using a proxy input (e.g. an ETF trailing P/E instead of Shiller CAPE, or the
+  # Moody's AAA/BAA average instead of the ICE index yield) is scaled by this factor [proposed].
+  fallback_input: 0.7
+  # REIT earnings are depressed by depreciation, so P/E-based methods mislead [proposed].
+  reits_valuation: 0.6
+  # Unhedged foreign bonds: the yield is local, the return is in USD [proposed].
+  currency_unhedged: 0.6
+
+history:
+  start: "1990-01-01"  # [paper] "historical data from January 1990"
+  full_confidence_months: 360  # historical_erp confidence scales with months / this [proposed]
+
+regime:
+  # The premium is predictive: the excess return over the horizon *after* each past month in
+  # the current regime. Credibility weighting: premium = w * regime premium + (1 - w) *
+  # unconditional premium, w = n / (n + k) for n such months [proposed]. Recession months are
+  # few and forward windows overlap, so k keeps a thin regime from swinging the estimate.
+  credibility_months: 60
+
+black_litterman:
+  # [literature: He & Litterman 1999 use 2.5; Idzorek 2005 uses 3.07]. "historical" instead
+  # calibrates it as the AUM portfolio's mean excess return over its variance, clamped to the
+  # bounds; on 1990-2026 data that gives ~5.4, inflated by an unusually strong equity sample,
+  # and scales every equilibrium premium up by more than 2x.
+  risk_aversion: 2.5
+  risk_aversion_bounds: [1.0, 10.0]
+
+valuation:
+  # CAPE is assumed to revert to its median since this date over `reversion_years` [proposed].
+  # Since 1990 rather than 1881: the post-1990 mix of sectors, accounting and payout policy
+  # differs from the long Shiller sample (median ~26 vs ~17), and the older anchor would imply
+  # permanently negative valuation drift.
+  cape_anchor_since: "1990-01-01"
+  reversion_years: 10
+  max_stale_days: 190  # a valuation or yield older than this is treated as missing
+  max_survey_age_days: 400  # SPF long-horizon questions are asked once a year, in Q1
+
+# Starting yields for the fixed-income builder: the first recipe with data wins, each recipe
+# the mean of its series. `fallback: true` marks a proxy recipe (confidence x fallback_input).
+yields:
+  short_treasuries: [{series: [DGS1, DGS2, DGS3]}]
+  intermediate_treasuries: [{series: [DGS7, DGS10]}]
+  long_treasuries: [{series: [DGS20, DGS30]}]
+  # ICE BofA index yields exist on FRED only for the last ~3 years; Moody's before that.
+  ig_corporates: [{series: [BAMLC0A0CMEY]}, {series: [AAA, BAA], fallback: true}]
+  hy_corporates: [{series: [BAMLH0A0HYM2EY]}]
+  # EMB holds sovereigns; the only free EM yield is the ICE EM corporate index.
+  usd_em_debt: [{series: [BAMLEMCBPIEY], fallback: true}]
+  intl_sovereigns:
+    - {series: [IRLTLT01DEM156N, IRLTLT01JPM156N, IRLTLT01GBM156N, IRLTLT01FRM156N, IRLTLT01CAM156N], unhedged: true}
+  # Local government yield plus the US IG spread as the credit premium.
+  intl_corporates:
+    - {series: [IRLTLT01DEM156N, IRLTLT01GBM156N], add_spread: BAMLC0A0CM, unhedged: true}
+  cash: [{series: [DTB3]}]
+
+# Expected annual credit loss = default rate x (1 - recovery), percent [literature: Moody's
+# annual default studies, 1983-2023 averages: IG ~0.1% defaults, HY ~4% at ~40% recovery].
+credit_loss_pct:
+  ig_corporates: 0.1
+  intl_corporates: 0.1
+  hy_corporates: 2.5
+  usd_em_debt: 1.0
+
+# SPF 10-year forecasts (Philadelphia Fed) mapped to the asset they forecast [paper: method 6].
+# Each is an average annual (compound) return, so the calculator adds half the variance.
+survey:
+  us_large_cap: STOCK10
+  intermediate_treasuries: BOND10
+  cash: BILL10
+
+risk_free_series: DTB3
+growth_survey: RGDP10
+inflation_survey: CPI10

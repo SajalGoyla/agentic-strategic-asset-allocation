@@ -14,11 +14,12 @@ tests and is the only source of truth.
 | Historical-analysis skill (writes the shared contracts) | Done | Sajal |
 | Run context: run ids, directory layout, headers | Done | Sajal |
 | IPS (`config/ips.yaml`, `check_compliance`) | Done, v0.2 draft with faculty answers | Shambhawi |
-| Output contracts (16) + generated schemas | Done, schema 1.0.0 | Shambhawi |
+| Output contracts (16) + generated schemas | Done, schema 2.0.0 | Shambhawi |
 | LLM layer (routing, budget, retries) | Done | Shambhawi |
 | 1. Macro regime agent | Done: scoring skill + agent + `regime_history` | Shambhawi |
-| 2. Asset-class agents, CMA methods | Next (plan weeks 4-5) | Sajal + Shambhawi |
-| 3. Covariance agent | Next (week 5) | Sajal |
+| 2. Asset-class agents: CMA method calculators (all 18 assets) | Done | Sajal |
+| 2. Asset-class agents: signals skill, CMA judge | Next (plan weeks 4-5) | Sajal + Shambhawi |
+| 3. Covariance skill (Ledoit-Wolf default, chosen by out-of-sample test) | Done | Sajal |
 | 4. Portfolio-construction agents (10) | Not started (weeks 5-6) | both |
 | 5. CRO, peer review, Borda vote | Not started (weeks 7-8) | both |
 | 6. CIO agent + board memo | Not started (week 9) | Shambhawi |
@@ -49,12 +50,12 @@ tests and is the only source of truth.
 
 ## Next, in order
 
-1. Covariance skill → `covariance.json` (sample, Ledoit-Wolf, exponential estimators).
-2. WRDS valuation ingestion: Compustat CAPE and buybacks, I/B/E/S growth, CRSP market caps —
-   needed by three of the six CMA methods.
-3. CMA method calculators → `cma_methods.json` for all 18 assets.
-4. The CMA judge agent (`cma.json`), the first stage-2 agent.
-5. Point the macro agent at `RunContext` so every stage files outputs the same way.
+1. WRDS valuation ingestion: Compustat buybacks and earnings, I/B/E/S growth, CRSP market caps.
+   Lifts the Gordon method (no buyback yield today) and replaces ETF AUM as the
+   Black-Litterman weights.
+2. Signals skill (`signals.json`), the other deterministic input to the judge.
+3. The CMA judge agent (`cma.json`), the first stage-2 agent.
+4. Point the macro agent at `RunContext` so every stage files outputs the same way.
 
 ## Data facts worth not re-deriving
 

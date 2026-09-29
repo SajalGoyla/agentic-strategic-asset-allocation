@@ -191,7 +191,13 @@ METHODS_FILENAME = "cma_methods.json"
 
 
 class CmaMethodId(StrEnum):
-    """The seven candidates of Exhibit 4."""
+    """The seven candidates of Exhibit 4, plus the fixed-income builder.
+
+    Exhibit 4's methods are written for equities. §3.3 adds that fixed-income agents use "a
+    fixed-income CMA builder emphasising yield and credit-spread duration"; that builder is
+    ``YIELD_BUILDING_BLOCK`` (starting yield less expected credit losses), so bond and cash
+    agents get a yield-based candidate alongside the historical ones.
+    """
 
     HISTORICAL_ERP = "historical_erp"
     REGIME_ADJUSTED = "regime_adjusted"
@@ -199,20 +205,36 @@ class CmaMethodId(StrEnum):
     INVERSE_GORDON = "inverse_gordon"
     IMPLIED_ERP_CAPE = "implied_erp_cape"
     SURVEY_CONSENSUS = "survey_consensus"
+    YIELD_BUILDING_BLOCK = "yield_building_block"
     AUTO_BLEND = "auto_blend"
 
 
 class CmaMethodEstimate(Contract):
     """§3.3: "Each method returns a point estimate, a confidence score between 0 and 1, a
-    component breakdown, and a one-line rationale"."""
+    component breakdown, and a one-line rationale".
+
+    ``expected_return_pct`` is the arithmetic expected annual return, nominal, in percent. A
+    method that does not apply to the asset or lacks data carries ``unavailable_reason``, no
+    estimate and zero confidence -- never a placeholder number a reader could mistake for one.
+    """
 
     method: CmaMethodId
-    expected_return_pct: float
+    expected_return_pct: float | None = None
     confidence: float = Field(ge=0.0, le=1.0)
     components: dict[str, float] = Field(default_factory=dict)
     rationale: str
     # Set when a method could not be computed from free data (see config/cma_inputs.yaml).
     unavailable_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _estimate_iff_available(self) -> CmaMethodEstimate:
+        if self.unavailable_reason is None and self.expected_return_pct is None:
+            raise ValueError(f"{self.method}: an available method needs expected_return_pct")
+        if self.unavailable_reason is not None and (
+            self.expected_return_pct is not None or self.confidence != 0.0
+        ):
+            raise ValueError(f"{self.method}: an unavailable method has no estimate or confidence")
+        return self
 
 
 class CmaMethodsBody(Contract):
@@ -228,6 +250,8 @@ class CmaMethodsBody(Contract):
             raise ValueError("duplicate CMA methods")
         if CmaMethodId.AUTO_BLEND not in ids:
             raise ValueError("cma_methods must include the auto-blend (Exhibit 4 method 7)")
+        if CmaMethodId.AUTO_BLEND not in [m.method for m in self.available]:
+            raise ValueError("the auto-blend must be available: it blends at least one method")
         return self
 
     @property
@@ -238,7 +262,7 @@ class CmaMethodsBody(Contract):
     def method_range(self) -> tuple[float, float]:
         """The [min, max] the judge's final estimate must lie within."""
         values = [m.expected_return_pct for m in self.available]
-        return min(values), max(values)
+        return min(values), max(values)  # type: ignore[type-var]  # available => not None
 
 
 CmaMethods = AgentOutput[CmaMethodsBody]

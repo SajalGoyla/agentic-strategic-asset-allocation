@@ -125,6 +125,10 @@ rather than left as a second convention for the CMA agents to trip over. The ski
 `metrics.py` still returns decimals — it is generic statistics code — and the skill multiplies
 at the boundary, in one helper.
 
+CMA candidates in `cma_methods` are arithmetic expected annual returns, nominal, in percent
+(decision 19). A method that does not apply or lacks data has `expected_return_pct: null`,
+zero confidence and an `unavailable_reason`; `method_range` covers only available methods.
+
 ## The historical-analysis skill and these contracts
 
 The skill has no models of its own: it builds `HistoricalStatsBody` and `CorrelationRowBody`

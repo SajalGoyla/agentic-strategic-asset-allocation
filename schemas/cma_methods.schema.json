@@ -2,7 +2,7 @@
   "$defs": {
     "CmaMethodEstimate": {
       "additionalProperties": false,
-      "description": "\u00a73.3: \"Each method returns a point estimate, a confidence score between 0 and 1, a\ncomponent breakdown, and a one-line rationale\".",
+      "description": "\u00a73.3: \"Each method returns a point estimate, a confidence score between 0 and 1, a\ncomponent breakdown, and a one-line rationale\".\n\n``expected_return_pct`` is the arithmetic expected annual return, nominal, in percent. A\nmethod that does not apply to the asset or lacks data carries ``unavailable_reason``, no\nestimate and zero confidence -- never a placeholder number a reader could mistake for one.",
       "properties": {
         "components": {
           "additionalProperties": {
@@ -18,8 +18,16 @@
           "type": "number"
         },
         "expected_return_pct": {
-          "title": "Expected Return Pct",
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Return Pct"
         },
         "method": {
           "$ref": "#/$defs/CmaMethodId"
@@ -43,7 +51,6 @@
       },
       "required": [
         "method",
-        "expected_return_pct",
         "confidence",
         "rationale"
       ],
@@ -51,7 +58,7 @@
       "type": "object"
     },
     "CmaMethodId": {
-      "description": "The seven candidates of Exhibit 4.",
+      "description": "The seven candidates of Exhibit 4, plus the fixed-income builder.\n\nExhibit 4's methods are written for equities. \u00a73.3 adds that fixed-income agents use \"a\nfixed-income CMA builder emphasising yield and credit-spread duration\"; that builder is\n``YIELD_BUILDING_BLOCK`` (starting yield less expected credit losses), so bond and cash\nagents get a yield-based candidate alongside the historical ones.",
       "enum": [
         "historical_erp",
         "regime_adjusted",
@@ -59,6 +66,7 @@
         "inverse_gordon",
         "implied_erp_cape",
         "survey_consensus",
+        "yield_building_block",
         "auto_blend"
       ],
       "title": "CmaMethodId",
@@ -187,7 +195,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "1.0.0",
+          "default": "2.0.0",
           "title": "Schema Version",
           "type": "string"
         },
