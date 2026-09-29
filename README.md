@@ -82,8 +82,12 @@ docs/data_sources.md   source rationale, point-in-time rules, gaps and alternati
 docs/ips.md            the IPS in narrative form, and the provenance of every figure
 docs/contracts.md      the output contracts, and the paper rules they validate
 docs/macro_agent.md    the macro agent, and its validation against NBER recession dates
+docs/status.md         progress against the 12-week plan, open decisions, what is next
+docs/decisions.md      the decision log: what was chosen, why, and what it costs
 schemas/               generated JSON Schemas (`uv run saa-contracts`)
 data/                  (git-ignored) raw payloads, curated versions, run logs, reports
+CLAUDE.md              working rules and repo map (read first)
+DESIGN.md              architecture: layers, point-in-time model, contracts, runs
 ```
 
 ## Using the data from agents and skills
