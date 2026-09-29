@@ -30,6 +30,18 @@ MONTH_END = "ME"
 
 
 # --------------------------------------------------------------------------------- transforms
+def _proportional(series: pd.Series, periods: int) -> pd.Series:
+    """Percentage change over ``periods`` months, undefined against a non-positive base.
+
+    Series centred on zero (CFNAI, the Sahm gap) would otherwise divide by something near zero
+    and produce huge meaningless swings. `config/macro_scoring.yaml` scores those on `level` or
+    `diff`; this makes a mistaken `yoy` fail visibly as NaN rather than quietly poison a
+    dimension.
+    """
+    base = series.shift(periods)
+    return (series / base.where(base > 0) - 1) * 100
+
+
 def apply_transform(series: pd.Series, indicator: Indicator) -> pd.Series:
     """Turn a raw monthly series into the quantity that gets scored."""
     series = series.dropna()
@@ -39,9 +51,9 @@ def apply_transform(series: pd.Series, indicator: Indicator) -> pd.Series:
         case Transform.LEVEL:
             return series
         case Transform.YOY:
-            return series.pct_change(12, fill_method=None) * 100
+            return _proportional(series, 12)
         case Transform.MOM_ANNUALISED:
-            return ((1 + series.pct_change(fill_method=None)) ** 12 - 1) * 100
+            return ((1 + _proportional(series, 1) / 100) ** 12 - 1) * 100
         case Transform.DIFF:
             return series.diff(indicator.diff_months)
         case Transform.ZSCORE:

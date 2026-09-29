@@ -70,6 +70,8 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
   in `contracts/base.py` (minor for additive, major for breaking).
 - The header is machine-written. An LLM only ever fills a *judgment* model nested in the body.
 - Models forbid extra fields. A renamed field must fail loudly, not vanish.
+- Percent everywhere, named `_pct` (5.0 = 5%). Ratios — Sharpe, beta, correlation — carry no
+  suffix. `metrics.py` returns decimals and the skill converts once at the boundary.
 
 **Agents and LLM**
 - An agent is four things (paper §3.2): an `AGENT.md` description, scripts, skills, and an

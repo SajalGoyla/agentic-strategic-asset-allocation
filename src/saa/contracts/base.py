@@ -34,7 +34,7 @@ from typing import Generic, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Bump the minor version for additive changes, the major for anything that breaks a reader.
-SCHEMA_VERSION = "0.2.0"
+SCHEMA_VERSION = "1.0.0"
 
 # Weights come out of optimisers as floats; compare with a tolerance.
 WEIGHT_SUM_TOL = 1e-6

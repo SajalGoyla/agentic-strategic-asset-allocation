@@ -91,7 +91,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "0.2.0",
+          "default": "1.0.0",
           "title": "Schema Version",
           "type": "string"
         },
@@ -169,7 +169,7 @@
           "title": "Name",
           "type": "string"
         },
-        "recent_daily_volatility": {
+        "recent_daily_volatility_pct": {
           "additionalProperties": {
             "anyOf": [
               {
@@ -180,7 +180,7 @@
               }
             ]
           },
-          "title": "Recent Daily Volatility",
+          "title": "Recent Daily Volatility Pct",
           "type": "object"
         },
         "sources": {
@@ -316,7 +316,7 @@
       "additionalProperties": false,
       "description": "\u00a73.3 method 2 conditions the historical premium on the macro regime; these are the\nper-regime statistics that method reads.",
       "properties": {
-        "annualized_mean_return": {
+        "annualized_mean_return_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -326,9 +326,9 @@
             }
           ],
           "default": null,
-          "title": "Annualized Mean Return"
+          "title": "Annualized Mean Return Pct"
         },
-        "annualized_volatility": {
+        "annualized_volatility_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -338,9 +338,9 @@
             }
           ],
           "default": null,
-          "title": "Annualized Volatility"
+          "title": "Annualized Volatility Pct"
         },
-        "hit_rate": {
+        "hit_rate_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -350,7 +350,7 @@
             }
           ],
           "default": null,
-          "title": "Hit Rate"
+          "title": "Hit Rate Pct"
         },
         "months": {
           "title": "Months",
@@ -430,7 +430,7 @@
       "additionalProperties": false,
       "description": "Statistics over one trailing window. Null when the window lacks enough history.",
       "properties": {
-        "annualized_return": {
+        "annualized_return_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -440,9 +440,9 @@
             }
           ],
           "default": null,
-          "title": "Annualized Return"
+          "title": "Annualized Return Pct"
         },
-        "annualized_volatility": {
+        "annualized_volatility_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -452,19 +452,7 @@
             }
           ],
           "default": null,
-          "title": "Annualized Volatility"
-        },
-        "best_month": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Best Month"
+          "title": "Annualized Volatility Pct"
         },
         "best_month_date": {
           "anyOf": [
@@ -478,6 +466,18 @@
           ],
           "default": null,
           "title": "Best Month Date"
+        },
+        "best_month_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Best Month Pct"
         },
         "beta_to_us_large_cap": {
           "anyOf": [
@@ -515,7 +515,7 @@
           "default": null,
           "title": "Correlation To Us Large Cap"
         },
-        "cumulative_return": {
+        "cumulative_return_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -525,9 +525,9 @@
             }
           ],
           "default": null,
-          "title": "Cumulative Return"
+          "title": "Cumulative Return Pct"
         },
-        "current_drawdown": {
+        "current_drawdown_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -537,9 +537,9 @@
             }
           ],
           "default": null,
-          "title": "Current Drawdown"
+          "title": "Current Drawdown Pct"
         },
-        "cvar_95_monthly": {
+        "cvar_95_monthly_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -549,7 +549,7 @@
             }
           ],
           "default": null,
-          "title": "Cvar 95 Monthly"
+          "title": "Cvar 95 Monthly Pct"
         },
         "end": {
           "anyOf": [
@@ -576,7 +576,7 @@
           "default": null,
           "title": "Excess Kurtosis"
         },
-        "hit_rate": {
+        "hit_rate_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -586,19 +586,7 @@
             }
           ],
           "default": null,
-          "title": "Hit Rate"
-        },
-        "max_drawdown": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Max Drawdown"
+          "title": "Hit Rate Pct"
         },
         "max_drawdown_duration_months": {
           "anyOf": [
@@ -611,6 +599,18 @@
           ],
           "default": null,
           "title": "Max Drawdown Duration Months"
+        },
+        "max_drawdown_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Drawdown Pct"
         },
         "max_drawdown_peak": {
           "anyOf": [
@@ -656,7 +656,7 @@
           "title": "Months",
           "type": "integer"
         },
-        "proxy_share": {
+        "proxy_share_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -666,7 +666,7 @@
             }
           ],
           "default": null,
-          "title": "Proxy Share"
+          "title": "Proxy Share Pct"
         },
         "sharpe_ratio": {
           "anyOf": [
@@ -722,7 +722,7 @@
           "title": "Sufficient",
           "type": "boolean"
         },
-        "var_95_monthly": {
+        "var_95_monthly_pct": {
           "anyOf": [
             {
               "type": "number"
@@ -732,23 +732,11 @@
             }
           ],
           "default": null,
-          "title": "Var 95 Monthly"
+          "title": "Var 95 Monthly Pct"
         },
         "window": {
           "title": "Window",
           "type": "string"
-        },
-        "worst_month": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Worst Month"
         },
         "worst_month_date": {
           "anyOf": [
@@ -762,6 +750,18 @@
           ],
           "default": null,
           "title": "Worst Month Date"
+        },
+        "worst_month_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worst Month Pct"
         }
       },
       "required": [

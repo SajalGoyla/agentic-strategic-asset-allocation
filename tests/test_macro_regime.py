@@ -46,6 +46,16 @@ def test_level_passes_through():
     assert apply_transform(series, indicator()).tolist() == [1.0, 2.0, 3.0]
 
 
+def test_proportional_transforms_refuse_a_non_positive_base():
+    """CFNAI and the Sahm gap sit around zero. The config scores them on `level` or `diff`; a
+    mistaken `yoy` must come out NaN rather than divide by something near zero."""
+    series = monthly(np.linspace(-0.5, 0.5, 60))
+    out = apply_transform(series, indicator(transform=Transform.YOY))
+    base = series.shift(12)
+    assert out[base <= 0].isna().all()
+    assert out[base > 0].notna().any()
+
+
 # ----------------------------------------------------------------------------------- scoring
 def test_scores_are_bounded_and_centred():
     rng = np.random.default_rng(0)

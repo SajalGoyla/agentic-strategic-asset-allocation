@@ -51,27 +51,27 @@ business day of the next month) to include it.
 
 When a window is insufficient, `sufficient` is false and every metric is null.
 
-## Metric definitions (decimals; 0.05 = 5%)
+## Metric definitions (percent; 5.0 = 5%, and ratios carry no `_pct` suffix)
 
 | Field | Definition |
 |---|---|
-| `annualized_return` | Geometric: (product of 1 + r)^(12 / months) - 1 |
-| `annualized_volatility` | Sample standard deviation of monthly returns x sqrt(12) |
+| `annualized_return_pct` | Geometric: (product of 1 + r)^(12 / months) - 1 |
+| `annualized_volatility_pct` | Sample standard deviation of monthly returns x sqrt(12) |
 | `sharpe_ratio` | Mean monthly excess return x 12 / (std of excess returns x sqrt(12)) |
 | `sortino_ratio` | Mean excess return x 12 / (sqrt(mean(min(excess, 0)^2)) x sqrt(12)) |
-| `max_drawdown` | Worst decline of wealth from its running peak (wealth starts at 1); negative |
+| `max_drawdown_pct` | Worst decline of wealth from its running peak (wealth starts at 1); negative |
 | `max_drawdown_peak / trough / recovery` | Month-ends of that drawdown; null peak = window start, null recovery = not recovered |
 | `max_drawdown_duration_months` | Months from peak to recovery (or to window end) |
-| `current_drawdown` | Decline from the running peak at the window's last month |
-| `var_95_monthly` | Historical 5% quantile of monthly returns, as a positive loss |
-| `cvar_95_monthly` | Mean of monthly returns at or below that quantile, as a positive loss |
+| `current_drawdown_pct` | Decline from the running peak at the window's last month |
+| `var_95_monthly_pct` | Historical 5% quantile of monthly returns, as a positive loss |
+| `cvar_95_monthly_pct` | Mean of monthly returns at or below that quantile, as a positive loss |
 | `skewness`, `excess_kurtosis` | Sample skewness and excess kurtosis of monthly returns |
-| `best_month`, `worst_month` | Largest and smallest monthly return, with dates |
-| `hit_rate` | Share of months with a positive return |
+| `best_month_pct`, `worst_month_pct` | Largest and smallest monthly return, with dates |
+| `hit_rate_pct` | Share of months with a positive return |
 | `beta_to_us_large_cap` | Cov(asset, US Large Cap) / Var(US Large Cap) over the window |
 | `correlation_to_us_large_cap`, `correlation_to_intermediate_treasuries` | Equity and bond anchors |
-| `proxy_share` | Share of the window's months that come from proxies rather than the ETF |
-| `recent_daily_volatility` | ETF daily returns, last 63 / 252 trading days, x sqrt(252) |
+| `proxy_share_pct` | Share of the window's months that come from proxies rather than the ETF |
+| `recent_daily_volatility_pct` | ETF daily returns, last 63 / 252 trading days, x sqrt(252) |
 
 Correlations (`correlation_row.json`) use monthly returns over the `3y`, `5y`, `10y` and
 `since_1990` windows ending at the last month every asset has data, pairwise over months both
@@ -84,21 +84,27 @@ volatility, Sharpe and hit rate. This is the input to the regime-adjusted ERP CM
 ## Outputs
 
 ```
-<out>/historical_analysis.json            full bundle
-<out>/assets/<asset_id>/historical_stats.json
-<out>/assets/<asset_id>/correlation_row.json
-<out>/summary.md                          human-readable table
+runs/<pipeline_run_id>/cma/<asset_id>/historical_stats.json
+runs/<pipeline_run_id>/cma/<asset_id>/correlation_row.json
+runs/<pipeline_run_id>/cma/<asset_id>/analysis.md        per-asset narrative
+runs/<pipeline_run_id>/reports/historical_analysis.md    table across the 18 assets
 ```
 
-Every output carries `as_of`, `data_end` and `provenance` (dataset versions read). Models are in
-`models.py`, schema version `0.1-draft`.
+The models are the shared contracts `historical_stats` and `correlation_row` in
+`saa.contracts.asset_class`; this skill does not define its own. `saa.run.RunContext` writes
+them, filling the header with the run id, `as_of`, the IPS version and `provenance` (the dataset
+versions read). Returns and risk figures are percent (5.0 = 5%), like every other contract;
+ratios such as Sharpe, beta and correlation carry no `_pct` suffix. See `docs/contracts.md`.
+
+`stock_bond_correlation` is returned by `run_historical_analysis()` for the covariance agent but
+is not a contract file; it appears in the run-level markdown summary.
 
 ## How agents should use it
 
-- **Asset-class agent / CMA judge:** use `since_1990` or `10y` for long-run premia, `3y` for recent behaviour. Check `proxy_share`: a high share means the statistic leans on proxy data (see `docs/asset_data_map.md` for each proxy's tracking error). Quote `max_drawdown` with its dates.
+- **Asset-class agent / CMA judge:** use `since_1990` or `10y` for long-run premia, `3y` for recent behaviour. Check `proxy_share_pct`: a high share means the statistic leans on proxy data (see `docs/asset_data_map.md` for each proxy's tracking error). Quote `max_drawdown_pct` with its dates.
 - **Covariance agent:** start from the `5y` or `10y` correlations; compare against `3y` to flag regime shifts. `stock_bond_correlation` shows whether the equity-bond hedge currently works.
-- **CRO agent:** `var_95_monthly`, `cvar_95_monthly` and drawdowns are single-asset inputs; portfolio risk needs the covariance agent.
-- **PC agents:** `recent_daily_volatility` suits volatility targeting and inverse-volatility; monthly figures suit longer horizons.
+- **CRO agent:** `var_95_monthly_pct`, `cvar_95_monthly_pct` and drawdowns are single-asset inputs; portfolio risk needs the covariance agent.
+- **PC agents:** `recent_daily_volatility_pct` suits volatility targeting and inverse-volatility; monthly figures suit longer horizons.
 
 ## Caveats
 

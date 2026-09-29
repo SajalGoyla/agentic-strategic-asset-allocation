@@ -28,9 +28,10 @@ from saa.contracts.base import AgentOutput, Confidence, Contract
 # once the project schemas are agreed"; this is where they move to. Its envelope fields
 # (schema_version, as_of, provenance) become ``Header``; the rest is the body.
 #
-# UNITS: returns and risk figures here are DECIMALS (0.05 = 5%), matching the skill. Every other
-# contract, and ``saa.ips``, uses percent. That split is a project-wide decision still open --
-# see docs/contracts.md. Nothing converts silently: the suffix tells you which you have.
+# UNITS: percent, like every other contract and ``saa.ips`` -- the paper states its figures that
+# way ("CPI + 3.0-4.0%", "8-12%", "-25%"). A field carrying a percentage ends in ``_pct`` and
+# holds 5.0 for 5%. Quantities that are not percentages -- Sharpe, Sortino, beta, correlation,
+# skewness, kurtosis -- have no suffix and are plain ratios. See docs/contracts.md.
 STATS_CONTRACT = "historical_stats"
 STATS_FILENAME = "historical_stats.json"
 
@@ -44,35 +45,35 @@ class WindowStats(Contract):
     months: int = 0
     sufficient: bool = False
 
-    annualized_return: float | None = None  # geometric
-    cumulative_return: float | None = None
-    annualized_volatility: float | None = None
-    sharpe_ratio: float | None = None  # vs the 3-month T-bill
-    sortino_ratio: float | None = None
+    annualized_return_pct: float | None = None  # geometric
+    cumulative_return_pct: float | None = None
+    annualized_volatility_pct: float | None = None
+    sharpe_ratio: float | None = None  # ratio, vs the 3-month T-bill
+    sortino_ratio: float | None = None  # ratio
 
-    max_drawdown: float | None = None  # negative decimal
+    max_drawdown_pct: float | None = None  # negative, e.g. -35.0
     max_drawdown_peak: date | None = None
     max_drawdown_trough: date | None = None
     max_drawdown_recovery: date | None = None  # null when not yet recovered
     max_drawdown_duration_months: int | None = None
-    current_drawdown: float | None = None
+    current_drawdown_pct: float | None = None
 
-    var_95_monthly: float | None = None  # historical VaR, positive loss
-    cvar_95_monthly: float | None = None  # expected shortfall, positive loss
-    skewness: float | None = None
-    excess_kurtosis: float | None = None
+    var_95_monthly_pct: float | None = None  # historical VaR, positive loss
+    cvar_95_monthly_pct: float | None = None  # expected shortfall, positive loss
+    skewness: float | None = None  # ratio
+    excess_kurtosis: float | None = None  # ratio
 
-    best_month: float | None = None
+    best_month_pct: float | None = None
     best_month_date: date | None = None
-    worst_month: float | None = None
+    worst_month_pct: float | None = None
     worst_month_date: date | None = None
-    hit_rate: float | None = None
+    hit_rate_pct: float | None = None  # share of positive months
 
-    beta_to_us_large_cap: float | None = None
-    correlation_to_us_large_cap: float | None = None
-    correlation_to_intermediate_treasuries: float | None = None
+    beta_to_us_large_cap: float | None = None  # ratio
+    correlation_to_us_large_cap: float | None = None  # ratio
+    correlation_to_intermediate_treasuries: float | None = None  # ratio
     # Share of months served by a pre-ETF proxy rather than the ETF itself.
-    proxy_share: float | None = None
+    proxy_share_pct: float | None = None
 
 
 class SourceSpan(Contract):
@@ -91,10 +92,10 @@ class RegimeStats(Contract):
 
     regime: str
     months: int
-    annualized_mean_return: float | None = None  # arithmetic
-    annualized_volatility: float | None = None
-    sharpe_ratio: float | None = None
-    hit_rate: float | None = None
+    annualized_mean_return_pct: float | None = None  # arithmetic
+    annualized_volatility_pct: float | None = None
+    sharpe_ratio: float | None = None  # ratio
+    hit_rate_pct: float | None = None
 
 
 class HistoricalStatsBody(Contract):
@@ -106,8 +107,8 @@ class HistoricalStatsBody(Contract):
     history_start: date | None = None
     sources: list[SourceSpan] = Field(default_factory=list)
     windows: dict[str, WindowStats]
-    # ETF daily-return volatility, annualised: "3m", "1y".
-    recent_daily_volatility: dict[str, float | None] = Field(default_factory=dict)
+    # ETF daily-return volatility, annualised percent: "3m", "1y".
+    recent_daily_volatility_pct: dict[str, float | None] = Field(default_factory=dict)
     by_regime: list[RegimeStats] = Field(default_factory=list)
 
     @model_validator(mode="after")

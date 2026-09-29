@@ -84,4 +84,4 @@ def test_run_ingestion_versions_and_carry_forward(tmp_config, monkeypatch):
     assert sorted(latest["curve"]) == ["nominal", "real"]
     assert len(lake.read_dataset(CURVE.name, run_id="run1")) == 2
     assert (lake.root / "raw" / "fake" / "run2" / "payload.csv").exists()
-    assert (lake.root / "runs" / "run2.json").exists()
+    assert (lake.root / "ingestion_runs" / "run2.json").exists()

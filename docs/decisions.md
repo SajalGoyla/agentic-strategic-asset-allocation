@@ -88,8 +88,15 @@ The scoring script's classification is given to the model as a prior, not an ins
 keeps the paper's "LLM handles judgment" property while leaving an audit trail when the model
 departs from the arithmetic.
 
-### 15. Units: decimals in historical stats, percent everywhere else — open
-`historical_stats` and `correlation_row` use decimals (0.05 = 5%); the IPS, CRO, CIO and board
-memo use percent, as the paper states its figures. Nothing converts silently and the suffix says
-which (`max_drawdown` vs `max_drawdown_pct`), but the split should be settled before the CMA
-agents read both. Standardising on percent changes one module; on decimals, five.
+### 15. Percent everywhere, with a `_pct` suffix — settled, 2026-09-29
+`historical_stats` and `correlation_row` briefly used decimals because the skill computes them
+that way, while the IPS, CRO, CIO and board memo used percent, as the paper states its figures.
+Two conventions in one pipeline is a bug waiting for the CMA agents, which read the first and
+write the second. Percent won: it matches the paper and changed one module instead of five.
+
+A field carrying a percentage now ends in `_pct` and holds 5.0 for 5%; ratios (Sharpe, Sortino,
+beta, correlation, skewness, kurtosis) keep no suffix. `metrics.py` still returns decimals,
+because it is generic statistics code, and the skill converts once at the boundary.
+Consequence: renaming fields breaks any reader, so `SCHEMA_VERSION` went to 1.0.0 under the
+rule in `contracts/base.py` (major for a breaking change). That is a statement about the
+contract format, not a claim that the project is finished.

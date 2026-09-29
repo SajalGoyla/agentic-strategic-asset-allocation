@@ -1,29 +1,38 @@
-"""Run the historical-analysis skill over the 18 asset classes."""
+"""Run the historical-analysis skill over the 18 asset classes.
+
+Outputs are the shared contracts ``historical_stats`` and ``correlation_row``
+(``saa.contracts.asset_class``), written into a pipeline run by ``saa.run.RunContext``.
+"""
 
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
 
-from saa.data.store import DataStore
-from saa.skills.historical_analysis import metrics as m
-from saa.skills.historical_analysis.models import (
-    AssetHistoricalStats,
-    CorrelationRow,
-    HistoricalAnalysis,
+from saa.contracts.asset_class import (
+    CORRELATION_CONTRACT,
+    STATS_CONTRACT,
+    CorrelationRowBody,
+    HistoricalStatsBody,
     RegimeStats,
     SourceSpan,
-    StockBondCorrelation,
     WindowStats,
 )
+from saa.contracts.base import Producer
+from saa.data.store import DataStore
+from saa.run import RunContext
+from saa.skills.historical_analysis import metrics as m
 
+AGENT = "historical-analysis"
 EQUITY_ANCHOR = "us_large_cap"
 BOND_ANCHOR = "intermediate_treasuries"
 MIN_MONTHS_OPEN_WINDOW = 36  # 'since_1990' / 'full' windows need at least 3 years
+ASSET_REPORT = "analysis.md"
+RUN_REPORT = "historical_analysis.md"
 
 DEFAULT_WINDOWS: dict[str, int | str] = {
     "1y": 12,
@@ -44,6 +53,33 @@ class AnalysisSettings:
     risk_free_series: str = "DTB3"
 
 
+@dataclass(frozen=True)
+class StockBondCorrelation:
+    """Rolling correlation of the equity and bond anchors: context for the covariance agent.
+    Not a contract -- no pipeline stage consumes it as a file."""
+
+    pair: tuple[str, str]
+    window_months: int
+    latest: float | None
+    one_year_ago: float | None
+    min_10y: float | None
+    max_10y: float | None
+
+
+@dataclass(frozen=True)
+class HistoricalAnalysis:
+    """In-memory result: one contract body per asset, plus run-level context."""
+
+    as_of: date
+    data_end: date | None
+    windows: dict[str, int | str]
+    risk_free: dict[str, str | float | None]
+    stats: dict[str, HistoricalStatsBody]
+    correlations: dict[str, CorrelationRowBody]
+    stock_bond_correlation: StockBondCorrelation | None
+    provenance: dict[str, dict]
+
+
 # --------------------------------------------------------------------------- helpers
 def _num(value) -> float | None:
     try:
@@ -51,6 +87,12 @@ def _num(value) -> float | None:
     except (TypeError, ValueError):
         return None
     return value if math.isfinite(value) else None
+
+
+def _pct_num(value) -> float | None:
+    """Metrics compute decimals; contracts carry percent (docs/contracts.md)."""
+    number = _num(value)
+    return None if number is None else number * 100
 
 
 def _day(value) -> date | None:
@@ -96,18 +138,16 @@ def source_spans(
     # object dtype: pyarrow-backed string comparisons yield bool[pyarrow], which has no cumsum
     source = frame["source"].astype(object)
     run_id = (source != source.shift()).cumsum()
-    spans = []
-    for _, g in frame.groupby(run_id, sort=False):
-        spans.append(
-            SourceSpan(
-                source=str(g["source"].iloc[0]),
-                kind=str(g["kind"].iloc[0]),
-                start=g.index.min().date(),
-                end=g.index.max().date(),
-                months=len(g),
-            )
+    return [
+        SourceSpan(
+            source=str(g["source"].iloc[0]),
+            kind=str(g["kind"].iloc[0]),
+            start=g.index.min().date(),
+            end=g.index.max().date(),
+            months=len(g),
         )
-    return spans
+        for _, g in frame.groupby(run_id, sort=False)
+    ]
 
 
 def window_stats(
@@ -134,30 +174,32 @@ def window_stats(
     bonds = anchors.get(BOND_ANCHOR, pd.Series(dtype=float)).reindex(returns.index)
     return stats.model_copy(
         update={
-            "annualized_return": _num(m.annualized_return(returns)),
-            "cumulative_return": _num(m.cumulative_return(returns)),
-            "annualized_volatility": _num(m.annualized_volatility(returns)),
+            "annualized_return_pct": _pct_num(m.annualized_return(returns)),
+            "cumulative_return_pct": _pct_num(m.cumulative_return(returns)),
+            "annualized_volatility_pct": _pct_num(m.annualized_volatility(returns)),
             "sharpe_ratio": _num(m.sharpe_ratio(returns, rf)),
             "sortino_ratio": _num(m.sortino_ratio(returns, rf)),
-            "max_drawdown": _num(dd.depth),
+            "max_drawdown_pct": _pct_num(dd.depth),
             "max_drawdown_peak": _day(dd.peak),
             "max_drawdown_trough": _day(dd.trough),
             "max_drawdown_recovery": _day(dd.recovery),
             "max_drawdown_duration_months": dd.duration_months,
-            "current_drawdown": _num(m.current_drawdown(returns)),
-            "var_95_monthly": _num(m.value_at_risk(returns)),
-            "cvar_95_monthly": _num(m.conditional_value_at_risk(returns)),
+            "current_drawdown_pct": _pct_num(m.current_drawdown(returns)),
+            "var_95_monthly_pct": _pct_num(m.value_at_risk(returns)),
+            "cvar_95_monthly_pct": _pct_num(m.conditional_value_at_risk(returns)),
             "skewness": _num(m.skewness(returns)),
             "excess_kurtosis": _num(m.excess_kurtosis(returns)),
-            "best_month": _num(returns.max()),
+            "best_month_pct": _pct_num(returns.max()),
             "best_month_date": _day(returns.idxmax()),
-            "worst_month": _num(returns.min()),
+            "worst_month_pct": _pct_num(returns.min()),
             "worst_month_date": _day(returns.idxmin()),
-            "hit_rate": _num(m.hit_rate(returns)),
+            "hit_rate_pct": _pct_num(m.hit_rate(returns)),
             "beta_to_us_large_cap": _num(m.beta(returns, equity)),
             "correlation_to_us_large_cap": _num(m.correlation(returns, equity)),
             "correlation_to_intermediate_treasuries": _num(m.correlation(returns, bonds)),
-            "proxy_share": _num((window_kinds != "etf").mean()) if len(window_kinds) else None,
+            "proxy_share_pct": _pct_num((window_kinds != "etf").mean())
+            if len(window_kinds)
+            else None,
         }
     )
 
@@ -168,6 +210,25 @@ def _daily_returns(store: DataStore, tickers: list[str], as_of: pd.Timestamp) ->
     except FileNotFoundError:
         return pd.DataFrame()
     return prices.pct_change(fill_method=None)
+
+
+def _regime_stats(
+    returns: pd.Series, risk_free: pd.Series, labels: pd.Series | None
+) -> list[RegimeStats]:
+    if labels is None:
+        return []
+    table = m.conditional_stats(returns, risk_free, labels)
+    return [
+        RegimeStats(
+            regime=str(row["regime"]),
+            months=int(row["months"]),
+            annualized_mean_return_pct=_pct_num(row["annualized_mean_return"]),
+            annualized_volatility_pct=_pct_num(row["annualized_volatility"]),
+            sharpe_ratio=_num(row["sharpe_ratio"]),
+            hit_rate_pct=_pct_num(row["hit_rate"]),
+        )
+        for row in table.to_dict("records")
+    ]
 
 
 def _stock_bond_correlation(
@@ -182,7 +243,7 @@ def _stock_bond_correlation(
         return None
     last_10y = rolling.loc[rolling.index > end - pd.DateOffset(years=10)]
     return StockBondCorrelation(
-        pair=[EQUITY_ANCHOR, BOND_ANCHOR],
+        pair=(EQUITY_ANCHOR, BOND_ANCHOR),
         window_months=window,
         latest=_num(rolling.iloc[-1]),
         one_year_ago=_num(rolling.iloc[-13]) if len(rolling) > 12 else None,
@@ -201,8 +262,8 @@ def run_historical_analysis(
 ) -> HistoricalAnalysis:
     """Statistics for every asset using only data available on ``as_of`` (default: today).
 
-    ``regime_labels`` (month-end index -> regime name, e.g. from the macro agent's historical
-    scoring) adds regime-conditional statistics per asset.
+    ``regime_labels`` (month-end index -> regime name, from the macro agent's historical
+    scoring) fills ``by_regime``, which the regime-adjusted CMA method reads.
     """
     store = store or DataStore()
     settings = settings or AnalysisSettings()
@@ -220,7 +281,7 @@ def run_historical_analysis(
     common_end = min(e for e in ends.values() if e is not None)
     anchors = {k: returns[k] for k in (EQUITY_ANCHOR, BOND_ANCHOR) if k in returns}
 
-    assets = []
+    stats: dict[str, HistoricalStatsBody] = {}
     for asset in store.universe.assets:
         if asset.id not in returns:
             continue
@@ -232,22 +293,20 @@ def run_historical_analysis(
                 name, window, is_sufficient(window, spec), risk_free, kinds[asset.id], anchors
             )
         daily_asset = daily[asset.ticker] if asset.ticker in daily else pd.Series(dtype=float)
-        assets.append(
-            AssetHistoricalStats(
-                asset_id=asset.id,
-                name=asset.name,
-                group=asset.group,
-                ticker=asset.ticker,
-                as_of=as_of_ts.date(),
-                data_end=_day(end),
-                history_start=_day(series.first_valid_index()),
-                sources=source_spans(sources[asset.id], kinds[asset.id], end),
-                windows=windows,
-                recent_daily_volatility={
-                    "3m": _num(m.realized_volatility(daily_asset, 63)),
-                    "1y": _num(m.realized_volatility(daily_asset, 252)),
-                },
-            )
+        stats[asset.id] = HistoricalStatsBody(
+            asset_id=asset.id,
+            name=asset.name,
+            group=asset.group,
+            ticker=asset.ticker,
+            data_end=_day(end),
+            history_start=_day(series.first_valid_index()),
+            sources=source_spans(sources[asset.id], kinds[asset.id], end),
+            windows=windows,
+            recent_daily_volatility_pct={
+                "3m": _pct_num(m.realized_volatility(daily_asset, 63)),
+                "1y": _pct_num(m.realized_volatility(daily_asset, 252)),
+            },
+            by_regime=_regime_stats(series, risk_free, regime_labels),
         )
 
     months, matrices = {}, {}
@@ -264,10 +323,9 @@ def run_historical_analysis(
         matrices[name] = m.correlation_matrix(
             frame, min_periods=min(MIN_MONTHS_OPEN_WINDOW, len(frame))
         )
-    correlation_rows = [
-        CorrelationRow(
+    correlations = {
+        asset_id: CorrelationRowBody(
             asset_id=asset_id,
-            as_of=as_of_ts.date(),
             end=_day(common_end),
             months=months,
             correlations={
@@ -280,26 +338,10 @@ def run_historical_analysis(
             },
         )
         for asset_id in returns.columns
-    ]
+    }
 
-    regime_stats = None
-    if regime_labels is not None:
-        regime_stats = {
-            asset_id: [
-                RegimeStats(**{k: (_num(v) if isinstance(v, float) else v) for k, v in row.items()})
-                for row in m.conditional_stats(returns[asset_id], risk_free, regime_labels).to_dict(
-                    "records"
-                )
-            ]
-            for asset_id in returns.columns
-        }
-
-    provenance = store.provenance()
-    for stats in assets:
-        stats.provenance = provenance
     return HistoricalAnalysis(
         as_of=as_of_ts.date(),
-        generated_at=datetime.now(UTC),
         data_end=_day(common_end),
         windows=settings.windows,
         risk_free={
@@ -307,26 +349,83 @@ def run_historical_analysis(
             "description": "FRED 3-month T-bill; monthly rate = previous month-end yield / 12",
             "current_annual_yield_pct": current_yield,
         },
-        assets=assets,
-        correlation_rows=correlation_rows,
+        stats=stats,
+        correlations=correlations,
         stock_bond_correlation=_stock_bond_correlation(
             returns, common_end, settings.rolling_correlation_months
         ),
-        regime_stats=regime_stats,
-        provenance=provenance,
+        provenance=store.provenance(),
     )
 
 
+# --------------------------------------------------------------------------- reports
 def _pct(value: float | None, digits: int = 1) -> str:
-    return "n/a" if value is None else f"{value * 100:.{digits}f}%"
+    """Contract values are already percent; this only formats them."""
+    return "n/a" if value is None else f"{value:.{digits}f}%"
 
 
 def _ratio(value: float | None) -> str:
     return "n/a" if value is None else f"{value:.2f}"
 
 
+def render_asset_report(stats: HistoricalStatsBody, analysis: HistoricalAnalysis) -> str:
+    """Per-asset markdown (§3.2: every agent output has a narrative half)."""
+    lines = [
+        f"# {stats.name} ({stats.ticker}) - historical analysis",
+        "",
+        f"As of {analysis.as_of}; monthly returns from {stats.history_start} through {stats.data_end}.",
+        "",
+        "| Window | Months | Return p.a. | Volatility | Sharpe | Max drawdown | Current DD | Proxy share |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for name, w in stats.windows.items():
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    name,
+                    str(w.months),
+                    _pct(w.annualized_return_pct),
+                    _pct(w.annualized_volatility_pct),
+                    _ratio(w.sharpe_ratio),
+                    _pct(w.max_drawdown_pct),
+                    _pct(w.current_drawdown_pct),
+                    _pct(w.proxy_share_pct, 0),
+                ]
+            )
+            + " |"
+        )
+    lines += ["", "## Return history sources", ""]
+    for span in stats.sources:
+        lines.append(
+            f"- `{span.source}` ({span.kind}): {span.start} to {span.end}, {span.months} months"
+        )
+    if stats.by_regime:
+        lines += [
+            "",
+            "## By macro regime",
+            "",
+            "| Regime | Months | Mean return p.a. | Volatility | Sharpe |",
+            "|---|---|---|---|---|",
+        ]
+        for r in stats.by_regime:
+            lines.append(
+                f"| {r.regime} | {r.months} | {_pct(r.annualized_mean_return_pct)} | "
+                f"{_pct(r.annualized_volatility_pct)} | {_ratio(r.sharpe_ratio)} |"
+            )
+    vol = stats.recent_daily_volatility_pct
+    lines += [
+        "",
+        f"Recent ETF daily volatility: 3-month {_pct(vol.get('3m'))}, 1-year {_pct(vol.get('1y'))}.",
+        "",
+        "Pre-ETF months come from proxies; `docs/asset_data_map.md` reports each proxy's tracking "
+        "error against the ETF.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def render_summary(analysis: HistoricalAnalysis) -> str:
-    """Human-readable markdown summary (the paper pairs every JSON output with a report)."""
+    """Run-level markdown summary across the 18 asset classes."""
     rf = analysis.risk_free.get("current_annual_yield_pct")
     lines = [
         f"# Historical analysis as of {analysis.as_of}",
@@ -337,22 +436,22 @@ def render_summary(analysis: HistoricalAnalysis) -> str:
         "| Asset | 10y return | 10y vol | 10y Sharpe | 10y max DD | Since-1990 return | Since-1990 vol | Current DD | Proxy share (since 1990) | 3m daily vol |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
-    for s in analysis.assets:
+    for s in analysis.stats.values():
         w10, w90 = s.windows.get("10y"), s.windows.get("since_1990")
         lines.append(
             "| "
             + " | ".join(
                 [
                     f"{s.name} ({s.ticker})",
-                    _pct(w10.annualized_return if w10 else None),
-                    _pct(w10.annualized_volatility if w10 else None),
+                    _pct(w10.annualized_return_pct if w10 else None),
+                    _pct(w10.annualized_volatility_pct if w10 else None),
                     _ratio(w10.sharpe_ratio if w10 else None),
-                    _pct(w10.max_drawdown if w10 else None),
-                    _pct(w90.annualized_return if w90 else None),
-                    _pct(w90.annualized_volatility if w90 else None),
-                    _pct(w10.current_drawdown if w10 else None),
-                    _pct(w90.proxy_share if w90 else None, 0),
-                    _pct(s.recent_daily_volatility.get("3m")),
+                    _pct(w10.max_drawdown_pct if w10 else None),
+                    _pct(w90.annualized_return_pct if w90 else None),
+                    _pct(w90.annualized_volatility_pct if w90 else None),
+                    _pct(w10.current_drawdown_pct if w10 else None),
+                    _pct(w90.proxy_share_pct if w90 else None, 0),
+                    _pct(s.recent_daily_volatility_pct.get("3m")),
                 ]
             )
             + " |"
@@ -373,24 +472,36 @@ def render_summary(analysis: HistoricalAnalysis) -> str:
     return "\n".join(lines) + "\n"
 
 
-def write_outputs(analysis: HistoricalAnalysis, out_dir: Path | str) -> Path:
-    """Write historical_analysis.json, per-asset historical_stats.json and correlation_row.json,
-    and summary.md."""
-    out_dir = Path(out_dir)
-    (out_dir / "assets").mkdir(parents=True, exist_ok=True)
-    (out_dir / "historical_analysis.json").write_text(
-        analysis.model_dump_json(indent=2), encoding="utf-8"
-    )
-    rows = {row.asset_id: row for row in analysis.correlation_rows}
-    for stats in analysis.assets:
-        asset_dir = out_dir / "assets" / stats.asset_id
-        asset_dir.mkdir(exist_ok=True)
-        (asset_dir / "historical_stats.json").write_text(
-            stats.model_dump_json(indent=2), encoding="utf-8"
+def write_outputs(analysis: HistoricalAnalysis, run: RunContext) -> list[Path]:
+    """Write historical_stats.json, correlation_row.json and analysis.md per asset, plus the
+    run-level summary. Returns every path written."""
+    written: list[Path] = []
+    for asset_id, stats in analysis.stats.items():
+        report = run.write_report(
+            render_asset_report(stats, analysis), ASSET_REPORT, asset_id=asset_id
         )
-        if stats.asset_id in rows:
-            (asset_dir / "correlation_row.json").write_text(
-                rows[stats.asset_id].model_dump_json(indent=2), encoding="utf-8"
+        written.append(report)
+        written.append(
+            run.write(
+                STATS_CONTRACT,
+                asset_id.replace("_", "-"),
+                stats,
+                produced_by=Producer.SCRIPT,
+                asset_id=asset_id,
+                provenance=analysis.provenance,
+                report_path=report,
             )
-    (out_dir / "summary.md").write_text(render_summary(analysis), encoding="utf-8")
-    return out_dir
+        )
+        if asset_id in analysis.correlations:
+            written.append(
+                run.write(
+                    CORRELATION_CONTRACT,
+                    asset_id.replace("_", "-"),
+                    analysis.correlations[asset_id],
+                    produced_by=Producer.SCRIPT,
+                    asset_id=asset_id,
+                    provenance=analysis.provenance,
+                )
+            )
+    written.append(run.write_report(render_summary(analysis), RUN_REPORT))
+    return written

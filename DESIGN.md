@@ -98,6 +98,8 @@ Every file is `header` + `body`:
   fabricate provenance, token counts or a run id.
 - **Extra fields are forbidden**, which is what makes the generated schemas strict and a
   renamed field fail loudly.
+- **Percent is the unit**, marked by a `_pct` suffix (5.0 = 5%), because that is how the paper
+  and the IPS state their figures. Ratios such as Sharpe and correlation carry no suffix.
 
 `contracts/registry.py` lists all 16 contracts with their filename, stage and producer;
 `uv run saa-contracts` regenerates `schemas/`, and a test fails if they drift.
