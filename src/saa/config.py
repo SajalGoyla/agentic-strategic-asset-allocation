@@ -236,10 +236,22 @@ class WorldBankSettings(BaseModel):
     release_lag_days: int = 5
 
 
+class EquityGroupSettings(BaseModel):
+    """Rank cut-offs for the US equity valuation stand-ins (saa.data.equity_valuation)."""
+
+    large_n: int = 500
+    style_n: int = 1000
+    small_n: int = 3000
+    lag_months: int = 6
+    max_age_months: int = 18
+
+
 class WrdsSettings(BaseModel):
     enabled: bool = True
     release_lag_days: int = 1
     treasury_series: list[str] = Field(default_factory=list)
+    valuation_start: date = date(1989, 1, 1)
+    equity_groups: EquityGroupSettings = Field(default_factory=EquityGroupSettings)
 
 
 class HistorySettings(BaseModel):

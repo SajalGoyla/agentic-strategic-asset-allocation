@@ -147,3 +147,26 @@ Calibrated from 1990-2026, δ = 5.4, which scales every equilibrium premium up b
 sample's equity returns were unusually strong. The literature value 2.5 (He & Litterman 1999) is
 the default; `risk_aversion: historical` in `config/cma.yaml` restores the calibration. Revisit
 when WRDS market caps replace ETF AUM as the weights.
+
+### 22. WRDS valuation as group aggregates, built in the pipeline — settled, 2026-09-29
+The equity CMA methods need payout, earnings and book yields per asset class with history, and
+only the S&P 500 has them publicly (Shiller). The WRDS source now rebuilds rule-based stand-ins
+each month from CRSP (CIZ `msf_v2`; the legacy `msf` stops at 2024-12), Compustat and I/B/E/S:
+the top 500 US common stocks, the top 1,000 split at median book-to-market, ranks 1,001-3,000,
+and all REITs. Rank rules, not vendor membership lists, because the lists are not in WRDS for
+all five groups and the rules are transparent and reproducible. Fundamentals count six months
+after fiscal year-end, so each month is point-in-time. Only the aggregates are stored; the
+firm-level extract is never written, which keeps the licensed footprint small. The large-cap
+dividend yield tracks Shiller's closely, which validates the construction. WRDS Bond Returns
+supplies IG/HY yields from 2002 and CRSP the ETFs' monthly market values. Its `t_spread` field
+was rejected as sparse and mis-benchmarked. Consequence: every WRDS-backed input has a public
+fallback, and the CMA rationale names the input actually used.
+
+### 23. Gordon uses net payout; the CAPE method prefers the ETF's P/E — settled, 2026-09-29
+The Gordon yield is dividends plus buybacks less issuance, which pairs with aggregate (GDP)
+growth. Dividends alone understate US income return, because buybacks are larger. The CAPE
+method keeps the ETF's trailing P/E when a snapshot exists, because the aggregate earnings of US
+small caps can be negative (loss-makers the index vendor's P/E excludes). WRDS is used only for
+earlier dates, and never when negative. A WRDS valuation older than 190 days is rolled forward by
+the ETF's price change, up to 400 days, since CRSP and Compustat are released only a few times
+a year.

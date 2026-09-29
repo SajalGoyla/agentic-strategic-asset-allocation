@@ -46,7 +46,8 @@ src/saa/
   llm.py      Anthropic client: model tiers, budget, retries, schema-constrained judgments
   contracts/  one model per JSON file the pipeline writes; `registry.py` is the index
   data/       sources/ (8 connectors) · lake.py (versioned parquet) · store.py (DataStore)
-              history.py (18-asset spliced returns) · validation.py · pipeline.py
+              history.py (18-asset spliced returns) · equity_valuation.py (WRDS group
+              aggregates) · validation.py · pipeline.py
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/ · cma_methods/
   agents/     LLM agents: macro/ (AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand

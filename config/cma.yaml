@@ -71,6 +71,9 @@ valuation:
   reversion_years: 10
   max_stale_days: 190  # a valuation or yield older than this is treated as missing
   max_survey_age_days: 400  # SPF long-horizon questions are asked once a year, in Q1
+  # WRDS (CRSP/Compustat) is updated a few times a year; a valuation older than max_stale_days
+  # but younger than this is rolled forward by the ETF price change [proposed].
+  max_rollforward_days: 400
 
 # Starting yields for the fixed-income builder: the first recipe with data wins, each recipe
 # the mean of its series. `fallback: true` marks a proxy recipe (confidence x fallback_input).
@@ -79,8 +82,13 @@ yields:
   intermediate_treasuries: [{series: [DGS7, DGS10]}]
   long_treasuries: [{series: [DGS20, DGS30]}]
   # ICE BofA index yields exist on FRED only for the last ~3 years; Moody's before that.
-  ig_corporates: [{series: [BAMLC0A0CMEY]}, {series: [AAA, BAA], fallback: true}]
-  hy_corporates: [{series: [BAMLH0A0HYM2EY]}]
+  # "wrds:<class>" is the TRACE-based yield of rated US corporates (licensed; from 2002).
+  ig_corporates:
+    - {series: [BAMLC0A0CMEY]}
+    - {series: ["wrds:investment_grade"], fallback: true}
+    - {series: [AAA, BAA], fallback: true}
+  # TRACE-priced HY is BB-heavy, so it runs below the ICE index where both exist.
+  hy_corporates: [{series: [BAMLH0A0HYM2EY]}, {series: ["wrds:high_yield"], fallback: true}]
   # EMB holds sovereigns; the only free EM yield is the ICE EM corporate index.
   usd_em_debt: [{series: [BAMLEMCBPIEY], fallback: true}]
   intl_sovereigns:

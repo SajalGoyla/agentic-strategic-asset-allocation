@@ -77,9 +77,10 @@ data above. "Macro view" is the paper's allowed alternative when no survey exist
 | Commodities | Historical, regime, BL, macro view | None; T-bill collateral | Inflation expectations | DTB3, WTI, Brent, copper |
 | Cash | Yield, survey | Treasury bill curve | SPF BILL10, TBILL path | DTB3, DGS1MO, fed funds |
 
-WRDS also gives access to Compustat, I/B/E/S and CRSP market caps, which can replace the ETF
-snapshot for US valuation (CAPE, buyback yield), analyst growth, and Black-Litterman weights.
-These are CMA-stage inputs and are not ingested yet.
+With WRDS, US equity valuation (dividend, buyback and earnings yields, analyst growth), IG/HY
+corporate yields from 2002 and the ETFs' monthly market values are ingested too
+(`docs/data_sources.md`, WRDS section); the CMA methods use them and fall back to the public
+inputs above without credentials.
 
 ## Weak spots to disclose in results
 

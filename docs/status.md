@@ -18,6 +18,7 @@ tests and is the only source of truth.
 | LLM layer (routing, budget, retries) | Done | Shambhawi |
 | 1. Macro regime agent | Done: scoring skill + agent + `regime_history` | Shambhawi |
 | 2. Asset-class agents: CMA method calculators (all 18 assets) | Done | Sajal |
+| WRDS CMA inputs: US equity valuation, corporate bond yields, ETF market values | Done | Sajal |
 | 2. Asset-class agents: signals skill, CMA judge | Next (plan weeks 4-5) | Sajal + Shambhawi |
 | 3. Covariance skill (Ledoit-Wolf default, chosen by out-of-sample test) | Done | Sajal |
 | 4. Portfolio-construction agents (10) | Not started (weeks 5-6) | both |
@@ -50,12 +51,11 @@ tests and is the only source of truth.
 
 ## Next, in order
 
-1. WRDS valuation ingestion: Compustat buybacks and earnings, I/B/E/S growth, CRSP market caps.
-   Lifts the Gordon method (no buyback yield today) and replaces ETF AUM as the
-   Black-Litterman weights.
-2. Signals skill (`signals.json`), the other deterministic input to the judge.
-3. The CMA judge agent (`cma.json`), the first stage-2 agent.
-4. Point the macro agent at `RunContext` so every stage files outputs the same way.
+1. Signals skill (`signals.json`), the other deterministic input to the judge; I/B/E/S
+   long-term growth is already ingested for it.
+2. The CMA judge agent (`cma.json`), the first stage-2 agent.
+3. Point the macro agent at `RunContext` so every stage files outputs the same way.
+4. Optional: Compustat Global valuation for International Developed and Emerging Markets.
 
 ## Data facts worth not re-deriving
 

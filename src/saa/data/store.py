@@ -309,6 +309,30 @@ class DataStore:
             index="date", columns="series", values="value"
         )
 
+    # ------------------------------------------------------------------ licensed (WRDS)
+    def _wrds(self, name: str, as_of: DateLike | None) -> pd.DataFrame:
+        df = self._load(name)
+        if as_of is not None:
+            df = df[df["available_from"] <= pd.Timestamp(as_of)]
+        return df
+
+    def equity_valuation(self, *, as_of: DateLike | None = None) -> pd.DataFrame:
+        """Monthly payout, earnings and book yields of the US equity groups (long: one row per
+        group and month). Licensed; raises FileNotFoundError without a WRDS ingest."""
+        return self._wrds("wrds/us_equity_valuation", as_of).reset_index(drop=True)
+
+    def corporate_bond_yields(
+        self, field: str = "yield_pct", *, as_of: DateLike | None = None
+    ) -> pd.DataFrame:
+        """Wide monthly frame (date x rating class) of TRACE-based corporate bond yields."""
+        df = self._wrds("wrds/corporate_bond_yields", as_of)
+        return df.pivot(index="date", columns="rating_class", values=field)
+
+    def etf_market_caps(self, *, as_of: DateLike | None = None) -> pd.DataFrame:
+        """Wide monthly frame (date x ticker) of the universe ETFs' market values, $m."""
+        df = self._wrds("wrds/etf_market_caps", as_of)
+        return df.pivot(index="date", columns="ticker", values="market_cap_musd")
+
     def survey(
         self,
         variable: str,

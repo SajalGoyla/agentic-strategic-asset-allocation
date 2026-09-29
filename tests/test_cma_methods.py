@@ -154,12 +154,16 @@ def test_regime_adjusted_needs_labels(config, settings):
         cm.regime_adjusted("us_large_cap", market(config), settings)
 
 
-def test_black_litterman_is_delta_sigma_w(config, settings):
-    ids = [a.id for a in config.universe.assets]
-    aum = pd.DataFrame(
-        {"total_assets": [float(i + 1) for i in range(len(ids))]},
+def snapshot(config, total_assets, when="2026-09-15", **columns):
+    return pd.DataFrame(
+        {"snapshot_date": pd.Timestamp(when), "total_assets": total_assets, **columns},
         index=[a.ticker for a in config.universe.assets],
     )
+
+
+def test_black_litterman_is_delta_sigma_w(config, settings):
+    ids = [a.id for a in config.universe.assets]
+    aum = snapshot(config, [float(i + 1) for i in range(len(ids))])
     x = market(config, fund_snapshot=aum)
     w = aum["total_assets"].to_numpy() / aum["total_assets"].sum()
     pi = settings.black_litterman.risk_aversion * np.asarray(x.covariance.matrix) @ w
@@ -169,7 +173,7 @@ def test_black_litterman_is_delta_sigma_w(config, settings):
 
 
 def test_black_litterman_without_a_snapshot_is_unavailable(config, settings):
-    with pytest.raises(cm.Unavailable, match="snapshot"):
+    with pytest.raises(cm.Unavailable, match="no market sizes"):
         cm.bl_equilibrium("us_large_cap", market(config), settings)
 
 
@@ -323,3 +327,109 @@ def test_skill_writes_a_valid_contract_per_asset(store, tmp_config, tmp_path):
     assert loaded.body.asset_id == "gold"
     assert loaded.header.report_path == "reports/cma_methods.md"
     assert "| gold |" in written[0].read_text(encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- WRDS inputs
+def valuation_rows(group="us_large_cap", when="2026-06-30", **values):
+    row = {
+        "group": group,
+        "date": pd.Timestamp(when),
+        "dividend_yield_pct": 1.5,
+        "buyback_yield_pct": 2.5,
+        "issuance_yield_pct": 0.5,
+        "earnings_yield_pct": 4.0,
+        "book_to_price": 0.2,
+    }
+    row.update(values)
+    return pd.DataFrame([row])
+
+
+def month_end_prices(config, then, now, when="2025-12-31"):
+    index = pd.DatetimeIndex([pd.Timestamp(when), pd.Timestamp("2026-08-31")])
+    return pd.DataFrame({a.ticker: [then, now] for a in config.universe.assets}, index=index)
+
+
+def test_gordon_uses_net_payout_when_wrds_is_there(config, settings):
+    x = market(config, shiller=shiller(cape=25.0), equity_valuation=valuation_rows())
+    e = cm.inverse_gordon("us_large_cap", x, settings)
+    assert e.components["dividend_yield_pct"] == 1.5
+    assert e.components["net_buyback_yield_pct"] == pytest.approx(2.0)
+    assert e.expected_return_pct == pytest.approx(1.5 + 2.0 + 2.0 + 2.5 + 0.5)
+    assert e.confidence == settings.base_confidence(M.INVERSE_GORDON, "us_large_cap", "equity")
+
+
+def test_gordon_without_wrds_misses_buybacks_and_says_so(config, settings):
+    e = cm.inverse_gordon("us_large_cap", market(config, shiller=shiller(cape=25.0)), settings)
+    assert e.components["net_buyback_yield_pct"] == 0.0
+    assert "no buyback yield" in e.rationale
+    base = settings.base_confidence(M.INVERSE_GORDON, "us_large_cap", "equity")
+    assert e.confidence == pytest.approx(base * settings.adjustments.fallback_input)
+
+
+def test_an_old_valuation_is_rolled_forward_by_the_etf_price(config, settings):
+    """Prices up 25% since the WRDS month: every price-based yield falls by a fifth."""
+    x = market(
+        config,
+        equity_valuation=valuation_rows(when="2025-12-31"),
+        etf_prices=month_end_prices(config, then=100.0, now=125.0),
+    )
+    row, note = x.valuation("us_large_cap", settings)
+    assert row["dividend_yield_pct"] == pytest.approx(1.5 * 0.8)
+    assert row["book_to_price"] == pytest.approx(0.2 * 0.8)
+    assert "rolled forward" in note
+
+
+def test_a_valuation_too_old_to_roll_is_unavailable(config, settings):
+    x = market(
+        config,
+        equity_valuation=valuation_rows(when="2024-12-31"),
+        etf_prices=month_end_prices(config, 100.0, 125.0, when="2024-12-31"),
+    )
+    with pytest.raises(cm.Unavailable, match="days old"):
+        x.valuation("us_large_cap", settings)
+
+
+def test_cape_method_falls_back_to_wrds_earnings_before_any_snapshot(config, settings):
+    x = market(config, equity_valuation=valuation_rows("us_small_cap", earnings_yield_pct=5.0))
+    e = cm.implied_erp_cape("us_small_cap", x, settings)
+    assert e.components["earnings_yield_pct"] == 5.0
+    x.equity_valuation = valuation_rows("us_small_cap", earnings_yield_pct=-1.0)
+    with pytest.raises(cm.Unavailable, match="negative"):
+        cm.implied_erp_cape("us_small_cap", x, settings)
+
+
+def test_market_sizes_come_from_the_more_recent_source(config, settings):
+    ids = [a.id for a in config.universe.assets]
+    tickers = [a.ticker for a in config.universe.assets]
+    caps = pd.DataFrame([[2.0] * len(ids)], index=[pd.Timestamp("2026-06-30")], columns=tickers)
+    older_snapshot = snapshot(config, [1.0] * len(ids), when="2026-01-15")
+    x = market(config, fund_snapshot=older_snapshot, etf_caps=caps)
+    sizes, when, source = cm.market_sizes(x, ids)
+    assert source == "CRSP market value" and sizes[ids[0]] == 2.0
+    x.fund_snapshot = snapshot(config, [1.0] * len(ids), when="2026-09-15")
+    assert cm.market_sizes(x, ids)[2] == "fund snapshot AUM"
+
+
+def test_crsp_sizes_need_every_etf_listed(config, settings):
+    tickers = [a.ticker for a in config.universe.assets]
+    caps = pd.DataFrame([[2.0] * len(tickers)], index=[pd.Timestamp("2009-12-31")], columns=tickers)
+    caps.iloc[0, -1] = np.nan  # one ETF not yet listed
+    x = market(config, etf_caps=caps)
+    with pytest.raises(cm.Unavailable, match="no market sizes"):
+        cm.market_sizes(x, [a.id for a in config.universe.assets])
+
+
+def test_trace_yields_back_up_the_ice_index(config, settings):
+    """No ICE HY yield (pre-2023): the licensed TRACE yield is used, as a proxy."""
+    x = market(config)
+    x.macro = x.macro.drop(columns="BAMLH0A0HYM2EY").assign(**{"wrds:high_yield": 7.0})
+    e = cm.yield_building_block("hy_corporates", x, settings)
+    assert e.components["yield_pct"] == 7.0
+    assert "proxy yield" in e.rationale
+
+
+def test_settings_reject_unknown_wrds_classes(config, settings):
+    bad = settings.model_copy(deep=True)
+    bad.yields["hy_corporates"][1].series = ["wrds:junk"]
+    with pytest.raises(ValueError, match="wrds:junk"):
+        bad.cross_validate(config)

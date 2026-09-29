@@ -1,7 +1,10 @@
-"""WRDS (CRSP) connector: licensed monthly returns that improve pre-ETF history.
+"""WRDS connector: licensed data that improves pre-ETF history and the CMA inputs.
 
 Pulls CRSP fixed-term Treasury indexes, monthly returns for selected securities (the 18 ETFs for
 cross-checking Yahoo, plus bullion-fund history links) and mutual fund returns for history links.
+For the CMA methods it also builds US equity valuation aggregates (CRSP + Compustat + I/B/E/S),
+corporate bond yields by rating class (WRDS Bond Returns) and the ETFs' market values (CRSP
+CIZ). Firm- and bond-level rows are aggregated on the way in and never stored.
 Skipped automatically when WRDS credentials are missing, so the pipeline still runs on public
 data. Everything under ``wrds/`` is licensed to the account holder: never commit or publish it.
 """
@@ -13,6 +16,7 @@ import re
 
 import pandas as pd
 
+from saa.data.equity_valuation import GROUPS, GroupRules, aggregate_equity_valuation
 from saa.data.sources.base import FetchResult, Source
 from saa.data.wrds_client import WrdsClient, credentials_problem
 
@@ -21,6 +25,10 @@ log = logging.getLogger(__name__)
 TREASURY = "wrds/crsp_treasury_indexes"
 STOCKS = "wrds/crsp_stock_monthly"
 FUNDS = "wrds/crsp_fund_monthly"
+VALUATION = "wrds/us_equity_valuation"
+BONDS = "wrds/corporate_bond_yields"
+ETF_CAPS = "wrds/etf_market_caps"
+BOND_CLASSES = ("investment_grade", "high_yield")
 _IDENTIFIER = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
@@ -49,12 +57,18 @@ class WrdsSource(Source):
             TREASURY: set(cfg.treasury_series),
             STOCKS: {str(p) for p in permnos},
             FUNDS: set(tickers),
+            VALUATION: set(GROUPS),
+            BONDS: set(BOND_CLASSES),
+            ETF_CAPS: {str(p) for p in permnos},
         }
         with WrdsClient() as client:
             jobs = (
                 (TREASURY, lambda: self._treasury(client)),
                 (STOCKS, lambda: self._stocks(client, permnos)),
                 (FUNDS, lambda: self._funds(client, tickers, result)),
+                (VALUATION, lambda: self._equity_valuation(client)),
+                (BONDS, lambda: self._bond_yields(client)),
+                (ETF_CAPS, lambda: self._etf_caps(client, permnos)),
             )
             for dataset, job in jobs:
                 try:
@@ -134,3 +148,109 @@ class WrdsSource(Source):
         df["date"] = _month_end(df["caldt"])
         df = df.dropna(subset=["ret"])
         return self._stamp(df[["ticker", "crsp_fundno", "date", "ret", "tna"]])
+
+    # ------------------------------------------------------------------ CMA inputs
+    def _equity_valuation(self, client: WrdsClient) -> pd.DataFrame:
+        """Group payout, earnings and book yields; see saa.data.equity_valuation."""
+        cfg = self.settings.wrds
+        rules = GroupRules(**cfg.equity_groups.model_dump())
+        start = pd.Timestamp(cfg.valuation_start)
+        # CIZ monthly file: the legacy crsp.msf stops at 2024-12. Common stocks of US issuers
+        # on NYSE/AMEX/Nasdaq, ranked by market cap within each month; REITs kept separately
+        # (they are often "shares of beneficial interest", share type SB).
+        panel = client.query(
+            """
+            select permno, mthcaldt as date, mthcap / 1000.0 as mcap, issuertype
+            from (
+                select permno, mthcaldt, mthcap, issuertype,
+                       row_number() over (
+                           partition by mthcaldt, issuertype = 'REIT' order by mthcap desc
+                       ) as rk
+                from crsp.msf_v2
+                where mthcaldt >= %(start)s and mthcap > 0
+                  and securitytype = 'EQTY' and securitysubtype = 'COM' and usincflg = 'Y'
+                  and primaryexch in ('N', 'A', 'Q')
+                  and (
+                      (sharetype = 'NS' and issuertype in ('CORP', 'ACOR'))
+                      or (sharetype in ('NS', 'SB') and issuertype = 'REIT')
+                  )
+            ) ranked
+            where issuertype = 'REIT' or rk <= %(n)s
+            """,
+            {"start": start.date(), "n": rules.small_n},
+        )
+        fundamentals = client.query(
+            "select gvkey, datadate, dvc, prstkc, sstk, ib, ceq, txditc from comp.funda "
+            "where indfmt = 'INDL' and datafmt = 'STD' and popsrc = 'D' and consol = 'C' "
+            "and datadate >= %(start)s",
+            {"start": (start - pd.DateOffset(years=2)).date()},
+        )
+        links = client.query(
+            "select gvkey, lpermno as permno, linkdt, linkenddt from crsp.ccmxpf_linktable "
+            "where linktype in ('LU', 'LC') and linkprim in ('P', 'C') and lpermno is not null"
+        )
+        ltg = client.query(
+            """
+            select l.permno, s.statpers as date, s.medest as ltg_pct
+            from ibes.statsum_epsus s
+            join wrdsapps_link_crsp_ibes.ibcrsphist l
+              on s.ticker = l.ticker and s.statpers between l.sdate and l.edate
+            where s.fpi = '0' and s.measure = 'EPS' and s.usfirm = 1
+              and s.statpers >= %(start)s and l.score <= 2 and s.medest is not null
+            """,
+            {"start": start.date()},
+        )
+        for frame, cols in (
+            (panel, ["date"]),
+            (fundamentals, ["datadate"]),
+            (links, ["linkdt", "linkenddt"]),
+            (ltg, ["date"]),
+        ):
+            for col in cols:
+                frame[col] = pd.to_datetime(frame[col])
+        for frame in (panel, links, ltg):
+            frame["permno"] = frame["permno"].astype("int64")
+        return self._stamp(aggregate_equity_valuation(panel, fundamentals, links, ltg, rules))
+
+    def _bond_yields(self, client: WrdsClient) -> pd.DataFrame:
+        """Amount-weighted yield and duration by rating class, aggregated in the database.
+        Unrated bonds (which WRDS files under HY), convertibles, defaulted bonds and bonds within
+        a year of maturity are excluded; yields above 50% are distressed quotes. The table's
+        ``t_spread`` is not used: it is sparsely populated and benchmarked to Treasury
+        maturities that often do not match the bond's."""
+        df = client.query(
+            """
+            select date,
+                   case when rating_num <= 10 then 'investment_grade' else 'high_yield' end
+                       as rating_class,
+                   count(*) as n_bonds,
+                   100 * sum(yield * amount_outstanding) / sum(amount_outstanding) as yield_pct,
+                   sum(duration * amount_outstanding) / sum(amount_outstanding) as duration_years
+            from wrdsapps_bondret.bondret
+            where rating_num is not null and rating_num <= 21 and conv = 0
+              and yield between 0 and 0.5 and duration is not null
+              and amount_outstanding > 0 and tmt >= 1
+              and (defaulted is null or defaulted <> 'Y')
+            group by 1, 2
+            order by 1, 2
+            """
+        )
+        df["date"] = _month_end(df["date"])
+        df["n_bonds"] = df["n_bonds"].astype("int64")
+        return self._stamp(df)
+
+    def _etf_caps(self, client: WrdsClient, permnos: list[int]) -> pd.DataFrame:
+        """The ETFs' market values: the point-in-time stand-in for asset-class size in the
+        Black-Litterman method (the fund snapshot holds only AUM on the days it was taken)."""
+        if not permnos:
+            return pd.DataFrame()
+        df = client.query(
+            "select permno, mthcaldt as date, mthcap / 1000.0 as market_cap_musd "
+            "from crsp.msf_v2 where permno = any(%(p)s) and mthcap > 0 order by permno, mthcaldt",
+            {"p": permnos},
+        )
+        df["permno"] = df["permno"].astype("int64")
+        tickers = {a.crsp_permno: a.ticker for a in self.config.universe.assets if a.crsp_permno}
+        df["ticker"] = df["permno"].map(tickers)
+        df["date"] = _month_end(df["date"])
+        return self._stamp(df[["permno", "ticker", "date", "market_cap_musd"]])

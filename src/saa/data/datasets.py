@@ -249,6 +249,61 @@ _SPECS = [
         entity_col="ticker",
         optional=True,
     ),
+    DatasetSpec(
+        name="wrds/us_equity_valuation",
+        description="Monthly payout, earnings and book yields of rule-based US equity groups "
+        "(CRSP + Compustat + I/B/E/S aggregates; licensed)",
+        columns={
+            "group": "string",
+            "date": DT,
+            "n_firms": "int64",
+            "market_cap_musd": "float64",
+            "fundamentals_coverage_pct": "float64",
+            "dividend_yield_pct": "float64",
+            "buyback_yield_pct": "float64",
+            "issuance_yield_pct": "float64",
+            "net_payout_yield_pct": "float64",
+            "earnings_yield_pct": "float64",
+            "book_to_price": "float64",
+            "ltg_pct": "float64",
+            "ltg_coverage_pct": "float64",
+            "available_from": DT,
+        },
+        keys=("group", "date"),
+        entity_col="group",
+        optional=True,
+    ),
+    DatasetSpec(
+        name="wrds/corporate_bond_yields",
+        description="Monthly amount-weighted yield and duration of TRACE-priced US "
+        "corporate bonds by rating class (WRDS Bond Returns; licensed)",
+        columns={
+            "rating_class": "string",
+            "date": DT,
+            "n_bonds": "int64",
+            "yield_pct": "float64",
+            "duration_years": "float64",
+            "available_from": DT,
+        },
+        keys=("rating_class", "date"),
+        entity_col="rating_class",
+        optional=True,
+    ),
+    DatasetSpec(
+        name="wrds/etf_market_caps",
+        description="Monthly market value (price x shares) of the 18 universe ETFs (CRSP CIZ; "
+        "licensed)",
+        columns={
+            "permno": "int64",
+            "ticker": "string",
+            "date": DT,
+            "market_cap_musd": "float64",
+            "available_from": DT,
+        },
+        keys=("permno", "date"),
+        entity_col="permno",
+        optional=True,
+    ),
 ]
 
 DATASETS: dict[str, DatasetSpec] = {spec.name: spec for spec in _SPECS}

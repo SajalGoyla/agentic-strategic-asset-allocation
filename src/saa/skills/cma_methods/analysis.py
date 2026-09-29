@@ -19,7 +19,12 @@ from saa.contracts.portfolio import CovarianceBody
 from saa.data.store import DataStore
 from saa.run import RunContext
 from saa.skills.cma_methods.methods import MarketInputs, run_methods
-from saa.skills.cma_methods.settings import CALCULATED, CmaSettings, load_cma_settings
+from saa.skills.cma_methods.settings import (
+    CALCULATED,
+    WRDS_PREFIX,
+    CmaSettings,
+    load_cma_settings,
+)
 from saa.skills.covariance import estimate_covariance
 from saa.skills.historical_analysis.analysis import risk_free_monthly
 
@@ -41,8 +46,8 @@ def _needed_series(settings: CmaSettings) -> list[str]:
     series = {settings.risk_free_series}
     for recipes in settings.yields.values():
         for recipe in recipes:
-            series.update(recipe.series)
-            if recipe.add_spread:
+            series.update(n for n in recipe.series if not n.startswith(WRDS_PREFIX))
+            if recipe.add_spread and not recipe.add_spread.startswith(WRDS_PREFIX):
                 series.add(recipe.add_spread)
     return sorted(series)
 
@@ -86,6 +91,16 @@ def gather_inputs(
     if regime_labels is not None:
         regime_labels = regime_labels[regime_labels.index <= as_of]
     universe = store.universe.assets
+    macro = store.macro(_needed_series(settings), as_of=as_of, freq="M")
+    bonds = _optional(lambda: store.corporate_bond_yields(as_of=as_of), pd.DataFrame())
+    if not bonds.empty:
+        bonds = bonds.rename(columns=lambda c: WRDS_PREFIX + c)
+        macro = macro.join(bonds.resample("ME").last(), how="outer")
+    tickers = [a.ticker for a in universe]
+    prices = _optional(
+        lambda: store.prices(tickers, field="close", as_of=as_of).resample("ME").last(),
+        pd.DataFrame(),
+    )
     return MarketInputs(
         as_of=as_of,
         returns=returns,
@@ -95,11 +110,14 @@ def gather_inputs(
         horizon_years=horizon_years,
         groups={a.id: a.group for a in universe},
         tickers={a.id: a.ticker for a in universe},
-        macro=store.macro(_needed_series(settings), as_of=as_of, freq="M"),
+        macro=macro,
         shiller=_optional(lambda: store.shiller(as_of=as_of), None),
         fund_snapshot=_optional(lambda: store.fund_snapshot(as_of=as_of), pd.DataFrame()),
         surveys=_optional(lambda: _surveys(store, settings, as_of), {}),
         regime_labels=regime_labels,
+        equity_valuation=_optional(lambda: store.equity_valuation(as_of=as_of), pd.DataFrame()),
+        etf_caps=_optional(lambda: store.etf_market_caps(as_of=as_of), pd.DataFrame()),
+        etf_prices=prices,
     )
 
 

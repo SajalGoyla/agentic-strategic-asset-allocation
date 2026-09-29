@@ -12,7 +12,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from saa.config import Config
 from saa.contracts.asset_class import CmaMethodId
+from saa.data.sources.wrds import BOND_CLASSES
 
+WRDS_PREFIX = "wrds:"
 CALCULATED = [m for m in CmaMethodId if m is not CmaMethodId.AUTO_BLEND]
 
 
@@ -45,6 +47,7 @@ class ValuationSettings(_Model):
     reversion_years: float = Field(gt=0)
     max_stale_days: int = Field(gt=0)
     max_survey_age_days: int = Field(gt=0)
+    max_rollforward_days: int = Field(gt=0)
 
 
 class YieldRecipe(_Model):
@@ -97,11 +100,16 @@ class CmaSettings(_Model):
         bad_assets = (set(self.yields) | set(self.credit_loss_pct) | set(self.survey)) - assets
         needed = {s for recipes in self.yields.values() for r in recipes for s in r.series}
         needed |= {r.add_spread for recipes in self.yields.values() for r in recipes} - {None}
+        # "wrds:<rating class>" names a licensed TRACE yield, not a FRED series.
+        known_wrds = {WRDS_PREFIX + c for c in BOND_CLASSES}
+        bad_wrds = {n for n in needed if n.startswith(WRDS_PREFIX)} - known_wrds
+        needed = {n for n in needed if not n.startswith(WRDS_PREFIX)}
         needed.add(self.risk_free_series)
         problems = [
             f"unknown applies_to targets {sorted(bad_targets)}" if bad_targets else "",
             f"unknown assets {sorted(bad_assets)}" if bad_assets else "",
             f"series not in macro_series.yaml {sorted(needed - series)}" if needed - series else "",
+            f"unknown WRDS bond classes {sorted(bad_wrds)}" if bad_wrds else "",
         ]
         problems = [p for p in problems if p]
         if problems:

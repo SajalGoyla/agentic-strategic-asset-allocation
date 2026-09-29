@@ -49,7 +49,44 @@ class MarketInputs:
     fund_snapshot: pd.DataFrame = field(default_factory=pd.DataFrame)
     surveys: dict[str, tuple[float, pd.Timestamp]] = field(default_factory=dict)
     regime_labels: pd.Series | None = None  # month-end -> regime, as the macro skill scores it
-    _equilibrium: dict[str, float] | None = field(default=None, repr=False)
+    # Licensed WRDS inputs; empty without a WRDS ingest, and every method falls back to public data.
+    equity_valuation: pd.DataFrame = field(default_factory=pd.DataFrame)  # long, group x month
+    etf_caps: pd.DataFrame = field(default_factory=pd.DataFrame)  # month x ticker, $m
+    etf_prices: pd.DataFrame = field(default_factory=pd.DataFrame)  # month-end close, x ticker
+    _equilibrium: dict | None = field(default=None, repr=False)
+
+    def valuation(self, asset_id: str, s: CmaSettings) -> tuple[pd.Series, str]:
+        """The asset's latest WRDS valuation row, with its price-based yields brought up to
+        ``as_of``, and a note saying how.
+
+        CRSP and Compustat are updated a few times a year, so the latest month can be most of a
+        year old. A yield is a flow over a price, and the flow moves slowly, so an old yield is
+        rolled forward by the ETF's price change since then: yield_now = yield_then * P_then /
+        P_now. Beyond ``max_rollforward_days``, or without prices, the row counts as missing.
+        """
+        if self.equity_valuation.empty:
+            raise Unavailable("no WRDS equity valuation")
+        rows = self.equity_valuation[self.equity_valuation["group"] == asset_id]
+        if rows.empty:
+            raise Unavailable(f"no WRDS valuation group for {asset_id}")
+        row = rows.sort_values("date").iloc[-1].copy()
+        when = pd.Timestamp(row["date"])
+        age = (self.as_of - when).days
+        if age <= s.valuation.max_stale_days:
+            return row, f"WRDS {when:%Y-%m}"
+        if age > s.valuation.max_rollforward_days:
+            raise Unavailable(f"WRDS valuation last observed {when.date()}, {age} days old")
+        ticker = self.tickers[asset_id]
+        prices = self.etf_prices[ticker].dropna() if ticker in self.etf_prices else pd.Series()
+        then, now = prices[prices.index <= when], prices[prices.index <= self.as_of]
+        if then.empty or now.empty or (when - then.index[-1]).days > 7:
+            raise Unavailable(
+                f"WRDS valuation is {age} days old and {ticker} prices cannot roll it"
+            )
+        factor = float(then.iloc[-1] / now.iloc[-1])
+        yields = [c for c in row.index if c.endswith("_yield_pct")] + ["book_to_price"]
+        row[yields] = row[yields].astype(float) * factor
+        return row, f"WRDS {when:%Y-%m}, rolled forward by {ticker}'s price change"
 
     def volatility_pct(self, asset_id: str) -> float:
         return self.covariance.volatilities_pct[asset_id]
@@ -61,7 +98,7 @@ class MarketInputs:
     def latest(self, series_id: str, max_age_days: int) -> float:
         """Most recent value of a macro series, if not older than ``max_age_days``."""
         if series_id not in self.macro:
-            raise Unavailable(f"{series_id} is not in the lake")
+            raise Unavailable(f"{series_id} has no observation by {self.as_of.date()}")
         values = self.macro[series_id].dropna()
         if values.empty:
             raise Unavailable(f"{series_id} has no observation by {self.as_of.date()}")
@@ -208,21 +245,53 @@ def regime_adjusted(asset_id: str, x: MarketInputs, s: CmaSettings) -> CmaMethod
 
 
 # ------------------------------------------------------------------ 3. Black-Litterman
-def _equilibrium(x: MarketInputs, s: CmaSettings) -> dict[str, float]:
+def market_sizes(x: MarketInputs, ids: list[str]) -> tuple[dict[str, float], pd.Timestamp, str]:
+    """Each asset's size for the market weights: its ETF's market value, from whichever is
+    more recent on ``as_of`` -- the fund snapshot's AUM (public, only the days it was taken) or
+    CRSP's monthly price x shares (licensed, full history, updated a few times a year)."""
+    tickers = [x.tickers[a] for a in ids]
+    candidates = []
+    snap = x.fund_snapshot
+    if not snap.empty and set(tickers) <= set(snap.index):
+        aum = snap.loc[tickers, "total_assets"]
+        if aum.notna().all() and (aum > 0).all():
+            when = pd.Timestamp(snap.loc[tickers, "snapshot_date"].min())
+            candidates.append(
+                (when, dict(zip(ids, aum.astype(float), strict=True)), "fund snapshot AUM")
+            )
+    if not x.etf_caps.empty and set(tickers) <= set(x.etf_caps.columns):
+        complete = x.etf_caps[tickers].dropna()
+        if not complete.empty:
+            row = complete.iloc[-1]
+            candidates.append(
+                (
+                    pd.Timestamp(complete.index[-1]),
+                    dict(zip(ids, row.astype(float), strict=True)),
+                    "CRSP market value",
+                )
+            )
+    if not candidates:
+        raise Unavailable(
+            f"no market sizes for all {len(ids)} ETFs by {x.as_of.date()} (no fund snapshot, and "
+            "CRSP has them all only once the last ETF listed)"
+        )
+    when, sizes, source = max(candidates, key=lambda c: c[0])
+    return sizes, when, source
+
+
+def _equilibrium(x: MarketInputs, s: CmaSettings) -> dict:
     """Reverse optimisation for all assets at once: pi = delta * Sigma * w (decimal excess).
 
-    ``w`` is each ETF's share of the 18 ETFs' assets under management -- the public proxy for
-    market-cap weights. ``delta`` is the configured risk aversion, or with ``"historical"`` the
+    ``w`` is each ETF's share of the 18 ETFs' market value -- the available proxy for
+    asset-class market-cap weights (``market_sizes``). ``delta`` is the configured risk aversion, or with ``"historical"`` the
     AUM portfolio's mean excess return over its variance, clamped to ``risk_aversion_bounds``.
     """
     if x._equilibrium is not None:
         return x._equilibrium
     ids = x.covariance.asset_ids
-    aum = {}
-    for asset_id in ids:
-        aum[asset_id] = x.snapshot(asset_id, "total_assets")
-    total = sum(aum.values())
-    weights = np.array([aum[a] / total for a in ids])
+    sizes, size_date, size_source = market_sizes(x, ids)
+    total = sum(sizes.values())
+    weights = np.array([sizes[a] / total for a in ids])
     sigma = np.asarray(x.covariance.matrix)
 
     common = x.returns[ids].dropna(how="any")
@@ -237,6 +306,8 @@ def _equilibrium(x: MarketInputs, s: CmaSettings) -> dict[str, float]:
     x._equilibrium = {
         "risk_aversion": delta,
         "risk_aversion_raw": raw,
+        "sizes_date": size_date.strftime("%Y-%m-%d"),
+        "sizes_source": size_source,
         **{f"pi:{a}": float(implied[i]) for i, a in enumerate(ids)},
         **{f"w:{a}": float(weights[i]) for i, a in enumerate(ids)},
     }
@@ -261,9 +332,9 @@ def bl_equilibrium(asset_id: str, x: MarketInputs, s: CmaSettings) -> CmaMethodE
             "market_weight_pct": weight,
             "risk_aversion": eq["risk_aversion"],
         },
-        f"Equilibrium excess return {premium:+.2f}% at a {weight:.1f}% AUM weight and risk "
-        f"aversion {eq['risk_aversion']:.2f}, plus {rf:.2f}% T-bill. ETF AUM is a proxy for "
-        "market size.",
+        f"Equilibrium excess return {premium:+.2f}% at a {weight:.1f}% market weight and risk "
+        f"aversion {eq['risk_aversion']:.2f}, plus {rf:.2f}% T-bill. Weights are ETF sizes "
+        f"({eq['sizes_source']}, {eq['sizes_date']}), a proxy for asset-class size.",
     )
 
 
@@ -293,42 +364,60 @@ def _nominal_growth(x: MarketInputs, s: CmaSettings) -> tuple[float, float]:
 def inverse_gordon(asset_id: str, x: MarketInputs, s: CmaSettings) -> CmaMethodEstimate:
     """Exhibit 4 method 4 (Grinold & Kroner 2002): yield + nominal growth + valuation change.
 
-    US Large Cap uses the Shiller dividend yield and lets CAPE revert to its post-1990 median over
-    ``reversion_years``. Other equity classes use the ETF distribution yield and assume no
-    valuation change (no long P/E history exists for them), at reduced confidence. Growth is SPF
-    10-year real GDP plus CPI for every class. There is no public buyback yield, and per-share
-    dilution is ignored too; the two roughly offset for US large caps.
+    The yield is the net payout yield -- dividends plus buybacks less share issuance -- from the
+    WRDS group aggregates, which is Grinold and Kroner's "income + repurchase - dilution" and
+    pairs correctly with aggregate (GDP) growth. Without WRDS it falls back to dividends alone
+    (Shiller for US Large Cap, the ETF distribution yield otherwise), which misses buybacks, at
+    reduced confidence. US Large Cap lets CAPE revert to its post-1990 median over
+    ``reversion_years``; the other classes assume no valuation change, at reduced confidence,
+    since only the S&P 500 has a long cyclically adjusted valuation history. Growth is SPF
+    10-year real GDP plus CPI for every class.
     """
     real_growth, inflation = _nominal_growth(x, s)
     group = x.groups[asset_id]
     confidence = s.base_confidence(CmaMethodId.INVERSE_GORDON, asset_id, group)
+    notes = []
+    try:
+        row, where = x.valuation(asset_id, s)
+        dividend_yield = float(row["dividend_yield_pct"])
+        net_buyback = float(row["buyback_yield_pct"] - row["issuance_yield_pct"])
+        notes.append(f"net payout from {where}")
+    except Unavailable as missing:
+        if asset_id == EQUITY_ANCHOR:
+            dividend_yield = _shiller_now(x, s)[0]
+            notes.append("Shiller dividend yield")
+        else:
+            dividend_yield = x.snapshot(asset_id, "distribution_yield") * 100
+            notes.append(f"{x.tickers[asset_id]} distribution yield")
+        net_buyback = 0.0
+        confidence *= s.adjustments.fallback_input
+        notes.append(f"no buyback yield ({missing})")
     if asset_id == EQUITY_ANCHOR:
-        dividend_yield, cape, anchor, _ = _shiller_now(x, s)
+        _, cape, anchor, _ = _shiller_now(x, s)
         years = s.valuation.reversion_years
         drift = ((anchor / cape) ** (1 / years) - 1) * 100
-        source = (
-            f"Shiller dividend yield; CAPE {cape:.1f} reverting to {anchor:.1f} over {years:g}y"
-        )
+        notes.append(f"CAPE {cape:.1f} reverting to {anchor:.1f} over {years:g}y")
     else:
-        dividend_yield = x.snapshot(asset_id, "distribution_yield") * 100
         drift = 0.0
         confidence *= s.adjustments.fallback_input
-        source = f"{x.tickers[asset_id]} distribution yield; no valuation history, drift 0"
+        notes.append("no long valuation history, drift 0")
     addback = x.variance_addback_pct(asset_id)
-    compound = dividend_yield + real_growth + inflation + drift
+    income = dividend_yield + net_buyback
     return _estimate(
         CmaMethodId.INVERSE_GORDON,
-        compound + addback,
+        income + real_growth + inflation + drift + addback,
         confidence,
         {
-            "income_yield_pct": dividend_yield,
+            "dividend_yield_pct": dividend_yield,
+            "net_buyback_yield_pct": net_buyback,
             "real_growth_pct": real_growth,
             "inflation_pct": inflation,
             "valuation_change_pct": drift,
             "variance_addback_pct": addback,
         },
-        f"{dividend_yield:.2f}% yield + {real_growth:.1f}% real growth + {inflation:.1f}% "
-        f"inflation {drift:+.2f}% valuation change + {addback:.2f}% variance add-back ({source}).",
+        f"{dividend_yield:.2f}% dividends {net_buyback:+.2f}% net buybacks + {real_growth:.1f}% "
+        f"real growth + {inflation:.1f}% inflation {drift:+.2f}% valuation change + "
+        f"{addback:.2f}% variance add-back ({'; '.join(notes)}).",
     )
 
 
@@ -339,7 +428,9 @@ def implied_erp_cape(asset_id: str, x: MarketInputs, s: CmaSettings) -> CmaMetho
     Nominal return = earnings yield + expected inflation (SPF CPI10). The paper's formula reads
     as the earnings yield alone, which is a real return compared against nominal ones; adding
     inflation keeps every candidate nominal. US Large Cap uses 1/CAPE; others the ETF's trailing
-    earnings yield, which is noisier.
+    earnings yield, which is noisier. Before the first fund snapshot (i.e. in backtests) they use
+    the WRDS group's aggregate earnings yield instead -- unless it is negative, as it can be for
+    small caps, where many firms lose money and the index vendor's P/E excludes them.
     """
     inflation = x.survey(s.inflation_survey, s.valuation.max_survey_age_days)
     group = x.groups[asset_id]
@@ -349,9 +440,21 @@ def implied_erp_cape(asset_id: str, x: MarketInputs, s: CmaSettings) -> CmaMetho
         earnings_yield = 100 / cape
         source = f"1/CAPE, CAPE {cape:.1f}"
     else:
-        earnings_yield = x.snapshot(asset_id, "earnings_yield") * 100
         confidence *= s.adjustments.fallback_input
-        source = f"{x.tickers[asset_id]} trailing earnings yield"
+        try:
+            earnings_yield = x.snapshot(asset_id, "earnings_yield") * 100
+            source = f"{x.tickers[asset_id]} trailing earnings yield"
+        except Unavailable as missing:
+            try:
+                row, where = x.valuation(asset_id, s)
+            except Unavailable:
+                raise missing from None
+            earnings_yield = float(row["earnings_yield_pct"])
+            if earnings_yield <= 0:
+                raise Unavailable(
+                    f"aggregate earnings are negative ({where}) and there is no fund snapshot"
+                ) from None
+            source = f"aggregate earnings yield from {where}"
     if asset_id == "reits":
         confidence *= s.adjustments.reits_valuation
         source += "; REIT earnings are net of depreciation, so this understates"
