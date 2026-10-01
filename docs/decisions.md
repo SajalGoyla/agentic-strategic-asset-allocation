@@ -170,3 +170,24 @@ small caps can be negative (loss-makers the index vendor's P/E excludes). WRDS i
 earlier dates, and never when negative. A WRDS valuation older than 190 days is rolled forward by
 the ETF's price change, up to 400 days, since CRSP and Compustat are released only a few times
 a year.
+
+### 24. International valuation from Compustat Global — settled, 2026-10-01
+International Developed and Emerging Markets had valuation only from the fund snapshot, i.e.
+none before 2026-09. Compustat Global supplies it from 1994 for the same rule-based groups as the
+US: the 700 largest firms headquartered in MSCI EAFE countries and the 1,200 largest in MSCI EM
+countries, in dollars. Three findings shaped it. Annual dividend fields are mostly empty (under
+a fifth of Australian and French firms), so dividends come from the security file's payment
+records as a trailing 12-month yield, the way index vendors quote it. Banks are filed in the
+`FS` format, and reading it lifted coverage from about 70% to over 90% of market cap. A few
+firm-months show yields in the thousands of percent after currency redenominations, so firm
+yields above 25% are dropped. Validated against EFA/EEM's own snapshot figures (dividend yield
+2.9% vs 3.1% developed). Consequence: the Gordon and CAPE candidates exist for both groups at
+every backtest date. International buybacks are unknown, so the Gordon method counts them as
+zero at reduced confidence. Rejected: matching MSCI's free-float and partial-inclusion weights,
+which are not in WRDS.
+
+### 25. Results derived from WRDS may be published — settled, 2026-10-01
+The project owner ruled that research results computed from licensed data (CMA estimates,
+validation statistics, evidence tables) can be committed to this public repo. The WRDS data
+itself — extracts and the curated `wrds/` datasets — still never leaves git-ignored `data/`.
+CLAUDE.md's licensed-data rule now says exactly that.

@@ -250,9 +250,9 @@ _SPECS = [
         optional=True,
     ),
     DatasetSpec(
-        name="wrds/us_equity_valuation",
-        description="Monthly payout, earnings and book yields of rule-based US equity groups "
-        "(CRSP + Compustat + I/B/E/S aggregates; licensed)",
+        name="wrds/equity_valuation",
+        description="Monthly payout, earnings and book yields of rule-based equity groups: five "
+        "US (CRSP + Compustat + I/B/E/S) and two international (Compustat Global); licensed",
         columns={
             "group": "string",
             "date": DT,

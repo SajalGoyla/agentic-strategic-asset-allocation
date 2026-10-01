@@ -380,8 +380,17 @@ def inverse_gordon(asset_id: str, x: MarketInputs, s: CmaSettings) -> CmaMethodE
     try:
         row, where = x.valuation(asset_id, s)
         dividend_yield = float(row["dividend_yield_pct"])
+        if np.isnan(dividend_yield):
+            raise Unavailable(f"{where} has no dividend yield")
         net_buyback = float(row["buyback_yield_pct"] - row["issuance_yield_pct"])
-        notes.append(f"net payout from {where}")
+        if np.isnan(net_buyback):
+            # Compustat Global records no buybacks, so international groups carry dividends
+            # only; dilution is ignored with them, and the two partly offset.
+            net_buyback = 0.0
+            confidence *= s.adjustments.fallback_input
+            notes.append(f"dividends from {where}; no buyback data")
+        else:
+            notes.append(f"net payout from {where}")
     except Unavailable as missing:
         if asset_id == EQUITY_ANCHOR:
             dividend_yield = _shiller_now(x, s)[0]

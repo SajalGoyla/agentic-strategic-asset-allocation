@@ -64,7 +64,10 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 - Record `store.provenance()` in every output header.
 
 **Licensed data (WRDS/CRSP)**
-- Never commit, publish, or paste WRDS-derived numbers outside the repo's git-ignored `data/`.
+- Never commit or publish WRDS data itself: extracts, firm- or bond-level rows, or the
+  curated `wrds/` datasets stay in git-ignored `data/`. Research results computed from them
+  (CMA estimates, validation statistics, evidence tables) may be published (owner's
+  ruling, 2026-10-01).
 - Every WRDS-backed history link has a public fallback, so the pipeline still runs without
   credentials. Keep it that way.
 

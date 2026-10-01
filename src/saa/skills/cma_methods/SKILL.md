@@ -41,7 +41,7 @@ methods in the same order.
 | `historical_erp` | all | mean monthly excess return over T-bills since 1990 x 12 + current T-bill | spliced returns, DTB3 |
 | `regime_adjusted` | all | credibility-weighted excess return over the **3 years after** past months in today's regime + T-bill | macro-skill labels |
 | `bl_equilibrium` | all | T-bill + δ Σ w, with w = ETF market-value shares and δ = 2.5 | covariance; CRSP ETF market values or snapshot AUM, whichever is newer |
-| `inverse_gordon` | equity, REITs | dividends + net buybacks + SPF real GDP + SPF CPI + valuation change + ½σ² | WRDS net payout (US groups, REITs); Shiller CAPE (US LC) |
+| `inverse_gordon` | equity, REITs | dividends + net buybacks + SPF real GDP + SPF CPI + valuation change + ½σ² | WRDS net payout (US groups, REITs), WRDS dividends (international); Shiller CAPE (US LC) |
 | `implied_erp_cape` | equity, REITs | earnings yield + SPF CPI + ½σ² | 1/CAPE (US LC), ETF E/P, WRDS E/P before the first snapshot |
 | `survey_consensus` | US LC, Int. Treasuries, cash | SPF STOCK10 / BOND10 / BILL10 + ½σ² | SPF |
 | `yield_building_block` | fixed income, cash | starting yield (+ spread) − expected credit loss + ½σ² | FRED yields; TRACE IG/HY yields (WRDS) before ICE's 2023 start |
@@ -115,8 +115,10 @@ unconditional premium.
 - **Black-Litterman needs all 18 ETFs listed**, so before 2010-06 (PICB) it is unavailable.
 - **The US groups are stand-ins**, built by rank rules, not the Russell or S&P membership lists.
 - **No valuation change outside US Large Cap**, where only Shiller's CAPE has the history to
-  anchor a reversion. International Developed and Emerging Markets valuation comes only from the
-  fund snapshot; Compustat Global is not ingested.
+  anchor a reversion.
+- **International Gordon yields are dividends only.** Compustat Global has no buyback data, so
+  the method counts buybacks and dilution as zero and lowers its confidence. The international
+  groups also weight China A-shares at full market cap, unlike MSCI EM.
 - **No credit yield for USD EM debt, or spread for International Corporates, before 2023**
   (ICE on FRED). WRDS Bond Returns' own spread field was rejected as unreliable.
 - **SPF growth is US growth**, applied to international equity too, at reduced confidence.

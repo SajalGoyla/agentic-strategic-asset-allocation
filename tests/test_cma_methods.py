@@ -433,3 +433,14 @@ def test_settings_reject_unknown_wrds_classes(config, settings):
     bad.yields["hy_corporates"][1].series = ["wrds:junk"]
     with pytest.raises(ValueError, match="wrds:junk"):
         bad.cross_validate(config)
+
+
+def test_gordon_counts_missing_international_buybacks_as_zero(config, settings):
+    rows = valuation_rows("intl_developed", buyback_yield_pct=np.nan, issuance_yield_pct=np.nan)
+    x = market(config, equity_valuation=rows)
+    e = cm.inverse_gordon("intl_developed", x, settings)
+    assert e.components["net_buyback_yield_pct"] == 0.0
+    assert e.components["dividend_yield_pct"] == 1.5
+    assert "no buyback data" in e.rationale
+    base = settings.base_confidence(M.INVERSE_GORDON, "intl_developed", "equity")
+    assert e.confidence == pytest.approx(base * settings.adjustments.fallback_input**2)

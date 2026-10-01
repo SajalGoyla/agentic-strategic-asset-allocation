@@ -317,9 +317,10 @@ class DataStore:
         return df
 
     def equity_valuation(self, *, as_of: DateLike | None = None) -> pd.DataFrame:
-        """Monthly payout, earnings and book yields of the US equity groups (long: one row per
-        group and month). Licensed; raises FileNotFoundError without a WRDS ingest."""
-        return self._wrds("wrds/us_equity_valuation", as_of).reset_index(drop=True)
+        """Monthly payout, earnings and book yields of the equity groups -- five US, two
+        international -- (long: one row per group and month). Licensed; raises
+        FileNotFoundError without a WRDS ingest."""
+        return self._wrds("wrds/equity_valuation", as_of).reset_index(drop=True)
 
     def corporate_bond_yields(
         self, field: str = "yield_pct", *, as_of: DateLike | None = None

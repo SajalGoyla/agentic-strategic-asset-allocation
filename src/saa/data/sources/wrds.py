@@ -16,7 +16,12 @@ import re
 
 import pandas as pd
 
-from saa.data.equity_valuation import GROUPS, GroupRules, aggregate_equity_valuation
+from saa.data.equity_valuation import (
+    US_GROUPS,
+    GroupRules,
+    aggregate_equity_valuation,
+    aggregate_international_valuation,
+)
 from saa.data.sources.base import FetchResult, Source
 from saa.data.wrds_client import WrdsClient, credentials_problem
 
@@ -25,7 +30,7 @@ log = logging.getLogger(__name__)
 TREASURY = "wrds/crsp_treasury_indexes"
 STOCKS = "wrds/crsp_stock_monthly"
 FUNDS = "wrds/crsp_fund_monthly"
-VALUATION = "wrds/us_equity_valuation"
+VALUATION = "wrds/equity_valuation"
 BONDS = "wrds/corporate_bond_yields"
 ETF_CAPS = "wrds/etf_market_caps"
 BOND_CLASSES = ("investment_grade", "high_yield")
@@ -57,7 +62,7 @@ class WrdsSource(Source):
             TREASURY: set(cfg.treasury_series),
             STOCKS: {str(p) for p in permnos},
             FUNDS: set(tickers),
-            VALUATION: set(GROUPS),
+            VALUATION: set(US_GROUPS) | set(self.settings.wrds.international_groups),
             BONDS: set(BOND_CLASSES),
             ETF_CAPS: {str(p) for p in permnos},
         }
@@ -66,7 +71,7 @@ class WrdsSource(Source):
                 (TREASURY, lambda: self._treasury(client)),
                 (STOCKS, lambda: self._stocks(client, permnos)),
                 (FUNDS, lambda: self._funds(client, tickers, result)),
-                (VALUATION, lambda: self._equity_valuation(client)),
+                (VALUATION, lambda: self._equity_valuation(client, result)),
                 (BONDS, lambda: self._bond_yields(client)),
                 (ETF_CAPS, lambda: self._etf_caps(client, permnos)),
             )
@@ -150,8 +155,19 @@ class WrdsSource(Source):
         return self._stamp(df[["ticker", "crsp_fundno", "date", "ret", "tna"]])
 
     # ------------------------------------------------------------------ CMA inputs
-    def _equity_valuation(self, client: WrdsClient) -> pd.DataFrame:
-        """Group payout, earnings and book yields; see saa.data.equity_valuation."""
+    def _equity_valuation(self, client: WrdsClient, result: FetchResult) -> pd.DataFrame:
+        """Group payout, earnings and book yields; see saa.data.equity_valuation. The
+        international groups are optional: if their queries fail, the US groups still land."""
+        us = self._us_equity_valuation(client)
+        try:
+            intl = self._international_valuation(client)
+        except Exception as exc:
+            message = str(exc).strip().splitlines()[0]
+            result.warnings.append(f"{VALUATION}: international groups failed ({message})")
+            intl = pd.DataFrame()
+        return pd.concat([us, intl], ignore_index=True)
+
+    def _us_equity_valuation(self, client: WrdsClient) -> pd.DataFrame:
         cfg = self.settings.wrds
         rules = GroupRules(**cfg.equity_groups.model_dump())
         start = pd.Timestamp(cfg.valuation_start)
@@ -211,6 +227,107 @@ class WrdsSource(Source):
         for frame in (panel, links, ltg):
             frame["permno"] = frame["permno"].astype("int64")
         return self._stamp(aggregate_equity_valuation(panel, fundamentals, links, ltg, rules))
+
+    def _international_valuation(self, client: WrdsClient) -> pd.DataFrame:
+        """International groups from Compustat Global. Market caps are month-end price x shares
+        from the daily security file (``monthend = 1``), converted to dollars through
+        Compustat's GBP cross rates, and only each region's ``top_n`` largest primary issues
+        leave the database."""
+        cfg = self.settings.wrds
+        if not cfg.international_groups:
+            return pd.DataFrame()
+        rules = GroupRules(**cfg.equity_groups.model_dump())
+        start = pd.Timestamp(cfg.international_start)
+        panels = []
+        for group, spec in cfg.international_groups.items():
+            panel = client.query(
+                """
+                with px as (
+                    select s.gvkey, s.datadate,
+                           s.prccd / coalesce(nullif(s.qunit, 0), 1) * s.cshoc as cap_local,
+                           s.prccd / coalesce(nullif(s.qunit, 0), 1)
+                               / coalesce(nullif(s.ajexdi, 0), 1) as price_adj,
+                           s.curcdd
+                    from comp_global_daily.g_secd s
+                    join comp_global_daily.g_company co
+                      on co.gvkey = s.gvkey and co.prirow = s.iid
+                    where s.monthend = 1 and s.datadate >= %(start)s
+                      and s.loc = any(%(countries)s) and s.prccd > 0 and s.cshoc > 0
+                ),
+                fx as (
+                    select date_trunc('month', datadate) as m, tocurm, exratm
+                    from comp_global_daily.g_exrt_mth
+                    where fromcurm = 'GBP' and datadate >= %(start)s and exratm > 0
+                ),
+                usd as (
+                    select px.gvkey, px.datadate,
+                           px.cap_local * u.exratm / c.exratm / 1e6 as mcap,
+                           px.price_adj * u.exratm / c.exratm as price_usd
+                    from px
+                    join fx c on c.m = date_trunc('month', px.datadate) and c.tocurm = px.curcdd
+                    join fx u on u.m = c.m and u.tocurm = 'USD'
+                )
+                select gvkey, datadate as date, mcap, price_usd from (
+                    select *, row_number() over (
+                        partition by date_trunc('month', datadate) order by mcap desc
+                    ) as rk
+                    from usd
+                ) ranked
+                where rk <= %(n)s
+                """,
+                {"start": start.date(), "countries": spec.countries, "n": spec.top_n},
+            )
+            panels.append(panel.assign(group=group))
+        panel = pd.concat(panels, ignore_index=True)
+        panel["date"] = pd.to_datetime(panel["date"])
+        gvkeys = sorted(panel["gvkey"].unique().tolist())
+        # Banks and insurers are filed in the financial-services format (FS), not INDL; both
+        # are read, preferring INDL where a company has both.
+        fundamentals = client.query(
+            "select gvkey, datadate, indfmt, curcd, dvc, prstkc, sstk, ib, ceq, txditc "
+            "from comp_global_daily.g_funda "
+            "where indfmt in ('INDL', 'FS') and datafmt = 'HIST_STD' and consol = 'C' "
+            "and popsrc = 'I' and datadate >= %(start)s and gvkey = any(%(g)s)",
+            {"start": (start - pd.DateOffset(years=2)).date(), "g": gvkeys},
+        )
+        fundamentals["datadate"] = pd.to_datetime(fundamentals["datadate"])
+        fundamentals = fundamentals.sort_values("indfmt", ascending=False).drop_duplicates(
+            ["gvkey", "datadate"]
+        )
+        dividends = client.query(
+            """
+            select s.gvkey, s.datadate as date, s.div / coalesce(nullif(s.ajexdi, 0), 1) as dps,
+                   s.curcddv as currency
+            from comp_global_daily.g_secd s
+            join comp_global_daily.g_company co on co.gvkey = s.gvkey and co.prirow = s.iid
+            where s.div > 0 and s.datadate >= %(start)s and s.gvkey = any(%(g)s)
+            """,
+            {"start": (start - pd.DateOffset(years=1)).date(), "g": gvkeys},
+        )
+        dividends["date"] = pd.to_datetime(dividends["date"])
+        rates = client.query(
+            "select datadate as date, tocurm as currency, exratm from comp_global_daily.g_exrt_mth "
+            "where fromcurm = 'GBP' and datadate >= %(start)s and exratm > 0",
+            {"start": (start - pd.DateOffset(years=2)).date()},
+        )
+        rates["date"] = pd.to_datetime(rates["date"])
+        usd = rates[rates["currency"] == "USD"].set_index("date")["exratm"]
+        rates["usd_per_unit"] = rates["date"].map(usd) / rates["exratm"]
+        # Each payment in dollars at its own month's rate.
+        dividends["month"] = dividends["date"] + pd.offsets.MonthEnd(0)
+        dividends = dividends.merge(
+            rates.assign(month=rates["date"] + pd.offsets.MonthEnd(0))[
+                ["month", "currency", "usd_per_unit"]
+            ],
+            on=["month", "currency"],
+            how="inner",
+        )
+        dividends["dps_usd"] = dividends["dps"] * dividends["usd_per_unit"]
+        top_n = {g: spec.top_n for g, spec in cfg.international_groups.items()}
+        out = aggregate_international_valuation(
+            panel, fundamentals, rates, top_n, rules, dividends[["gvkey", "date", "dps_usd"]]
+        )
+        return self._stamp(out)
 
     def _bond_yields(self, client: WrdsClient) -> pd.DataFrame:
         """Amount-weighted yield and duration by rating class, aggregated in the database.

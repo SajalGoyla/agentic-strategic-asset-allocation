@@ -32,7 +32,7 @@ classes; proxy funds and indices are used only to extend their history.
 | Shiller | `sources/shiller.py` | `valuation/shiller_us_equity` | public | S&P 500 CAPE, dividends, earnings (1871-) |
 | Philadelphia Fed SPF | `sources/spf.py` | `surveys/spf_median` | public | Consensus 10-year returns (stocks, bonds, bills), inflation, growth |
 | World Bank Pink Sheet | `sources/worldbank.py` | `commodities/worldbank_monthly` | public | Gold prices before 1986 (and before 2000 without WRDS) |
-| WRDS (CRSP, Compustat, I/B/E/S, Bond Returns) | `sources/wrds.py` | `wrds/crsp_treasury_indexes`, `wrds/crsp_stock_monthly`, `wrds/crsp_fund_monthly`, `wrds/us_equity_valuation`, `wrds/corporate_bond_yields`, `wrds/etf_market_caps` | WRDS login, licensed | Treasury and T-bill index history, ETF return cross-check, fund history links; US equity valuation, corporate bond yields and ETF market values for the CMA methods |
+| WRDS (CRSP, Compustat, I/B/E/S, Bond Returns) | `sources/wrds.py` | `wrds/crsp_treasury_indexes`, `wrds/crsp_stock_monthly`, `wrds/crsp_fund_monthly`, `wrds/equity_valuation`, `wrds/corporate_bond_yields`, `wrds/etf_market_caps` | WRDS login, licensed | Treasury and T-bill index history, ETF return cross-check, fund history links; US equity valuation, corporate bond yields and ETF market values for the CMA methods |
 
 ## Long-history monthly returns (`market/asset_returns_monthly`)
 
@@ -68,7 +68,8 @@ The `wrds` source is skipped, not failed, when credentials are missing.
 | `crsp.mcti` | `wrds/crsp_treasury_indexes` | 2y, 7y/10y, 20y/30y Treasury and 30-day T-bill history for Short/Intermediate/Long Treasuries and Cash |
 | `crsp.msf`, `crsp.stocknames` | `wrds/crsp_stock_monthly` | All 18 ETFs (validation: Yahoo vs CRSP returns) and Central Fund of Canada (gold history) |
 | `crsp.fund_names`, `crsp.monthly_tna_ret_nav` | `wrds/crsp_fund_monthly` | ACCBX (IG Corporates), RINSX (International Developed) |
-| `crsp.msf_v2`, `comp.funda`, `crsp.ccmxpf_linktable`, `ibes.statsum_epsus`, `wrdsapps_link_crsp_ibes.ibcrsphist` | `wrds/us_equity_valuation` | Monthly dividend, buyback, issuance, earnings and book yields plus analyst long-term growth for five US groups (below), from 1989 |
+| `crsp.msf_v2`, `comp.funda`, `crsp.ccmxpf_linktable`, `ibes.statsum_epsus`, `wrdsapps_link_crsp_ibes.ibcrsphist` | `wrds/equity_valuation` | Monthly dividend, buyback, issuance, earnings and book yields plus analyst long-term growth for five US groups (below), from 1989 |
+| `comp_global_daily.g_secd`, `g_company`, `g_funda`, `g_exrt_mth` | `wrds/equity_valuation` | The same columns for International Developed and Emerging Markets, from 1994: trailing dividend yield, earnings and book yields (no buyback data in Compustat Global) |
 | `wrdsapps_bondret.bondret` | `wrds/corporate_bond_yields` | Monthly amount-weighted yield and duration of rated IG and HY corporates, from 2002 |
 | `crsp.msf_v2` | `wrds/etf_market_caps` | Monthly market value of the 18 ETFs: point-in-time Black-Litterman weights |
 
@@ -90,8 +91,20 @@ that often do not match the bond's). Spreads come from FRED instead.
 **Licence:** WRDS data is for the account holder's use only. `wrds/` datasets stay in git-ignored
 `data/` and must not be committed, published, or embedded in shared dashboards or artifacts.
 
-**Available but not yet used:** Compustat Global (`comp_global_daily`), which could supply
-valuation for International Developed and Emerging Markets.
+**International groups.** The 700 largest firms headquartered in today's MSCI EAFE
+countries and the 1,200 largest in today's MSCI EM countries, ranked each month by dollar
+market cap (primary issue, month-end price x shares, converted through Compustat's GBP cross
+rates). Dividends come from the security file's payment records, trailing 12 months over price,
+because Compustat Global's annual dividend fields are filled for under a fifth of Australian and
+French firms. Banks and insurers are read from the financial-services format (`FS`) as well as
+`INDL`, which lifted fundamentals coverage from about 70% to over 90% of market cap. A firm
+yield above 25% is treated as a data error (currency redenominations, e.g. Brazil 1994).
+Checked against the ETFs' own figures in 2026-09: the developed group's dividend yield is 2.9%
+against EFA's 3.1%, and its earnings yield 5.0% against 5.4%.
+
+Limitations: weights are full market cap, so China A-shares weigh more than in MSCI EM, which
+includes only part of them; country membership is today's list throughout; and there is no
+buyback or reliable issuance data, so international net payout is dividends alone.
 
 ## Remaining gaps
 
@@ -106,7 +119,7 @@ valuation for International Developed and Emerging Markets.
 | CAPE only for the S&P 500 | CAPE-implied ERP, Gordon valuation change | ETF trailing P/E now, WRDS aggregate earnings yield before the first snapshot; no valuation drift outside US Large Cap |
 | Asset-class market-cap weights | Black-Litterman | ETF market values (CRSP monthly, fund snapshot AUM): sizes of the ETFs, not of the asset classes |
 | Consensus CMAs beyond US stocks/bonds/bills | Survey method | Macro agent view; I/B/E/S growth is ingested for the signals skill |
-| International equity valuation history | Gordon, CAPE for EFA/EEM | Fund snapshot only (from 2026-09); Compustat Global not yet ingested |
+| International buybacks | Gordon for EFA/EEM | Not in Compustat Global; dividends alone, at reduced confidence |
 
 ## Adding a source
 

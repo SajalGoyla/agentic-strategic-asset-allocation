@@ -79,7 +79,7 @@ wrds:
   enabled: true                 # skipped automatically when WRDS credentials are missing
   release_lag_days: 1
   treasury_series: [b1ret, b2ret, b5ret, b7ret, b10ret, b20ret, b30ret, t30ret, t90ret]
-  # US equity valuation stand-ins built from CRSP + Compustat + I/B/E/S (wrds/us_equity_valuation).
+  # US equity valuation stand-ins built from CRSP + Compustat + I/B/E/S (wrds/equity_valuation).
   # Firms are ranked by market cap each month; see src/saa/data/equity_valuation.py.
   valuation_start: 1989-01-01   # a year before the paper's 1990 start, so 1990 has fundamentals
   equity_groups:
@@ -88,6 +88,20 @@ wrds:
     small_n: 3000               # us_small_cap: ranks 1001-3000, Russell 2000 stand-in
     lag_months: 6               # fiscal year-end to public availability
     max_age_months: 18          # older fundamentals are treated as missing
+  # International stand-ins from Compustat Global: the largest firms headquartered in today's
+  # MSCI index countries. Sizes approximate the index constituent counts (EAFE ~700, EM ~1,200).
+  # Membership is today's country list throughout; reclassifications (e.g. Greece, Israel,
+  # Kuwait, Saudi Arabia) are not tracked back in time.
+  international_start: 1994-01-01
+  international_groups:
+    intl_developed:
+      top_n: 700
+      countries: [AUS, AUT, BEL, DNK, FIN, FRA, DEU, HKG, IRL, ISR, ITA, JPN, NLD, NZL, NOR,
+                  PRT, SGP, ESP, SWE, CHE, GBR]
+    emerging_markets:
+      top_n: 1200
+      countries: [BRA, CHL, CHN, COL, CZE, EGY, GRC, HUN, IND, IDN, KOR, KWT, MYS, MEX, PER,
+                  PHL, POL, QAT, SAU, ZAF, TWN, THA, TUR, ARE]
 
 history:
   earliest: 1980-01-31          # no spliced returns stored before this month

@@ -2,7 +2,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from saa.data.equity_valuation import GroupRules, aggregate_equity_valuation
+from saa.data.equity_valuation import (
+    GroupRules,
+    aggregate_equity_valuation,
+    aggregate_international_valuation,
+    trailing_dividend_yield,
+)
 
 # Tiny universe: large = top 2, style = top 4 (split by book-to-market), small = ranks 5-6.
 RULES = GroupRules(large_n=2, style_n=4, small_n=6, lag_months=6, max_age_months=18)
@@ -109,3 +114,83 @@ def test_long_term_growth_is_cap_weighted_over_covered_firms():
     assert out.loc["us_large_cap", "ltg_pct"] == pytest.approx((600 * 10 + 500 * 20) / 1100)
     assert out.loc["us_large_cap", "ltg_coverage_pct"] == 100.0
     assert np.isnan(out.loc["us_small_cap", "ltg_pct"])
+
+
+# --------------------------------------------------------------------------- international
+def intl_panel():
+    """Three firms in one developed region; top_n = 2 keeps the two largest."""
+    return pd.DataFrame(
+        {
+            "gvkey": ["a", "b", "c"],
+            "date": [MONTH] * 3,
+            "mcap": [300.0, 100.0, 50.0],
+            "price_usd": [10.0, 20.0, 5.0],
+            "group": ["intl_developed"] * 3,
+        }
+    )
+
+
+def intl_fundamentals():
+    return pd.DataFrame(
+        {
+            "gvkey": ["a", "b", "c"],
+            "datadate": [pd.Timestamp("2020-12-31")] * 3,
+            "curcd": ["EUR", "JPY", "EUR"],
+            "dvc": np.nan,
+            "prstkc": np.nan,
+            "sstk": np.nan,
+            "ib": [24.0, 1000.0, 1.0],  # in local currency millions
+            "ceq": [150.0, 5000.0, 10.0],
+            "txditc": np.nan,
+        }
+    )
+
+
+def fx():
+    return pd.DataFrame(
+        {
+            "date": [MONTH, MONTH],
+            "currency": ["EUR", "JPY"],
+            "usd_per_unit": [1.25, 0.01],
+        }
+    )
+
+
+def test_trailing_dividend_yield_sums_the_last_twelve_months():
+    panel = intl_panel()
+    dividends = pd.DataFrame(
+        {
+            "gvkey": ["a", "a", "a", "b"],
+            "date": pd.to_datetime(["2020-03-15", "2020-09-15", "2021-03-15", "2021-05-01"]),
+            "dps_usd": [0.1, 0.2, 0.3, 9.0],  # b's payment is 45% of its price: a data error
+        }
+    )
+    dy = trailing_dividend_yield(panel, dividends)
+    assert dy.iloc[0] == pytest.approx((0.2 + 0.3) / 10.0)  # the March 2020 payment has rolled off
+    assert np.isnan(dy.iloc[1])  # above the 25% cap
+    assert dy.iloc[2] == 0.0  # no payments: a genuine zero
+
+
+def test_international_groups_convert_fundamentals_at_the_months_rate():
+    dividends = pd.DataFrame({"gvkey": ["a", "b"], "date": [MONTH, MONTH], "dps_usd": [0.3, 0.4]})
+    out = aggregate_international_valuation(
+        intl_panel(), intl_fundamentals(), fx(), {"intl_developed": 2}, RULES, dividends
+    ).set_index("group")
+    row = out.loc["intl_developed"]
+    assert row["n_firms"] == 2 and row["market_cap_musd"] == 400.0  # c is outside the top 2
+    # a: 24 EUR = $30 on a $300 cap; b: 1000 JPY = $10 on a $100 cap.
+    assert row["earnings_yield_pct"] == pytest.approx(100 * 40 / 400)
+    assert row["book_to_price"] == pytest.approx((150 * 1.25 + 5000 * 0.01) / 400)
+    # Dividend yields 3% and 2%, weighted 300:100.
+    assert row["dividend_yield_pct"] == pytest.approx(100 * (0.03 * 300 + 0.02 * 100) / 400)
+    assert row["net_payout_yield_pct"] == row["dividend_yield_pct"]
+    assert np.isnan(row["buyback_yield_pct"])  # Compustat Global has no buyback data
+
+
+def test_a_currency_without_a_rate_leaves_the_firm_uncovered():
+    rates = fx()[fx()["currency"] == "EUR"]
+    out = aggregate_international_valuation(
+        intl_panel(), intl_fundamentals(), rates, {"intl_developed": 2}, RULES
+    ).set_index("group")
+    assert out.loc["intl_developed", "fundamentals_coverage_pct"] == pytest.approx(75.0)
+    assert out.loc["intl_developed", "earnings_yield_pct"] == pytest.approx(100 * 30 / 300)
