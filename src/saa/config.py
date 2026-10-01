@@ -236,10 +236,32 @@ class WorldBankSettings(BaseModel):
     release_lag_days: int = 5
 
 
+class EquityGroupSettings(BaseModel):
+    """Rank cut-offs for the US equity valuation stand-ins (saa.data.equity_valuation)."""
+
+    large_n: int = 500
+    style_n: int = 1000
+    small_n: int = 3000
+    lag_months: int = 6
+    max_age_months: int = 18
+
+
+class InternationalGroup(BaseModel):
+    """One international equity stand-in: the ``top_n`` largest firms headquartered in
+    ``countries`` (ISO-3 codes, as Compustat Global's ``loc``)."""
+
+    top_n: int
+    countries: list[str] = Field(min_length=1)
+
+
 class WrdsSettings(BaseModel):
     enabled: bool = True
     release_lag_days: int = 1
     treasury_series: list[str] = Field(default_factory=list)
+    valuation_start: date = date(1989, 1, 1)
+    equity_groups: EquityGroupSettings = Field(default_factory=EquityGroupSettings)
+    international_start: date = date(1994, 1, 1)
+    international_groups: dict[str, InternationalGroup] = Field(default_factory=dict)
 
 
 class HistorySettings(BaseModel):

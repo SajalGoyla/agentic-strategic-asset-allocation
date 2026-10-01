@@ -2,7 +2,7 @@
   "$defs": {
     "CovarianceBody": {
       "additionalProperties": false,
-      "description": "Annualised covariance matrix over the universe, row/column order given by ``asset_ids``.",
+      "description": "Annualised covariance matrix over the universe, row/column order given by ``asset_ids``.\n\nUnits: ``matrix`` is in decimal-squared (a 20% volatility is a variance of 0.04), the form\noptimisers consume; ``volatilities_pct`` is percent, like every other ``_pct`` field. The\nvalidator checks the two agree, which catches a matrix written in percent-squared.",
       "properties": {
         "asset_ids": {
           "items": {
@@ -173,7 +173,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "1.0.0",
+          "default": "2.0.0",
           "title": "Schema Version",
           "type": "string"
         },

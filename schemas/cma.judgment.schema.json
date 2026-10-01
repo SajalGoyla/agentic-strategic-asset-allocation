@@ -1,7 +1,7 @@
 {
   "$defs": {
     "CmaMethodId": {
-      "description": "The seven candidates of Exhibit 4.",
+      "description": "The seven candidates of Exhibit 4, plus the fixed-income builder.\n\nExhibit 4's methods are written for equities. \u00a73.3 adds that fixed-income agents use \"a\nfixed-income CMA builder emphasising yield and credit-spread duration\"; that builder is\n``YIELD_BUILDING_BLOCK`` (starting yield less expected credit losses), so bond and cash\nagents get a yield-based candidate alongside the historical ones.",
       "enum": [
         "historical_erp",
         "regime_adjusted",
@@ -9,6 +9,7 @@
         "inverse_gordon",
         "implied_erp_cape",
         "survey_consensus",
+        "yield_building_block",
         "auto_blend"
       ],
       "title": "CmaMethodId",

@@ -99,3 +99,44 @@ def test_pre_vintage_backfill_rows_cover_early_as_of_dates(tmp_config):
 def test_provenance_pins_versions(store):
     store.prices("SPY")
     assert store.provenance()["market/prices_daily"]["run_id"] == "r1"
+
+
+def test_wrds_accessors_respect_as_of(tmp_config):
+    lake = DataLake(tmp_config.settings.data_dir)
+    dates = pd.to_datetime(["2025-11-30", "2025-12-31"])
+    lake.write_dataset(
+        "wrds/etf_market_caps",
+        pd.DataFrame(
+            {
+                "permno": [84398, 84398],
+                "ticker": ["SPY", "SPY"],
+                "date": dates,
+                "market_cap_musd": [1.0, 2.0],
+                "available_from": dates + pd.Timedelta(days=1),
+            }
+        ),
+        run_id="r1",
+        source="test",
+    )
+    lake.write_dataset(
+        "wrds/corporate_bond_yields",
+        pd.DataFrame(
+            {
+                "rating_class": ["investment_grade", "high_yield"],
+                "date": [dates[1], dates[1]],
+                "n_bonds": [10, 5],
+                "yield_pct": [5.0, 7.0],
+                "duration_years": [6.0, 4.0],
+                "available_from": [dates[1] + pd.Timedelta(days=1)] * 2,
+            }
+        ),
+        run_id="r1",
+        source="test",
+    )
+    store = DataStore(tmp_config)
+    assert store.etf_market_caps(as_of="2025-12-15")["SPY"].tolist() == [1.0]
+    assert store.etf_market_caps()["SPY"].tolist() == [1.0, 2.0]
+    assert store.corporate_bond_yields(as_of="2026-01-05").loc[dates[1], "high_yield"] == 7.0
+    assert store.corporate_bond_yields(as_of="2025-12-31").empty
+    with pytest.raises(FileNotFoundError):
+        store.equity_valuation()

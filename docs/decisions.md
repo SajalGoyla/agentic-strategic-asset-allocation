@@ -100,3 +100,94 @@ because it is generic statistics code, and the skill converts once at the bounda
 Consequence: renaming fields breaks any reader, so `SCHEMA_VERSION` went to 1.0.0 under the
 rule in `contracts/base.py` (major for a breaking change). That is a statement about the
 contract format, not a claim that the project is finished.
+
+### 16. Covariance matrices in decimal-squared, volatilities in percent — settled, 2026-09-29
+`CovarianceBody.matrix` is what optimisers consume, so it stays in decimal-squared (a 20%
+volatility is a variance of 0.04); `volatilities_pct` follows the percent rule. A covariance is
+not a percentage, so this is not an exception to decision 15 — but the two numbers must agree,
+and the contract validator now rejects a matrix whose implied volatility is off by more than
+rounding. That catches a matrix written in percent-squared, which would be 100x off.
+
+### 17. Ledoit-Wolf over all history is the default covariance — settled, 2026-09-29
+Chosen by an out-of-sample test on 1993-2026 data (`skills/covariance/SKILL.md`). Risk forecasts
+from all estimators were within noise of each other, so robustness decided it: the sample and
+exponential estimators were singular in every year before 2008, because International
+Sovereigns and Corporates share a proxy fund until 2007, while Ledoit-Wolf never was. Over all
+history it also gave the best-conditioned matrices and the most accurate benchmark-volatility
+forecast. The a-priori default of a 10-year window lost on every measure and was dropped. The
+exponential estimator stays as the reactive alternative, with a 60-month half-life.
+Consequence: any optimiser downstream can invert the matrix at every backtest date.
+
+### 18. A fixed-income CMA method, and no placeholder numbers — settled, 2026-09-29
+Exhibit 4's six methods are written for equities; §3.3 separately gives fixed-income agents "a
+fixed-income CMA builder emphasising yield and credit-spread duration". It is now a method of
+its own, `yield_building_block` (starting yield less expected credit losses), so bond and cash
+agents get a yield-based candidate and not only historical ones. A method that does not apply
+or lacks data now carries `expected_return_pct: null` and zero confidence, rather than a number
+an LLM could mistake for an estimate, and every `cma_methods.json` lists all eight methods in
+the same order. Making a required field nullable breaks readers, so `SCHEMA_VERSION` is 2.0.0.
+
+### 19. CMA candidates are arithmetic, nominal, annual percent — settled, 2026-09-29
+Optimisers take arithmetic means, and the historical and Black-Litterman methods produce them
+natively. Yield, Gordon and survey methods produce compound returns, so they add half the
+variance as an explicit `variance_addback_pct` component. The CAPE method adds expected
+inflation (SPF CPI10) to the earnings yield: the paper's formula compares a real yield with
+nominal candidates. Consequence: the judge compares like with like, and at 15% volatility the
+add-back is about 1.1pp, which is worth knowing when reading the paper's figures side by side.
+
+### 20. The regime-adjusted premium is predictive — settled, 2026-09-29
+Averaging returns *during* past months in the current regime uses hindsight: a month is
+labelled recession partly because of the crash in it. The method averages the excess return
+over the 3-year horizon *after* each such month instead, then shrinks it toward the
+unconditional premium (credibility weight n/(n+60)). On real data this moved US Large Cap in
+expansion from +13.7% to +9.7% excess, next to the paper's 9.8%.
+
+### 21. Black-Litterman risk aversion 2.5 — provisional, 2026-09-29
+Calibrated from 1990-2026, δ = 5.4, which scales every equilibrium premium up by 2.2x because the
+sample's equity returns were unusually strong. The literature value 2.5 (He & Litterman 1999) is
+the default; `risk_aversion: historical` in `config/cma.yaml` restores the calibration. Revisit
+when WRDS market caps replace ETF AUM as the weights.
+
+### 22. WRDS valuation as group aggregates, built in the pipeline — settled, 2026-09-29
+The equity CMA methods need payout, earnings and book yields per asset class with history, and
+only the S&P 500 has them publicly (Shiller). The WRDS source now rebuilds rule-based stand-ins
+each month from CRSP (CIZ `msf_v2`; the legacy `msf` stops at 2024-12), Compustat and I/B/E/S:
+the top 500 US common stocks, the top 1,000 split at median book-to-market, ranks 1,001-3,000,
+and all REITs. Rank rules, not vendor membership lists, because the lists are not in WRDS for
+all five groups and the rules are transparent and reproducible. Fundamentals count six months
+after fiscal year-end, so each month is point-in-time. Only the aggregates are stored; the
+firm-level extract is never written, which keeps the licensed footprint small. The large-cap
+dividend yield tracks Shiller's closely, which validates the construction. WRDS Bond Returns
+supplies IG/HY yields from 2002 and CRSP the ETFs' monthly market values. Its `t_spread` field
+was rejected as sparse and mis-benchmarked. Consequence: every WRDS-backed input has a public
+fallback, and the CMA rationale names the input actually used.
+
+### 23. Gordon uses net payout; the CAPE method prefers the ETF's P/E — settled, 2026-09-29
+The Gordon yield is dividends plus buybacks less issuance, which pairs with aggregate (GDP)
+growth. Dividends alone understate US income return, because buybacks are larger. The CAPE
+method keeps the ETF's trailing P/E when a snapshot exists, because the aggregate earnings of US
+small caps can be negative (loss-makers the index vendor's P/E excludes). WRDS is used only for
+earlier dates, and never when negative. A WRDS valuation older than 190 days is rolled forward by
+the ETF's price change, up to 400 days, since CRSP and Compustat are released only a few times
+a year.
+
+### 24. International valuation from Compustat Global — settled, 2026-10-01
+International Developed and Emerging Markets had valuation only from the fund snapshot, i.e.
+none before 2026-09. Compustat Global supplies it from 1994 for the same rule-based groups as the
+US: the 700 largest firms headquartered in MSCI EAFE countries and the 1,200 largest in MSCI EM
+countries, in dollars. Three findings shaped it. Annual dividend fields are mostly empty (under
+a fifth of Australian and French firms), so dividends come from the security file's payment
+records as a trailing 12-month yield, the way index vendors quote it. Banks are filed in the
+`FS` format, and reading it lifted coverage from about 70% to over 90% of market cap. A few
+firm-months show yields in the thousands of percent after currency redenominations, so firm
+yields above 25% are dropped. Validated against EFA/EEM's own snapshot figures (dividend yield
+2.9% vs 3.1% developed). Consequence: the Gordon and CAPE candidates exist for both groups at
+every backtest date. International buybacks are unknown, so the Gordon method counts them as
+zero at reduced confidence. Rejected: matching MSCI's free-float and partial-inclusion weights,
+which are not in WRDS.
+
+### 25. Results derived from WRDS may be published — settled, 2026-10-01
+The project owner ruled that research results computed from licensed data (CMA estimates,
+validation statistics, evidence tables) can be committed to this public repo. The WRDS data
+itself — extracts and the curated `wrds/` datasets — still never leaves git-ignored `data/`.
+CLAUDE.md's licensed-data rule now says exactly that.

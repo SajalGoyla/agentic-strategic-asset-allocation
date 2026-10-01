@@ -29,6 +29,8 @@ uv run saa-data ingest                    # fetch every source, build history, v
 uv run saa-data validate | status         # data-quality report | dataset versions
 uv run saa-data wrds-login | wrds-check   # licensed CRSP access (optional)
 uv run saa-skill historical-analysis      # per-asset return/risk statistics
+uv run saa-skill covariance               # 18x18 covariance matrix (Ledoit-Wolf default)
+uv run saa-skill cma-methods              # every CMA candidate per asset -> cma_methods.json
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
@@ -44,8 +46,9 @@ src/saa/
   llm.py      Anthropic client: model tiers, budget, retries, schema-constrained judgments
   contracts/  one model per JSON file the pipeline writes; `registry.py` is the index
   data/       sources/ (8 connectors) · lake.py (versioned parquet) · store.py (DataStore)
-              history.py (18-asset spliced returns) · validation.py · pipeline.py
-  skills/     deterministic, no LLM: historical_analysis/ · macro_regime/
+              history.py (18-asset spliced returns) · equity_valuation.py (WRDS group
+              aggregates) · validation.py · pipeline.py
+  skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/ · cma_methods/
   agents/     LLM agents: macro/ (AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
 data/         git-ignored: raw payloads, curated parquet, runs/, reports/
@@ -61,7 +64,10 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 - Record `store.provenance()` in every output header.
 
 **Licensed data (WRDS/CRSP)**
-- Never commit, publish, or paste WRDS-derived numbers outside the repo's git-ignored `data/`.
+- Never commit or publish WRDS data itself: extracts, firm- or bond-level rows, or the
+  curated `wrds/` datasets stay in git-ignored `data/`. Research results computed from them
+  (CMA estimates, validation statistics, evidence tables) may be published (owner's
+  ruling, 2026-10-01).
 - Every WRDS-backed history link has a public fallback, so the pipeline still runs without
   credentials. Keep it that way.
 

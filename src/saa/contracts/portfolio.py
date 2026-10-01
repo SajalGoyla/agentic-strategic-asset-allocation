@@ -31,7 +31,12 @@ class CovarianceMethod(StrEnum):
 
 
 class CovarianceBody(Contract):
-    """Annualised covariance matrix over the universe, row/column order given by ``asset_ids``."""
+    """Annualised covariance matrix over the universe, row/column order given by ``asset_ids``.
+
+    Units: ``matrix`` is in decimal-squared (a 20% volatility is a variance of 0.04), the form
+    optimisers consume; ``volatilities_pct`` is percent, like every other ``_pct`` field. The
+    validator checks the two agree, which catches a matrix written in percent-squared.
+    """
 
     asset_ids: list[str]
     method: CovarianceMethod
@@ -62,6 +67,15 @@ class CovarianceBody(Contract):
         missing = set(self.asset_ids) - set(self.volatilities_pct)
         if missing:
             raise ValueError(f"no volatility reported for {sorted(missing)}")
+        for i, asset in enumerate(self.asset_ids):
+            implied = 100 * self.matrix[i][i] ** 0.5
+            reported = self.volatilities_pct[asset]
+            # Loose enough for rounding, tight enough to catch a decimal/percent mix-up (100x).
+            if abs(reported - implied) > max(0.1, 0.01 * implied):
+                raise ValueError(
+                    f"volatility for {asset} is {reported}% but the matrix implies {implied:.2f}%; "
+                    "matrix must be decimal-squared, volatilities_pct in percent"
+                )
         return self
 
 
