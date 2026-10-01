@@ -1,0 +1,53 @@
+"""Portfolio-construction skill: the deterministic optimisers behind the PC agents (stage 4)."""
+
+from saa.skills.portfolio_construction.analysis import (
+    AGENT,
+    REPORT,
+    Candidate,
+    PortfolioStats,
+    StageInputs,
+    benchmark_weights,
+    build_candidate,
+    build_candidates,
+    effective_number_of_assets,
+    gather_inputs,
+    portfolio_stats,
+    render_report,
+    write_report,
+)
+from saa.skills.portfolio_construction.methods import (
+    METHODS,
+    Method,
+    PortfolioInputs,
+    black_litterman,
+    equal_weight,
+    implied_equilibrium_returns,
+    inverse_variance,
+    inverse_volatility,
+    max_sharpe,
+)
+
+__all__ = [
+    "AGENT",
+    "METHODS",
+    "REPORT",
+    "Candidate",
+    "Method",
+    "PortfolioInputs",
+    "PortfolioStats",
+    "StageInputs",
+    "benchmark_weights",
+    "black_litterman",
+    "build_candidate",
+    "build_candidates",
+    "effective_number_of_assets",
+    "equal_weight",
+    "gather_inputs",
+    "implied_equilibrium_returns",
+    "inverse_variance",
+    "inverse_volatility",
+    "max_sharpe",
+    "portfolio_stats",
+    "render_report",
+    "write_report",
+]

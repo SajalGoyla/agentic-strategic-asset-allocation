@@ -1,0 +1,90 @@
+# Asset-level signals: what the signals skill computes and how much each one counts.
+#
+# Ang, Azimbayev & Kim (2026) Exhibit 3 steps 3-5 give the asset-class agent "valuation &
+# fundamentals", "technical signals (momentum, trend, mean reversion, relative momentum)" and
+# "sentiment and external data via web search"; Exhibit 4 then feeds `signals.json` to the CMA
+# judge as "asset-level macro, technical, valuation signals". The paper names the signals but
+# publishes no definitions or weights, so everything here is ours.
+#
+# Every signal is scored to [-1, +1] where **+1 is bullish for that asset's forward return**,
+# using the same convention as the macro skill: z-score against the signal's own trailing
+# history, squashed with tanh(z/2) so one extreme reading moves a category without owning it.
+#
+# Sentiment is not computed. Exhibit 3 sources it from web search at runtime, which the
+# pipeline does not do yet (docs/decisions.md); the category is left out rather than faked.
+
+lookback_years: 20 # trailing window each signal is scored against
+min_months: 36 # a signal needs this much history or it is omitted
+
+# Category weights in the composite, renormalised over whichever categories produced signals.
+category_weights:
+  technical: 0.35
+  valuation: 0.40
+  macro: 0.25
+
+technical:
+  # Jegadeesh-Titman convention: the 12-month return skipping the most recent month, which
+  # avoids the one-month reversal effect.
+  momentum:
+    lookback_months: 12
+    skip_months: 1
+    weight: 0.35
+  # Price against its own moving average: the classic time-series trend filter.
+  trend:
+    window_months: 10
+    weight: 0.25
+  # Stretched trailing returns mean-revert, so this one enters with a negative sign.
+  mean_reversion:
+    lookback_months: 36
+    weight: 0.15
+  # Momentum ranked against the other 17 assets rather than against the asset's own history.
+  relative_momentum:
+    lookback_months: 12
+    skip_months: 1
+    weight: 0.25
+
+valuation:
+  # Equity and REITs: a high earnings yield is cheap, so it is bullish.
+  earnings_yield:
+    weight: 0.45
+  # Shiller CAPE, US Large Cap only. Inverted: a high CAPE is expensive.
+  cape:
+    weight: 0.30
+  # Fixed income and cash: the starting yield is the dominant predictor of forward return.
+  yield_level:
+    weight: 0.55
+  # Credit assets: a wide spread compensates more, so wide is bullish for forward return.
+  credit_spread:
+    weight: 0.45
+
+macro:
+  # How the asset has done historically in the regime the macro agent is calling now, against
+  # its own unconditional mean.
+  regime_fit:
+    min_months: 24
+    weight: 0.60
+  # The asset's sensitivity to each macro dimension, times where that dimension sits today.
+  # Aligned sensitivity and reading is bullish.
+  dimension_alignment:
+    dimensions: [growth, inflation, monetary_policy, financial_conditions]
+    window_months: 120
+    weight: 0.40
+
+# FRED series backing the credit-spread signal, by asset.
+credit_spreads:
+  ig_corporates: BAMLC0A0CM
+  hy_corporates: BAMLH0A0HYM2
+  usd_em_debt: BAMLC0A0CM # EM corporate OAS has only ~3 years on FRED; IG is the proxy
+  intl_corporates: BAMLC0A0CM
+
+# FRED series backing the yield-level signal, by asset.
+yield_levels:
+  short_treasuries: DGS2
+  intermediate_treasuries: DGS10
+  long_treasuries: DGS30
+  ig_corporates: BAA
+  hy_corporates: BAMLH0A0HYM2EY
+  intl_sovereigns: IRLTLT01DEM156N
+  intl_corporates: IRLTLT01DEM156N
+  usd_em_debt: DGS10
+  cash: DTB3

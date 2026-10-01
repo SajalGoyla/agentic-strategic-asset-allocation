@@ -1,8 +1,9 @@
 """Command line entry point for agents: ``uv run saa-agent <agent>``.
 
-``macro --no-llm`` runs only the deterministic half, which needs no API key and no spend. That
-is the mode the regime backtest uses, and the quickest way to check the scoring after changing
-``config/macro_scoring.yaml``.
+``--no-llm`` runs only the deterministic half of a stage: no API key, no spend. ``macro
+--no-llm`` is the mode the regime backtest uses and the quickest way to check a change to
+``config/macro_scoring.yaml``; ``pc --no-llm`` produces every candidate portfolio and its
+statistics without writing a rationale.
 """
 
 from __future__ import annotations
@@ -85,11 +86,73 @@ def _run_macro(args, config) -> int:
     return 0
 
 
+def _add_cma_judge(sub) -> None:
+    judge = sub.add_parser("cma-judge", help="select the final CMA per asset (stage 2)")
+    judge.add_argument("--run-id", help="the pipeline run holding cma_methods.json", required=True)
+    judge.add_argument("--run-dir", help="override the run directory entirely")
+    judge.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    judge.add_argument("--assets", nargs="+", help="asset ids (default: all 18)")
+    judge.add_argument("--workers", type=int, default=4, help="assets judged concurrently")
+    judge.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
+
+def _add_pc(sub) -> None:
+    pc = sub.add_parser("pc", help="portfolio-construction agents (stage 4)")
+    pc.add_argument("--run-id", help="the pipeline run holding covariance.json", required=True)
+    pc.add_argument("--run-dir", help="override the run directory entirely")
+    pc.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    pc.add_argument("--methods", nargs="+", help="method ids (default: every implemented method)")
+    pc.add_argument("--workers", type=int, default=4, help="agents run concurrently")
+    pc.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="weights and statistics only: no API key needed, no spend, no rationale",
+    )
+    pc.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
+
+def _run_cma_judge(args, config) -> int:
+    from saa.agents.cma_judge import render_summary, run_cma_judge, write_summary
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    result = run_cma_judge(
+        run,
+        config=config,
+        llm=LlmClient(budget=Budget(cap_usd=args.cap_usd)),
+        assets=args.assets,
+        workers=args.workers,
+    )
+    print(render_summary(result))
+    print(f"  summary  {write_summary(result, run)}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0 if result.judged and not result.failed else 1
+
+
+def _run_pc(args, config) -> int:
+    from saa.agents.pc import render_summary, run_pc_agents, write_summary
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    result = run_pc_agents(
+        run, DataStore(config), config=config, llm=llm, methods=args.methods, workers=args.workers
+    )
+    print(render_summary(result))
+    print(f"  summary  {write_summary(result, run)}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0 if result.proposals else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="saa-agent", description="Agentic SAA pipeline agents")
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
     sub = parser.add_subparsers(dest="command", required=True)
     _add_macro(sub)
+    _add_cma_judge(sub)
+    _add_pc(sub)
     args = parser.parse_args(argv)
 
     logging.basicConfig(
@@ -100,6 +163,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "macro":
         return _run_macro(args, config)
+    if args.command == "cma-judge":
+        return _run_cma_judge(args, config)
+    if args.command == "pc":
+        return _run_pc(args, config)
     return 1
 
 
