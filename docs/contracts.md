@@ -67,7 +67,8 @@ constraint, it is a `model_validator`:
 - A peer review marked intra-category must actually be intra-category (§3.5).
 - The CIO's composite score must match the §4.4 weighted rubric (25/15/15/20/15/10).
 - The CIO may not ship an allocation that fails a hard IPS rule — §3.6 calls compliance
-  "non-negotiable".
+  "non-negotiable". Candidates (`pc_proposal`, `cro_report`) carry their compliance result but
+  are never rejected for it (decision 32).
 - Portfolio and ensemble weights must be fully invested and non-negative.
 - A covariance matrix must be square, symmetric and have positive variances.
 

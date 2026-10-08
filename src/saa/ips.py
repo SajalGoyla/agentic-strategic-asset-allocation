@@ -10,8 +10,9 @@ change lands in one place.
 
 Two design points worth knowing before reading the code:
 
-* **Hard vs. soft.** A hard violation disqualifies a portfolio; a soft one is recorded and
-  surfaced in the board memo. The return target is soft because a portfolio cannot *guarantee*
+* **Hard vs. soft.** A hard violation disqualifies the CIO's recommended portfolio; a soft one
+  is recorded and surfaced in the board memo. Candidate portfolios are checked with the same
+  function, but their violations are reported and scored, not disqualifying (decision 32). The return target is soft because a portfolio cannot *guarantee*
   a return -- the risk limits are what the IPS can actually bind.
 * **Unevaluated is not compliant.** Metrics arrive at different pipeline stages (ex-ante
   volatility exists at portfolio construction, realised drawdown only after a backtest). A

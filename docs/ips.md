@@ -3,7 +3,15 @@
 The IPS is the governing document of this pipeline. Ang, Azimbayev & Kim (2026) put it at the
 centre of the architecture: humans write it, every agent reads it, the CRO agent checks every
 candidate portfolio against it, and the CIO agent is bound by it — compliance is
-"non-negotiable" (§3.6). §5.2 goes further: adjusting the IPS is how the system moves between
+"non-negotiable" (§3.6).
+
+**Where the hard limits bind.** On the portfolio the CIO recommends, and only there
+(decision 32). The PC agents' candidates are checked against the same rules by the same
+function, and the CRO reports every violation, but a candidate that breaks a limit stays in
+the review, the vote and the CIO's ensemble pool; IPS compliance is one of the CIO's six scoring
+dimensions (15%). That is how the paper works: its adversarial diversifier breaks the drawdown
+limit (−46.3%) and still receives ensemble weight, because "the scoring gives the CIO agent
+latitude to value ensemble diversification alongside standalone quality" (§4.4). §5.2 goes further: adjusting the IPS is how the system moves between
 autonomy levels, so it is the one place a human stays in control of what the agents may do.
 
 This document is the human-readable form. `config/ips.yaml` is the machine-readable form that
@@ -89,7 +97,7 @@ config = load_config()
 report = check_compliance(weights, metrics, config.ips, config.universe)
 
 report.compliant      # False if any hard violation
-report.hard           # disqualifying
+report.hard           # disqualifying for the CIO's recommendation
 report.soft           # flag in the board memo
 report.not_evaluated  # rules no metric was supplied for
 report.to_dict()      # embed in risk_report.json / cio_decision.json
@@ -97,7 +105,8 @@ report.to_dict()      # embed in risk_report.json / cio_decision.json
 
 Three properties worth knowing:
 
-- **Hard vs. soft.** Hard violations disqualify; soft ones are recorded and surfaced.
+- **Hard vs. soft.** Hard violations disqualify the CIO's recommended portfolio; soft ones
+  are recorded and surfaced. Candidates' violations of either kind are reported and scored.
   Structural rules — universe membership, fully invested, long-only, no leverage, and weight
   bounds where a policy sets any — are always hard. The severity of each objective is set in
   the YAML, so moving one is a config change rather than a code change.
@@ -129,7 +138,8 @@ constraints."*
 
 So the volatility band and the drawdown limit bind strictly — on both sides of the band, and on
 the backtest as well as ex-ante — and we accept that the paper's published figures would not
-clear them. The CRO agent will reject candidates on these rules from Week 7.
+clear them. The CIO may not recommend a portfolio that breaks them; the CRO reports candidates'
+breaches without rejecting them (decision 32).
 
 All three limits are hard, so all three would reject it. The return figure is the one worth a
 second look: it binds from above as well as below, which means a portfolio forecast to earn

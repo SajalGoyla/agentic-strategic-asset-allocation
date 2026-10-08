@@ -3,7 +3,7 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-10-08** (project week 5 of 12). Phases 1 and 2 are complete; Phase 3
+**As of 2026-10-08** (project week 5 of 12). Phases 1 and 2 are complete and closed; Phase 3
 (deliberation and the CIO) is next. `main` is the only source of truth.
 
 ## By pipeline stage
@@ -99,6 +99,18 @@ volatility. Maximum entropy misses the floor narrowly (7.5%), and the adversaria
 breaks the 12% cap (13.2%). The cause is structural, not a bug: cash is in the risky universe,
 and with no leverage a low-risk portfolio cannot be scaled up to the band.
 
+### Resolved: where the volatility floor binds (decision 32, 2026-10-08)
+
+The paper does not make candidates comply: its CRO "scores risk … but does not vote", IPS
+compliance is 15% of the CIO's score, and the adversarial diversifier (−46.3% drawdown) still
+gets ensemble weight. Compliance is "non-negotiable" only for the CIO's choice of ensemble. We
+adopted the same rule. Tested on the free run: averaging the 11 portfolios gives 3.3-4.0%
+volatility, but a meta-optimisation over them constrained to the IPS reaches 8.0% volatility,
+Sharpe 0.47 and 2.9% tracking error, so a compliant recommendation exists without distorting
+any method. Forcing each optimiser into the band was rejected (risk parity forced to 8% is no
+longer risk parity: contributions spread 0-7.1% instead of 5.6% each), as was dropping cash from
+the risk methods (still 1.6-5.7% volatility, now in short Treasuries).
+
 ## Decisions still open
 
 | Question | Who decides | Blocks |
@@ -106,19 +118,21 @@ and with no leverage a low-risk portfolio cannot be scaled up to the band.
 | IPS ratification as a whole (`status: draft` today) | Prof. Glasserman | Nothing yet; every header records the draft status |
 | Should exceeding the return target really disqualify a portfolio? | Prof. Glasserman | CRO agent, week 7 |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
-| Should the volatility band bind from below? 10 of 11 PC agents fail it | Prof. Glasserman | The CRO agent and the vote, week 7 |
+| Confirm that "hard" means hard on the CIO's recommendation, not on each candidate (decision 32) | Prof. Glasserman | Nothing; adopted, to be confirmed |
 
 ## Next, in order
 
-1. Settle the volatility-floor question, since the CRO enforces it and the vote depends on
-   which proposals survive. Options on the table: enforce the band inside each optimiser, hold
-   cash outside the risk-based methods, or let the floor bind only on the CIO's final portfolio.
-2. A first paid run of the CMA judge and the PC agents on the full roster (`--cap-usd` set),
-   then `saa-skill cma-validate` on the judged CMAs.
-3. Phase 3 (weeks 7-9): the CRO agent, peer-review assignment and the Borda vote, the revision
-   step, and the CIO ensemble with the board memo.
-4. Point the macro agent at `RunContext`, then a single `saa-run` command that chains the
-   stages.
+Phase 2 is closed. Phase 3 (weeks 7-9), per the plan:
+
+1. A first paid run of the CMA judge and the 11 PC agents (`--cap-usd` set), then
+   `saa-skill cma-validate` on the judged CMAs — the inputs every Phase 3 stage reads.
+2. The CRO agent: a risk report per candidate, compliance reported but never disqualifying.
+3. Peer-review assignment (one intra-, one inter-category review each, seeded) and the
+   modified Borda vote with the three-of-four-families diversity rule.
+4. The revision step for the top five.
+5. The CIO: the ensemble techniques, including a meta-optimisation constrained to the IPS, the
+   six-dimension score, and the board memo. Only a compliant ensemble may be recommended.
+6. Wiring: point the macro agent at `RunContext`, then a single `saa-run` command.
 
 ## Data facts worth not re-deriving
 

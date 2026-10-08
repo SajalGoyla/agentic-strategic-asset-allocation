@@ -121,8 +121,9 @@ A `--no-llm` run on the real lake, with each asset's auto-blend standing in for 
 method concentrates in cash, the 0.6%-volatility asset — risk parity 62%, hierarchical risk
 parity 92%, CVaR minimisation 97%, tail-risk parity 53% — at 0.6-2.5% volatility, far below the
 8% floor. Maximum entropy misses it narrowly (7.5%); the adversarial diversifier overshoots the
-12% cap (13.2%). This is the volatility-floor question in `docs/status.md`, now with the full
-roster behind it.
+12% cap (13.2%). That does not remove them from the pipeline: candidates are not disqualified by the IPS, only
+the CIO's final portfolio is (decision 32). On these portfolios a meta-optimised ensemble
+constrained to the IPS reaches 8.0% volatility, Sharpe 0.47 and 2.9% tracking error.
 
 ## Outputs
 

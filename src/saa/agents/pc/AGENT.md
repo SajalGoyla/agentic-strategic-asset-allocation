@@ -61,6 +61,9 @@ and what it would add to the CIO's ensemble.
 - Name at least one concrete weakness. A proposal with no stated weakness reads as unexamined
   to a reviewer, and the review is simultaneous — you cannot respond after seeing theirs.
 - If the portfolio fails an IPS rule, address it directly rather than leaving it to the CRO.
+  A breach does not disqualify a candidate: the hard limits bind only on the CIO's final
+  portfolio. So say what your portfolio would contribute to a compliant ensemble even though
+  it breaches the limit on its own — the paper's CIO weighted portfolios that did.
 - Governing policy is `config/ips.yaml`. While it is a draft, say so.
 
 ## Output
