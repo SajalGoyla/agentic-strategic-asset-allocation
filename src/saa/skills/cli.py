@@ -85,6 +85,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     cm.add_argument("--run-id", help="write into an existing pipeline run instead of a new one")
     cm.add_argument("--run-dir", help="override the run directory entirely")
+
+    cv_ = sub.add_parser("cma-validate", help="check the CMA layer against expected ranges")
+    cv_.add_argument("--run-id", required=True, help="the pipeline run holding cma_methods.json")
+    cv_.add_argument("--run-dir", help="override the run directory entirely")
+    cv_.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
     args = parser.parse_args(argv)
 
     logging.basicConfig(
@@ -188,6 +193,21 @@ def main(argv: list[str] | None = None) -> int:
         written = write_outputs(result, run)
         print(render_report(result).split("## Rationales")[0])
         print(f"Wrote {len(written)} files for {len(result.bodies)} assets to {run.root}")
+
+    if args.command == "cma-validate":
+        from saa.skills.cma_methods.validation import (
+            Status,
+            render_report,
+            summary_counts,
+            validate_run,
+            write_report,
+        )
+
+        run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+        result = validate_run(run, config)
+        print(render_report(result, run.as_of).split("## Every check")[0])
+        print(f"Assets: {summary_counts(result)}. Report: {write_report(result, run)}")
+        return 1 if result.status is Status.FAIL else 0
     return 0
 
 

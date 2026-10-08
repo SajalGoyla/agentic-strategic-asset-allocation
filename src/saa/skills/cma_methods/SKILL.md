@@ -126,3 +126,12 @@ unconditional premium.
   also carries currency moves this method does not forecast.
 - **USD EM debt uses the ICE EM corporate yield**, the only free EM yield. EMB holds
   sovereigns.
+
+## Validation
+
+`uv run saa-skill cma-validate --run-id <run>` checks the estimate each asset carries into
+portfolio construction — the judged CMA where the judge has run, the auto-blend otherwise —
+against `config/cma_validation.yaml`: a plausibility band per group (the only check that
+fails an asset), bonds and cash against their starting yield, the implied Sharpe ratio, the
+equity classes against the paper's Exhibit 8, and the return-risk ordering across all 18. It
+writes `reports/cma_validation.md` and exits non-zero on a failure.

@@ -123,6 +123,9 @@ class StageInputs:
     regime: str | None
     provenance: dict[str, dict]
     inputs: list[InputRef]
+    # Monthly decimal returns over every month all assets share (from 1993-06): the scenarios
+    # the non-traditional methods optimise over. None skips those methods, with a reason.
+    scenario_returns: pd.DataFrame | None = None
 
 
 def benchmark_weights(config: Config) -> pd.Series:
@@ -183,6 +186,7 @@ def gather_inputs(
         inflation_pct = float(cpi.iloc[-1, 0] / cpi.iloc[-13, 0] - 1) * 100
 
     market_weights = _market_weights(store, asset_ids, as_of)
+    scenarios = store.asset_returns(asset_ids, as_of=as_of).dropna(how="any")
 
     regime = None
     macro_path = run.path("macro_view")
@@ -202,37 +206,46 @@ def gather_inputs(
         regime=regime,
         provenance=store.provenance(),
         inputs=refs,
+        scenario_returns=scenarios if len(scenarios) else None,
     )
 
 
 def _market_weights(
     store: DataStore, asset_ids: list[str], as_of: pd.Timestamp
 ) -> pd.Series | None:
-    """ETF market values as the proxy for the market portfolio, for Black-Litterman."""
-    for loader in (store.etf_market_caps, store.fund_snapshot):
-        try:
-            frame = loader(as_of=as_of)
-        except (FileNotFoundError, KeyError, AttributeError):
-            continue
-        if frame is None or frame.empty:
-            continue
-        column = next(
-            (c for c in ("market_value", "total_assets", "market_cap") if c in frame.columns),
-            None,
-        )
-        if column is None:
-            continue
-        tickers = {store.universe.get(a).ticker: a for a in asset_ids}
-        values = {}
-        for ticker, asset_id in tickers.items():
-            if ticker in frame.index:
-                value = frame.loc[ticker, column]
-                if pd.notna(value) and float(value) > 0:
-                    values[asset_id] = float(value)
-        if len(values) >= len(asset_ids) // 2:
-            return pd.Series(values, dtype="float64").reindex(asset_ids).fillna(0.0)
-    log.warning("no ETF market values available; Black-Litterman will be skipped")
-    return None
+    """ETF market values as the proxy for the market portfolio, for Black-Litterman.
+
+    Two sources, the more recent one on ``as_of`` wins -- the same rule as the CMA methods'
+    Black-Litterman candidate (decision 22): CRSP's monthly market values (licensed, history to
+    2010, a date x ticker frame) and the fund snapshot's AUM (public, only the days it was
+    taken, indexed by ticker).
+    """
+    tickers = {store.universe.get(a).ticker: a for a in asset_ids}
+    candidates: list[tuple[pd.Timestamp, pd.Series]] = []
+    try:
+        caps = store.etf_market_caps(as_of=as_of)
+    except FileNotFoundError:
+        caps = pd.DataFrame()
+    if not caps.empty and set(tickers) <= set(caps.columns):
+        complete = caps[list(tickers)].dropna()
+        complete = complete[(complete > 0).all(axis=1)]
+        if not complete.empty:
+            row = complete.iloc[-1].rename(index=tickers)
+            candidates.append((pd.Timestamp(complete.index[-1]), row))
+    try:
+        snapshot = store.fund_snapshot(list(tickers), as_of=as_of)
+    except FileNotFoundError:
+        snapshot = pd.DataFrame()
+    if not snapshot.empty and set(tickers) <= set(snapshot.index):
+        aum = snapshot.loc[list(tickers), "total_assets"]
+        if aum.notna().all() and (aum > 0).all():
+            when = pd.Timestamp(snapshot.loc[list(tickers), "snapshot_date"].min())
+            candidates.append((when, aum.rename(index=tickers)))
+    if not candidates:
+        log.warning("no ETF market values available; Black-Litterman will be skipped")
+        return None
+    _, values = max(candidates, key=lambda c: c[0])
+    return values.astype("float64").reindex(asset_ids)
 
 
 # -------------------------------------------------------------------------------- proposal
@@ -244,10 +257,13 @@ class Candidate:
     weights: pd.Series
     stats: PortfolioStats
     compliance: IpsCompliance
+    # Set when the agent is not named after its method: the PC-researcher runs whichever
+    # library method it proposed, under its own id.
+    agent: str | None = None
 
     @property
     def agent_id(self) -> str:
-        return self.method.id
+        return self.agent or self.method.id
 
     def body(self, rationale: str, *, notes: str | None = None) -> PcProposalBody:
         return PcProposalBody(
@@ -266,16 +282,32 @@ class Candidate:
         )
 
 
-def build_candidate(method: Method, stage: StageInputs, config: Config) -> Candidate:
-    """Run one method and work out everything about the portfolio it produced."""
-    inputs = PortfolioInputs(
+def portfolio_inputs(stage: StageInputs) -> PortfolioInputs:
+    return PortfolioInputs(
         asset_ids=stage.asset_ids,
         covariance=stage.covariance,
         expected_returns=stage.expected_returns,
         risk_free=stage.risk_free,
         market_weights=stage.market_weights,
+        scenarios=stage.scenario_returns,
     )
-    weights = method.build(inputs)  # type: ignore[operator]
+
+
+def build_candidate(
+    method: Method,
+    stage: StageInputs,
+    config: Config,
+    *,
+    build=None,
+    agent: str | None = None,
+) -> Candidate:
+    """Run one method and work out everything about the portfolio it produced.
+
+    ``build`` overrides ``method.build`` when the method needs more than the stage inputs --
+    the adversarial diversifier needs the centroid of the other proposals.
+    """
+    inputs = portfolio_inputs(stage)
+    weights = (build or method.build)(inputs)  # type: ignore[operator]
     stats = portfolio_stats(
         weights,
         stage.covariance,
@@ -294,6 +326,7 @@ def build_candidate(method: Method, stage: StageInputs, config: Config) -> Candi
         weights=weights,
         stats=stats,
         compliance=IpsCompliance.from_report(report),
+        agent=agent,
     )
 
 
@@ -312,6 +345,9 @@ def build_candidates(
             continue
         if method.uses_cmas and stage.expected_returns is None:
             skipped[method_id] = "needs judged CMAs for every asset; run the CMA judge first"
+            continue
+        if method.needs_scenarios and stage.scenario_returns is None:
+            skipped[method_id] = "needs historical return scenarios; none in the lake"
             continue
         try:
             candidates[method_id] = build_candidate(method, stage, config)

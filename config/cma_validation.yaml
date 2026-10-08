@@ -1,0 +1,42 @@
+# Expected ranges for the CMA layer (plan, Phase 2 joint deliverable: "Validation of CMA outputs
+# against expected ranges"). Checked by `uv run saa-skill cma-validate`.
+#
+# Provenance tags, as in ips.yaml and cma.yaml:
+#   [paper]     Ang, Azimbayev & Kim (2026)
+#   [proposed]  ours -- change freely; the tests do not pin these values
+#
+# Severity: a value outside `plausible_pct` FAILS the asset (it is not a capital market
+# assumption anyone would defend). Every other check WARNS: a reason to read the rationale, not
+# proof of an error.
+
+# Arithmetic nominal annual return, percent, 3-year horizon [proposed]. Wide on purpose: they
+# catch unit slips (a decimal written as percent) and broken inputs, not views.
+plausible_pct:
+  equity: [2.0, 15.0]
+  fixed_income: [0.0, 12.0]
+  real_assets: [0.0, 15.0]
+  cash: [0.0, 8.0]
+
+# Over a horizon near duration the starting yield is the best single predictor of a bond's
+# return, so a final CMA far from the yield-based candidate needs a reason [proposed].
+yield_anchor_tolerance_pp: 2.0
+
+# (CMA - T-bill) / volatility. Long-run asset-class Sharpe ratios sit around 0-0.5; outside
+# this band the return and the risk disagree [proposed].
+sharpe_band: [-0.1, 0.8]
+
+# Exhibit 8's judge selections, March 2026 (%, nominal, 3-year) [paper]. The paper reports only
+# the equity classes. Different date and data, so a gap is a prompt to compare rationales.
+paper_exhibit_8:
+  us_large_cap: 6.8
+  us_growth: 6.2
+  us_value: 7.5
+  us_small_cap: 8.2
+  intl_developed: 6.7
+  emerging_markets: 8.2
+  reits: 8.3
+paper_tolerance_pp: 3.0 # [proposed]
+
+# Across the 18 assets, expected return should broadly rise with volatility. A rank
+# correlation below this warns [proposed].
+min_return_risk_rank_correlation: 0.3

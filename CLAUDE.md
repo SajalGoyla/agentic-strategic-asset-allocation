@@ -32,9 +32,10 @@ uv run saa-skill historical-analysis      # per-asset return/risk statistics
 uv run saa-skill covariance               # 18x18 covariance matrix (Ledoit-Wolf default)
 uv run saa-skill cma-methods              # every CMA candidate per asset -> cma_methods.json
 uv run saa-skill signals                  # asset-level macro/technical/valuation signals
+uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
-uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: portfolio-construction agents
+uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 11 PC agents
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
 
@@ -43,7 +44,7 @@ uv run saa-contracts                      # regenerate schemas/ after changing a
 ```
 config/       universe.yaml (18 assets) · macro_series.yaml (62 FRED series) · ips.yaml
               macro_scoring.yaml · signals.yaml · data_sources.yaml · cma_inputs.yaml
-              cma.yaml · wrds.yaml
+              cma.yaml · cma_validation.yaml · wrds.yaml
 src/saa/
   config.py   loads and cross-validates every config file; `load_config()`
   ips.py      IPS model + `check_compliance()` — the CRO and CIO share this one function
@@ -54,7 +55,7 @@ src/saa/
               aggregates) · validation.py · pipeline.py
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/
               cma_methods/ · signals/ · portfolio_construction/
-  agents/     LLM agents: macro/ · cma_judge/ · pc/ (each AGENT.md + agent.py)
+  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
 data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 ```

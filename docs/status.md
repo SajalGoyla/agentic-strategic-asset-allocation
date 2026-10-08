@@ -3,8 +3,8 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-10-01** (project week 4 of 12). Phase 1 is complete and **Phase 2 is most of the
-way through**; `main` is the only source of truth.
+**As of 2026-10-08** (project week 5 of 12). Phases 1 and 2 are complete; Phase 3
+(deliberation and the CIO) is next. `main` is the only source of truth.
 
 ## By pipeline stage
 
@@ -24,15 +24,17 @@ way through**; `main` is the only source of truth.
 | 3. Covariance skill (Ledoit-Wolf default, chosen by out-of-sample test) | Done | Sajal |
 | 4. PC agents: heuristic (1/N, inverse vol, inverse variance) | Done | Shambhawi |
 | 4. PC agents: return-optimized (max Sharpe, Black-Litterman) | Done | Shambhawi |
-| 4. PC agents: risk-structured, non-traditional | Not started (week 6) | Sajal |
-| 4. PC agents: researcher, adversarial diversifier | Not started (week 6) | Shambhawi |
+| 4. PC agents: risk-structured (risk parity, HRP), non-traditional (CVaR, tail-risk parity) | Done | Sajal |
+| 4. PC agents: researcher, adversarial diversifier | Done | Sajal (for Shambhawi) |
 | 5. CRO, peer review, Borda vote | Not started (weeks 7-8) | both |
 | 6. CIO agent + board memo | Not started (week 9) | Shambhawi |
 | Backtest, stress tests, visualisation | Not started (weeks 10-12) | both |
 
 **Milestone M1 (data and macro layer live, week 3): met.**
-**Milestone M2 (CMA layer complete, week 6): on track** — all 18 assets have candidate methods
-and a judge; the covariance agent is live. What remains for M2 is the other five PC agents.
+**Milestone M2 (CMA layer complete, week 6): met, a week early** — all 18 assets have candidate
+methods, a judge and a validation check; the covariance agent is live; the full PC roster (11
+agents across Exhibit 5's four families, plus the researcher and the adversarial diversifier)
+produces candidate portfolios.
 
 ## Phase 1 closeout (2026-09-29)
 
@@ -63,6 +65,23 @@ and a judge; the covariance agent is live. What remains for M2 is the other five
   deterministic and the agent writes only the case for the weights, which is what the Phase 3
   peer review will argue over. `--no-llm` produces every portfolio and statistic for free.
 
+## Phase 2 closeout (2026-10-08)
+
+- **The PC roster is complete: 11 agents.** Risk-structured (risk parity, hierarchical risk
+  parity) and non-traditional (CVaR minimisation, tail-risk parity) join the five above. The
+  **PC-researcher** chooses a method the registry lacks from an implemented library (maximum
+  entropy, maximum diversification, global minimum variance) and its portfolio is reviewed like
+  any other; the **adversarial diversifier** runs last and maximises tracking variance to the
+  centroid of the other ten under the paper's 75%-of-maximum Sharpe floor. Decisions 29-31.
+- **CMA validation** (`saa-skill cma-validate`) checks every asset's estimate against expected
+  ranges (`config/cma_validation.yaml`): plausibility per group, bonds against their starting
+  yield, the implied Sharpe ratio, the equity classes against the paper's Exhibit 8, and the
+  return-risk ordering across all 18. On the 2026-10-01 auto-blends: 17 pass, 1 warns (US
+  Growth, +4.2pp above the paper's judge value — the gap the judge exists to close), 0 fail;
+  return-risk rank correlation 0.76.
+- Black–Litterman's market weights could never use CRSP's monthly ETF values (the loader
+  expected a ticker-indexed frame); fixed, so it has weights at every date from 2010.
+
 ### What the first full stage-4 run showed
 
 Running all five methods against the real lake, **four of the five fail the IPS volatility
@@ -73,6 +92,13 @@ whether the volatility band should bind from below. If it does, most of the meth
 disqualified before the peer review sees it, and the deliberation protocol has little to
 deliberate over.
 
+The full roster sharpens it (a free `--no-llm` run, auto-blends standing in for judged CMAs):
+**10 of 11 fail**. Every risk-based method concentrates in cash, the 0.6%-volatility asset —
+risk parity 62%, HRP 92%, CVaR minimisation 97%, tail-risk parity 53% — at 0.6-2.5%
+volatility. Maximum entropy misses the floor narrowly (7.5%), and the adversarial diversifier
+breaks the 12% cap (13.2%). The cause is structural, not a bug: cash is in the risky universe,
+and with no leverage a low-risk portfolio cannot be scaled up to the band.
+
 ## Decisions still open
 
 | Question | Who decides | Blocks |
@@ -80,17 +106,19 @@ deliberate over.
 | IPS ratification as a whole (`status: draft` today) | Prof. Glasserman | Nothing yet; every header records the draft status |
 | Should exceeding the return target really disqualify a portfolio? | Prof. Glasserman | CRO agent, week 7 |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
-| Should the volatility band bind from below? Four of five PC methods fail it | Prof. Glasserman | The PC roster, week 6 |
+| Should the volatility band bind from below? 10 of 11 PC agents fail it | Prof. Glasserman | The CRO agent and the vote, week 7 |
 
 ## Next, in order
 
-1. The remaining PC agents: risk-structured and non-traditional (Sajal), then the researcher
-   and the adversarial diversifier (Shambhawi). The adversarial diversifier maximises tracking
-   variance against the centroid of the others, so it needs the full roster to exist first.
-2. Point the macro agent at `RunContext` so every stage files outputs the same way; it is the
-   last stage still writing its own paths.
-3. A single `saa-run` command that chains the stages, once the roster is complete.
-4. Settle the volatility-floor question before Phase 3, since the CRO enforces it.
+1. Settle the volatility-floor question, since the CRO enforces it and the vote depends on
+   which proposals survive. Options on the table: enforce the band inside each optimiser, hold
+   cash outside the risk-based methods, or let the floor bind only on the CIO's final portfolio.
+2. A first paid run of the CMA judge and the PC agents on the full roster (`--cap-usd` set),
+   then `saa-skill cma-validate` on the judged CMAs.
+3. Phase 3 (weeks 7-9): the CRO agent, peer-review assignment and the Borda vote, the revision
+   step, and the CIO ensemble with the board memo.
+4. Point the macro agent at `RunContext`, then a single `saa-run` command that chains the
+   stages.
 
 ## Data facts worth not re-deriving
 

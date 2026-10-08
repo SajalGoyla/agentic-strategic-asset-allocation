@@ -101,7 +101,12 @@ def _add_pc(sub) -> None:
     pc.add_argument("--run-id", help="the pipeline run holding covariance.json", required=True)
     pc.add_argument("--run-dir", help="override the run directory entirely")
     pc.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
-    pc.add_argument("--methods", nargs="+", help="method ids (default: every implemented method)")
+    pc.add_argument(
+        "--methods",
+        nargs="+",
+        help="agent ids (default: the whole roster, including pc_researcher and "
+        "adversarial_diversifier)",
+    )
     pc.add_argument("--workers", type=int, default=4, help="agents run concurrently")
     pc.add_argument(
         "--no-llm",
