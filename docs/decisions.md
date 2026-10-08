@@ -191,3 +191,37 @@ The project owner ruled that research results computed from licensed data (CMA e
 validation statistics, evidence tables) can be committed to this public repo. The WRDS data
 itself — extracts and the curated `wrds/` datasets — still never leaves git-ignored `data/`.
 CLAUDE.md's licensed-data rule now says exactly that.
+
+### 26. Signals skill: what is scored, and what is deliberately absent — settled, 2026-10-01
+Exhibit 4 lists `signals.json` among the CMA judge's inputs, but the paper names the signals
+without defining them, so the definitions and weights in `config/signals.yaml` are ours. Every
+signal is scored to [-1, +1] where +1 is bullish for forward return, against the signal's own
+20-year history, using the macro skill's `tanh(z/2)` mapping so the two read the same way.
+Three things are left out on purpose. **Sentiment**: Exhibit 3 step 5 sources fund flows and
+positioning from web search at runtime, which the pipeline does not do, so the category is
+omitted rather than proxied. **An earnings-yield signal for equities outside US Large Cap**:
+`market/fund_snapshot` only accumulates from the first ingest, so there is no history to judge
+today's reading against; a signal scored 0.0 is not neutral evidence, it takes weight from
+signals that do carry information, so nothing is emitted and the judge sees those valuations
+through `cma_methods.json` instead. **A separate earnings yield for US Large Cap**: it is
+1/CAPE, and emitting both would weight one piece of evidence twice. The composite renormalises
+over the categories that produced signals, so an asset without a valuation signal is scored on
+what it has rather than dragged toward zero.
+
+### 27. The PC stage requires judged CMAs, even for methods that ignore them — settled, 2026-10-01
+§3.1 step 4 has the PC agents take "the CMAs from step (2) and the covariance matrix from step
+(3)". Equal weight and the inverse-risk methods choose weights without looking at expected
+returns, so it was tempting to let them run before the judge. They cannot: `pc_proposal` still
+has to report an expected return and a Sharpe ratio, which the CRO and the CIO both read.
+Running without CMAs produced NaN in those fields, which pydantic serialised to `null`, which
+then failed validation on read — the stage was writing files it could not read back. The stage
+now raises with the command to run instead. `--no-llm` still works once the judge has run, and
+remains free, so iterating on weights costs nothing.
+
+### 28. Portfolio-construction methods work in decimals — settled, 2026-10-01
+`covariance.json` stores the matrix in decimal-squared and the judged CMAs are percent, so the
+PC methods had to pick one. They work in decimals, because that is the form π = δΣw and the
+mean-variance formulas assume: in percent-squared the Black–Litterman equilibrium came out 100×
+too large, implying a 634% equity premium, which is how the mistake was caught. `analysis.py`
+converts once at the boundary — returns and the risk-free rate in, every statistic out — so
+everything the pipeline writes stays percent, per decision 15.

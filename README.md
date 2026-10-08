@@ -20,7 +20,10 @@ uv run saa-data validate     # re-run data-quality checks
 uv run saa-data build-history  # rebuild spliced monthly returns without re-downloading
 uv run saa-skill historical-analysis [--as-of YYYY-MM-DD]  # per-asset stats and correlations
 uv run saa-contracts        # regenerate schemas/ after changing a contract model
-uv run saa-agent macro --no-llm   # macro regime scoring, deterministic (no API key)
+uv run saa-skill signals                  # asset-level signals for the CMA judge
+uv run saa-agent macro --no-llm           # macro regime scoring, deterministic (no API key)
+uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
+uv run saa-agent pc --run-id <run>        # stage 4: portfolio-construction agents
 uv run pytest
 ```
 

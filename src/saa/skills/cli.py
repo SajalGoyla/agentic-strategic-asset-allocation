@@ -11,6 +11,35 @@ from saa.data.store import DataStore
 from saa.run import RunContext
 
 
+def _regime_panel(store, config, run, regime_history: str | None):
+    """The macro skill's month-end labels and dimension scores, from a file or scored now."""
+    if regime_history:
+        from saa.contracts.registry import read
+
+        body = read("regime_history", regime_history).body
+        import pandas as pd
+
+        months = [pd.Timestamp(m.date) for m in body.months]
+        labels = pd.Series([m.regime.value for m in body.months], index=months)
+        scores = pd.DataFrame(
+            [
+                {
+                    d: getattr(m, d)
+                    for d in ("growth", "inflation", "monetary_policy", "financial_conditions")
+                }
+                for m in body.months
+            ],
+            index=months,
+        )
+        return labels, scores
+
+    from saa.agents.macro.agent import load_scoring_config
+    from saa.skills.macro_regime import score_history
+
+    panel = score_history(store, load_scoring_config(config), as_of=run.as_of)
+    return panel.regimes, panel.scores
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="saa-skill", description="Agentic SAA deterministic skills"
@@ -36,6 +65,16 @@ def main(argv: list[str] | None = None) -> int:
     cv.add_argument("--regime", help="regime to condition on (default: the latest label)")
     cv.add_argument("--run-id", help="write into an existing pipeline run instead of a new one")
     cv.add_argument("--run-dir", help="override the run directory entirely")
+
+    sg = sub.add_parser("signals", help="asset-level macro, technical and valuation signals")
+    sg.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    sg.add_argument("--assets", nargs="+", help="asset ids (default: all 18)")
+    sg.add_argument(
+        "--regime-history",
+        help="regime_history.json from a macro-agent run (default: score the history now)",
+    )
+    sg.add_argument("--run-id", help="write into an existing pipeline run instead of a new one")
+    sg.add_argument("--run-dir", help="override the run directory entirely")
 
     cm = sub.add_parser("cma-methods", help="every CMA candidate per asset (cma_methods.json)")
     cm.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
@@ -98,6 +137,23 @@ def main(argv: list[str] | None = None) -> int:
         written = write_outputs(settings.method, estimates, run, store.provenance())
         print(render_report(settings.method, estimates, run.as_of))
         print(f"Wrote {', '.join(str(p) for p in written)}")
+
+    if args.command == "signals":
+        from saa.skills.signals import render_report, run_signals, write_outputs
+
+        store = DataStore(config)
+        run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+        labels, scores = _regime_panel(store, config, run, args.regime_history)
+        result = run_signals(
+            store,
+            as_of=run.as_of,
+            regime_labels=labels,
+            dimension_scores=scores,
+            assets=args.assets,
+        )
+        written = write_outputs(result, run)
+        print(render_report(result))
+        print(f"Wrote {len(written)} files for {len(result.bodies)} assets to {run.root}")
 
     if args.command == "cma-methods":
         from saa.contracts.portfolio import COVARIANCE_CONTRACT

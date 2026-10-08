@@ -3,8 +3,8 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-09-29** (project week 3 of 12). **Phase 1 is complete**; `main` has 171 passing
-tests and is the only source of truth.
+**As of 2026-10-01** (project week 4 of 12). Phase 1 is complete and **Phase 2 is most of the
+way through**; `main` is the only source of truth.
 
 ## By pipeline stage
 
@@ -19,14 +19,20 @@ tests and is the only source of truth.
 | 1. Macro regime agent | Done: scoring skill + agent + `regime_history` | Shambhawi |
 | 2. Asset-class agents: CMA method calculators (all 18 assets) | Done | Sajal |
 | WRDS CMA inputs: US and international equity valuation, corporate bond yields, ETF market values | Done | Sajal |
-| 2. Asset-class agents: signals skill, CMA judge | Next (plan weeks 4-5) | Sajal + Shambhawi |
+| 2. Asset-class agents: signals skill (`signals.json`) | Done | Shambhawi |
+| 2. Asset-class agents: CMA judge (`cma.json`) | Done | Shambhawi |
 | 3. Covariance skill (Ledoit-Wolf default, chosen by out-of-sample test) | Done | Sajal |
-| 4. Portfolio-construction agents (10) | Not started (weeks 5-6) | both |
+| 4. PC agents: heuristic (1/N, inverse vol, inverse variance) | Done | Shambhawi |
+| 4. PC agents: return-optimized (max Sharpe, Black-Litterman) | Done | Shambhawi |
+| 4. PC agents: risk-structured, non-traditional | Not started (week 6) | Sajal |
+| 4. PC agents: researcher, adversarial diversifier | Not started (week 6) | Shambhawi |
 | 5. CRO, peer review, Borda vote | Not started (weeks 7-8) | both |
 | 6. CIO agent + board memo | Not started (week 9) | Shambhawi |
 | Backtest, stress tests, visualisation | Not started (weeks 10-12) | both |
 
 **Milestone M1 (data and macro layer live, week 3): met.**
+**Milestone M2 (CMA layer complete, week 6): on track** — all 18 assets have candidate methods
+and a judge; the covariance agent is live. What remains for M2 is the other five PC agents.
 
 ## Phase 1 closeout (2026-09-29)
 
@@ -41,6 +47,32 @@ tests and is the only source of truth.
 - Integration tests run against a real lake and skip without one;
   `docs/data_quality_report.md` records the Week 2 validation deliverable.
 
+## Phase 2 progress (2026-10-01)
+
+- **Signals skill** writes `cma/<asset>/signals.json` for all 18 assets: four technical
+  signals, valuation by asset type (CAPE, yield level, credit spread), and two macro signals
+  from the regime history. Sentiment is deliberately absent — Exhibit 3 sources it from web
+  search, which the pipeline does not do (decision 26).
+- **CMA judge** (`saa-agent cma-judge`) is the first stage-2 agent. It reads the eight
+  candidates, the signals, the historical statistics and the macro view, and writes `cma.json`
+  plus a per-asset `cma.md`. Exhibit 4's hard constraint — the estimate must sit inside the
+  candidate range — is enforced in three places: the prompt, the contract, and the retry that
+  feeds a rejection back. Assets run concurrently and one failure does not stop the stage.
+- **PC agents** (`saa-agent pc`) cover the two Phase 2 families: equal weight, inverse
+  volatility, inverse variance, maximum Sharpe and Black–Litterman. The optimisers are
+  deterministic and the agent writes only the case for the weights, which is what the Phase 3
+  peer review will argue over. `--no-llm` produces every portfolio and statistic for free.
+
+### What the first full stage-4 run showed
+
+Running all five methods against the real lake, **four of the five fail the IPS volatility
+floor**: inverse volatility (3.10%), inverse variance (0.73%), maximum Sharpe (2.29%) and
+Black–Litterman (7.35%) all sit below the 8% band minimum, and only equal weight (8.40%)
+complies. This is the concrete version of the question already open with Prof. Glasserman —
+whether the volatility band should bind from below. If it does, most of the method roster is
+disqualified before the peer review sees it, and the deliberation protocol has little to
+deliberate over.
+
 ## Decisions still open
 
 | Question | Who decides | Blocks |
@@ -48,13 +80,17 @@ tests and is the only source of truth.
 | IPS ratification as a whole (`status: draft` today) | Prof. Glasserman | Nothing yet; every header records the draft status |
 | Should exceeding the return target really disqualify a portfolio? | Prof. Glasserman | CRO agent, week 7 |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
+| Should the volatility band bind from below? Four of five PC methods fail it | Prof. Glasserman | The PC roster, week 6 |
 
 ## Next, in order
 
-1. Signals skill (`signals.json`), the other deterministic input to the judge; I/B/E/S
-   long-term growth is already ingested for it.
-2. The CMA judge agent (`cma.json`), the first stage-2 agent.
-3. Point the macro agent at `RunContext` so every stage files outputs the same way.
+1. The remaining PC agents: risk-structured and non-traditional (Sajal), then the researcher
+   and the adversarial diversifier (Shambhawi). The adversarial diversifier maximises tracking
+   variance against the centroid of the others, so it needs the full roster to exist first.
+2. Point the macro agent at `RunContext` so every stage files outputs the same way; it is the
+   last stage still writing its own paths.
+3. A single `saa-run` command that chains the stages, once the roster is complete.
+4. Settle the volatility-floor question before Phase 3, since the CRO enforces it.
 
 ## Data facts worth not re-deriving
 
