@@ -31,13 +31,16 @@ from saa.skills.portfolio_construction.methods import (
     implied_equilibrium_returns,
     inverse_variance,
     inverse_volatility,
+    market_cap_weight,
     max_sharpe,
     maximum_diversification,
     maximum_entropy,
+    resampled_efficient_frontier,
     risk_contributions,
     risk_parity,
     sharpe_ratio,
     tail_risk_parity,
+    volatility_targeting,
 )
 
 __all__ = [
@@ -50,8 +53,11 @@ __all__ = [
     "global_minimum_variance",
     "hierarchical_risk_parity",
     "maximum_diversification",
+    "market_cap_weight",
     "maximum_entropy",
     "portfolio_inputs",
+    "resampled_efficient_frontier",
+    "volatility_targeting",
     "risk_contributions",
     "risk_parity",
     "sharpe_ratio",

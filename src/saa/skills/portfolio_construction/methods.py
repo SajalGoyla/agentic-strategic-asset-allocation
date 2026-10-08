@@ -3,15 +3,16 @@
 Ang, Azimbayev & Kim (2026) Exhibit 5 groups the methods into four families, all four of which
 are implemented here, plus the PC-researcher's library and the adversarial diversifier:
 
-* **Heuristic** — equal weight, inverse volatility, inverse variance. §3.4: these "avoid
-  optimization-driven estimation error and dominate when expected returns are poorly measured"
-  (DeMiguel, Garlappi and Uppal 2009). None of them reads a CMA.
-* **Return-optimized** — maximum Sharpe ratio and Black–Litterman. These "explicitly use return
-  forecasts from the asset class agents", so they are the methods that inherit whatever error is
-  in the CMAs.
-* **Risk-structured** — risk parity and hierarchical risk parity: "optimize risk metrics without
-  explicit return forecasts, on the premise that the covariance matrix is more reliably
-  estimated than expected returns".
+* **Heuristic** — equal weight, inverse volatility, inverse variance, market-cap weight and
+  volatility targeting. §3.4: these "avoid optimization-driven estimation error and dominate
+  when expected returns are poorly measured" (DeMiguel, Garlappi and Uppal 2009). None of them
+  reads a CMA.
+* **Return-optimized** — maximum Sharpe ratio, Black–Litterman and the resampled efficient
+  frontier. These "explicitly use return forecasts from the asset class agents", so they are
+  the methods that inherit whatever error is in the CMAs.
+* **Risk-structured** — risk parity, hierarchical risk parity and maximum diversification:
+  "optimize risk metrics without explicit return forecasts, on the premise that the covariance
+  matrix is more reliably estimated than expected returns".
 * **Non-traditional** — CVaR minimisation and tail-risk parity, which "address limitations of
   variance-based frameworks". They read historical return scenarios, not just the covariance.
 * **Researcher library** (``RESEARCH_LIBRARY``) — methods the PC-researcher may propose because
@@ -58,6 +59,8 @@ class PortfolioInputs:
     # Monthly decimal returns, months x assets, every asset present: the non-traditional
     # methods' scenarios.
     scenarios: pd.DataFrame | None = None
+    cash_id: str | None = None  # the asset volatility targeting de-risks into
+    target_volatility: float = 0.10  # annualised decimal; the IPS band's midpoint
 
     def __post_init__(self) -> None:
         missing = [a for a in self.asset_ids if a not in self.covariance.index]
@@ -112,6 +115,44 @@ def inverse_volatility(inputs: PortfolioInputs) -> pd.Series:
     return _normalise(1.0 / vols, inputs.asset_ids)
 
 
+def market_cap_weight(inputs: PortfolioInputs) -> pd.Series:
+    """Sharpe (1964): hold the market. Here the market is the 18 ETFs' market values, the same
+    proxy Black-Litterman reverse-optimises -- ETF sizes, not asset-class sizes. The paper's CIO
+    gave it the largest ensemble weight (11.1%, Exhibit 10)."""
+    if inputs.market_weights is None:
+        raise ValueError("market-cap weight needs market weights; none were supplied")
+    weights = inputs.market_weights.reindex(inputs.asset_ids).fillna(0.0).to_numpy(dtype=float)
+    return _normalise(weights, inputs.asset_ids)
+
+
+VOL_TARGET_LOOKBACK_MONTHS = 12
+
+
+def volatility_targeting(inputs: PortfolioInputs) -> pd.Series:
+    """Moreira and Muir (2017): scale risk exposure inversely to recent volatility.
+
+    The risky sleeve is equal weight across every asset except cash. Its volatility over the
+    last ``VOL_TARGET_LOOKBACK_MONTHS`` of scenarios (the long-run covariance when there are no
+    scenarios) sets the exposure: c = min(1, target / recent volatility), with 1 - c in cash.
+    The IPS allows no leverage, so a calm market caps exposure at 100% rather than scaling up.
+    The target is the IPS band's midpoint, so this is the one method aimed at the band.
+    """
+    if inputs.cash_id is None or inputs.cash_id not in inputs.asset_ids:
+        raise ValueError("volatility targeting needs the cash asset to de-risk into")
+    risky = [a for a in inputs.asset_ids if a != inputs.cash_id]
+    sleeve = pd.Series(1.0 / len(risky), index=risky)
+    if inputs.scenarios is not None and len(inputs.scenarios) >= VOL_TARGET_LOOKBACK_MONTHS:
+        recent = inputs.scenarios[risky].iloc[-VOL_TARGET_LOOKBACK_MONTHS:] @ sleeve
+        volatility = float(recent.std(ddof=1) * np.sqrt(12))
+    else:
+        sub = inputs.covariance.loc[risky, risky].to_numpy(dtype=float)
+        volatility = float(np.sqrt(sleeve.to_numpy() @ sub @ sleeve.to_numpy()))
+    exposure = min(1.0, inputs.target_volatility / volatility) if volatility > 0 else 1.0
+    weights = (sleeve * exposure).reindex(inputs.asset_ids).fillna(0.0)
+    weights[inputs.cash_id] = 1.0 - exposure
+    return _normalise(weights.to_numpy(), inputs.asset_ids)
+
+
 def inverse_variance(inputs: PortfolioInputs) -> pd.Series:
     """Weights proportional to 1/σ². Tilts harder toward low-volatility assets than inverse
     volatility, and is the minimum-variance solution when correlations are assumed equal."""
@@ -160,6 +201,50 @@ def max_sharpe(inputs: PortfolioInputs) -> pd.Series:
     if best is None:
         raise ValueError("max Sharpe optimisation did not converge from either start")
     return _normalise(best, inputs.asset_ids)
+
+
+RESAMPLE_DRAWS = 200
+RESAMPLE_MONTHS = 120
+RESAMPLE_SEED = 20260930
+
+
+def resampled_efficient_frontier(
+    inputs: PortfolioInputs,
+    *,
+    draws: int = RESAMPLE_DRAWS,
+    months: int = RESAMPLE_MONTHS,
+    seed: int = RESAMPLE_SEED,
+) -> pd.Series:
+    """Michaud (1998): average the optimal portfolio over many plausible versions of the inputs.
+
+    Draw ``months`` of monthly returns from N(μ/12, Σ/12), re-estimate μ and Σ from the draw,
+    solve the long-only maximum-Sharpe problem on the re-estimate, and average the weights over
+    ``draws`` draws. A tangency portfolio that depends on a small difference between two noisy
+    expected returns flips between draws and averages out, so the result keeps what is robust in
+    the CMAs and drops what is noise -- the remedy for maximum Sharpe's concentration. Ten years
+    of data is the information the draw pretends the CMAs carry [proposed]; the seed is fixed so
+    the method is deterministic.
+    """
+    mu, sigma = inputs.mu, inputs.sigma
+    rng = np.random.default_rng(seed)
+    total = np.zeros(len(mu))
+    for _ in range(draws):
+        sample = rng.multivariate_normal(mu / 12, sigma / 12, size=months, method="cholesky")
+        draw = PortfolioInputs(
+            asset_ids=inputs.asset_ids,
+            covariance=pd.DataFrame(
+                np.cov(sample, rowvar=False) * 12, index=inputs.asset_ids, columns=inputs.asset_ids
+            ),
+            expected_returns=pd.Series(sample.mean(axis=0) * 12, index=inputs.asset_ids),
+            risk_free=inputs.risk_free,
+        )
+        try:
+            total += max_sharpe(draw).to_numpy()
+        except ValueError:
+            continue  # a draw with no positive excess return has no tangency portfolio
+    if total.sum() <= 0:
+        raise ValueError("no resampled draw produced a tangency portfolio")
+    return _normalise(total, inputs.asset_ids)
 
 
 def implied_equilibrium_returns(inputs: PortfolioInputs, *, risk_aversion: float) -> pd.Series:
@@ -535,6 +620,22 @@ METHODS: dict[str, Method] = {
             build=inverse_variance,
         ),
         Method(
+            id="market_cap_weight",
+            name="Market-cap weight",
+            category="heuristic",
+            reference="Sharpe (1964)",
+            uses_cmas=False,
+            build=market_cap_weight,
+        ),
+        Method(
+            id="volatility_targeting",
+            name="Volatility targeting",
+            category="heuristic",
+            reference="Moreira and Muir (2017)",
+            uses_cmas=False,
+            build=volatility_targeting,
+        ),
+        Method(
             id="max_sharpe",
             name="Maximum Sharpe ratio",
             category="return_optimized",
@@ -551,6 +652,14 @@ METHODS: dict[str, Method] = {
             build=black_litterman,
         ),
         Method(
+            id="resampled_efficient_frontier",
+            name="Resampled efficient frontier",
+            category="return_optimized",
+            reference="Michaud (1998)",
+            uses_cmas=True,
+            build=resampled_efficient_frontier,
+        ),
+        Method(
             id="risk_parity",
             name="Risk parity (equal risk contribution)",
             category="risk_structured",
@@ -565,6 +674,14 @@ METHODS: dict[str, Method] = {
             reference="Lopez de Prado (2016)",
             uses_cmas=False,
             build=hierarchical_risk_parity,
+        ),
+        Method(
+            id="maximum_diversification",
+            name="Maximum diversification",
+            category="risk_structured",
+            reference="Choueifaty and Coignard (2008)",
+            uses_cmas=False,
+            build=maximum_diversification,
         ),
         Method(
             id="cvar_minimization",
@@ -600,14 +717,6 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             reference="Bera and Park (2008)",
             uses_cmas=True,
             build=maximum_entropy,
-        ),
-        Method(
-            id="maximum_diversification",
-            name="Maximum diversification",
-            category="pc_researcher",
-            reference="Choueifaty and Coignard (2008)",
-            uses_cmas=False,
-            build=maximum_diversification,
         ),
         Method(
             id="global_minimum_variance",

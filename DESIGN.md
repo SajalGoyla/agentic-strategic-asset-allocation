@@ -29,7 +29,7 @@ Six stages, each writing JSON contracts plus a markdown narrative that the next 
                              cio_decision.json
 ```
 
-Stages 1-4 exist today: the macro agent; the CMA methods, signals, judge and validation behind stage 2; the covariance skill; and the 11 PC agents. Stages 5-6 (review, vote, CIO) are Phase 3 work (`docs/status.md`).
+Stages 1-4 exist today: the macro agent; the CMA methods, signals, judge and validation behind stage 2; the covariance skill; and the 15 PC agents. Stages 5-6 (review, vote, CIO) are Phase 3 work (`docs/status.md`).
 
 ## Layers
 
