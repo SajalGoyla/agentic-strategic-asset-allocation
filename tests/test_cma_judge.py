@@ -3,6 +3,7 @@
 No network and no API key: ``FakeAnthropic`` from the macro-agent tests stands in for the SDK.
 """
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -20,7 +21,7 @@ from saa.contracts import (
 )
 from saa.llm import LlmClient
 from saa.run import RunContext
-from saa.skills.portfolio_construction import Candidate, StageInputs, build_candidates
+from saa.skills.portfolio_construction import METHODS, Candidate, StageInputs, build_candidates
 from tests.test_macro_agent import FakeAnthropic
 
 ASSET = "us_large_cap"
@@ -245,6 +246,12 @@ def stage_inputs(tmp_config) -> StageInputs:
         regime="expansion",
         provenance={},
         inputs=[],
+        scenario_returns=pd.DataFrame(
+            np.random.default_rng(1).multivariate_normal(
+                [0.006, 0.003, 0.0025], cov.to_numpy() / 12, size=240
+            ),
+            columns=IDS,
+        ),
     )
 
 
@@ -252,7 +259,7 @@ def test_every_method_produces_a_valid_proposal(tmp_config):
     stage = stage_inputs(tmp_config)
     candidates, skipped = build_candidates(stage, tmp_config)
     assert not skipped
-    assert len(candidates) == 5
+    assert len(candidates) == len(METHODS)
     for candidate in candidates.values():
         body = candidate.body("a rationale long enough to be read")
         assert sum(body.weights.values()) == pytest.approx(1.0)

@@ -4,10 +4,10 @@ One agent per method. The optimiser runs first and the weights are fixed before 
 them; the agent writes the case for them, which is what the peer review in §3.5 will argue
 over.
 
-Phase 2 covers the two families on this side of the split: heuristic (equal weight, inverse
-volatility, inverse variance) and return-optimized (maximum Sharpe, Black-Litterman). The
-risk-structured and non-traditional families, and the adversarial diversifier that needs the
-full roster to exist before it can run, are Phase 3.
+The roster runs in the paper's order (§3.4): the registry's methods in parallel -- heuristic,
+return-optimized, risk-structured, non-traditional -- then the PC-researcher, whose proposed
+method is run and reviewed like any other, and last the adversarial diversifier, which "executes
+after the initial 19 have finished" because it moves away from the centroid of all of them.
 
 ``--no-llm`` produces every portfolio and every statistic without a model, which is how the
 weights get checked without spending anything.
@@ -25,18 +25,21 @@ import pandas as pd
 
 from saa.config import Config, load_config
 from saa.contracts import Contract, ModelCall, PcProposalBody, Producer, Tier
-from saa.contracts.portfolio import PROPOSAL_CONTRACT
+from saa.contracts.portfolio import PROPOSAL_CONTRACT, RESEARCH_CONTRACT
 from saa.data.store import DataStore
 from saa.llm import LlmClient
 from saa.run import RunContext
 from saa.skills.portfolio_construction import (
+    ADVERSARIAL,
     Candidate,
     StageInputs,
+    adversarial_diversifier,
+    build_candidate,
     build_candidates,
     equal_weight,
     gather_inputs,
 )
-from saa.skills.portfolio_construction.methods import PortfolioInputs
+from saa.skills.portfolio_construction.methods import METHODS, PortfolioInputs
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +53,10 @@ DEFAULT_WORKERS = 4
 
 # A rationale this short is not an argument; the peer review would have nothing to engage with.
 MIN_RATIONALE_CHARS = 200
+# The adversarial diversifier needs a centroid worth moving away from.
+MIN_PROPOSALS_FOR_ADVERSARIAL = 2
+RESEARCHER_ID = "pc_researcher"
+ROSTER = [*METHODS, RESEARCHER_ID, ADVERSARIAL.id]
 
 
 @dataclass
@@ -73,6 +80,7 @@ class PcResult:
     proposals: dict[str, Proposal]
     skipped: dict[str, str]
     stage: StageInputs
+    research: object | None = None  # pc_researcher.ResearchOutcome, when the researcher ran
 
     @property
     def cost_usd(self) -> float:
@@ -126,6 +134,13 @@ def build_prompt(candidate: Candidate, stage: StageInputs, *, ips_status: str) -
         else "This method ignores expected returns entirely and uses only the covariance "
         "structure (or not even that)."
     )
+    if candidate.method.needs_scenarios:
+        cma_note += (
+            " It optimises over the historical monthly return scenarios, so the tails it sees "
+            "are the ones 1993 onward happened to contain."
+        )
+    if candidate.method.prompt_note:
+        cma_note += "\n\n" + candidate.method.prompt_note
 
     return f"""Make the case for the portfolio your method produced.
 
@@ -222,6 +237,21 @@ def propose(
     )
 
 
+def agent_slug(agent_id: str) -> str:
+    """Header slug: "pc-max-sharpe"; the researcher is already "pc-researcher"."""
+    slug = agent_id.replace("_", "-")
+    return slug if slug.startswith(f"{AGENT_PREFIX}-") else f"{AGENT_PREFIX}-{slug}"
+
+
+def centroid(candidates: list[Candidate], asset_ids: list[str]) -> pd.Series:
+    """§3.4: "the mean of all other PC weights"."""
+    return (
+        pd.DataFrame([c.weights.reindex(asset_ids).fillna(0.0) for c in candidates])
+        .mean()
+        .reindex(asset_ids)
+    )
+
+
 def run_pc_agents(
     run: RunContext,
     store: DataStore,
@@ -231,14 +261,23 @@ def run_pc_agents(
     methods: list[str] | None = None,
     workers: int = DEFAULT_WORKERS,
 ) -> PcResult:
-    """Run every requested method and write ``pc/<agent_id>/pc_proposal.json``.
+    """Run the roster and write ``pc/<agent_id>/pc_proposal.json`` for each agent.
 
-    ``llm=None`` writes a deterministic rationale instead of calling a model, so the weights can
-    be checked for free.
+    ``methods`` defaults to the whole roster (``ROSTER``): the registry methods, then
+    ``pc_researcher`` and ``adversarial_diversifier``. ``llm=None`` writes deterministic
+    rationales instead of calling a model, so the weights can be checked for free.
     """
+    from saa.agents.pc_researcher import research as run_research
+
     config = config or load_config()
+    requested = list(methods or ROSTER)
+    unknown = sorted(set(requested) - set(ROSTER))
     stage = gather_inputs(run, store, config=config)
-    candidates, skipped = build_candidates(stage, config, method_ids=methods)
+    candidates, skipped = build_candidates(
+        stage, config, method_ids=[m for m in requested if m in METHODS]
+    )
+    for method_id in unknown:
+        skipped[method_id] = f"unknown agent; known: {ROSTER}"
     system = system_prompt() if llm is not None else ""
 
     proposals: dict[str, Proposal] = {}
@@ -259,10 +298,71 @@ def run_pc_agents(
             else:
                 proposals[method_id] = outcome
 
+    # The researcher reads what the registry produced, so it runs after it.
+    research_outcome = None
+    if RESEARCHER_ID in requested:
+        try:
+            research_outcome = run_research(
+                stage, config, candidates, llm, ips_status=run.ips_status
+            )
+        except Exception as exc:
+            log.error("pc researcher failed (%s)", exc)
+            skipped[RESEARCHER_ID] = repr(exc)
+        else:
+            candidates[RESEARCHER_ID] = research_outcome.candidate
+            proposals[RESEARCHER_ID] = Proposal(
+                candidate=research_outcome.candidate,
+                body=research_outcome.proposal,
+                call=research_outcome.call,
+            )
+
+    # Last, the adversarial diversifier, against every portfolio above.
+    if ADVERSARIAL.id in requested:
+        others = list(candidates.values())
+        if len(others) < MIN_PROPOSALS_FOR_ADVERSARIAL:
+            skipped[ADVERSARIAL.id] = (
+                f"needs at least {MIN_PROPOSALS_FOR_ADVERSARIAL} other portfolios to move away "
+                f"from; {len(others)} ran"
+            )
+        else:
+            center = centroid(others, stage.asset_ids)
+            try:
+                candidate = build_candidate(
+                    ADVERSARIAL,
+                    stage,
+                    config,
+                    build=lambda inputs: adversarial_diversifier(inputs, center),
+                )
+                proposal = propose(candidate, stage, llm, ips_status=run.ips_status, system=system)
+            except Exception as exc:
+                log.error("adversarial diversifier failed (%s)", exc)
+                skipped[ADVERSARIAL.id] = repr(exc)
+            else:
+                sigma = stage.covariance.loc[stage.asset_ids, stage.asset_ids].to_numpy()
+                active = (candidate.weights - center).to_numpy()
+                distance = 100 * float(active @ sigma @ active) ** 0.5
+                proposal.body.notes = (
+                    f"Tracking error to the centroid of the other {len(others)} proposals: "
+                    f"{distance:.2f}%. " + (proposal.body.notes or "")
+                ).strip()
+                candidates[ADVERSARIAL.id] = candidate
+                proposals[ADVERSARIAL.id] = proposal
+
+    if research_outcome is not None:
+        run.write(
+            RESEARCH_CONTRACT,
+            "pc-researcher",
+            research_outcome.research,
+            produced_by=Producer.LLM if research_outcome.call else Producer.SCRIPT,
+            provenance=stage.provenance,
+            inputs=stage.inputs,
+            model_calls=[research_outcome.call] if research_outcome.call else [],
+        )
+
     for method_id, proposal in proposals.items():
         run.write(
             PROPOSAL_CONTRACT,
-            f"{AGENT_PREFIX}-{method_id.replace('_', '-')}",
+            agent_slug(method_id),
             proposal.body,
             produced_by=Producer.HYBRID if proposal.call else Producer.SCRIPT,
             agent_id=method_id,
@@ -277,7 +377,13 @@ def run_pc_agents(
         len(skipped),
         sum(p.cost_usd for p in proposals.values()),
     )
-    return PcResult(as_of=run.as_of, proposals=proposals, skipped=skipped, stage=stage)
+    return PcResult(
+        as_of=run.as_of,
+        proposals=proposals,
+        skipped=skipped,
+        stage=stage,
+        research=research_outcome,
+    )
 
 
 def render_summary(result: PcResult) -> str:

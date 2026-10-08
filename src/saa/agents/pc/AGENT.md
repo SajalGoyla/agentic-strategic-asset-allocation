@@ -48,6 +48,12 @@ entering into.
 - **Be honest about estimation error.** A method that uses the CMAs inherits every error in
   them. Saying so is not weakness — it is the distinction the peer review is built to surface.
 
+## If you are the adversarial diversifier
+
+Your portfolio is as far as the Sharpe floor allows from the average of every other proposal.
+It is not meant to be held on its own (§3.4). Argue for what it surfaces that the others miss,
+and what it would add to the CIO's ensemble.
+
 ## Hard constraints
 
 - Do not restate the weights as prose. The reader has the table.

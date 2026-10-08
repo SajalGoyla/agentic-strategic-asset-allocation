@@ -9,16 +9,28 @@ import pytest
 
 from saa.skills.portfolio_construction import (
     METHODS,
+    RESEARCH_LIBRARY,
     PortfolioInputs,
+    adversarial_diversifier,
     black_litterman,
+    cvar_minimization,
     effective_number_of_assets,
     equal_weight,
+    global_minimum_variance,
+    hierarchical_risk_parity,
     implied_equilibrium_returns,
     inverse_variance,
     inverse_volatility,
     max_sharpe,
+    maximum_diversification,
+    maximum_entropy,
     portfolio_stats,
+    risk_contributions,
+    risk_parity,
+    sharpe_ratio,
+    tail_risk_parity,
 )
+from saa.skills.portfolio_construction.methods import downside_covariance
 
 IDS = ["equity", "credit", "bills"]
 
@@ -33,6 +45,18 @@ MU = pd.Series({"equity": 0.08, "credit": 0.05, "bills": 0.03})
 MARKET = pd.Series({"equity": 0.60, "credit": 0.30, "bills": 0.10})
 
 
+def scenarios(months=240, seed=0) -> pd.DataFrame:
+    """Monthly returns drawn from COV/12, with an equity crash in a few months so the tails
+    differ from what the covariance alone implies."""
+    rng = np.random.default_rng(seed)
+    r = rng.multivariate_normal(MU.to_numpy() / 12, COV.to_numpy() / 12, size=months)
+    r[::40, 0] -= 0.15
+    return pd.DataFrame(r, columns=IDS)
+
+
+SCENARIOS = scenarios()
+
+
 def inputs(**kw) -> PortfolioInputs:
     base = dict(
         asset_ids=IDS,
@@ -40,11 +64,30 @@ def inputs(**kw) -> PortfolioInputs:
         expected_returns=MU,
         risk_free=0.02,
         market_weights=MARKET,
+        scenarios=SCENARIOS,
     )
     return PortfolioInputs(**{**base, **kw})
 
 
-ALL_METHODS = [equal_weight, inverse_volatility, inverse_variance, max_sharpe, black_litterman]
+def adversarial_vs_equal(x: PortfolioInputs):
+    return adversarial_diversifier(x, equal_weight(x))
+
+
+ALL_METHODS = [
+    equal_weight,
+    inverse_volatility,
+    inverse_variance,
+    max_sharpe,
+    black_litterman,
+    risk_parity,
+    hierarchical_risk_parity,
+    cvar_minimization,
+    tail_risk_parity,
+    maximum_entropy,
+    maximum_diversification,
+    global_minimum_variance,
+    adversarial_vs_equal,
+]
 
 
 # ------------------------------------------------------------------------- shared invariants
@@ -69,10 +112,31 @@ def test_the_registry_matches_the_implementations():
         "inverse_variance",
         "max_sharpe",
         "black_litterman",
+        "risk_parity",
+        "hierarchical_risk_parity",
+        "cvar_minimization",
+        "tail_risk_parity",
     }
     # §3.4 splits the families by whether they consume return forecasts.
     assert {m.id for m in METHODS.values() if m.uses_cmas} == {"max_sharpe", "black_litterman"}
-    assert {m.category for m in METHODS.values()} == {"heuristic", "return_optimized"}
+    # All four of Exhibit 5's families are represented.
+    assert {m.category for m in METHODS.values()} == {
+        "heuristic",
+        "return_optimized",
+        "risk_structured",
+        "non_traditional",
+    }
+    assert {m.id for m in METHODS.values() if m.needs_scenarios} == {
+        "cvar_minimization",
+        "tail_risk_parity",
+    }
+
+
+def test_the_research_library_is_not_already_in_the_registry():
+    """§3.4: the researcher proposes "a novel method not spanned by the current registry"."""
+    assert RESEARCH_LIBRARY
+    assert not set(RESEARCH_LIBRARY) & set(METHODS)
+    assert {m.category for m in RESEARCH_LIBRARY.values()} == {"pc_researcher"}
 
 
 # -------------------------------------------------------------------------------- heuristic
@@ -205,3 +269,137 @@ def test_concentration_is_the_herfindahl_index():
 def test_a_missing_asset_in_the_covariance_fails_loudly():
     with pytest.raises(ValueError, match="missing"):
         PortfolioInputs(asset_ids=[*IDS, "gold"], covariance=COV)
+
+
+# -------------------------------------------------------------------------- risk-structured
+def test_risk_parity_equalises_risk_contributions():
+    w = risk_parity(inputs()).to_numpy()
+    assert risk_contributions(w, COV.to_numpy()) == pytest.approx([1 / 3] * 3, abs=1e-6)
+
+
+def test_risk_parity_without_correlation_is_inverse_volatility():
+    """With a diagonal covariance, equal risk contribution reduces to w ∝ 1/σ."""
+    diagonal = pd.DataFrame(np.diag(np.diag(COV)), index=IDS, columns=IDS)
+    pd.testing.assert_series_equal(
+        risk_parity(inputs(covariance=diagonal)),
+        inverse_volatility(inputs(covariance=diagonal)),
+        atol=1e-6,
+    )
+
+
+def test_hrp_without_correlation_is_inverse_variance():
+    """López de Prado (2016): on a diagonal matrix the recursive bisection reproduces the
+    inverse-variance allocation exactly."""
+    diagonal = pd.DataFrame(np.diag(np.diag(COV)), index=IDS, columns=IDS)
+    pd.testing.assert_series_equal(
+        hierarchical_risk_parity(inputs(covariance=diagonal)),
+        inverse_variance(inputs(covariance=diagonal)),
+        atol=1e-12,
+    )
+
+
+def test_hrp_splits_the_budget_between_clusters_first():
+    """Two tight pairs: the first bisection splits between the pairs, so a fourth asset that
+    duplicates one pair halves that pair's members rather than taking from the other pair."""
+    ids = ["a1", "a2", "b1", "b2"]
+    block = np.array([[1.0, 0.9], [0.9, 1.0]]) * 0.04
+    cov = pd.DataFrame(
+        np.block([[block, np.zeros((2, 2))], [np.zeros((2, 2)), block]]), index=ids, columns=ids
+    )
+    w = hierarchical_risk_parity(PortfolioInputs(asset_ids=ids, covariance=cov))
+    assert w[["a1", "a2"]].sum() == pytest.approx(0.5)
+    assert w.to_numpy() == pytest.approx([0.25] * 4)
+
+
+# -------------------------------------------------------------------------- non-traditional
+def expected_shortfall(w: np.ndarray, r: np.ndarray, confidence: float = 0.95) -> float:
+    losses = np.sort(-(r @ w))[::-1]
+    return float(losses[: int(np.ceil((1 - confidence) * len(losses)))].mean())
+
+
+def test_cvar_minimization_beats_every_other_method_on_cvar():
+    r = SCENARIOS.to_numpy()
+    best = expected_shortfall(cvar_minimization(inputs()).to_numpy(), r)
+    for method in (equal_weight, inverse_volatility, risk_parity, global_minimum_variance):
+        assert best <= expected_shortfall(method(inputs()).to_numpy(), r) + 1e-6
+
+
+def test_cvar_minimization_moves_to_an_asset_that_never_loses():
+    safe = SCENARIOS.copy()
+    safe["bills"] = 0.001
+    assert cvar_minimization(inputs(scenarios=safe))["bills"] == pytest.approx(1.0)
+
+
+def test_downside_covariance_is_positive_semidefinite_and_shift_invariant():
+    """Shortfalls are measured below each asset's own mean, so adding a constant return to an
+    asset changes nothing; and the matrix is a Gram matrix, so never indefinite."""
+    d = downside_covariance(SCENARIOS.to_numpy())
+    assert np.linalg.eigvalsh(d).min() >= -1e-12
+    shifted = SCENARIOS + np.array([0.01, -0.02, 0.005])
+    assert downside_covariance(shifted.to_numpy()) == pytest.approx(d)
+
+
+def test_tail_risk_parity_equalises_downside_contributions():
+    w = tail_risk_parity(inputs()).to_numpy()
+    d = downside_covariance(SCENARIOS.to_numpy())
+    assert risk_contributions(w, d) == pytest.approx([1 / 3] * 3, abs=1e-6)
+
+
+def test_scenario_methods_need_scenarios():
+    for method in (cvar_minimization, tail_risk_parity):
+        with pytest.raises(ValueError, match="scenarios"):
+            method(inputs(scenarios=None))
+
+
+# -------------------------------------------------------------------------- researcher library
+def test_maximum_entropy_without_a_floor_is_equal_weight():
+    w = maximum_entropy(inputs(), floor_fraction=0.0)
+    assert w.to_numpy() == pytest.approx([1 / 3] * 3, abs=1e-4)
+
+
+def test_maximum_entropy_respects_the_sharpe_floor():
+    x = inputs()
+    best = sharpe_ratio(max_sharpe(x).to_numpy(), x)
+    w = maximum_entropy(x, floor_fraction=0.95)
+    assert sharpe_ratio(w.to_numpy(), x) >= 0.95 * best - 1e-6
+    assert effective_number_of_assets(w) > effective_number_of_assets(max_sharpe(x))
+
+
+def test_maximum_diversification_without_correlation_is_inverse_volatility():
+    diagonal = pd.DataFrame(np.diag(np.diag(COV)), index=IDS, columns=IDS)
+    pd.testing.assert_series_equal(
+        maximum_diversification(inputs(covariance=diagonal)),
+        inverse_volatility(inputs(covariance=diagonal)),
+        atol=1e-4,
+    )
+
+
+def test_global_minimum_variance_has_the_least_variance():
+    sigma = COV.to_numpy()
+    best = global_minimum_variance(inputs()).to_numpy()
+    for method in ALL_METHODS:
+        w = method(inputs()).to_numpy()
+        assert best @ sigma @ best <= w @ sigma @ w + 1e-9
+
+
+# -------------------------------------------------------------------------- adversarial
+def test_adversarial_diversifier_respects_the_sharpe_floor():
+    x = inputs()
+    best = sharpe_ratio(max_sharpe(x).to_numpy(), x)
+    w = adversarial_diversifier(x, equal_weight(x))
+    assert sharpe_ratio(w.to_numpy(), x) >= 0.75 * best - 1e-6
+
+
+def test_adversarial_diversifier_moves_furthest_from_the_centroid():
+    x = inputs()
+    others = [equal_weight(x), inverse_volatility(x), risk_parity(x), max_sharpe(x)]
+    center = pd.concat(others, axis=1).mean(axis=1)
+    sigma = COV.to_numpy()
+
+    def distance(w):
+        d = (w - center).to_numpy()
+        return d @ sigma @ d
+
+    adversarial = adversarial_diversifier(x, center)
+    for w in others:
+        assert distance(adversarial) >= distance(w) - 1e-9

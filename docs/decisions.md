@@ -225,3 +225,35 @@ mean-variance formulas assume: in percent-squared the Black–Litterman equilibr
 too large, implying a 634% equity premium, which is how the mistake was caught. `analysis.py`
 converts once at the boundary — returns and the risk-free rate in, every statistic out — so
 everything the pipeline writes stays percent, per decision 15.
+
+### 29. The rest of the PC roster: which methods, and two definitions of ours — settled, 2026-10-08
+The plan asks for 2-3 methods per Exhibit 5 family plus the researcher and the adversarial
+diversifier. Risk-structured: risk parity and hierarchical risk parity, the plan's own
+choices and both in the paper's top five. Non-traditional: CVaR minimisation and tail-risk
+parity, the two of that family the paper's CIO weighted. Two definitions are ours. **Risk
+parity** is solved through Spinu's (2013) convex programme rather than least squares on risk
+contributions, which stalls when risks differ by two orders of magnitude (cash against
+equities). **Tail-risk parity** is equal risk contribution on the downside semicovariance; an
+expected-shortfall budget was rejected because a hedge with a negative tail contribution cannot
+take an equal positive share, so no long-only solution need exist. Both are tested to give equal
+contributions to machine precision on the real 18-asset data.
+
+### 30. The PC-researcher chooses from an implemented library — settled, 2026-10-08
+§3.4 has the researcher propose "a novel method not spanned by the current registry". A method
+the pipeline cannot run cannot be reviewed or voted on, so the researcher chooses from
+`RESEARCH_LIBRARY` — maximum entropy (the paper's own March 2026 proposal), maximum
+diversification (first in the paper's vote) and global minimum variance — enforced by the
+judgment schema's enum rather than the prompt. The judgment is which gap matters this run, read
+from what the registry's portfolios actually look like. Promoting a successful proposal into
+the registry is a code change, as the paper's "will be added to the registry" implies. It runs
+at the flagship tier: one call, and the only open-ended judgment in the stage. Without a model
+it proposes maximum entropy.
+
+### 31. CMA validation thresholds — provisional, 2026-10-08
+The plan's Phase 2 deliverable "validation of CMA outputs against expected ranges" needed
+ranges, and the paper publishes final CMAs only for the equity classes (Exhibit 8). So only the
+plausibility band fails an asset — it exists to catch unit slips and broken inputs, not views —
+and every other check warns: bonds more than 2pp from their starting yield, an implied Sharpe
+ratio outside [-0.1, 0.8], equities more than 3pp from the paper's judge value, and a
+return-risk rank correlation below 0.3 across the 18. All thresholds are tagged [proposed] in
+`config/cma_validation.yaml`; revisit after the first judged run.
