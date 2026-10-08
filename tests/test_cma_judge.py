@@ -246,6 +246,7 @@ def stage_inputs(tmp_config) -> StageInputs:
         regime="expansion",
         provenance={},
         inputs=[],
+        cash_id="cash",
         scenario_returns=pd.DataFrame(
             np.random.default_rng(1).multivariate_normal(
                 [0.006, 0.003, 0.0025], cov.to_numpy() / 12, size=240

@@ -21,14 +21,17 @@ from saa.skills.portfolio_construction import (
     implied_equilibrium_returns,
     inverse_variance,
     inverse_volatility,
+    market_cap_weight,
     max_sharpe,
     maximum_diversification,
     maximum_entropy,
     portfolio_stats,
+    resampled_efficient_frontier,
     risk_contributions,
     risk_parity,
     sharpe_ratio,
     tail_risk_parity,
+    volatility_targeting,
 )
 from saa.skills.portfolio_construction.methods import downside_covariance
 
@@ -65,6 +68,8 @@ def inputs(**kw) -> PortfolioInputs:
         risk_free=0.02,
         market_weights=MARKET,
         scenarios=SCENARIOS,
+        cash_id="bills",
+        target_volatility=0.10,
     )
     return PortfolioInputs(**{**base, **kw})
 
@@ -75,6 +80,9 @@ def adversarial_vs_equal(x: PortfolioInputs):
 
 ALL_METHODS = [
     equal_weight,
+    market_cap_weight,
+    volatility_targeting,
+    resampled_efficient_frontier,
     inverse_volatility,
     inverse_variance,
     max_sharpe,
@@ -110,15 +118,23 @@ def test_the_registry_matches_the_implementations():
         "equal_weight",
         "inverse_volatility",
         "inverse_variance",
+        "market_cap_weight",
+        "volatility_targeting",
         "max_sharpe",
         "black_litterman",
+        "resampled_efficient_frontier",
         "risk_parity",
         "hierarchical_risk_parity",
+        "maximum_diversification",
         "cvar_minimization",
         "tail_risk_parity",
     }
     # §3.4 splits the families by whether they consume return forecasts.
-    assert {m.id for m in METHODS.values() if m.uses_cmas} == {"max_sharpe", "black_litterman"}
+    assert {m.id for m in METHODS.values() if m.uses_cmas} == {
+        "max_sharpe",
+        "black_litterman",
+        "resampled_efficient_frontier",
+    }
     # All four of Exhibit 5's families are represented.
     assert {m.category for m in METHODS.values()} == {
         "heuristic",
@@ -403,3 +419,65 @@ def test_adversarial_diversifier_moves_furthest_from_the_centroid():
     adversarial = adversarial_diversifier(x, center)
     for w in others:
         assert distance(adversarial) >= distance(w) - 1e-9
+
+
+# -------------------------------------------------------------------------- heuristic additions
+def test_market_cap_weight_is_the_market_portfolio():
+    assert market_cap_weight(inputs()).tolist() == pytest.approx([0.6, 0.3, 0.1])
+
+
+def test_market_cap_weight_needs_market_weights():
+    with pytest.raises(ValueError, match="market weights"):
+        market_cap_weight(inputs(market_weights=None))
+
+
+def test_volatility_targeting_holds_cash_when_recent_volatility_is_high():
+    """A turbulent last year: the risky sleeve is scaled to the target, the rest goes to cash,
+    and the sleeve's recent volatility at that exposure is the target."""
+    turbulent = SCENARIOS.copy()
+    turbulent.iloc[-12:, :2] *= 4
+    w = volatility_targeting(inputs(scenarios=turbulent))
+    risky = turbulent[["equity", "credit"]].iloc[-12:] @ pd.Series([0.5, 0.5], ["equity", "credit"])
+    recent = float(risky.std(ddof=1) * np.sqrt(12))
+    exposure = 1.0 - w["bills"]
+    assert 0 < exposure < 1
+    assert exposure * recent == pytest.approx(0.10)
+    assert w["equity"] == pytest.approx(w["credit"])
+
+
+def test_volatility_targeting_never_levers_up():
+    """The IPS forbids leverage: a calm market caps exposure at 100%, with no cash."""
+    w = volatility_targeting(inputs(scenarios=SCENARIOS * 0.1))
+    assert w["bills"] == pytest.approx(0.0)
+    assert w.sum() == pytest.approx(1.0)
+
+
+def test_volatility_targeting_needs_a_cash_asset():
+    with pytest.raises(ValueError, match="cash"):
+        volatility_targeting(inputs(cash_id=None))
+
+
+# -------------------------------------------------------------------------- resampling
+def test_resampling_spreads_what_max_sharpe_concentrates():
+    """Michaud's point: averaging over plausible inputs keeps more assets than the tangency
+    portfolio of the point estimates."""
+    x = inputs()
+    assert effective_number_of_assets(
+        resampled_efficient_frontier(x, draws=60)
+    ) > effective_number_of_assets(max_sharpe(x))
+
+
+def test_resampling_with_near_certain_inputs_is_max_sharpe():
+    """With a very long simulated history the re-estimates equal the inputs, so every draw
+    gives the same tangency portfolio."""
+    x = inputs()
+    pd.testing.assert_series_equal(
+        resampled_efficient_frontier(x, draws=5, months=200_000), max_sharpe(x), atol=0.02
+    )
+
+
+def test_resampling_is_reproducible_and_seed_dependent():
+    x = inputs()
+    a = resampled_efficient_frontier(x, draws=30, seed=1)
+    pd.testing.assert_series_equal(a, resampled_efficient_frontier(x, draws=30, seed=1))
+    assert not np.allclose(a, resampled_efficient_frontier(x, draws=30, seed=2))

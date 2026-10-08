@@ -35,7 +35,7 @@ uv run saa-skill signals                  # asset-level macro/technical/valuatio
 uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
-uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 11 PC agents
+uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
 

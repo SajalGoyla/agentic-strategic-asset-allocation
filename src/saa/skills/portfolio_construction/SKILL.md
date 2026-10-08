@@ -12,26 +12,32 @@ uv run saa-agent pc --run-id <run>              # with each agent's rationale
 uv run saa-agent pc --run-id <run> --methods equal_weight max_sharpe
 ```
 
-## The roster: 11 agents
+## The roster: 15 agents
 
-All four of Exhibit 5's families, plus the PC-researcher and the adversarial diversifier — the
-plan's "2-3 per category plus the adversarial diversifier and PC-researcher agent".
+A selection from the paper's 20 (Exhibit 5 plus §3.4), chosen for quality rather than
+completeness (decision 33): every family, 4 of the paper's top 5 voted methods, and the methods
+behind 3 of its CIO's 5 largest ensemble weights. The paper is the source of truth; the plan's
+"10 to start" was a floor.
 
 | Family | Agent | Uses CMAs | Reads scenarios | Reference |
 |---|---|---|---|---|
 | heuristic | `equal_weight` | no | no | DeMiguel, Garlappi and Uppal (2009) |
 | heuristic | `inverse_volatility` | no | no | Kirby and Ostdiek (2012) |
 | heuristic | `inverse_variance` | no | no | Kirby and Ostdiek (2012) |
+| heuristic | `market_cap_weight` | no | no | Sharpe (1964) |
+| heuristic | `volatility_targeting` | no | last 12 months | Moreira and Muir (2017) |
 | return-optimized | `max_sharpe` | yes | no | Markowitz (1952) |
 | return-optimized | `black_litterman` | yes | no | Black and Litterman (1992) |
+| return-optimized | `resampled_efficient_frontier` | yes | no | Michaud (1998) |
 | risk-structured | `risk_parity` | no | no | Maillard, Roncalli and Teïletche (2010) |
 | risk-structured | `hierarchical_risk_parity` | no | no | López de Prado (2016) |
+| risk-structured | `maximum_diversification` | no | no | Choueifaty and Coignard (2008) |
 | non-traditional | `cvar_minimization` | no | yes | Rockafellar and Uryasev (2000) |
 | non-traditional | `tail_risk_parity` | no | yes | Spinu (2013) |
 | PC-researcher | `pc_researcher` | depends on the method it proposes | | §3.4 |
 | non-traditional | `adversarial_diversifier` | yes | no | §3.4 |
 
-They run in the paper's order: the nine registry methods in parallel, then the researcher (it
+They run in the paper's order: the 13 registry methods in parallel, then the researcher (it
 reads what the registry produced), then the adversarial diversifier, which "executes after the
 initial 19 have finished" because it moves away from all of them. "Scenarios" are the monthly
 returns of the 18 assets over every month they share (from 1993-06), through `as_of`.
@@ -42,9 +48,9 @@ returns of the 18 assets over every month they share (from 1993-06), through `as
 pipeline cannot run cannot be peer-reviewed, so the choice is constrained — by the judgment
 schema, not the prompt — to `RESEARCH_LIBRARY`, methods implemented in advance and absent from
 the registry: `maximum_entropy` (Bera and Park 2008, the paper's own March 2026 proposal, under
-a Sharpe floor of 75% of the maximum), `maximum_diversification` (Choueifaty and Coignard 2008,
-first in the paper's peer vote) and `global_minimum_variance` (Clarke, de Silva and Thorley
-2006). The judgment is which gap the registry has this run, read from what the registry's
+a Sharpe floor of 75% of the maximum) and `global_minimum_variance` (Clarke, de Silva and
+Thorley 2006). Maximum diversification started here and moved into the registry: it ranked first
+in the paper's vote, so it should run every time, not only when the researcher picks it. The judgment is which gap the registry has this run, read from what the registry's
 portfolios actually look like. It writes `pc/pc_research.json` and files its portfolio as
 `pc/pc_researcher/pc_proposal.json`. Without a model it proposes maximum entropy.
 
@@ -92,6 +98,15 @@ limits are what binds.
   correlation distance √((1−ρ)/2), then bisects recursively, splitting each budget in inverse
   proportion to the two halves' inverse-variance variances. No matrix is inverted. On a
   diagonal covariance it reproduces inverse variance exactly (tested).
+- **`market_cap_weight`** holds the 18 ETFs in proportion to their market values — the same
+  proxy Black–Litterman reverse-optimises, so ETF sizes rather than asset-class sizes.
+- **`volatility_targeting`** holds equal weight in every asset but cash, scaled so its realised
+  volatility over the last 12 months equals the IPS band's midpoint (10%), the rest in cash.
+  No leverage, so a calm market caps exposure at 100%. It is the one method aimed at the band.
+- **`resampled_efficient_frontier`** averages the long-only maximum-Sharpe portfolio over 200
+  draws of 10 years of returns from N(μ, Σ) (Michaud 1998), with a fixed seed. Weights that rest
+  on a small, noisy difference between two CMAs flip between draws and average out: on the
+  2026-10-01 inputs it holds 6.1 effective assets against maximum Sharpe's 1.6.
 - **`cvar_minimization`** is Rockafellar and Uryasev's linear programme for the 95% monthly
   expected shortfall, solved with HiGHS over the scenarios — fat tails and asymmetry count.
 - **`tail_risk_parity`** is equal risk contribution on the downside semicovariance (shortfalls

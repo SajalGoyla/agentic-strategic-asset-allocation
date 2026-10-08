@@ -32,7 +32,7 @@ item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
 **Milestone M1 (data and macro layer live, week 3): met.**
 **Milestone M2 (CMA layer complete, week 6): met, a week early** — all 18 assets have candidate
-methods, a judge and a validation check; the covariance agent is live; the full PC roster (11
+methods, a judge and a validation check; the covariance agent is live; the full PC roster (15
 agents across Exhibit 5's four families, plus the researcher and the adversarial diversifier)
 produces candidate portfolios.
 
@@ -67,12 +67,15 @@ produces candidate portfolios.
 
 ## Phase 2 closeout (2026-10-08)
 
-- **The PC roster is complete: 11 agents.** Risk-structured (risk parity, hierarchical risk
-  parity) and non-traditional (CVaR minimisation, tail-risk parity) join the five above. The
-  **PC-researcher** chooses a method the registry lacks from an implemented library (maximum
-  entropy, maximum diversification, global minimum variance) and its portfolio is reviewed like
-  any other; the **adversarial diversifier** runs last and maximises tracking variance to the
-  centroid of the other ten under the paper's 75%-of-maximum Sharpe floor. Decisions 29-31.
+- **The PC roster is complete: 15 agents** (decision 33), chosen from the paper's 20 for
+  quality. Heuristic: equal weight, inverse volatility, inverse variance, market-cap weight,
+  volatility targeting. Return-optimised: maximum Sharpe, Black–Litterman, resampled efficient
+  frontier. Risk-structured: risk parity, hierarchical risk parity, maximum diversification.
+  Non-traditional: CVaR minimisation, tail-risk parity. The **PC-researcher** chooses a method
+  the registry lacks from an implemented library (maximum entropy, global minimum variance) and
+  its portfolio is reviewed like any other; the **adversarial diversifier** runs last and
+  maximises tracking variance to the centroid of the other 14 under the paper's
+  75%-of-maximum Sharpe floor. Decisions 29-31, 33.
 - **CMA validation** (`saa-skill cma-validate`) checks every asset's estimate against expected
   ranges (`config/cma_validation.yaml`): plausibility per group, bonds against their starting
   yield, the implied Sharpe ratio, the equity classes against the paper's Exhibit 8, and the
@@ -93,7 +96,8 @@ disqualified before the peer review sees it, and the deliberation protocol has l
 deliberate over.
 
 The full roster sharpens it (a free `--no-llm` run, auto-blends standing in for judged CMAs):
-**10 of 11 fail**. Every risk-based method concentrates in cash, the 0.6%-volatility asset —
+**10 of 11 failed** (with the four later additions, 13 of 15 do;
+volatility targeting and equal weight pass). Every risk-based method concentrates in cash, the 0.6%-volatility asset —
 risk parity 62%, HRP 92%, CVaR minimisation 97%, tail-risk parity 53% — at 0.6-2.5%
 volatility. Maximum entropy misses the floor narrowly (7.5%), and the adversarial diversifier
 breaks the 12% cap (13.2%). The cause is structural, not a bug: cash is in the risky universe,
@@ -124,7 +128,7 @@ the risk methods (still 1.6-5.7% volatility, now in short Treasuries).
 
 Phase 2 is closed. Phase 3 (weeks 7-9), per the plan:
 
-1. A first paid run of the CMA judge and the 11 PC agents (`--cap-usd` set), then
+1. A first paid run of the CMA judge and the 15 PC agents (`--cap-usd` set), then
    `saa-skill cma-validate` on the judged CMAs — the inputs every Phase 3 stage reads.
 2. The CRO agent: a risk report per candidate, compliance reported but never disqualifying.
 3. Peer-review assignment (one intra-, one inter-category review each, seeded) and the

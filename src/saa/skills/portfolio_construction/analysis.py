@@ -126,6 +126,8 @@ class StageInputs:
     # Monthly decimal returns over every month all assets share (from 1993-06): the scenarios
     # the non-traditional methods optimise over. None skips those methods, with a reason.
     scenario_returns: pd.DataFrame | None = None
+    cash_id: str | None = None
+    target_volatility: float = 0.10  # decimal: the IPS volatility band's midpoint
 
 
 def benchmark_weights(config: Config) -> pd.Series:
@@ -207,6 +209,11 @@ def gather_inputs(
         provenance=store.provenance(),
         inputs=refs,
         scenario_returns=scenarios if len(scenarios) else None,
+        cash_id=next((a.id for a in config.universe.assets if a.group == "cash"), None),
+        target_volatility=(
+            config.ips.objectives.volatility.min_pct + config.ips.objectives.volatility.max_pct
+        )
+        / 200.0,
     )
 
 
@@ -290,6 +297,8 @@ def portfolio_inputs(stage: StageInputs) -> PortfolioInputs:
         risk_free=stage.risk_free,
         market_weights=stage.market_weights,
         scenarios=stage.scenario_returns,
+        cash_id=stage.cash_id,
+        target_volatility=stage.target_volatility,
     )
 
 

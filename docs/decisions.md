@@ -279,10 +279,38 @@ the band, which turns risk parity into something else (contributions 0-7.1% inst
 each) and collapses the diversity the vote exists to weigh; and dropping cash from the risk
 methods, which only moves the concentration to short Treasuries (1.6-5.7% volatility).
 
-Also considered and rejected: adding market-cap weight and volatility targeting, the paper's
-two largest CIO ensemble weights. They are not needed for a compliant recommendation — the
+**Superseded by decision 33.** Also considered and rejected at the time: adding market-cap
+weight and volatility targeting, the paper's two largest CIO ensemble weights. They are not needed for a compliant recommendation — the
 constrained meta-optimisation is identical with or without them — and they would grow the
 heuristic family to five against the plan's 2-3 per family. The roster stays at 11: the plan's
 three named heuristics (equal weight, inverse volatility, inverse variance), two methods in each
 other family, the PC-researcher and the adversarial diversifier. (The paper runs 20 agents, 21
 portfolios with the researcher's; the plan's "10 to start" counts two heuristics.)
+
+### 33. A 15-agent PC roster, chosen from the paper's 20 for quality — settled, 2026-10-08
+The paper is the source of truth and the plan's "10 PC agents to start" a floor, so the roster
+was chosen on quality rather than to match a count (project owner, 2026-10-08). This supersedes
+the last paragraph of decision 32, which rejected market-cap weight and volatility targeting on
+the plan's 2-3-per-family scope. The 11 already built stay — inverse variance included, since
+the paper's CIO gave it 6.0%, tied for third-largest — and four are added:
+
+- **Maximum diversification** (risk-structured): first in the paper's peer vote. It was in the
+  researcher's library, so the paper's top method ran only if the researcher happened to pick
+  it; it is now in the registry.
+- **Market-cap weight** (heuristic): the paper's largest CIO ensemble weight (11.1%), the
+  neutral market reference the other methods are argued against.
+- **Resampled efficient frontier** (return-optimised, Michaud 1998): the remedy for maximum
+  Sharpe's concentration (6.1 effective assets against 1.6 on the 2026-10-01 inputs), giving
+  the forecast-driven family a credible member in the vote; 4.1% in the paper's ensemble.
+- **Volatility targeting** (heuristic): the paper's second-largest CIO weight (6.7%) and the
+  only method aimed at the IPS volatility band.
+
+Left out: global minimum variance (near-identical to CVaR minimisation here, 99% against 97%
+cash; kept in the researcher's library), minimum correlation (overlaps maximum
+diversification), robust mean-variance and mean-downside risk (overlap resampling and CVaR),
+and max-drawdown-constrained and Total Portfolio Allocation (each needs substantial new
+machinery; TPA scored lowest in the paper). Cost: about $0.43 per agent per full run at the
+plan's estimates, almost all of it two flagship peer reviews — roughly $1.70 a run for the four,
++17% on the plan's $10. Effect on the free run: the paper's inverse-tracking-error ensemble
+rises from 3.3% to 4.1% volatility; a meta-optimised ensemble constrained to the IPS still
+reaches 8.0% volatility, Sharpe 0.47.

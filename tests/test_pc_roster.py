@@ -19,7 +19,7 @@ LONG = "The registry has no method that rewards breadth under a return constrain
 
 def research_payload(**overrides) -> dict:
     payload = {
-        "method_id": "maximum_diversification",
+        "method_id": "global_minimum_variance",
         "objective": "Maximise the diversification ratio.",
         "not_spanned_by": ["risk_parity", "equal_weight", "not_a_method"],
         "gap": "Every risk-based method concentrates in cash.",
@@ -58,7 +58,7 @@ def test_researcher_runs_the_method_the_model_chose(tmp_config):
     registry, _ = build_candidates(stage, tmp_config)
     llm = LlmClient(FakeAnthropic([research_payload()]))
     outcome = pc_researcher.research(stage, tmp_config, registry, llm, ips_status="draft")
-    assert outcome.candidate.method.id == "maximum_diversification"
+    assert outcome.candidate.method.id == "global_minimum_variance"
     assert outcome.candidate.agent_id == "pc_researcher"
     # Names that are not registry methods are dropped from the contract, not trusted.
     assert outcome.research.not_spanned_by == ["risk_parity", "equal_weight"]
@@ -126,7 +126,9 @@ def test_the_adversary_moves_away_from_everyone_else(stage_run, tmp_config):
 
     adversary = result.proposals["adversarial_diversifier"]
     assert all(distance(adversary.candidate.weights) >= distance(c.weights) - 1e-9 for c in others)
-    assert adversary.body.notes.startswith("Tracking error to the centroid of the other 10")
+    assert adversary.body.notes.startswith(
+        f"Tracking error to the centroid of the other {len(pc_agent.ROSTER) - 1}"
+    )
 
 
 def test_the_adversary_needs_others_to_oppose(stage_run, tmp_config):
