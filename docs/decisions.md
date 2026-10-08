@@ -257,3 +257,32 @@ and every other check warns: bonds more than 2pp from their starting yield, an i
 ratio outside [-0.1, 0.8], equities more than 3pp from the paper's judge value, and a
 return-risk rank correlation below 0.3 across the 18. All thresholds are tagged [proposed] in
 `config/cma_validation.yaml`; revisit after the first judged run.
+
+### 32. IPS limits bind on the CIO's recommendation, not on each candidate — settled, 2026-10-08
+With the full roster, 10 of 11 candidate portfolios break the IPS, mostly by sitting below the
+8% volatility floor: every risk-based method concentrates in cash (0.6% volatility), and with no
+leverage a low-risk mix cannot be scaled up to the band. The paper never asks candidates to
+comply. Its CRO "scores risk and produces commentary, but does not vote" (§3.5); IPS compliance
+is one input to the vote's metric score and 15% of the CIO's six-dimension score (§4.4); and the
+CIO weights the adversarial diversifier at 3.1% despite a −46.3% drawdown that "would disqualify
+it under any single-method selection rule". "Non-negotiable" (§3.6) is said of the CIO's choice
+of ensemble. We adopted the same rule (project owner, 2026-10-08): candidates are checked by
+`check_compliance` and their violations reported and scored, never disqualifying; the CIO may
+recommend only a compliant portfolio, which `CioDecisionBody` already enforces. Faculty's
+"treat them as hard constraints" therefore applies to the recommendation; to be confirmed.
+
+Evidence on the free run (auto-blends standing in for judged CMAs): a simple average of the 11
+portfolios gives 4.0% volatility and the paper's inverse-tracking-error ensemble 3.3%, but a
+meta-optimisation over them constrained to the IPS reaches 8.0% volatility, Sharpe 0.47 and
+2.9% tracking error (Sharpe 0.45 with no method above 25%). Rejected: forcing each optimiser into
+the band, which turns risk parity into something else (contributions 0-7.1% instead of 5.6%
+each) and collapses the diversity the vote exists to weigh; and dropping cash from the risk
+methods, which only moves the concentration to short Treasuries (1.6-5.7% volatility).
+
+Also considered and rejected: adding market-cap weight and volatility targeting, the paper's
+two largest CIO ensemble weights. They are not needed for a compliant recommendation — the
+constrained meta-optimisation is identical with or without them — and they would grow the
+heuristic family to five against the plan's 2-3 per family. The roster stays at 11: the plan's
+three named heuristics (equal weight, inverse volatility, inverse variance), two methods in each
+other family, the PC-researcher and the adversarial diversifier. (The paper runs 20 agents, 21
+portfolios with the researcher's; the plan's "10 to start" counts two heuristics.)

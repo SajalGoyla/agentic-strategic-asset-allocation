@@ -14,10 +14,12 @@
 # individual questions is not the same as signing it off, and every agent records which
 # version and status it ran under.
 #
-# Severities: `hard` violations disqualify a portfolio outright (§3.6: IPS compliance is
-# non-negotiable for the CIO). `soft` violations are recorded and surfaced in the board memo
-# but do not disqualify. Structural rules (universe membership, long-only, leverage, weights
-# summing to 1) are always hard and carry no severity field.
+# Severities: `hard` violations disqualify the portfolio the CIO recommends (§3.6: IPS
+# compliance is non-negotiable for the CIO). Candidate portfolios from the PC agents are not
+# disqualified: the CRO reports their violations and compliance is scored in the vote and by
+# the CIO, as in the paper (decision 32). `soft` violations are recorded and surfaced in the
+# board memo but never disqualify. Structural rules (universe membership, long-only, leverage,
+# weights summing to 1) are always hard and carry no severity field.
 
 version: 0.2
 status: draft # draft | ratified
