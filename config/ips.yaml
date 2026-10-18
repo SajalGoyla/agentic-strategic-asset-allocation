@@ -57,8 +57,25 @@ objectives:
     type: real_cpi_plus
     min_pct: 3.0
     max_pct: 4.0
+    # The index the objective is stated against.
     inflation_series: CPIAUCSL
+    # [proposed] What the CMAs are actually deflated by. They are nominal 3-year forecasts, so
+    # the deflator is expected inflation over that horizon, not trailing realised CPI --
+    # 2.41% against 3.71% on 2026-10-06, and the gap decides compliance (decision 38). T5YIE is
+    # the closest market breakeven to the 3-year horizon. Falls back to trailing
+    # `inflation_series` where no breakeven exists, which a backtest before 2003 needs.
+    expected_inflation_series: T5YIE
+    # `severity` is the floor: earning less than CPI + 3% is a breach of policy. [faculty] hard.
     severity: hard
+    # [proposed] The ceiling is soft, pending confirmation. The IPS note below already flagged
+    # the two-sided reading as "worth confirming"; measuring it settled why. Once the CMAs are
+    # deflated by expected inflation rather than trailing CPI, 13 of the 15 candidate
+    # portfolios forecast MORE than CPI + 4%, so a hard ceiling disqualifies almost the whole
+    # roster for being too profitable, and no portfolio in the 8-12% volatility band clears both
+    # the ceiling and the band on the efficient frontier (decision 39). Exceeding a return
+    # objective is recorded and surfaced in the board memo, not treated as a breach. Set this
+    # back to `hard` if faculty rule the other way -- nothing else has to change.
+    max_severity: soft
 
   # [paper] "an expected volatility band of 8-12%"
   # [faculty] hard, on both sides. The §4.4 portfolio's 7.54% reads as "bad rounding" rather

@@ -141,6 +141,14 @@ def build_prompt(candidate: Candidate, stage: StageInputs, *, ips_status: str) -
         )
     if candidate.method.prompt_note:
         cma_note += "\n\n" + candidate.method.prompt_note
+    if candidate.policy_adjusted:
+        cma_note += (
+            f"\n\n**This portfolio was adjusted to meet the IPS.** Your method produced "
+            f"{candidate.unconstrained_volatility_pct:.2f}% volatility on its own, outside the "
+            f"IPS limits, so it was solved again subject to them while keeping its own "
+            f"objective. The weights below are the result. Say so in your rationale and say "
+            f"what the constraint changed."
+        )
 
     return f"""Make the case for the portfolio your method produced.
 
@@ -327,11 +335,17 @@ def run_pc_agents(
         else:
             center = centroid(others, stage.asset_ids)
             try:
+                centred = center.reindex(stage.asset_ids).fillna(0.0).to_numpy()
                 candidate = build_candidate(
                     ADVERSARIAL,
                     stage,
                     config,
                     build=lambda inputs: adversarial_diversifier(inputs, center),
+                    # §3.4's objective, so imposing the IPS band keeps it maximally distant
+                    # from the centroid rather than projecting it toward the others.
+                    objective=lambda w, inputs: (
+                        -float((w - centred) @ inputs.sigma @ (w - centred))
+                    ),
                 )
                 proposal = propose(candidate, stage, llm, ips_status=run.ips_status, system=system)
             except Exception as exc:

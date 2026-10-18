@@ -6,6 +6,7 @@ No network and no API key: ``FakeAnthropic`` from the macro-agent tests stands i
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import ValidationError
 
 from saa.agents.cma_judge import agent as judge_agent
 from saa.agents.pc import agent as pc_agent
@@ -13,6 +14,7 @@ from saa.contracts import (
     CmaMethodEstimate,
     CmaMethodId,
     CmaMethodsBody,
+    PcProposalBody,
     Producer,
     Signal,
     SignalCategory,
@@ -272,9 +274,59 @@ def test_a_proposal_carries_a_real_compliance_result(tmp_config):
     stage = stage_inputs(tmp_config)
     candidates, _ = build_candidates(stage, tmp_config, method_ids=["inverse_variance"])
     candidate: Candidate = candidates["inverse_variance"]
-    # Concentrating into cash drives volatility below the IPS band, which is a hard rule.
-    assert candidate.compliance.compliant is False
-    assert any(v.rule == "objectives.volatility" for v in candidate.compliance.violations)
+    # Not a placeholder: the rules that could be evaluated at this stage were, and the ones
+    # that need a backtest are reported as such rather than silently passing.
+    assert candidate.compliance.not_evaluated
+    assert "objectives.max_drawdown" in candidate.compliance.not_evaluated
+
+
+def test_a_method_that_cannot_reach_the_ips_band_is_re_solved_inside_it(tmp_config):
+    """Decision 37. Inverse variance concentrates in cash, far below the volatility floor."""
+    stage = stage_inputs(tmp_config)
+    band = tmp_config.ips.objectives.volatility
+    candidates, _ = build_candidates(stage, tmp_config, method_ids=["inverse_variance"])
+    candidate: Candidate = candidates["inverse_variance"]
+
+    assert candidate.policy_adjusted
+    assert candidate.unconstrained_volatility_pct < band.min_pct, "what the method wanted"
+    # The authority on whether the band is met is `check_compliance`, which carries its own
+    # tolerance -- the solver lands on the floor to within rounding, not exactly on it.
+    assert not any(v.rule == "objectives.volatility" for v in candidate.compliance.violations)
+    assert candidate.stats.expected_volatility_pct == pytest.approx(band.min_pct, abs=1e-6)
+    # The adjustment reaches the contract, so a reviewer and the CRO can see it happened.
+    body = candidate.body("a rationale long enough to be read")
+    assert body.policy_adjusted is True
+    assert body.unconstrained_volatility_pct == candidate.unconstrained_volatility_pct
+
+
+def test_a_method_already_inside_the_band_is_left_alone(tmp_config):
+    """The band is a limit, not a target: nothing is moved that does not have to be."""
+    from saa.skills.portfolio_construction import ExAnteLimits, enforce_ex_ante_limits
+    from saa.skills.portfolio_construction.analysis import portfolio_inputs
+
+    stage = stage_inputs(tmp_config)
+    inputs = portfolio_inputs(stage)
+    band = tmp_config.ips.objectives.volatility
+    limits = ExAnteLimits(floor=band.min_pct / 100, cap=band.max_pct / 100)
+
+    inside = pd.Series({"us_large_cap": 0.4, "intermediate_treasuries": 0.4, "cash": 0.2})
+    held = inside.reindex(IDS).fillna(0.0).to_numpy()
+    sigma = stage.covariance.loc[IDS, IDS].to_numpy()
+    assert limits.contains_volatility(float((held @ sigma @ held) ** 0.5)), "fixture must be in"
+
+    weights, unconstrained = enforce_ex_ante_limits(inside, inputs, limits)
+    assert unconstrained is None, "nothing was adjusted, so there is nothing to disclose"
+    pd.testing.assert_series_equal(weights, inside)
+
+
+def test_the_contract_refuses_an_undisclosed_policy_adjustment(tmp_config):
+    """A reviewer must be able to tell the method under policy from the method unconstrained."""
+    stage = stage_inputs(tmp_config)
+    candidates, _ = build_candidates(stage, tmp_config, method_ids=["equal_weight"])
+    payload = candidates["equal_weight"].body("a rationale long enough to be read").model_dump()
+    payload.update(policy_adjusted=True, unconstrained_volatility_pct=None)
+    with pytest.raises(ValidationError, match="must say what the method produced"):
+        PcProposalBody.model_validate(payload)
 
 
 def test_no_llm_writes_a_deterministic_rationale(tmp_config):

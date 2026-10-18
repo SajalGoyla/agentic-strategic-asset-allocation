@@ -3,7 +3,8 @@
 ``--no-llm`` runs only the deterministic half of a stage: no API key, no spend. ``macro
 --no-llm`` is the mode the regime backtest uses and the quickest way to check a change to
 ``config/macro_scoring.yaml``; ``pc --no-llm`` produces every candidate portfolio and its
-statistics without writing a rationale.
+statistics without writing a rationale, and ``cro --no-llm`` every risk metric and risk score
+without writing an assessment.
 """
 
 from __future__ import annotations
@@ -116,6 +117,39 @@ def _add_pc(sub) -> None:
     pc.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
 
+def _add_cro(sub) -> None:
+    cro = sub.add_parser("cro", help="chief risk officer: one risk report per candidate (stage 5)")
+    cro.add_argument("--run-id", help="the pipeline run holding the PC proposals", required=True)
+    cro.add_argument("--run-dir", help="override the run directory entirely")
+    cro.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    cro.add_argument(
+        "--agents", nargs="+", help="PC agent ids (default: every proposal in the run)"
+    )
+    cro.add_argument("--workers", type=int, default=4, help="portfolios assessed concurrently")
+    cro.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="metrics and risk scores only: no API key needed, no spend, no assessment",
+    )
+    cro.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
+
+def _run_cro(args, config) -> int:
+    from saa.agents.cro import render_summary, run_cro, write_summary
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    result = run_cro(
+        run, DataStore(config), config=config, llm=llm, agents=args.agents, workers=args.workers
+    )
+    print(render_summary(result))
+    print(f"  summary  {write_summary(result, run)}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0 if result.reports else 1
+
+
 def _run_cma_judge(args, config) -> int:
     from saa.agents.cma_judge import render_summary, run_cma_judge, write_summary
     from saa.llm import Budget, LlmClient
@@ -158,6 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     _add_macro(sub)
     _add_cma_judge(sub)
     _add_pc(sub)
+    _add_cro(sub)
     args = parser.parse_args(argv)
 
     logging.basicConfig(
@@ -172,6 +207,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_cma_judge(args, config)
     if args.command == "pc":
         return _run_pc(args, config)
+    if args.command == "cro":
+        return _run_cro(args, config)
     return 1
 
 

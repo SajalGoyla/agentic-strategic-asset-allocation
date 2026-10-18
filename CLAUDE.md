@@ -33,9 +33,11 @@ uv run saa-skill covariance               # 18x18 covariance matrix (Ledoit-Wolf
 uv run saa-skill cma-methods              # every CMA candidate per asset -> cma_methods.json
 uv run saa-skill signals                  # asset-level macro/technical/valuation signals
 uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
+uv run saa-skill review-assign --run-id <run> # seeded peer-review pairing (§3.5)
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
 uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
+uv run saa-agent cro --run-id <run> [--no-llm]  # stage 5: a risk report per candidate
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
 
@@ -54,8 +56,9 @@ src/saa/
               history.py (18-asset spliced returns) · equity_valuation.py (WRDS group
               aggregates) · validation.py · pipeline.py
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/
-              cma_methods/ · signals/ · portfolio_construction/
-  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ (each AGENT.md + agent.py)
+              cma_methods/ · signals/ · portfolio_construction/ · risk/ · peer_review/
+  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/
+              (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
 data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 ```

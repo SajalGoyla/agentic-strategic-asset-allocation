@@ -42,15 +42,45 @@ def rationale_payload() -> dict:
 
 
 # --------------------------------------------------------------------------- researcher
-def test_researcher_without_a_model_proposes_the_papers_choice(tmp_config):
+def test_researcher_without_a_model_substitutes_when_its_default_is_already_spanned(tmp_config):
+    """§3.4 asks for a method "not spanned by the current registry", and a portfolio identical
+    to a registry one is spanned however novel the objective sounds.
+
+    Maximum entropy is the paper's own March 2026 choice and the default without a model, but
+    with the IPS volatility band binding (decision 37) it reduces to equal weight whenever
+    equal weight already clears the Sharpe floor. The researcher then moves down its library
+    and says why.
+    """
     stage = stage_inputs(tmp_config)
     registry, _ = build_candidates(stage, tmp_config)
     outcome = pc_researcher.research(stage, tmp_config, registry, None, ips_status="draft")
+
     assert outcome.call is None
-    assert outcome.research.method_name.startswith("Maximum entropy")
     assert outcome.proposal.agent_id == "pc_researcher"
     assert outcome.proposal.category.value == "pc_researcher"
     assert "--no-llm" in outcome.proposal.rationale
+    assert not outcome.research.method_name.startswith("Maximum entropy")
+    # The substitution is explained, and against the method it actually ran.
+    assert "reduces to" in outcome.proposal.notes
+    assert outcome.research.method_name.lower() in outcome.research.objective.lower() or (
+        outcome.research.reference in outcome.research.objective
+    )
+
+
+def test_the_researcher_never_duplicates_a_registry_portfolio(tmp_config):
+    stage = stage_inputs(tmp_config)
+    registry, _ = build_candidates(stage, tmp_config)
+    outcome = pc_researcher.research(stage, tmp_config, registry, None, ips_status="draft")
+
+    sigma = stage.covariance.loc[stage.asset_ids, stage.asset_ids].to_numpy()
+    mine = outcome.candidate.weights.reindex(stage.asset_ids).fillna(0.0).to_numpy()
+    for agent_id, candidate in registry.items():
+        other = candidate.weights.reindex(stage.asset_ids).fillna(0.0).to_numpy()
+        active = mine - other
+        distance = 100 * float((active @ sigma @ active) ** 0.5)
+        assert distance > pc_researcher.agent.DUPLICATE_TRACKING_ERROR_PCT, (
+            f"the researcher's portfolio is indistinguishable from {agent_id}"
+        )
 
 
 def test_researcher_runs_the_method_the_model_chose(tmp_config):

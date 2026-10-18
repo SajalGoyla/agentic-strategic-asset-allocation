@@ -314,3 +314,165 @@ plan's estimates, almost all of it two flagship peer reviews — roughly $1.70 a
 +17% on the plan's $10. Effect on the free run: the paper's inverse-tracking-error ensemble
 rises from 3.3% to 4.1% volatility; a meta-optimised ensemble constrained to the IPS still
 reaches 8.0% volatility, Sharpe 0.47.
+
+### 34. The CRO's risk score is computed, not judged — settled, 2026-10-16
+§3.5 says the CRO "scores risk and produces commentary", without saying which half of the agent
+produces the score. It is a script here: a fixed, published formula over the metrics
+(`skills/risk/SKILL.md`), with the components written into the contract so the number can be
+audited. Two reasons. The CIO blends the CRO's score with the vote using a regime-dependent
+weight (§3.5) and compares it across 15 candidates — a number a model assigns portfolio by
+portfolio, each in its own call, is not comparable, and the paper's own CIO rubric gives IPS
+compliance a fixed 15% rather than asking for a judgment. And a score that cannot be
+re-derived from the run inputs cannot be checked by anyone reading the result.
+
+The model's half is the reading: `key_risks`, `concentration_assessment`,
+`tail_risk_assessment`, `ips_assessment` and `commentary`. The agent is told the score is not
+its to re-weight and that disagreeing with it in the commentary is the useful move. Cost: the
+score cannot reflect a risk nobody wrote a component for, which is why the commentary is a
+required field and not an afterthought.
+
+Two conventions the formula fixes, because the paper leaves them open: a portfolio **below** the
+volatility floor scores 0 on the volatility component (it is non-compliant, not dangerous —
+scoring it as risky would have ranked the cash-heavy portfolios as the most dangerous in the
+roster), and a component with no data is dropped with the rest renormalised, so a candidate with
+no backtest is never credited with zero risk. The second rule is the one the signals composite
+already uses (decision 26).
+
+### 35. Peer reviews are balanced, and a one-member family substitutes — settled, 2026-10-16
+§3.5 says each agent reviews "exactly two peers — one from its own category ... and one from a
+different category", randomised with a recorded seed. Two things it does not say.
+
+**Balance.** A free random draw over 15 agents leaves some proposals with four reviews and
+others with none, and an unreviewed proposal still goes to the vote carrying its own unexamined
+case. So each reviewer picks the eligible peer with the fewest reviews so far, ties broken by
+the seeded shuffle; the pairing stays random, the load does not. On the 15-agent roster every
+proposal gets exactly two reviews, and `validate_plan` refuses a plan where any gets none. The
+peer list is sorted before the shuffle, so the order the proposals were read off disk cannot
+leak into the result and the recorded seed genuinely reproduces the run.
+
+**A category of one.** The PC-researcher is its own category (Exhibit 9 lists it as
+"E: PC-Researcher"), so it has no intra-category peer and no shuffle will find one. Rather than
+drop its second review, it writes a second inter-category review, and the substitution is
+recorded in the plan's `fallbacks` and printed in the report — it changes what the protocol
+delivered, so it belongs in the audit trail rather than in a silent branch. The same rule covers
+any family with one member in a given run.
+
+The seed defaults to the first 32 bits of the SHA-256 of the run id, so a reader holding the run
+id can re-derive who reviewed whom without being handed a separate number. `--seed` overrides it.
+
+### 36. Schema 3.0.0: the CRO report gained a judgment half — settled, 2026-10-16
+`CroReportBody` was written in Phase 1 as a flat model with `commentary` on it and the whole body
+registered as the judgment schema, which would have had the model filling in its own volatility
+and drawdown. Splitting it the way `cma` is split — script metrics on the body, a nested
+`CroJudgment` for the LLM — removes and renames fields, so the global `SCHEMA_VERSION` goes to
+3.0.0 by the project's own rule. Nothing had ever written a `cro_report`, so nothing broke in
+practice; the bump records that a reader of the old shape would have.
+
+### 37. The IPS's ex-ante limits bind on every candidate; drawdown does not — settled, 2026-10-18
+Twelve of the fifteen methods could not reach the IPS volatility floor on their own, which made
+them unreviewable: a 0.65%-volatility portfolio is not a candidate a peer reviewer or the CIO
+can weigh against the mandate. §3.1 makes the IPS the governing document every agent reads, so
+each method is now solved **subject to** the limits rather than left outside them, in
+`enforce_ex_ante_limits`.
+
+Which limits, and why only those:
+
+- **Imposed: the volatility band and the tracking-error budget.** Both are computed from the
+  covariance matrix the method already consumed, so imposing them adds no information the
+  method did not have. 15 of 15 now satisfy every ex-ante rule.
+- **Not imposed: the drawdown limit.** Constraining a *realised* drawdown picks weights to suit
+  the 1993-2026 path, which is the look-ahead bias §5.1 warns about. Measured: it does reach 15
+  of 15, but seven candidates then sit exactly on the −23% constraint and the methods move a
+  mean 5.07% tracking error from themselves. The CRO measures drawdown and it binds on the
+  CIO's recommendation (decision 32), which is one in-sample fit instead of fifteen. Verified:
+  a meta-optimisation over the fifteen reaches 8.00% volatility, −22.6% drawdown, 5.17% real
+  return, Sharpe 0.50 and 3.48% tracking error — fully compliant.
+- **Not imposed: the return objective.** It is reported; see decision 39.
+
+The method keeps its own objective — maximum Sharpe is still the best risk-adjusted portfolio,
+risk parity still the flattest risk contributions, each now over the portfolios policy permits.
+A closed-form rule (inverse volatility) and an algorithm (HRP) have no objective to re-run, so
+those are projected to the nearest permitted portfolio by weight distance.
+
+**Cost, measured, and smaller than decision 32 assumed.** Mean pairwise tracking error across
+the fifteen candidates moves 4.65% → 4.50%, so the vote still has genuinely different
+portfolios to weigh (closest pair 0.35%, widest 9.20%). Risk parity keeps risk contributions
+spread 3.21-7.10% around the 5.56% equal level on 16 of 18 assets, against a flat 5.56%
+unconstrained. The adversarial diversifier remains the furthest from the centroid (6.56%) at
+the top of the band. Shrinking the universe instead was tested and is worse: dropping cash
+leaves the risk-based methods at 2.24-5.66%, and dropping cash, short *and* intermediate
+Treasuries still only gets 5 of 7 into the band. This narrows decision 32 rather than reversing
+it: candidates now comply on the ex-ante rules, and compliance remains non-negotiable only for
+the CIO.
+
+Every adjusted proposal carries `policy_adjusted` and `unconstrained_volatility_pct`, so a
+reviewer can tell the method under policy from the method unconstrained. Schema 3.1.0.
+
+Two consequences had to be fixed with it. §3.4's Sharpe floor of "75% of the maximum Sharpe
+portfolio" is now measured against the best Sharpe the *IPS permits*, not the unconstrained
+maximum: the unconstrained tangency portfolio here is 90% short Treasuries at a Sharpe of 0.663,
+75% of which is 0.498 — above the 0.505 best attainable anywhere in the band, so the floor
+admitted one portfolio and the adversarial diversifier and the maximum-entropy researcher both
+collapsed onto it. And the PC-researcher now substitutes when its choice duplicates a registry
+portfolio (decision 40).
+
+### 38. One number for cash, and expected inflation as the deflator — settled, 2026-10-18
+Two inputs were internally inconsistent, and both decided compliance.
+
+**The risk-free rate is now cash's own CMA, not the spot T-bill yield.** Cash *is* the risk-free
+asset in this universe, and every Sharpe ratio in the pipeline is over the 3-year CMA horizon,
+so a spot 3-month yield was the wrong number — and being a *different* number from cash's own
+forecast (3.97% against 3.73%) it gave cash a Sharpe of −0.38. Every return-optimised method
+therefore treated cash as strictly dominated while every risk-based method piled into it.
+`risk_free_series` remains the fallback for a universe with no cash asset.
+
+**The return test is deflated by expected inflation, not trailing realised CPI.** The CMAs are
+nominal forecasts over the CMA horizon, so the deflator has to be expected inflation over that
+horizon — which is what the field in `PortfolioMetrics` was already called. On 2026-10-06 the
+T5YIE breakeven was 2.41% against 3.71% trailing CPI, a 1.3pp error in the one test the
+objective states. `expected_inflation_series: T5YIE` in `config/ips.yaml` names the series;
+`inflation_series` stays as the index the objective is *stated* against. Trailing CPI is the
+fallback and only the fallback, which a backtest before TIPS breakevens begin in 2003 needs.
+
+### 39. The return objective's floor is hard, its ceiling soft — settled (provisional), 2026-10-18
+Faculty answered "treat them as hard constraints" about IPS adherence in general (2026-09-25).
+`config/ips.yaml` already flagged the two-sided consequence as "worth confirming": a portfolio
+forecast to earn *more* than CPI + 4% was disqualified as surely as one forecast to earn less.
+Measuring it settled why that cannot stand. With the deflator corrected (decision 38), 13 of the
+15 candidates forecast more than CPI + 4%, so a hard ceiling disqualifies almost the whole
+roster for being too profitable; and on the efficient frontier no portfolio inside the 8-12%
+volatility band clears both the ceiling and the band at once.
+
+The ceiling is not *infeasible* in the band, and the margins are small, which is why this is a
+policy question and not a modelling error. At 8% volatility the attainable real return runs
+2.08% to 5.36%, so CPI + 3-4% sits inside it -- but only off the efficient frontier, and the two
+candidates that do clear the ceiling (HRP 3.92%, inverse variance 4.00%) clear it by giving up
+return at the same risk. The other 13 overshoot by 0.20 to 1.87 percentage points. The target
+band is 1pp wide, narrower than the 1.30pp the deflator choice alone moves every candidate, and
+far narrower than the estimation error in a 3-year CMA. A two-sided hard target that tight
+rewards inefficiency.
+
+So `severity` now governs the floor only and `max_severity` the ceiling, set to `soft`. Both
+sides are still reported — a board memo should say when a portfolio is forecast to overshoot its
+mandate — but only the floor disqualifies. Falling short of a return objective is a breach of
+policy; exceeding it is not. **Provisional: faculty have not ruled on the two-sided reading.**
+Setting `max_severity: hard` restores the old behaviour in one line, and nothing else changes.
+
+### 40. The PC-researcher substitutes a method that duplicates the registry — settled, 2026-10-18
+§3.4 asks the researcher for "a novel method not spanned by the current registry", and a
+portfolio indistinguishable from a registry one is spanned however novel the objective sounds.
+Once the IPS band binds (decision 37) that stopped being hypothetical: maximum entropy — the
+paper's own March 2026 proposal and our default — reduces to equal weight whenever equal weight
+already clears the Sharpe floor, which it does here. The researcher now measures tracking error
+against every registry candidate, and at 0.25% or less moves down its library and records that
+it did, in the proposal's notes and the research body.
+
+The threshold is 0.25% rather than 0.10% because global minimum variance lands 0.11% from
+hierarchical risk parity once both are pushed to the volatility floor — a distance no reviewer
+could argue about. That left the library too thin, since both its methods are
+minimum-variance-flavoured and converge at the floor, so **mean-downside risk** (maximum
+Sortino) was added from the paper's own Exhibit 5 list. It is the one library objective that
+trades return against downside risk: the registry's CVaR minimisation and tail-risk parity both
+measure downside risk without trading it off against return, and it does not collapse toward
+the minimum-variance corner. Decision 33 left it out of the registry as overlapping; as a
+researcher-library method it is the one that keeps the researcher's slot distinct.

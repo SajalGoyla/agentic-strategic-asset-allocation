@@ -53,6 +53,7 @@ body holds a deterministic half and a judgment half:
 |---|---|---|
 | `macro_view` | `MacroScores` — four dimension scores from `DataStore.macro()` | `MacroJudgment` — regime, confidence, recession probability, narrative |
 | `cma` | `CmaMethodsBody` — the seven candidates | `CmaJudgment` — selection, method weights, the four Exhibit 4 checks |
+| `cro_report` | every risk metric, and the composite `risk_score` with its components | `CroJudgment` — key risks, concentration, tail risk, IPS reading, commentary |
 
 §3.3 is explicit that the seven CMA candidates "are written to a `cma_methods.json` file by a
 Python script; no LLM judgment is involved up to this point" — so `cma_methods` has no judgment
@@ -65,6 +66,8 @@ constraint, it is a `model_validator`:
 - The top-five shortlist must span at least three of the four PC families (§3.5).
 - A ballot awards 5/4/3/2/1 and one −2 bottom flag, excluding the voter (§3.5).
 - A peer review marked intra-category must actually be intra-category (§3.5).
+- A CRO report's drawdown must be negative, its expected shortfall at least its VaR, and its
+  risk-score components inside [0, 1]. The CRO has no vote field at all (§3.5).
 - The CIO's composite score must match the §4.4 weighted rubric (25/15/15/20/15/10).
 - The CIO may not ship an allocation that fails a hard IPS rule — §3.6 calls compliance
   "non-negotiable". Candidates (`pc_proposal`, `cro_report`) carry their compliance result but

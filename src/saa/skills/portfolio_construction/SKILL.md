@@ -42,6 +42,38 @@ reads what the registry produced), then the adversarial diversifier, which "exec
 initial 19 have finished" because it moves away from all of them. "Scenarios" are the monthly
 returns of the 18 assets over every month they share (from 1993-06), through `as_of`.
 
+## The IPS binds on every candidate (decision 37)
+
+Each method runs, and then is solved again **subject to the IPS's ex-ante limits** — the 8-12%
+volatility band and the 6% tracking-error budget — if it could not reach them on its own.
+Twelve of the fifteen could not: a 0.65%-volatility portfolio is not a candidate a peer reviewer
+or the CIO can weigh against the mandate, and §3.1 makes the IPS the document every agent reads.
+
+The method keeps its own objective. Maximum Sharpe is still the best risk-adjusted portfolio,
+risk parity still the flattest risk contributions, maximum diversification still the highest
+diversification ratio — each now over the portfolios policy permits. A closed-form rule
+(inverse volatility, inverse variance) and an algorithm (HRP) have no objective to re-run, so
+those are projected to the nearest permitted portfolio by weight distance.
+
+| Imposed | Why |
+|---|---|
+| volatility band | from the covariance matrix the method already used; no new information |
+| tracking-error budget | likewise |
+| **not** the drawdown limit | constraining a *realised* drawdown fits the weights to the 1993-2026 path, the look-ahead §5.1 warns about. The CRO measures it; it binds on the CIO (decision 32) |
+| **not** the return objective | reported, and its ceiling is soft (decision 39) |
+
+A method already inside the limits is returned untouched — the band is a limit, not a target.
+When one is adjusted, the proposal carries `policy_adjusted` and `unconstrained_volatility_pct`
+so a reviewer can tell the method under policy from the method unconstrained, and the agent is
+told to address it.
+
+Two things this changed elsewhere. §3.4's Sharpe floor of "75% of the maximum Sharpe portfolio"
+is measured against the best Sharpe the **IPS permits**, not the unconstrained maximum: here the
+unconstrained tangency portfolio is 90% short Treasuries at a Sharpe of 0.663, and 75% of that
+is above the best attainable anywhere in the band, which left the floor admitting one portfolio.
+And the PC-researcher substitutes when its method duplicates a registry portfolio, because once
+the band binds, maximum entropy reduces to equal weight (decision 40).
+
 ### PC-researcher
 
 §3.4: it "proposes a novel method not spanned by the current registry". A proposal the

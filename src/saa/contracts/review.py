@@ -31,17 +31,56 @@ BOTTOM_FLAG_POINTS = -2
 TOP_N = len(BORDA_POINTS)
 
 
+class CroJudgment(Contract):
+    """The CRO's LLM half: what the metrics mean for this portfolio.
+
+    The numbers are not in here. ``risk_score`` and every metric are computed by the risk
+    skill, because the CIO blends the CRO's score with the vote (§3.5) and compares it across
+    15 candidates -- a number a model assigns portfolio by portfolio is not comparable, and
+    cannot be reproduced from the run inputs (decision 34). What the model adds is the reading
+    of them: which risk actually binds, and whether a breach is the method working or failing.
+    """
+
+    key_risks: list[str]
+    concentration_assessment: str
+    tail_risk_assessment: str
+    ips_assessment: str
+    commentary: str
+
+    @model_validator(mode="after")
+    def _substantive(self) -> CroJudgment:
+        if not self.key_risks:
+            raise ValueError("a risk report with no named risk is not an assessment")
+        if any(not risk.strip() for risk in self.key_risks):
+            raise ValueError("key_risks contains an empty entry")
+        return self
+
+
 class CroReportBody(Contract):
-    """One standardised risk report. The CRO scores and comments; it never votes."""
+    """One standardised risk report. The CRO scores and comments; it never votes.
+
+    Every field above ``judgment`` is computed by ``saa.skills.risk``. Units follow the
+    project convention -- percent with a ``_pct`` suffix, ratios bare -- with two specifics
+    the paper leaves open: ``var_95_pct`` is the *monthly* historical 95% value-at-risk stated
+    as a loss, and ``max_drawdown_pct`` is negative, matching the IPS limit it is checked
+    against. A VaR stated as a loss can come out negative, and that is not an error -- a
+    cash-heavy portfolio whose fifth-percentile month is still a gain has a negative 95% VaR,
+    which is exactly what the reader should see.
+    """
 
     portfolio_agent_id: str
+    method: str
+    category: PcCategory
 
     ex_ante_volatility_pct: float
     backtest_volatility_pct: float | None = None
     var_95_pct: float | None = None
+    cvar_95_pct: float | None = None
     max_drawdown_pct: float | None = None
     backtest_sharpe: float | None = None
     ex_ante_tracking_error_pct: float | None = None
+    # Months of history behind every backtest figure above; None when none was available.
+    backtest_months: int | None = None
 
     # Concentration: Meucci effective N and the Herfindahl index of the weights.
     effective_n: float | None = None
@@ -49,8 +88,35 @@ class CroReportBody(Contract):
     factor_tilts: dict[str, float] = Field(default_factory=dict)
 
     ips_compliance: IpsCompliance
-    risk_score: float = Field(ge=0.0, le=1.0)  # higher is riskier
-    commentary: str
+    risk_score: float = Field(ge=0.0, le=1.0)  # higher is riskier; script-computed
+    # The components behind risk_score, each in [0, 1], so the score can be audited and the
+    # CIO can see which limit drove it.
+    risk_score_components: dict[str, float] = Field(default_factory=dict)
+    judgment: CroJudgment
+
+    @model_validator(mode="after")
+    def _signs_and_scores(self) -> CroReportBody:
+        if self.max_drawdown_pct is not None and self.max_drawdown_pct > 0:
+            raise ValueError(
+                f"max_drawdown_pct is {self.max_drawdown_pct:.2f}; a drawdown is negative"
+            )
+        # Both are losses, so expected shortfall is at least the quantile it averages beyond.
+        # Neither has to be positive: a portfolio whose fifth-percentile month is still a gain
+        # has a negative 95% VaR, and cash-heavy candidates do.
+        if (
+            self.var_95_pct is not None
+            and self.cvar_95_pct is not None
+            and self.cvar_95_pct < self.var_95_pct - 1e-9
+        ):
+            raise ValueError(
+                f"cvar_95_pct {self.cvar_95_pct:.2f} is below var_95_pct {self.var_95_pct:.2f}; "
+                "expected shortfall cannot be smaller than the quantile it averages beyond, so "
+                "one of the two has the wrong sign"
+            )
+        outside = {k: v for k, v in self.risk_score_components.items() if not 0.0 <= v <= 1.0}
+        if outside:
+            raise ValueError(f"risk score components outside [0, 1]: {outside}")
+        return self
 
 
 CroReport = AgentOutput[CroReportBody]
