@@ -33,7 +33,13 @@ from saa.contracts import (
 from saa.data.store import DataStore
 from saa.ips import PortfolioMetrics, check_compliance
 from saa.run import RunContext
-from saa.skills.portfolio_construction.methods import METHODS, Method, PortfolioInputs
+from saa.skills.portfolio_construction.methods import (
+    METHODS,
+    ExAnteLimits,
+    Method,
+    PortfolioInputs,
+    enforce_ex_ante_limits,
+)
 
 log = logging.getLogger(__name__)
 
@@ -130,6 +136,35 @@ class StageInputs:
     target_volatility: float = 0.10  # decimal: the IPS volatility band's midpoint
 
 
+def expected_inflation_pct(store: DataStore, config: Config, as_of: pd.Timestamp) -> float | None:
+    """Inflation over the CMA horizon, for the IPS real-return test (decision 38).
+
+    The CMAs are nominal forecasts over `objectives.cma_horizon_years`, so the deflator has to
+    be *expected* inflation over that horizon -- which is what the field in `PortfolioMetrics`
+    has always been called. A market breakeven rate is the direct observation of it;
+    `expected_inflation_series` in the IPS names which one. Trailing realised CPI is the
+    fallback, and only the fallback: it is a different quantity, it was 1.3pp away from the
+    breakeven on 2026-10-06, and the gap decides compliance.
+    """
+    objective = config.ips.objectives.return_
+    series = objective.expected_inflation_series
+    if series:
+        breakeven = store.macro(series, as_of=as_of).dropna()
+        if len(breakeven):
+            return float(breakeven.iloc[-1, 0])
+        log.warning(
+            "%s has no observation on %s; falling back to trailing %s",
+            series,
+            as_of.date(),
+            objective.inflation_series,
+        )
+    # Before TIPS breakevens exist (they start in 2003) a backtest has only realised CPI.
+    cpi = store.macro(objective.inflation_series, as_of=as_of).dropna()
+    if len(cpi) > 12:
+        return float(cpi.iloc[-1, 0] / cpi.iloc[-13, 0] - 1) * 100
+    return None
+
+
 def benchmark_weights(config: Config) -> pd.Series:
     """The IPS benchmark, as a weight per asset (zero where it does not hold the asset)."""
     weights = config.ips.active_risk.benchmark.weights
@@ -178,14 +213,20 @@ def gather_inputs(
     expected_returns = pd.Series(cmas, dtype="float64") / 100.0
 
     as_of = pd.Timestamp(run.as_of)
-    rates = store.macro(risk_free_series, as_of=as_of).dropna()
-    risk_free = (float(rates.iloc[-1, 0]) if len(rates) else 0.0) / 100.0
+    cash_id = next((a.id for a in config.universe.assets if a.group == "cash"), None)
 
-    inflation_pct = None
-    inflation_series = config.ips.objectives.return_.inflation_series
-    cpi = store.macro(inflation_series, as_of=as_of).dropna()
-    if len(cpi) > 12:
-        inflation_pct = float(cpi.iloc[-1, 0] / cpi.iloc[-13, 0] - 1) * 100
+    # The risk-free rate is the cash asset's own CMA, not today's T-bill rate (decision 38).
+    # Cash *is* the risk-free asset in this universe, and every Sharpe ratio here is over the
+    # CMA horizon, so a spot 3-month yield is the wrong number and -- being a different number
+    # from cash's own forecast -- gave cash a negative Sharpe ratio while every risk-based
+    # method was piling into it. `risk_free_series` remains the fallback.
+    if cash_id is not None and cash_id in cmas:
+        risk_free = cmas[cash_id] / 100.0
+    else:
+        rates = store.macro(risk_free_series, as_of=as_of).dropna()
+        risk_free = (float(rates.iloc[-1, 0]) if len(rates) else 0.0) / 100.0
+
+    inflation_pct = expected_inflation_pct(store, config, as_of)
 
     market_weights = _market_weights(store, asset_ids, as_of)
     scenarios = store.asset_returns(asset_ids, as_of=as_of).dropna(how="any")
@@ -209,7 +250,7 @@ def gather_inputs(
         provenance=store.provenance(),
         inputs=refs,
         scenario_returns=scenarios if len(scenarios) else None,
-        cash_id=next((a.id for a in config.universe.assets if a.group == "cash"), None),
+        cash_id=cash_id,
         target_volatility=(
             config.ips.objectives.volatility.min_pct + config.ips.objectives.volatility.max_pct
         )
@@ -267,10 +308,17 @@ class Candidate:
     # Set when the agent is not named after its method: the PC-researcher runs whichever
     # library method it proposed, under its own id.
     agent: str | None = None
+    # The volatility the method produced before the IPS band was imposed, in percent; None when
+    # the method reached the band on its own and nothing was changed (decision 37).
+    unconstrained_volatility_pct: float | None = None
 
     @property
     def agent_id(self) -> str:
         return self.agent or self.method.id
+
+    @property
+    def policy_adjusted(self) -> bool:
+        return self.unconstrained_volatility_pct is not None
 
     def body(self, rationale: str, *, notes: str | None = None) -> PcProposalBody:
         return PcProposalBody(
@@ -286,6 +334,8 @@ class Candidate:
             ips_compliance=self.compliance,
             rationale=rationale,
             notes=notes,
+            policy_adjusted=self.policy_adjusted,
+            unconstrained_volatility_pct=self.unconstrained_volatility_pct,
         )
 
 
@@ -308,15 +358,45 @@ def build_candidate(
     config: Config,
     *,
     build=None,
+    objective=None,
     agent: str | None = None,
 ) -> Candidate:
-    """Run one method and work out everything about the portfolio it produced.
+    """Run one method, impose the IPS volatility band, and work out everything about the result.
 
     ``build`` overrides ``method.build`` when the method needs more than the stage inputs --
-    the adversarial diversifier needs the centroid of the other proposals.
+    the adversarial diversifier needs the centroid of the other proposals -- and ``objective``
+    overrides ``method.objective`` for the same reason.
+
+    The band is imposed here rather than inside each method because it is *policy*, not a
+    property of the method (decision 37): §3.1 makes the IPS the governing document every agent
+    reads, and a method left below the volatility floor cannot be peer-reviewed or voted on as a
+    real candidate. A method already inside the band is returned untouched.
     """
     inputs = portfolio_inputs(stage)
     weights = (build or method.build)(inputs)  # type: ignore[operator]
+    band = config.ips.objectives.volatility
+    limits = ExAnteLimits(
+        floor=band.min_pct / 100.0,
+        cap=band.max_pct / 100.0,
+        benchmark=stage.benchmark,
+        tracking_error_cap=config.ips.active_risk.tracking_error.max_ex_ante_pct / 100.0,
+    )
+    weights, unconstrained = enforce_ex_ante_limits(
+        weights,
+        inputs,
+        limits,
+        objective=objective or method.objective,
+        constraints=(method.band_constraints(inputs, limits) if method.band_constraints else ()),
+    )
+    if unconstrained is not None:
+        log.info(
+            "%s: %.2f%% volatility outside the %.1f-%.1f%% IPS band; re-solved inside it at %.2f%%",
+            method.id,
+            unconstrained,
+            band.min_pct,
+            band.max_pct,
+            100 * float(np.sqrt(weights.to_numpy() @ inputs.sigma @ weights.to_numpy())),
+        )
     stats = portfolio_stats(
         weights,
         stage.covariance,
@@ -336,6 +416,7 @@ def build_candidate(
         stats=stats,
         compliance=IpsCompliance.from_report(report),
         agent=agent,
+        unconstrained_volatility_pct=unconstrained,
     )
 
 

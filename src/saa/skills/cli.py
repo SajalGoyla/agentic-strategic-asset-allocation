@@ -10,6 +10,8 @@ from saa.config import load_config
 from saa.data.store import DataStore
 from saa.run import RunContext
 
+PEER_REVIEW_REPORT = "peer_review_assignments.md"
+
 
 def _regime_panel(store, config, run, regime_history: str | None):
     """The macro skill's month-end labels and dimension scores, from a file or scored now."""
@@ -90,6 +92,14 @@ def main(argv: list[str] | None = None) -> int:
     cv_.add_argument("--run-id", required=True, help="the pipeline run holding cma_methods.json")
     cv_.add_argument("--run-dir", help="override the run directory entirely")
     cv_.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+
+    ra = sub.add_parser("review-assign", help="randomised peer-review pairing for a run (§3.5)")
+    ra.add_argument("--run-id", required=True, help="the pipeline run holding the PC proposals")
+    ra.add_argument("--run-dir", help="override the run directory entirely")
+    ra.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    ra.add_argument(
+        "--seed", type=int, help="override the seed derived from the run id (§3.5 records it)"
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(
@@ -208,6 +218,26 @@ def main(argv: list[str] | None = None) -> int:
         print(render_report(result, run.as_of).split("## Every check")[0])
         print(f"Assets: {summary_counts(result)}. Report: {write_report(result, run)}")
         return 1 if result.status is Status.FAIL else 0
+
+    if args.command == "review-assign":
+        from saa.agents.cro import load_proposals
+        from saa.skills.peer_review import assign_reviews, seed_for
+        from saa.skills.peer_review import render_report as render_assignments
+
+        run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+        proposals = load_proposals(run)
+        if not proposals:
+            parser.error(
+                f"no pc_proposal.json under {run.root / 'pc'}; run "
+                f"`uv run saa-agent pc --run-id {run.run_id}` first"
+            )
+        plan = assign_reviews(
+            {agent_id: body.category for agent_id, body in proposals.items()},
+            seed=args.seed if args.seed is not None else seed_for(run.run_id),
+        )
+        report = render_assignments(plan, as_of=run.as_of, run_id=run.run_id)
+        print(report)
+        print(f"Report: {run.write_report(report, PEER_REVIEW_REPORT)}")
     return 0
 
 

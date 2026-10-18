@@ -527,6 +527,44 @@ def maximum_diversification(inputs: PortfolioInputs) -> pd.Series:
     return _normalise(_simplex_minimize(negative_ratio, starts, n), inputs.asset_ids)
 
 
+def downside_deviation(weights: np.ndarray, scenarios: np.ndarray, target: float) -> float:
+    """Annualised root-mean-square shortfall of the portfolio below ``target`` per month."""
+    shortfall = np.minimum(scenarios @ weights - target, 0.0)
+    return float(np.sqrt(float((shortfall**2).mean()) * 12.0))
+
+
+def mean_downside_risk(inputs: PortfolioInputs) -> pd.Series:
+    """Maximise the Sortino ratio: excess expected return over downside deviation.
+
+    Exhibit 5's "mean-downside risk" method, left out of the registry (decision 33) and kept
+    here for the PC-researcher. It is the one objective in the library that asks for *return*
+    per unit of downside risk: maximum entropy spreads weight and global minimum variance
+    ignores returns, so both collapse toward the minimum-variance corner once the IPS
+    volatility floor binds, while this one does not. The registry's CVaR minimisation and
+    tail-risk parity also measure downside risk but neither trades it off against return.
+
+    The shortfall target is the risk-free rate, so the denominator is the deviation below what
+    cash would have returned -- the same reference the numerator uses.
+    """
+    scenarios = inputs.scenario_matrix
+    monthly_target = inputs.risk_free / 12.0
+    excess = inputs.mu - inputs.risk_free
+    n = len(inputs.asset_ids)
+
+    def negative_sortino(w: np.ndarray) -> float:
+        risk = downside_deviation(w, scenarios, monthly_target)
+        return -float(w @ excess) / risk if risk > 1e-12 else 0.0
+
+    starts = [np.ones(n) / n, inverse_volatility(inputs).to_numpy()]
+    return _normalise(_simplex_minimize(negative_sortino, starts, n), inputs.asset_ids)
+
+
+def _objective_mean_downside_risk(w: np.ndarray, inputs: PortfolioInputs) -> float:
+    risk = downside_deviation(w, inputs.scenario_matrix, inputs.risk_free / 12.0)
+    excess = float(w @ (inputs.mu - inputs.risk_free))
+    return -excess / risk if risk > 1e-12 else 0.0
+
+
 def global_minimum_variance(inputs: PortfolioInputs) -> pd.Series:
     """Clarke, de Silva and Thorley (2006): the long-only portfolio of least variance."""
     sigma = inputs.sigma
@@ -577,6 +615,243 @@ def adversarial_diversifier(
 
 
 # --------------------------------------------------------------------------------- registry
+# ------------------------------------------------------------------- the IPS band as policy
+# Methods are compared with the band at this tolerance, so a 1e-12 residue is not a breach.
+BAND_TOL = 1e-6
+
+
+def _objective_max_sharpe(w: np.ndarray, inputs: PortfolioInputs) -> float:
+    return -sharpe_ratio(w, inputs)
+
+
+def _objective_min_cvar(w: np.ndarray, inputs: PortfolioInputs, confidence: float = 0.95) -> float:
+    """Empirical expected shortfall of the scenarios: piecewise linear in the weights."""
+    losses = np.sort(inputs.scenario_matrix @ w)
+    tail = max(1, int(round((1.0 - confidence) * len(losses))))
+    return -float(losses[:tail].mean())
+
+
+def _risk_dispersion(w: np.ndarray, covariance: np.ndarray) -> float:
+    """Squared distance of the risk contributions from equal. Zero at risk parity."""
+    w = np.clip(w, 1e-12, None)
+    marginal = covariance @ w
+    contributions = w * marginal / float(w @ marginal)
+    return float(((contributions - 1.0 / len(w)) ** 2).sum())
+
+
+def _objective_risk_parity(w: np.ndarray, inputs: PortfolioInputs) -> float:
+    return _risk_dispersion(w, inputs.sigma)
+
+
+def _objective_tail_risk_parity(w: np.ndarray, inputs: PortfolioInputs) -> float:
+    return _risk_dispersion(w, downside_covariance(inputs.scenario_matrix))
+
+
+def _objective_max_diversification(w: np.ndarray, inputs: PortfolioInputs) -> float:
+    variance = float(w @ inputs.sigma @ w)
+    return -float(w @ inputs.volatilities) / np.sqrt(variance) if variance > 0 else 0.0
+
+
+def _objective_max_entropy(w: np.ndarray, inputs: PortfolioInputs) -> float:
+    w = np.clip(w, 1e-12, None)
+    return float((w * np.log(w)).sum())
+
+
+@dataclass(frozen=True)
+class ExAnteLimits:
+    """The IPS limits that can be imposed on a method without look-ahead: both come from the
+    covariance matrix the method already consumed. Decimals."""
+
+    floor: float
+    cap: float
+    benchmark: pd.Series | None = None
+    tracking_error_cap: float | None = None
+
+    def contains_volatility(self, volatility: float) -> bool:
+        return self.floor - BAND_TOL <= volatility <= self.cap + BAND_TOL
+
+
+def max_sharpe_within(inputs: PortfolioInputs, limits: ExAnteLimits) -> float:
+    """The highest Sharpe ratio reachable without breaching the IPS's ex-ante limits."""
+    sigma = inputs.sigma
+    n = len(inputs.asset_ids)
+    cons = [
+        {"type": "eq", "fun": lambda w: w.sum() - 1.0},
+        {"type": "ineq", "fun": lambda w: float(w @ sigma @ w) - limits.floor**2},
+        {"type": "ineq", "fun": lambda w: limits.cap**2 - float(w @ sigma @ w)},
+    ]
+    if limits.benchmark is not None and limits.tracking_error_cap is not None:
+        b = limits.benchmark.reindex(inputs.asset_ids).fillna(0.0).to_numpy(dtype=float)
+        cons.append(
+            {
+                "type": "ineq",
+                "fun": lambda w: (
+                    limits.tracking_error_cap
+                    - float(np.sqrt(max(float((w - b) @ sigma @ (w - b)), 0.0)))
+                ),
+            }
+        )
+    best = -np.inf
+    for start in volatility_band_starts(inputs, np.ones(n) / n, limits.benchmark):
+        result = minimize(
+            lambda w: -sharpe_ratio(w, inputs),
+            start,
+            method="SLSQP",
+            bounds=[(0.0, 1.0)] * n,
+            constraints=cons,
+            options={"maxiter": 1000, "ftol": 1e-10},
+        )
+        w = np.clip(result.x, 0.0, None)
+        if w.sum() <= 0:
+            continue
+        w = w / w.sum()
+        if limits.contains_volatility(float(np.sqrt(max(float(w @ sigma @ w), 0.0)))):
+            best = max(best, sharpe_ratio(w, inputs))
+    return best
+
+
+def _sharpe_floor(inputs: PortfolioInputs, limits: ExAnteLimits | None = None) -> list[dict]:
+    """§3.4's floor, measured against the best Sharpe ratio the *policy* allows.
+
+    The paper puts the floor at "75% of the maximum Sharpe portfolio" in a setting where the
+    IPS does not bind on candidates. Once it does, the unconstrained maximum is the wrong
+    reference: here the unconstrained tangency portfolio is 90% short Treasuries at a Sharpe of
+    0.66, 75% of which is 0.50 -- above the 0.505 best attainable anywhere inside the 8-12%
+    volatility band. The floor would then admit exactly one portfolio, and the adversarial
+    diversifier and the maximum-entropy researcher both collapsed onto it (decision 37). Taking
+    75% of the best Sharpe the IPS permits keeps the floor doing its job: stopping an
+    indefensible proposal, not dictating a single one.
+    """
+    reference = max_sharpe_within(inputs, limits) if limits else None
+    if reference is None or not np.isfinite(reference) or reference <= 0:
+        return sharpe_floor_constraint(inputs, SHARPE_FLOOR_FRACTION)
+    floor = SHARPE_FLOOR_FRACTION * reference
+    return [{"type": "ineq", "fun": lambda w: sharpe_ratio(w, inputs) - floor}]
+
+
+def volatility_band_starts(
+    inputs: PortfolioInputs, target: np.ndarray, benchmark: pd.Series | None = None
+) -> list[np.ndarray]:
+    """Starting points spanning the volatility range, derived only from ``inputs``.
+
+    The band is usually imposed on a portfolio that sits well below the floor, so a search
+    started only from that portfolio stays there. Weights proportional to volatility, and the
+    single most volatile asset, give the solver somewhere high to come down from.
+    """
+    n = len(inputs.asset_ids)
+    vols = inputs.volatilities
+    highest = np.zeros(n)
+    highest[int(np.argmax(vols))] = 1.0
+    candidates = [
+        np.ones(n) / n,
+        vols / vols.sum(),
+        vols**2 / (vols**2).sum(),
+        highest,
+        0.5 * target + 0.5 * vols / vols.sum(),
+        target,
+    ]
+    # The benchmark is inside the tracking-error budget by construction, so it is the one start
+    # guaranteed feasible when that budget is what the method is breaching.
+    if benchmark is not None:
+        b = benchmark.reindex(inputs.asset_ids).fillna(0.0).to_numpy(dtype=float)
+        if b.sum() > 0:
+            b = b / b.sum()
+            candidates += [b, 0.5 * target + 0.5 * b]
+    return [np.clip(c, 0.0, 1.0) for c in candidates]
+
+
+def enforce_ex_ante_limits(
+    weights: pd.Series,
+    inputs: PortfolioInputs,
+    limits: ExAnteLimits,
+    *,
+    objective=None,
+    constraints=(),
+) -> tuple[pd.Series, float | None]:
+    """Re-solve a method inside the IPS's *ex-ante* limits, or return it untouched if already in.
+
+    §3.1 makes the IPS the governing document that every agent reads, so a method that cannot
+    reach the policy on its own is solved again *subject to* it rather than left outside it
+    (decision 37). The method keeps its own objective: maximum Sharpe is still the best
+    risk-adjusted portfolio, risk parity is still the flattest risk contributions -- each now
+    over the portfolios the policy permits. A closed-form rule and an algorithm like HRP have no
+    objective to re-run, so ``objective=None`` projects to the nearest permitted portfolio by
+    squared weight distance instead.
+
+    **Only the ex-ante limits are imposed**: the volatility band and the tracking-error budget,
+    both computed from the covariance matrix the method already consumed. The drawdown limit is
+    deliberately left out, because constraining a *realised* drawdown chooses weights to suit
+    the 1993-2026 path and is the look-ahead bias §5.1 warns about; the CRO measures it and it
+    binds on the CIO's recommendation (decisions 32 and 37). The return objective is likewise
+    reported rather than imposed.
+
+    ``floor``, ``cap`` and ``tracking_error_cap`` are decimals. Returns the weights and, when
+    they were adjusted, the volatility the method produced on its own -- which the agent has to
+    disclose.
+    """
+    ids = inputs.asset_ids
+    sigma = inputs.sigma
+    floor, cap = limits.floor, limits.cap
+    benchmark, tracking_error_cap = limits.benchmark, limits.tracking_error_cap
+    target = weights.reindex(ids).fillna(0.0).to_numpy(dtype=float)
+    original = float(np.sqrt(max(float(target @ sigma @ target), 0.0)))
+
+    active = None
+    if benchmark is not None and tracking_error_cap is not None:
+        active = benchmark.reindex(ids).fillna(0.0).to_numpy(dtype=float)
+
+    def tracking_error(w: np.ndarray) -> float:
+        d = w - active
+        return float(np.sqrt(max(float(d @ sigma @ d), 0.0)))
+
+    inside_band = floor - BAND_TOL <= original <= cap + BAND_TOL
+    inside_te = active is None or tracking_error(target) <= tracking_error_cap + BAND_TOL
+    if inside_band and inside_te:
+        return weights, None
+
+    goal = objective or (lambda w, _inputs: float(((w - target) ** 2).sum()))
+    cons = [
+        {"type": "eq", "fun": lambda w: w.sum() - 1.0},
+        {"type": "ineq", "fun": lambda w: float(w @ sigma @ w) - floor**2},
+        {"type": "ineq", "fun": lambda w: cap**2 - float(w @ sigma @ w)},
+        *constraints,
+    ]
+    if active is not None:
+        cons.append({"type": "ineq", "fun": lambda w: tracking_error_cap - tracking_error(w)})
+    best, best_value = None, np.inf
+    for start in volatility_band_starts(inputs, target, benchmark):
+        result = minimize(
+            lambda w: goal(w, inputs),
+            start,
+            method="SLSQP",
+            bounds=[(0.0, 1.0)] * len(ids),
+            constraints=cons,
+            options={"maxiter": 2000, "ftol": 1e-12},
+        )
+        w = np.clip(result.x, 0.0, None)
+        if w.sum() <= 0:
+            continue
+        w = w / w.sum()
+        volatility = float(np.sqrt(max(float(w @ sigma @ w), 0.0)))
+        if not floor - BAND_TOL <= volatility <= cap + BAND_TOL:
+            continue
+        if active is not None and tracking_error(w) > tracking_error_cap + BAND_TOL:
+            continue
+        if any(
+            (c["fun"](w) < -1e-6) if c["type"] == "ineq" else abs(c["fun"](w)) > 1e-6 for c in cons
+        ):
+            continue
+        value = goal(w, inputs)
+        if value < best_value:
+            best, best_value = w, value
+    if best is None:
+        limits = f"the {floor:.1%}-{cap:.1%} volatility band"
+        if active is not None:
+            limits += f" and the {tracking_error_cap:.1%} tracking-error budget"
+        raise ValueError(f"no portfolio inside {limits} satisfies this method's own constraints")
+    return _normalise(best, ids), 100 * original
+
+
 @dataclass(frozen=True)
 class Method:
     """One portfolio-construction method, as the PC agents see it."""
@@ -590,6 +865,13 @@ class Method:
     needs_scenarios: bool = False
     # Method-specific framing for the agent's prompt, where the generic one would mislead.
     prompt_note: str | None = None
+    # The method's own objective, re-minimised when the IPS volatility band has to be imposed
+    # (decision 37). None projects to the nearest in-band portfolio instead, which is all a
+    # closed-form rule or an algorithm like HRP admits.
+    objective: object | None = None  # Callable[[np.ndarray, PortfolioInputs], float]
+    # Constraints the method carries in its own right and which must survive the re-solve.
+    # Called as `band_constraints(inputs, limits)`.
+    band_constraints: object | None = None
 
 
 METHODS: dict[str, Method] = {
@@ -642,6 +924,7 @@ METHODS: dict[str, Method] = {
             reference="Markowitz (1952)",
             uses_cmas=True,
             build=max_sharpe,
+            objective=_objective_max_sharpe,
         ),
         Method(
             id="black_litterman",
@@ -666,6 +949,7 @@ METHODS: dict[str, Method] = {
             reference="Maillard, Roncalli and Teiletche (2010)",
             uses_cmas=False,
             build=risk_parity,
+            objective=_objective_risk_parity,
         ),
         Method(
             id="hierarchical_risk_parity",
@@ -682,6 +966,7 @@ METHODS: dict[str, Method] = {
             reference="Choueifaty and Coignard (2008)",
             uses_cmas=False,
             build=maximum_diversification,
+            objective=_objective_max_diversification,
         ),
         Method(
             id="cvar_minimization",
@@ -691,6 +976,7 @@ METHODS: dict[str, Method] = {
             uses_cmas=False,
             build=cvar_minimization,
             needs_scenarios=True,
+            objective=_objective_min_cvar,
         ),
         Method(
             id="tail_risk_parity",
@@ -700,6 +986,7 @@ METHODS: dict[str, Method] = {
             uses_cmas=False,
             build=tail_risk_parity,
             needs_scenarios=True,
+            objective=_objective_tail_risk_parity,
         ),
     ]
 }
@@ -717,6 +1004,8 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             reference="Bera and Park (2008)",
             uses_cmas=True,
             build=maximum_entropy,
+            objective=_objective_max_entropy,
+            band_constraints=_sharpe_floor,
         ),
         Method(
             id="global_minimum_variance",
@@ -725,6 +1014,17 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             reference="Clarke, de Silva and Thorley (2006)",
             uses_cmas=False,
             build=global_minimum_variance,
+            objective=lambda w, inputs: float(w @ inputs.sigma @ w),
+        ),
+        Method(
+            id="mean_downside_risk",
+            name="Mean-downside risk (maximum Sortino)",
+            category="pc_researcher",
+            reference="Sortino and Price (1994); Exhibit 5",
+            uses_cmas=True,
+            build=mean_downside_risk,
+            needs_scenarios=True,
+            objective=_objective_mean_downside_risk,
         ),
     ]
 }
@@ -736,6 +1036,7 @@ ADVERSARIAL = Method(
     reference="Ang, Azimbayev and Kim (2026), section 3.4",
     uses_cmas=True,
     build=adversarial_diversifier,  # also needs the centroid of the other proposals
+    band_constraints=_sharpe_floor,
     prompt_note=(
         "This portfolio is deliberately as far as the Sharpe floor allows from the average of "
         "every other proposal. The paper is explicit that it 'is not intended as a standalone "

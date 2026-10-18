@@ -124,6 +124,24 @@ class PcProposalBody(Contract):
     # The adversarial diversifier and the researcher agent carry extra context.
     notes: str | None = None
 
+    # Set when the method could not reach the IPS volatility band on its own and was re-solved
+    # subject to it (decision 37). The peer reviewers and the CRO have to be able to see that
+    # this is the method under policy rather than the method unconstrained, so it is a field
+    # rather than a line of prose, and `unconstrained_volatility_pct` records what the method
+    # produced before the band was imposed.
+    policy_adjusted: bool = False
+    unconstrained_volatility_pct: float | None = None
+
+    @model_validator(mode="after")
+    def _adjustment_is_disclosed(self) -> PcProposalBody:
+        if self.policy_adjusted != (self.unconstrained_volatility_pct is not None):
+            raise ValueError(
+                f"{self.agent_id}: policy_adjusted is {self.policy_adjusted} but "
+                f"unconstrained_volatility_pct is {self.unconstrained_volatility_pct}; a policy "
+                "adjustment must say what the method produced on its own"
+            )
+        return self
+
     @model_validator(mode="after")
     def _fully_invested(self) -> PcProposalBody:
         total = sum(self.weights.values())

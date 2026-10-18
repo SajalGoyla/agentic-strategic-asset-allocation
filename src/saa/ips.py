@@ -78,8 +78,18 @@ class ReturnObjective(BaseModel):
     type: Literal["real_cpi_plus"]
     min_pct: float
     max_pct: float
+    # The index the objective is stated against ("CPI + 3-4%").
     inflation_series: str
+    # The series used to *deflate* the CMAs, which are nominal forecasts over the CMA horizon
+    # (decision 38). A market breakeven rate observes expected inflation directly; trailing
+    # realised CPI is a different quantity and is only the fallback. None restores that
+    # fallback, which is what a backtest before 2003 has to use.
+    expected_inflation_series: str | None = None
+    # `severity` governs the floor (earning too little). The ceiling is separate because they
+    # are different claims: falling short of the objective is a breach of policy, while
+    # exceeding it is not, and the IPS flags the two-sided reading as unconfirmed (decision 39).
     severity: Severity = SOFT
+    max_severity: Severity = HARD
 
     @model_validator(mode="after")
     def _ordered(self) -> ReturnObjective:
@@ -379,7 +389,7 @@ def _check_objectives(metrics: PortfolioMetrics, ips: IPS, report: ComplianceRep
         elif real > target.max_pct + _TOL:
             report.add(
                 "objectives.return",
-                target.severity,
+                target.max_severity,
                 f"expected real return {real:.2f}% is above the CPI + "
                 f"{target.max_pct:.1f}% target band",
                 observed=real,

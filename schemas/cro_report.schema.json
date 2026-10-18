@@ -1,9 +1,59 @@
 {
   "$defs": {
+    "CroJudgment": {
+      "additionalProperties": false,
+      "description": "The CRO's LLM half: what the metrics mean for this portfolio.\n\nThe numbers are not in here. ``risk_score`` and every metric are computed by the risk\nskill, because the CIO blends the CRO's score with the vote (\u00a73.5) and compares it across\n15 candidates -- a number a model assigns portfolio by portfolio is not comparable, and\ncannot be reproduced from the run inputs (decision 34). What the model adds is the reading\nof them: which risk actually binds, and whether a breach is the method working or failing.",
+      "properties": {
+        "commentary": {
+          "title": "Commentary",
+          "type": "string"
+        },
+        "concentration_assessment": {
+          "title": "Concentration Assessment",
+          "type": "string"
+        },
+        "ips_assessment": {
+          "title": "Ips Assessment",
+          "type": "string"
+        },
+        "key_risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Risks",
+          "type": "array"
+        },
+        "tail_risk_assessment": {
+          "title": "Tail Risk Assessment",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key_risks",
+        "concentration_assessment",
+        "tail_risk_assessment",
+        "ips_assessment",
+        "commentary"
+      ],
+      "title": "CroJudgment",
+      "type": "object"
+    },
     "CroReportBody": {
       "additionalProperties": false,
-      "description": "One standardised risk report. The CRO scores and comments; it never votes.",
+      "description": "One standardised risk report. The CRO scores and comments; it never votes.\n\nEvery field above ``judgment`` is computed by ``saa.skills.risk``. Units follow the\nproject convention -- percent with a ``_pct`` suffix, ratios bare -- with two specifics\nthe paper leaves open: ``var_95_pct`` is the *monthly* historical 95% value-at-risk stated\nas a loss, and ``max_drawdown_pct`` is negative, matching the IPS limit it is checked\nagainst. A VaR stated as a loss can come out negative, and that is not an error -- a\ncash-heavy portfolio whose fifth-percentile month is still a gain has a negative 95% VaR,\nwhich is exactly what the reader should see.",
       "properties": {
+        "backtest_months": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backtest Months"
+        },
         "backtest_sharpe": {
           "anyOf": [
             {
@@ -28,9 +78,8 @@
           "default": null,
           "title": "Backtest Volatility Pct"
         },
-        "commentary": {
-          "title": "Commentary",
-          "type": "string"
+        "category": {
+          "$ref": "#/$defs/PcCategory"
         },
         "concentration_hhi": {
           "anyOf": [
@@ -45,6 +94,18 @@
           ],
           "default": null,
           "title": "Concentration Hhi"
+        },
+        "cvar_95_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cvar 95 Pct"
         },
         "effective_n": {
           "anyOf": [
@@ -84,6 +145,9 @@
         "ips_compliance": {
           "$ref": "#/$defs/IpsCompliance"
         },
+        "judgment": {
+          "$ref": "#/$defs/CroJudgment"
+        },
         "max_drawdown_pct": {
           "anyOf": [
             {
@@ -96,6 +160,10 @@
           "default": null,
           "title": "Max Drawdown Pct"
         },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
         "portfolio_agent_id": {
           "title": "Portfolio Agent Id",
           "type": "string"
@@ -105,6 +173,13 @@
           "minimum": 0.0,
           "title": "Risk Score",
           "type": "number"
+        },
+        "risk_score_components": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Risk Score Components",
+          "type": "object"
         },
         "var_95_pct": {
           "anyOf": [
@@ -121,10 +196,12 @@
       },
       "required": [
         "portfolio_agent_id",
+        "method",
+        "category",
         "ex_ante_volatility_pct",
         "ips_compliance",
         "risk_score",
-        "commentary"
+        "judgment"
       ],
       "title": "CroReportBody",
       "type": "object"
@@ -220,7 +297,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "2.0.0",
+          "default": "3.1.0",
           "title": "Schema Version",
           "type": "string"
         },
@@ -368,6 +445,18 @@
       ],
       "title": "ModelCall",
       "type": "object"
+    },
+    "PcCategory": {
+      "description": "Exhibit 5's four families, plus the researcher's own slot (Exhibit 9 lists it as\n\"E: PC-Researcher\").",
+      "enum": [
+        "heuristic",
+        "return_optimized",
+        "risk_structured",
+        "non_traditional",
+        "pc_researcher"
+      ],
+      "title": "PcCategory",
+      "type": "string"
     },
     "Producer": {
       "description": "Who generated a body: deterministic code, an LLM, or both.",

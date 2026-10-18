@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
+import numpy as np
 from pydantic import Field
 
 from saa.config import Config
@@ -28,6 +29,7 @@ from saa.skills.portfolio_construction import (
     METHODS,
     RESEARCH_LIBRARY,
     Candidate,
+    Method,
     StageInputs,
     build_candidate,
 )
@@ -150,6 +152,53 @@ def _fallback(method_id: str, registry: dict) -> ResearchChoice:
     )
 
 
+# Two portfolios this close are the same proposal: a quarter-point of tracking error is below
+# the noise in the covariance estimate, let alone anything a peer reviewer could argue about.
+# Measured: global minimum variance lands 0.11% from hierarchical risk parity once both are
+# pushed to the IPS volatility floor, which a 0.10% threshold let through as "distinct".
+DUPLICATE_TRACKING_ERROR_PCT = 0.25
+
+
+def _duplicate_of(
+    candidate: Candidate, others: dict[str, Candidate], stage: StageInputs
+) -> str | None:
+    """The registry method this portfolio reduces to, measured as tracking error, if any."""
+    ids = stage.asset_ids
+    sigma = stage.covariance.loc[ids, ids].to_numpy(dtype=float)
+    mine = candidate.weights.reindex(ids).fillna(0.0).to_numpy(dtype=float)
+    for other_id, other in others.items():
+        active = mine - other.weights.reindex(ids).fillna(0.0).to_numpy(dtype=float)
+        distance = 100 * float(np.sqrt(max(float(active @ sigma @ active), 0.0)))
+        if distance <= DUPLICATE_TRACKING_ERROR_PCT:
+            return other_id
+    return None
+
+
+def _substituted(
+    choice: ResearchChoice,
+    method: Method,
+    collapsed: Method,
+    duplicate: str,
+    without_model: bool,
+) -> ResearchChoice:
+    """Re-describe the proposal after a library method had to be swapped out."""
+    rebuilt = _fallback(method.id, {})
+    note = (
+        f"{collapsed.name} was proposed first but reduces to the registry's {duplicate} on "
+        f"these inputs once the IPS volatility band binds, so it is not a method the registry "
+        f"fails to span. {method.name} was substituted."
+    )
+    return choice.model_copy(
+        update={
+            "method_id": ResearchMethodId(method.id),
+            "objective": rebuilt.objective,
+            "implementation_notes": rebuilt.implementation_notes,
+            "gap": note if without_model else f"{choice.gap} {note}",
+            "rationale": (rebuilt.rationale if without_model else choice.rationale) + " " + note,
+        }
+    )
+
+
 def research(
     stage: StageInputs,
     config: Config,
@@ -187,6 +236,37 @@ def research(
         log.warning("pc_researcher named methods not in the registry: %s", unknown)
 
     candidate = build_candidate(method, stage, config, agent=AGENT_ID)
+    # §3.4: the proposal must be "a novel method not spanned by the current registry". Once the
+    # IPS binds on candidates (decision 37) a library method can reduce to a registry one --
+    # maximum entropy becomes 1/N whenever equal weight already clears the Sharpe floor -- and
+    # a duplicate portfolio is spanned by definition, however novel the objective sounds. So the
+    # duplicate is reported and the next library method is tried.
+    duplicate = _duplicate_of(candidate, registry_candidates, stage)
+    if duplicate is not None:
+        log.warning(
+            "pc_researcher: %s reduces to %s on these inputs; trying another library method",
+            method.id,
+            duplicate,
+        )
+        alternatives = [m for m in options.values() if m.id != method.id]
+        for alternative in alternatives:
+            try:
+                other = build_candidate(alternative, stage, config, agent=AGENT_ID)
+            except Exception as exc:  # a library method that cannot run here is not a failure
+                log.warning("pc_researcher: %s could not run (%s)", alternative.id, exc)
+                continue
+            if _duplicate_of(other, registry_candidates, stage) is None:
+                # The choice has to describe the method actually used, so the objective and
+                # notes are rebuilt rather than carried over from the method that collapsed.
+                choice = _substituted(choice, alternative, method, duplicate, llm is None)
+                method, candidate = alternative, other
+                break
+        else:
+            log.warning(
+                "pc_researcher: every library method duplicates a registry portfolio; keeping %s",
+                method.id,
+            )
+
     research_body = PcResearchBody(
         method_name=method.name,
         objective=choice.objective,

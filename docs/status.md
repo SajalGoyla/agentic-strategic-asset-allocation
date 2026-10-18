@@ -3,8 +3,10 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-10-08** (project week 5 of 12). Phases 1 and 2 are complete and closed; Phase 3
-(deliberation and the CIO) is next. `main` is the only source of truth.
+**As of 2026-10-16** (project week 7 of 12). Phases 1 and 2 are complete and closed. Phase 3
+is in progress: week 7's half — the CRO agent and the peer-review assignment — is done; the
+review cycle, the Borda vote and the CIO follow in weeks 8-9. `main` is the only source of
+truth.
 
 ## By pipeline stage
 
@@ -26,8 +28,13 @@ item lands; it is the first thing a new session should read after `CLAUDE.md`.
 | 4. PC agents: return-optimized (max Sharpe, Black-Litterman) | Done | Shambhawi |
 | 4. PC agents: risk-structured (risk parity, HRP), non-traditional (CVaR, tail-risk parity) | Done | Sajal |
 | 4. PC agents: researcher, adversarial diversifier | Done | Sajal (for Shambhawi) |
-| 5. CRO, peer review, Borda vote | Not started (weeks 7-8) | both |
-| 6. CIO agent + board memo | Not started (week 9) | Shambhawi |
+| Risk skill (backtest, VaR, drawdown, concentration, risk score) | Done | Sajal |
+| 5. CRO agent (`saa-agent cro`) | Done | Sajal |
+| 5. Peer-review assignment and review prompts (`saa-skill review-assign`) | Done | Shambhawi |
+| 5. Peer-review agent (the reviews themselves) | Not started (week 8) | Shambhawi |
+| 5. PC revision step after the reviews | Not started (week 8) | Sajal |
+| 5. Borda vote, metric blend, diversity rule | Not started (week 8) | Shambhawi |
+| 6. CIO agent + board memo | Not started (week 9) | both |
 | Backtest, stress tests, visualisation | Not started (weeks 10-12) | both |
 
 **Milestone M1 (data and macro layer live, week 3): met.**
@@ -120,20 +127,209 @@ the risk methods (still 1.6-5.7% volatility, now in short Treasuries).
 | Question | Who decides | Blocks |
 |---|---|---|
 | IPS ratification as a whole (`status: draft` today) | Prof. Glasserman | Nothing yet; every header records the draft status |
-| Should exceeding the return target really disqualify a portfolio? | Prof. Glasserman | CRO agent, week 7 |
+| Should exceeding the return target really disqualify a portfolio? | Prof. Glasserman | Nothing: the ceiling is soft pending his ruling (decision 39). Hard, it disqualifies 13 of 15 for being too profitable |
+| Confirm the IPS's ex-ante limits should bind on each candidate, not just the CIO (decision 37) | Prof. Glasserman | Nothing; adopted and measured, to be confirmed |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
 | Confirm that "hard" means hard on the CIO's recommendation, not on each candidate (decision 32) | Prof. Glasserman | Nothing; adopted, to be confirmed |
 
+## Phase 3 progress (2026-10-16, week 7)
+
+Week 7 of the plan: the CRO agent, and the peer-review assignment with its prompt templates.
+Both are in; the review cycle itself, the vote and the CIO are weeks 8 and 9.
+
+- **Risk skill** (`skills/risk/`) computes everything §3.5 asks a risk report to cover:
+  ex-ante volatility and tracking error from the covariance matrix; backtest volatility,
+  Sharpe, monthly 95% VaR and CVaR and maximum drawdown from holding the proposed weights
+  through the 1993-06 panel with quarterly rebalancing; Meucci effective N and the Herfindahl
+  index; active weight by asset-class group plus realised benchmark beta; and IPS compliance
+  through the same `check_compliance` the proposal already ran. Two conventions the paper
+  leaves open are fixed here: VaR is **monthly**, stated as a loss (it can legitimately be
+  negative — a cash-heavy portfolio's fifth-percentile month is a gain), and drawdown is
+  negative, so it compares directly with the IPS limit.
+- **CRO agent** (`saa-agent cro`) writes one `cro_report.json` per candidate. It has no ballot
+  in its contract and sees one portfolio per call, which is how §3.5's "neutral assessor ...
+  does not vote" is enforced rather than prompted. The **risk score is script-computed**
+  (decision 34) — a fixed five-component formula against the IPS limits — so 15 candidates are
+  scored on one ruler and the number can be re-derived; the model writes the reading of it.
+- **Peer-review assignment** (`saa-skill review-assign`) pairs every agent with one
+  intra-category and one inter-category peer, seeded from the run id so the pairing reproduces
+  from the run's name alone. Reviews are **balanced** (every proposal gets exactly two on the
+  15-agent roster) and a **one-member family substitutes** a second inter-category review, both
+  recorded rather than silent (decision 35). `templates.py` holds the two review prompts, which
+  are the paper's own account of why each pairing exists: intra-category audits the execution,
+  inter-category attacks the premise.
+- Schema 3.0.0: `cro_report` gained a nested `CroJudgment` and lost its flat `commentary`
+  (decision 36).
+
+### What the CRO run showed: the drawdown limit binds too
+
+The free run over all 15 candidates (`--no-llm`, auto-blend CMAs, run `20261006T000000Z`) adds
+the one hard limit the PC stage could not evaluate — realised drawdown needs the weights held
+through history. **14 of 15 now fail the IPS, and only the PC-researcher's maximum-entropy
+portfolio passes it outright** (8.11% volatility, −24.36% drawdown, 3.94% tracking error).
+
+The three portfolios that cleared the volatility band fail on drawdown instead: equal weight
+8.40% volatility but −26.65%, volatility targeting 8.90% and −28.14%, market-cap weight 11.79%
+and −40.60%. The adversarial diversifier is −53.21%, close to the paper's own −46.3%. The
+paper's own §4.4 portfolio is in the same bind (7.54% volatility, −25.6% drawdown, both just
+outside). None of this changes decision 32: the limits bind on the CIO's recommendation, and an
+ensemble has room a single method does not.
+
+**Corrected 2026-10-18.** An earlier version of this section read the above as the volatility
+band and the drawdown limit leaving "almost no room for a single method". That was an artefact
+of looking only at return-maximising portfolios. Minimising realised drawdown subject to the
+volatility band instead reaches **−12.4% at 8% volatility and −19.0% at 12%** — the two limits
+are jointly satisfiable across the whole band with room to spare. What those portfolios hold is
+another matter (the shallowest 10%-volatility portfolio is 48% gold, which is a statement about
+gold's 1993-2026 path, not a recommendation). The genuinely tight limit is the **return band**,
+and how tight depends on a deflator bug — see "The return target and the inflation deflator"
+below.
+
+### Tuning volatility without leverage (Prof. Glasserman, 2026-10-16)
+
+Asked whether methods have parameters that could be tweaked to raise volatility without
+leverage. Measured on run `20261006T000000Z` — yes, for the families with a return input, and
+the dial is wide:
+
+| Method | As shipped | Parameter | Range it reaches |
+|---|---|---|---|
+| `max_sharpe` | 2.29% vol (tangency) | risk aversion δ in `max w'μ − (δ/2)w'Σw` | 1.86% (δ=40) to 15.58% (δ=1) |
+| `cvar_minimization` | 0.62% vol | the return floor `w'μ ≥ R` in Rockafellar–Uryasev's own formulation | 1.97% (R=5%) to 9.85% (R=8.5%) |
+| `black_litterman`, `resampled_efficient_frontier` | 7.35%, 4.46% | inherit the same mean-variance step | follows `max_sharpe` |
+| `maximum_entropy` | 8.11% | Sharpe floor fraction (0.75 today) | already in the band |
+| risk-structured and the inverse-vol heuristics | 0.65-3.10% | **none** | see below |
+
+The long-only, fully-invested frontier spans 2% to 19.5% volatility, so the band is reachable
+with no leverage at all. Two caveats that matter more than the answer:
+
+- **Tuning *up the frontier* breaks the other two limits.** δ=5 puts `max_sharpe` at 8.44%
+  volatility but at a 4.09% real return (over the CPI+4% ceiling) and a −25.3% drawdown. The
+  frontier's tilt above 8% is equity- and REIT-heavy. The methods should be tuned toward the
+  *band*, not up the frontier.
+- **The risk-structured family has no such parameter, by definition.** §3.4 defines it as
+  optimising "risk metrics without explicit return forecasts", so there is no return side to
+  trade off. Generalising risk parity to group risk budgets was tested: even a 90% equity risk
+  budget reaches only 4.88% volatility, because cash at 0.62% volatility and eight fixed-income
+  classes dominate any equal-risk-contribution solution. The honest options are to run them on a
+  risky sub-universe (tested for cash alone: still 1.6-5.7%, decision 32) or to leave them below
+  the band and let the CIO's ensemble do the work. Decision 32 is therefore load-bearing, not a
+  convenience.
+
+`maximum_diversification`'s 82% cash was checked for a convergence failure and is a genuine
+optimum: diversification ratio 2.056, unbeaten by 4000 random long-only portfolios, against
+1.506 for equal weight ex-cash. Cash is nearly uncorrelated with everything, which is exactly
+what the diversification ratio rewards.
+
+### Getting the candidates inside the IPS — built, 2026-10-18
+
+Twelve of the fifteen methods could not reach the IPS volatility floor on their own, which made
+them unreviewable: a 0.65%-volatility portfolio is not a candidate anyone can weigh against the
+mandate. Three changes, all on `main`'s successor branch.
+
+**The IPS's ex-ante limits now bind on every candidate (decision 37).** Each method is solved
+*subject to* the volatility band and the tracking-error budget, keeping its own objective —
+maximum Sharpe is still the best risk-adjusted portfolio, risk parity still the flattest risk
+contributions, each now over the portfolios policy permits. Closed-form rules and HRP, which
+have no objective to re-run, are projected to the nearest permitted portfolio. The drawdown
+limit is deliberately *not* imposed: constraining a realised drawdown fits weights to the
+1993-2026 path, which is the look-ahead §5.1 warns about. Every adjusted proposal carries
+`policy_adjusted` and `unconstrained_volatility_pct` so a reviewer can tell the method under
+policy from the method unconstrained.
+
+**Two inputs were inconsistent and both decided compliance (decision 38).** The risk-free rate
+is now cash's own CMA rather than the spot T-bill yield — cash *is* the risk-free asset, and the
+two numbers differing (3.73% against 3.97%) gave cash a Sharpe of −0.38 while every risk-based
+method piled into it. And the return test is deflated by expected inflation (T5YIE, 2.41%)
+rather than trailing realised CPI (3.71%), which is what `expected_inflation_pct` was always
+called.
+
+**The return objective's ceiling is now soft, its floor hard (decision 39).** Once the deflator
+was corrected, 13 of 15 candidates forecast more than CPI + 4%, so a hard ceiling disqualified
+almost the whole roster for being too profitable. Both sides are still reported. **Provisional
+— faculty have not ruled on the two-sided reading**; `max_severity: hard` restores it in one
+line.
+
+#### Where that leaves the roster
+
+| | Before | After |
+|---|---|---|
+| inside the 8-12% volatility band | 4 / 15 | **15 / 15** |
+| satisfying every *ex-ante* IPS rule (volatility, tracking error, return floor) | 1 / 15 | **15 / 15** |
+| satisfying all of those **and** the realised drawdown limit | 1 / 15 | **6 / 15** |
+| mean pairwise tracking error across candidates | 4.65% | 4.50% |
+| candidate volatility spread | 0.62-14.99% | 8.00-12.00% |
+
+The nine that still fail do so **only** on drawdown, which is where it should bind: the CIO's
+meta-optimisation over the fifteen reaches **8.00% volatility, −22.6% drawdown, 5.17% real
+return, Sharpe 0.50, 3.48% tracking error, 7.0 effective assets** — fully compliant, from one
+in-sample fit on the recommendation rather than fifteen on the candidates.
+
+The deliberation survives: mean pairwise tracking error barely moves (closest pair 0.35%,
+widest 9.20%), risk parity keeps risk contributions spread 3.21-7.10% around the 5.56% equal
+level on 16 of 18 assets, and the adversarial diversifier is still the furthest from the
+centroid (6.56%) at the top of the band. Shrinking the universe instead was tested and is
+worse: dropping cash leaves the risk-based methods at 2.24-5.66%, and dropping cash, short
+*and* intermediate Treasuries still only gets 5 of 7 into the band.
+
+Two knock-on fixes came with it. §3.4's Sharpe floor is now measured against the best Sharpe
+the IPS *permits* rather than the unconstrained maximum — the unconstrained tangency portfolio
+is 90% short Treasuries at a Sharpe of 0.663, and 75% of that (0.498) is above the 0.505 best
+attainable in the band, so the floor admitted a single portfolio and the adversarial diversifier
+and the maximum-entropy researcher both collapsed onto it. And the PC-researcher now substitutes
+when its method duplicates a registry portfolio, with **mean-downside risk** added to its
+library from Exhibit 5 so it has a genuinely distinct objective to fall back to (decision 40).
+
+### The return target and the inflation deflator
+
+Two problems, and the second is a bug.
+
+**The deflator is wrong.** `gather_inputs` sets `inflation_pct` from trailing 12-month realised
+CPI — 3.71% on this run — and hands it to `check_compliance` as `expected_inflation_pct`. The
+CMAs are 3-year-horizon nominal forecasts (Exhibit 8), so the matching deflator is *expected*
+inflation over that horizon, which the lake already carries: T5YIFR 2.35%, T10YIE 2.38%, T5YIE
+2.41%. A 1.3pp error, and it decides compliance. The field name already says what it should be.
+
+**The two-sided return band is what actually binds, and the deflator decides it.** Taking the
+return-maximising portfolio at each volatility, the volatility range satisfying each limit:
+
+| Limit | Volatilities that satisfy it |
+|---|---|
+| volatility band 8-12% | 8.00-11.75% |
+| drawdown ≥ −25% (return-maximising portfolios) | ≤ 8.25% |
+| return CPI+3-4%, trailing CPI (3.71%) | 6.00-8.00% |
+| return CPI+3-4%, expected inflation (2.40%) | 3.00-5.00% |
+| return CPI+3% **as a floor**, either deflator | 6.00-12.25% / 3.00-12.25% |
+
+Read two-sidedly with the correct deflator, the intersection is **empty**. Read as a floor, it
+is the whole band. Which is the answer to the open question "should exceeding the return target
+disqualify a portfolio?" — if it does, the IPS has no feasible portfolio once the deflator is
+fixed; if the target is a floor, everything works and the binding limits are volatility and
+drawdown, as §4 reads them.
+
+**Also inconsistent: cash's CMA is below the risk-free rate.** `cma.json` gives cash 3.73% while
+every Sharpe ratio in the pipeline uses DTB3 at 3.97%, so cash scores a Sharpe of −0.38. Cash
+*is* the risk-free asset in this universe; two numbers for one thing. The consequence is visible
+in the roster: every return-optimised method treats cash as strictly dominated while every
+risk-based method piles into it. It also inflates short Treasuries to the joint-highest Sharpe
+in the universe (0.33), which is why `max_sharpe` holds 86.5% of them.
+
+One thing not to over-read: ex-ante and backtest volatility agree to within 0.1pp on almost
+every candidate (8.40 vs 8.41, 14.99 vs 15.09). That is not independent confirmation — the
+Ledoit–Wolf matrix is estimated over the same history the backtest runs through. It will stop
+agreeing once the Phase 4 backtest estimates the matrix out of sample.
+
 ## Next, in order
 
-Phase 2 is closed. Phase 3 (weeks 7-9), per the plan:
+Phase 3, weeks 8-9:
 
 1. A first paid run of the CMA judge and the 15 PC agents (`--cap-usd` set), then
-   `saa-skill cma-validate` on the judged CMAs — the inputs every Phase 3 stage reads.
-2. The CRO agent: a risk report per candidate, compliance reported but never disqualifying.
-3. Peer-review assignment (one intra-, one inter-category review each, seeded) and the
-   modified Borda vote with the three-of-four-families diversity rule.
-4. The revision step for the top five.
+   `saa-skill cma-validate` on the judged CMAs, then the CRO with a model. Everything so far is
+   `--no-llm`: total API spend is still $0.00.
+2. The peer-review agent: run the 30 assignments, write `peer_review-<reviewed>.json`, with the
+   seed in every header.
+3. The revision step for the top five, after the reviews and the CRO report.
+4. The modified Borda vote: ballots, the metric blend with its regime-dependent weight, and the
+   three-of-four-families diversity rule on the shortlist.
 5. The CIO: the ensemble techniques, including a meta-optimisation constrained to the IPS, the
    six-dimension score, and the board memo. Only a compliant ensemble may be recommended.
 6. Wiring: point the macro agent at `RunContext`, then a single `saa-run` command.

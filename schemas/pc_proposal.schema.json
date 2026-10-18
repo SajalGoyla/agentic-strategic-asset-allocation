@@ -91,7 +91,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "2.0.0",
+          "default": "3.1.0",
           "title": "Schema Version",
           "type": "string"
         },
@@ -314,6 +314,11 @@
           "default": null,
           "title": "Notes"
         },
+        "policy_adjusted": {
+          "default": false,
+          "title": "Policy Adjusted",
+          "type": "boolean"
+        },
         "rationale": {
           "title": "Rationale",
           "type": "string"
@@ -333,6 +338,18 @@
         "sharpe_ratio": {
           "title": "Sharpe Ratio",
           "type": "number"
+        },
+        "unconstrained_volatility_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unconstrained Volatility Pct"
         },
         "weights": {
           "additionalProperties": {
