@@ -127,10 +127,8 @@ the risk methods (still 1.6-5.7% volatility, now in short Treasuries).
 | Question | Who decides | Blocks |
 |---|---|---|
 | IPS ratification as a whole (`status: draft` today) | Prof. Glasserman | Nothing yet; every header records the draft status |
-| Should exceeding the return target really disqualify a portfolio? | Prof. Glasserman | Nothing: the ceiling is soft pending his ruling (decision 39). Hard, it disqualifies 13 of 15 for being too profitable |
-| Confirm the IPS's ex-ante limits should bind on each candidate, not just the CIO (decision 37) | Prof. Glasserman | Nothing; adopted and measured, to be confirmed |
+| Note to faculty: the return objective is now a floor only, CPI + 3% (decision 41), not the paper's 3-4% band | Prof. Glasserman (FYI) | Nothing; adopted |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
-| Confirm that "hard" means hard on the CIO's recommendation, not on each candidate (decision 32) | Prof. Glasserman | Nothing; adopted, to be confirmed |
 
 ## Phase 3 progress (2026-10-16, week 7)
 
@@ -243,11 +241,10 @@ method piled into it. And the return test is deflated by expected inflation (T5Y
 rather than trailing realised CPI (3.71%), which is what `expected_inflation_pct` was always
 called.
 
-**The return objective's ceiling is now soft, its floor hard (decision 39).** Once the deflator
-was corrected, 13 of 15 candidates forecast more than CPI + 4%, so a hard ceiling disqualified
-almost the whole roster for being too profitable. Both sides are still reported. **Provisional
-— faculty have not ruled on the two-sided reading**; `max_severity: hard` restores it in one
-line.
+**The return objective is a floor only (decision 41, superseding 39).** Once the deflator was
+corrected, 13 of 15 candidates forecast more than CPI + 4%, so a hard ceiling disqualified
+almost the whole roster for being too profitable. The ceiling is gone: at least CPI + 3%, and
+nothing above it is reported.
 
 #### Where that leaves the roster
 

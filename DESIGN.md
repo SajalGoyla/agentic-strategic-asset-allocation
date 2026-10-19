@@ -125,7 +125,7 @@ live separately from pipeline runs.
 
 ## The IPS
 
-`config/ips.yaml` encodes the paper's three layers — universe, objectives (CPI + 3-4% real,
+`config/ips.yaml` encodes the paper's three layers — universe, objectives (at least CPI + 3% real,
 8-12% volatility, -25% drawdown), and a 6% tracking-error budget against a 60/40 benchmark — as
 machine-readable rules. `ips.check_compliance()` is the single implementation the CRO and CIO
 agents share, so the rules cannot drift apart. Metrics that do not exist yet land in

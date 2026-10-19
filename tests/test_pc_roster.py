@@ -2,6 +2,9 @@
 runs them in. No network and no API key: ``FakeAnthropic`` stands in for the SDK.
 """
 
+import logging
+
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -10,11 +13,68 @@ from saa.agents.pc import agent as pc_agent
 from saa.contracts import read
 from saa.llm import LlmClient
 from saa.run import RunContext
-from saa.skills.portfolio_construction import METHODS, build_candidates
+from saa.skills.portfolio_construction import METHODS, StageInputs, build_candidates
 from tests.test_cma_judge import stage_inputs
 from tests.test_macro_agent import FakeAnthropic
 
 LONG = "The registry has no method that rewards breadth under a return constraint. " * 4
+
+RICH_IDS = [
+    "us_large_cap",
+    "us_small_cap",
+    "intl_developed",
+    "intermediate_treasuries",
+    "ig_corporates",
+    "gold",
+    "cash",
+]
+
+
+def rich_stage_inputs() -> StageInputs:
+    """Seven assets across equity, bonds, gold and cash.
+
+    The three-asset stage the other tests use cannot test the researcher's substitution: pinned
+    to the 8% volatility floor, three assets leave room for essentially one portfolio, so every
+    library method lands on a registry one. Seven leave enough room for the methods to differ,
+    as the real 18 do, while maximum entropy still collapses onto equal weight -- the case the
+    substitution exists for.
+    """
+    vol = np.array([0.15, 0.20, 0.16, 0.065, 0.07, 0.18, 0.006])
+    corr = np.array(
+        [
+            [1.0, 0.85, 0.80, -0.10, 0.30, 0.05, 0.0],
+            [0.85, 1.0, 0.75, -0.15, 0.30, 0.05, 0.0],
+            [0.80, 0.75, 1.0, -0.05, 0.30, 0.10, 0.0],
+            [-0.10, -0.15, -0.05, 1.0, 0.70, 0.20, 0.10],
+            [0.30, 0.30, 0.30, 0.70, 1.0, 0.15, 0.10],
+            [0.05, 0.05, 0.10, 0.20, 0.15, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.10, 0.10, 0.0, 1.0],
+        ]
+    )
+    cov = pd.DataFrame(np.outer(vol, vol) * corr, index=RICH_IDS, columns=RICH_IDS)
+    mu = pd.Series([0.075, 0.09, 0.08, 0.05, 0.055, 0.065, 0.037], index=RICH_IDS)
+    scenarios = pd.DataFrame(
+        np.random.default_rng(3).multivariate_normal(mu / 12, cov.to_numpy() / 12, size=360),
+        columns=RICH_IDS,
+    )
+    benchmark = pd.Series(
+        {"us_large_cap": 0.6, "intermediate_treasuries": 0.3, "ig_corporates": 0.1}
+    )
+    return StageInputs(
+        as_of=pd.Timestamp("2026-10-01").date(),
+        asset_ids=RICH_IDS,
+        covariance=cov,
+        expected_returns=mu,
+        risk_free=0.037,
+        inflation_pct=2.4,
+        market_weights=pd.Series([0.45, 0.06, 0.12, 0.08, 0.06, 0.08, 0.15], index=RICH_IDS),
+        benchmark=benchmark.reindex(RICH_IDS).fillna(0.0),
+        regime="expansion",
+        provenance={},
+        inputs=[],
+        scenario_returns=scenarios,
+        cash_id="cash",
+    )
 
 
 def research_payload(**overrides) -> dict:
@@ -51,7 +111,7 @@ def test_researcher_without_a_model_substitutes_when_its_default_is_already_span
     equal weight already clears the Sharpe floor. The researcher then moves down its library
     and says why.
     """
-    stage = stage_inputs(tmp_config)
+    stage = rich_stage_inputs()
     registry, _ = build_candidates(stage, tmp_config)
     outcome = pc_researcher.research(stage, tmp_config, registry, None, ips_status="draft")
 
@@ -68,7 +128,7 @@ def test_researcher_without_a_model_substitutes_when_its_default_is_already_span
 
 
 def test_the_researcher_never_duplicates_a_registry_portfolio(tmp_config):
-    stage = stage_inputs(tmp_config)
+    stage = rich_stage_inputs()
     registry, _ = build_candidates(stage, tmp_config)
     outcome = pc_researcher.research(stage, tmp_config, registry, None, ips_status="draft")
 
@@ -81,6 +141,18 @@ def test_the_researcher_never_duplicates_a_registry_portfolio(tmp_config):
         assert distance > pc_researcher.agent.DUPLICATE_TRACKING_ERROR_PCT, (
             f"the researcher's portfolio is indistinguishable from {agent_id}"
         )
+
+
+def test_when_every_library_method_is_spanned_the_default_stays_and_says_so(tmp_config, caplog):
+    """Three assets pinned to the volatility floor leave room for essentially one portfolio, so
+    every library method duplicates a registry one. The researcher then keeps its choice rather
+    than fail the stage, and logs it; the peer review sees a proposal it can call redundant."""
+    stage = stage_inputs(tmp_config)
+    registry, _ = build_candidates(stage, tmp_config)
+    with caplog.at_level(logging.WARNING, logger="saa.agents.pc_researcher.agent"):
+        outcome = pc_researcher.research(stage, tmp_config, registry, None, ips_status="draft")
+    assert outcome.research.method_name.startswith("Maximum entropy")
+    assert "every library method duplicates a registry portfolio" in caplog.text
 
 
 def test_researcher_runs_the_method_the_model_chose(tmp_config):

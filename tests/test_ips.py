@@ -67,7 +67,7 @@ def rules(report):
 # --------------------------------------------------------------------------- policy loading
 def test_ips_loads_and_matches_the_paper(ips):
     assert ips.objectives.return_.min_pct == 3.0
-    assert ips.objectives.return_.max_pct == 4.0
+    assert not hasattr(ips.objectives.return_, "max_pct"), "a floor only (decision 41)"
     assert (ips.objectives.volatility.min_pct, ips.objectives.volatility.max_pct) == (8.0, 12.0)
     assert ips.objectives.max_drawdown.limit_pct == -25.0
     assert ips.active_risk.tracking_error.max_ex_ante_pct == 6.0
@@ -222,20 +222,14 @@ def test_every_ips_limit_is_hard(ips, universe):
     assert report.compliant is False
 
 
-def test_the_return_target_is_reported_on_both_sides_but_only_binds_below(ips, universe):
-    """The floor is a breach of policy; exceeding the objective is recorded, not a breach.
-
-    Both sides are reported -- a board memo should say when a portfolio is forecast to overshoot
-    its mandate. Only the floor disqualifies (decision 39): once the CMAs are deflated by
-    expected inflation rather than trailing CPI, 14 of the 15 candidates forecast more than
-    CPI + 4%, and a hard ceiling would disqualify almost the whole roster for being too
-    profitable. Faculty have not ruled on the two-sided reading; `max_severity: hard` in
-    `config/ips.yaml` restores it in one line if they do.
-    """
+def test_the_return_objective_is_a_floor_with_no_ceiling(ips, universe):
+    """Falling short of CPI + 3% is a breach; earning more is not even reported (decision 41).
+    The paper states a CPI + 3-4% band, but a ceiling disqualified 13 of 15 candidates for
+    being too profitable once the CMAs were deflated by expected inflation."""
     weights = normalised(PAPER_PORTFOLIO)
     over = check_compliance(
         weights,
-        PortfolioMetrics(expected_return_pct=8.0, expected_inflation_pct=2.4),
+        PortfolioMetrics(expected_return_pct=12.0, expected_inflation_pct=2.4),
         ips,
         universe,
     )
@@ -245,13 +239,17 @@ def test_the_return_target_is_reported_on_both_sides_but_only_binds_below(ips, u
         ips,
         universe,
     )
-    for report in (over, under):
-        assert "objectives.return" in rules(report), "both sides are always reported"
-
-    assert {v.rule for v in over.soft} == {"objectives.return"}
-    assert over.compliant is True, "earning more than the objective is not a policy breach"
+    assert "objectives.return" not in rules(over)
+    assert over.compliant is True
     assert {v.rule for v in under.hard} == {"objectives.return"}
-    assert under.compliant is False, "falling short of the objective is"
+    assert under.compliant is False
+
+
+def test_a_return_ceiling_in_the_policy_file_fails_loudly(ips):
+    """Models forbid extra fields: a stale `max_pct` must not be silently ignored."""
+    raw = ips.objectives.return_.model_dump(by_alias=True)
+    with pytest.raises(ValueError, match="max_pct"):
+        type(ips.objectives.return_).model_validate({**raw, "max_pct": 4.0})
 
 
 def test_volatility_band_is_breached_on_both_sides(ips, universe):
@@ -290,7 +288,7 @@ def test_report_serialises_for_agent_output(ips, universe):
 
 
 # ---------------------------------------------------------------------------------- caveat
-def test_the_papers_own_portfolio_breaches_three_of_its_own_limits(ips, universe):
+def test_the_papers_own_portfolio_breaches_two_of_its_own_limits(ips, universe):
     """Ang et al.'s published allocation fails the IPS stated in the same paper.
 
     §4 sets a volatility band of 8-12%, a drawdown limit of -25%, and a target real return of
@@ -306,25 +304,19 @@ def test_the_papers_own_portfolio_breaches_three_of_its_own_limits(ips, universe
     sides and on the backtest as well as ex-ante, and we accept that the paper's own published
     figures would not clear them.
 
-    All three limits are still breached. Two of them disqualify: the paper's portfolio is below
-    the volatility floor and past the drawdown limit. The third, its 4.37% real return against
-    the CPI + 4% ceiling, is now recorded as a soft violation rather than a disqualifying one
-    (decision 39) -- so it is still the clearest illustration that overshooting a return
-    objective is not the same kind of failure as breaching a risk limit.
+    Two limits are breached, and both disqualify: the paper's portfolio is below the volatility
+    floor and past the drawdown limit. The third, its 4.37% real return against
+    the paper's CPI + 4% ceiling, is no longer a breach at all: the objective is a floor only
+    (decision 41), and 4.37% clears CPI + 3%.
 
     Kept as a test because it is the clearest statement of what the CRO agent enforces, and
     because relaxing any of the three should have to change a test that says why.
     """
     report = check_compliance(normalised(PAPER_PORTFOLIO), PAPER_METRICS, ips, universe)
-    assert rules(report) == {
-        "objectives.volatility",
-        "objectives.max_drawdown",
-        "objectives.return",
-    }
+    assert rules(report) == {"objectives.volatility", "objectives.max_drawdown"}
     assert {v.rule for v in report.hard} == {
         "objectives.volatility",
         "objectives.max_drawdown",
     }
-    assert {v.rule for v in report.soft} == {"objectives.return"}
     assert report.compliant is False
     assert "active_risk.tracking_error" not in rules(report)
