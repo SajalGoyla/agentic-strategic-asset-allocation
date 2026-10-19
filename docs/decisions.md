@@ -495,3 +495,20 @@ load rather than being silently ignored. Deviates from the paper's wording; flag
 Decision 37 also stands as the project owner's ruling: the ex-ante limits bind on every
 candidate, which is the reading of faculty's "treat them as hard constraints" (2026-09-25) that
 holds every portfolio the pipeline produces to the policy, not only the final one.
+
+### 42. One six-dimension metric score for the vote and the CIO — settled, 2026-10-19
+§3.5's vote blends Borda points with "a quantitative metric score (a weighted composite of
+backtest Sharpe, IPS compliance, diversification, regime fit, estimation risk, and CMA
+utilization)", and §4.4's CIO scores candidates "on six dimensions" -- the same list, with the
+weights 25/15/15/20/15/10. It is computed once, in `skills/method_scoring`, so the vote and the
+CIO cannot score the same portfolio two ways, and it is a script rather than a judgment for the
+reason the CRO's risk score is (decision 34): 15 candidates on one reproducible ruler.
+
+Two choices measured on the 2026-10-01 free run. **Regime fit is relative to the roster**: in
+past expansion months every candidate's Sharpe ratio exceeded 0.8, so an absolute scale gave
+13 of 15 a fit of 1.00; ranked, it spans 0-1 and separates them. **Backtest Sharpe stays
+absolute** (0 → 0, 0.8 → 1), so a score means the same in every run and a weak roster is not
+flattered. **Estimation robustness is a per-method table** from the literature rather than a
+measurement, which would need every optimiser re-run under many perturbed inputs. All
+thresholds are `[proposed]` in `config/method_scoring.yaml`, to calibrate after the first paid
+run. On the free run the composites span 0.40-0.71 (the paper's metric scores span 0.20-0.55).

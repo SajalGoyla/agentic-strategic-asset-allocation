@@ -1,0 +1,73 @@
+# The six-dimension metric score of every candidate portfolio (Ang et al. 2026 §3.5, §4.4).
+#
+# The paper uses one rubric twice: the vote's "quantitative metric score (a weighted composite
+# of backtest Sharpe, IPS compliance, diversification, regime fit, estimation risk, and CMA
+# utilization)" (§3.5), and the CIO's "six dimensions -- backtest Sharpe (25%), IPS compliance
+# (15%), diversification (15%), regime fit (20%), estimation robustness (15%), and CMA
+# utilization (10%)" (§4.4). The weights live in `saa.contracts.cio.SCORE_WEIGHTS`, which the
+# contract validates against; this file holds how each dimension is measured.
+#
+# Provenance tags, as in ips.yaml and cma.yaml:
+#   [paper]      Ang, Azimbayev & Kim (2026)
+#   [literature] a published source, named inline
+#   [proposed]   ours -- calibrate after the first paid run; the tests do not pin these values
+
+# Sharpe ratio -> score, linearly between the two anchors and clipped to [0, 1]. Absolute rather
+# than ranked within the run, so a score means the same thing in every run and a roster of weak
+# portfolios is not flattered by ranking [proposed]. Used by backtest_sharpe and regime_fit.
+sharpe_anchors: [0.0, 0.8]
+
+ips_compliance:
+  # Each hard breach costs between `hard_min` and `hard_max`, by how far past the limit it is:
+  # an overshoot of `tolerance_fraction` of the limit or more costs the full `hard_max`. A
+  # drawdown of -26% against -25% is a near miss; -53% is not [proposed].
+  hard_min: 0.25
+  hard_max: 0.5
+  tolerance_fraction: 0.2
+  soft: 0.1
+
+regime_fit:
+  # Months of backtest history in the current regime needed to measure fit; below this the
+  # prior table is used and the score says so [proposed].
+  min_months: 24
+  # Fallback prior by family and regime. §4.3: in a late-cycle regime with "relatively large
+  # uncertainty on the expected returns ... methods that rely primarily on the covariance
+  # structure and not the CMAs are preferred" [paper, direction]; the levels are [proposed].
+  prior:
+    expansion: {heuristic: 0.6, return_optimized: 0.75, risk_structured: 0.5, non_traditional: 0.45, pc_researcher: 0.5}
+    late_cycle: {heuristic: 0.6, return_optimized: 0.4, risk_structured: 0.75, non_traditional: 0.6, pc_researcher: 0.5}
+    recession: {heuristic: 0.55, return_optimized: 0.3, risk_structured: 0.75, non_traditional: 0.8, pc_researcher: 0.5}
+    recovery: {heuristic: 0.65, return_optimized: 0.75, risk_structured: 0.5, non_traditional: 0.4, pc_researcher: 0.5}
+
+# How little a method's weights depend on noisy estimates, 0-1. A judgment per method rather than
+# a measurement: measuring it means re-running every optimiser under many perturbed inputs.
+# Ordering follows the literature [literature: DeMiguel, Garlappi and Uppal 2009 (1/N estimates
+# nothing); Michaud 1989 (mean-variance "maximises estimation error"); Lopez de Prado 2016 (HRP
+# needs no matrix inversion)]; the levels are [proposed].
+estimation_robustness:
+  by_method:
+    equal_weight: 1.0
+    market_cap_weight: 0.95
+    inverse_volatility: 0.9
+    volatility_targeting: 0.9
+    inverse_variance: 0.85
+    hierarchical_risk_parity: 0.8
+    risk_parity: 0.75
+    tail_risk_parity: 0.65
+    black_litterman: 0.6
+    maximum_diversification: 0.6
+    resampled_efficient_frontier: 0.55
+    cvar_minimization: 0.55
+    adversarial_diversifier: 0.3
+    max_sharpe: 0.2
+    # Researcher library methods, used for the researcher's portfolio by the method it ran.
+    maximum_entropy: 0.6
+    global_minimum_variance: 0.5
+    mean_downside_risk: 0.4
+  default: 0.5
+
+cma_utilization:
+  # Half the score is whether the method reads the CMAs at all, half how far its weights lean
+  # toward the assets the CMAs favour: the rank correlation between its active weights (against
+  # equal weight) and each asset's CMA Sharpe ratio, mapped from [-1, 1] to [0, 1] [proposed].
+  uses_cmas_share: 0.5

@@ -34,6 +34,7 @@ uv run saa-skill cma-methods              # every CMA candidate per asset -> cma
 uv run saa-skill signals                  # asset-level macro/technical/valuation signals
 uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
 uv run saa-skill review-assign --run-id <run> # seeded peer-review pairing (§3.5)
+uv run saa-skill method-scores --run-id <run> # six-dimension score: vote + CIO (§4.4)
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
 uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
@@ -45,7 +46,7 @@ uv run saa-contracts                      # regenerate schemas/ after changing a
 
 ```
 config/       universe.yaml (18 assets) · macro_series.yaml (62 FRED series) · ips.yaml
-              macro_scoring.yaml · signals.yaml · data_sources.yaml · cma_inputs.yaml
+              macro_scoring.yaml · signals.yaml · data_sources.yaml · cma_inputs.yaml · method_scoring.yaml
               cma.yaml · cma_validation.yaml · wrds.yaml
 src/saa/
   config.py   loads and cross-validates every config file; `load_config()`
@@ -57,6 +58,7 @@ src/saa/
               aggregates) · validation.py · pipeline.py
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/
               cma_methods/ · signals/ · portfolio_construction/ · risk/ · peer_review/
+              method_scoring/
   agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/
               (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
