@@ -100,6 +100,15 @@ def main(argv: list[str] | None = None) -> int:
     ra.add_argument(
         "--seed", type=int, help="override the seed derived from the run id (§3.5 records it)"
     )
+
+    ms = sub.add_parser("method-scores", help="six-dimension metric score per candidate (§4.4)")
+    ms.add_argument("--run-id", required=True, help="the run holding proposals and CRO reports")
+    ms.add_argument("--run-dir", help="override the run directory entirely")
+    ms.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    ms.add_argument(
+        "--regime-history",
+        help="regime_history.json from a macro-agent run (default: score the history now)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(
@@ -238,6 +247,23 @@ def main(argv: list[str] | None = None) -> int:
         report = render_assignments(plan, as_of=run.as_of, run_id=run.run_id)
         print(report)
         print(f"Report: {run.write_report(report, PEER_REVIEW_REPORT)}")
+
+    if args.command == "method-scores":
+        from saa.skills.covariance import regime_labels_from
+        from saa.skills.method_scoring import render_report, run_method_scoring, write_report
+
+        run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+        store = DataStore(config)
+        if args.regime_history:
+            labels = regime_labels_from(args.regime_history)
+        else:
+            from saa.agents.macro.agent import load_scoring_config
+            from saa.skills.macro_regime import score_history
+
+            labels = score_history(store, load_scoring_config(config), as_of=run.as_of).regimes
+        result = run_method_scoring(run, store, config=config, regime_labels=labels)
+        print(render_report(result).split("## Inputs")[0])
+        print(f"Report: {write_report(result, run)}")
     return 0
 
 

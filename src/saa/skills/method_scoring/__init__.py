@@ -1,0 +1,51 @@
+"""Method-scoring skill: the six-dimension metric score the vote and the CIO share (§3.5, §4.4)."""
+
+from saa.skills.method_scoring.analysis import (
+    REPORT,
+    load_cro_reports,
+    load_proposals,
+    run_method_scoring,
+    write_report,
+)
+from saa.skills.method_scoring.scoring import (
+    DIMENSIONS,
+    RegimeFit,
+    ScoreDetail,
+    ScoringResult,
+    ScoringSettings,
+    cma_alignment,
+    diversification_score,
+    ips_compliance_score,
+    load_scoring_settings,
+    method_id_of,
+    regime_fit,
+    relative_regime_fit,
+    render_report,
+    score_candidate,
+    score_candidates,
+    sharpe_to_score,
+)
+
+__all__ = [
+    "DIMENSIONS",
+    "REPORT",
+    "RegimeFit",
+    "ScoreDetail",
+    "ScoringResult",
+    "ScoringSettings",
+    "cma_alignment",
+    "diversification_score",
+    "ips_compliance_score",
+    "load_cro_reports",
+    "load_proposals",
+    "load_scoring_settings",
+    "method_id_of",
+    "regime_fit",
+    "relative_regime_fit",
+    "render_report",
+    "run_method_scoring",
+    "score_candidate",
+    "score_candidates",
+    "sharpe_to_score",
+    "write_report",
+]
