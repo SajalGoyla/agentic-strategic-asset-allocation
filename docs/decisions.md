@@ -258,7 +258,11 @@ ratio outside [-0.1, 0.8], equities more than 3pp from the paper's judge value, 
 return-risk rank correlation below 0.3 across the 18. All thresholds are tagged [proposed] in
 `config/cma_validation.yaml`; revisit after the first judged run.
 
-### 32. IPS limits bind on the CIO's recommendation, not on each candidate — settled, 2026-10-08
+### 32. IPS limits bind on the CIO's recommendation, not on each candidate — superseded in part by 37, 2026-10-08
+**Superseded for the ex-ante limits by decision 37:** the volatility band and the tracking-error
+budget now bind on every candidate. What still stands: the drawdown limit binds only on the
+CIO's recommendation, and the CIO may recommend only a compliant portfolio.
+
 With the full roster, 10 of 11 candidate portfolios break the IPS, mostly by sitting below the
 8% volatility floor: every risk-based method concentrates in cash (0.6% volatility), and with no
 leverage a low-risk mix cannot be scaled up to the band. The paper never asks candidates to
@@ -434,7 +438,7 @@ objective states. `expected_inflation_series: T5YIE` in `config/ips.yaml` names 
 `inflation_series` stays as the index the objective is *stated* against. Trailing CPI is the
 fallback and only the fallback, which a backtest before TIPS breakevens begin in 2003 needs.
 
-### 39. The return objective's floor is hard, its ceiling soft — settled (provisional), 2026-10-18
+### 39. The return objective's floor is hard, its ceiling soft — superseded by 41, 2026-10-18
 Faculty answered "treat them as hard constraints" about IPS adherence in general (2026-09-25).
 `config/ips.yaml` already flagged the two-sided consequence as "worth confirming": a portfolio
 forecast to earn *more* than CPI + 4% was disqualified as surely as one forecast to earn less.
@@ -476,3 +480,18 @@ trades return against downside risk: the registry's CVaR minimisation and tail-r
 measure downside risk without trading it off against return, and it does not collapse toward
 the minimum-variance corner. Decision 33 left it out of the registry as overlapping; as a
 researcher-library method it is the one that keeps the researcher's slot distinct.
+
+### 41. The return objective is a floor only — settled, 2026-10-19
+Decision 39 made the CPI + 4% ceiling soft. The project owner removed it instead (2026-10-19):
+the objective is now "at least CPI + 3%", with no upper limit, reported or binding. A soft
+ceiling would still put a violation on 13 of 15 candidates' reports and in the board memo, for
+forecasting more return than the objective at the same risk -- noise a reviewer has to read
+past, about the one outcome no investor objects to. The paper states CPI + 3-4%; its band is
+narrower than the 1.3pp the deflator choice alone moves every candidate (decision 38), and far
+narrower than the estimation error in a 3-year CMA. Falling short of the floor is still a hard
+breach. `ReturnObjective` forbids extra fields, so a stale `max_pct` in a policy file fails to
+load rather than being silently ignored. Deviates from the paper's wording; flagged for faculty.
+
+Decision 37 also stands as the project owner's ruling: the ex-ante limits bind on every
+candidate, which is the reading of faculty's "treat them as hard constraints" (2026-09-25) that
+holds every portfolio the pipeline produces to the policy, not only the final one.

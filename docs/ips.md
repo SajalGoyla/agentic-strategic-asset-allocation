@@ -52,16 +52,16 @@ in force, and there is a test covering both paths.
 
 | Objective | Value | Source |
 |---|---|---|
-| Target real return | CPI + 3.0–4.0% | paper §4 |
+| Target real return | at least CPI + 3.0% (no ceiling) | paper §4; ceiling removed, decision 41 |
 | Expected volatility | 8–12% | paper §4 |
 | Maximum drawdown | −25% peak-to-trough | paper §4 |
 | CMA horizon | 3 years, nominal | paper Exhibit 8 |
 
 **Every limit is hard.** Asked how strictly the pipeline should adhere to the IPS limits,
-faculty answered "treat them as hard constraints" (2026-09-25). That includes the return
-target, which binds from above as well as below — a portfolio forecast to earn more than
-CPI + 4% is disqualified as surely as one forecast to earn less. Worth confirming at a
-touchpoint, since a return target is arguably different in kind from a risk limit.
+faculty answered "treat them as hard constraints" (2026-09-25). The return objective is a
+**floor only**: earning less than CPI + 3% is a breach; earning more is not, and is not reported
+(decision 41). The paper states a CPI + 3–4% band, but a ceiling disqualified 13 of 15
+candidates for being too profitable once the CMAs were deflated by expected inflation.
 
 ### Layer 3 — Active risk
 
@@ -130,7 +130,8 @@ is null.
 Encoding §4 faithfully disqualifies the allocation the same paper publishes in §4.4. The final
 portfolio has expected volatility of **7.54%** against a band of 8–12%, a backtest maximum
 drawdown of **−25.6%** against a −25% limit, and an expected real return of **4.37%** (6.87%
-nominal against the §4.1 CPI reading of 2.4%) against a 3–4% target band. Only tracking error —
+nominal against the §4.1 CPI reading of 2.4%) against the paper's 3–4% target band — which,
+with our floor-only objective (decision 41), would now pass. Only tracking error —
 2.41% against a 6% budget — sits comfortably inside.
 
 Faculty, 2026-09-25: *"Those look like cases of bad rounding. Let's treat them as hard

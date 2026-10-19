@@ -25,7 +25,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 if TYPE_CHECKING:  # pragma: no cover - import cycle guard; annotations are lazy
     from saa.config import Universe
@@ -75,27 +75,22 @@ class UniversePolicy(BaseModel):
 
 
 class ReturnObjective(BaseModel):
+    """A floor on expected real return. There is no ceiling (decision 41): the paper states a
+    CPI + 3-4% band, but earning more than the objective is not a breach of policy, and a hard
+    ceiling disqualified 13 of 15 candidates for being too profitable."""
+
+    model_config = ConfigDict(extra="forbid")
+
     type: Literal["real_cpi_plus"]
     min_pct: float
-    max_pct: float
-    # The index the objective is stated against ("CPI + 3-4%").
+    # The index the objective is stated against ("CPI + 3%").
     inflation_series: str
     # The series used to *deflate* the CMAs, which are nominal forecasts over the CMA horizon
     # (decision 38). A market breakeven rate observes expected inflation directly; trailing
     # realised CPI is a different quantity and is only the fallback. None restores that
     # fallback, which is what a backtest before 2003 has to use.
     expected_inflation_series: str | None = None
-    # `severity` governs the floor (earning too little). The ceiling is separate because they
-    # are different claims: falling short of the objective is a breach of policy, while
-    # exceeding it is not, and the IPS flags the two-sided reading as unconfirmed (decision 39).
     severity: Severity = SOFT
-    max_severity: Severity = HARD
-
-    @model_validator(mode="after")
-    def _ordered(self) -> ReturnObjective:
-        if self.min_pct > self.max_pct:
-            raise ValueError(f"return target min {self.min_pct} exceeds max {self.max_pct}")
-        return self
 
 
 class VolatilityObjective(BaseModel):
@@ -385,15 +380,6 @@ def _check_objectives(metrics: PortfolioMetrics, ips: IPS, report: ComplianceRep
                 f"expected real return {real:.2f}% is below the CPI + {target.min_pct:.1f}% target",
                 observed=real,
                 limit=target.min_pct,
-            )
-        elif real > target.max_pct + _TOL:
-            report.add(
-                "objectives.return",
-                target.max_severity,
-                f"expected real return {real:.2f}% is above the CPI + "
-                f"{target.max_pct:.1f}% target band",
-                observed=real,
-                limit=target.max_pct,
             )
 
     vol = ips.objectives.volatility

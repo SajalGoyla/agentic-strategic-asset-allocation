@@ -60,7 +60,7 @@ those are projected to the nearest permitted portfolio by weight distance.
 | volatility band | from the covariance matrix the method already used; no new information |
 | tracking-error budget | likewise |
 | **not** the drawdown limit | constraining a *realised* drawdown fits the weights to the 1993-2026 path, the look-ahead §5.1 warns about. The CRO measures it; it binds on the CIO (decision 32) |
-| **not** the return objective | reported, and its ceiling is soft (decision 39) |
+| **not** the return objective | a floor only (CPI + 3%), reported, never imposed (decision 41) |
 
 A method already inside the limits is returned untouched — the band is a limit, not a target.
 When one is adjusted, the proposal carries `policy_adjusted` and `unconstrained_volatility_pct`
