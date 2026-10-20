@@ -188,7 +188,7 @@ def test_a_revision_that_ignores_a_review_is_refused(voted_run):
         {"revise": False, "response_to_reviews": responses(run, a), "rationale": "R" * 220}
         for a in shortlist[1:]
     ]
-    llm = LlmClient(FakeAnthropic(payloads))
+    llm = LlmClient(FakeAnthropic(payloads), max_retries=0)
     result = run_revisions(run, None, config=cfg, llm=llm, stage=stage, workers=1)
     assert list(result.skipped) == [shortlist[0]]
     assert "no response to the review" in result.skipped[shortlist[0]]

@@ -155,7 +155,7 @@ def test_a_thin_or_weakness_free_review_is_refused(reviewed_run, tmp_config):
     run, stage, _ = reviewed_run
     n = 2 * len(pc_agent.ROSTER)
     payloads = [judgment_payload(rationale="Fine.")] + [judgment_payload() for _ in range(n)]
-    llm = LlmClient(FakeAnthropic(payloads))
+    llm = LlmClient(FakeAnthropic(payloads), max_retries=0)
     result = run_peer_reviews(run, None, config=tmp_config, llm=llm, stage=stage, workers=1)
     assert len(result.skipped) == 1
     assert "too thin" in next(iter(result.skipped.values()))

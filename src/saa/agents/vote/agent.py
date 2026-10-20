@@ -232,18 +232,22 @@ def cast(
         call = None
     else:
         model = ballot_model(voter, [a for a in proposals if a != voter])
+
+        def check(judgment) -> None:
+            if len(judgment.rationale) < MIN_RATIONALE_CHARS:
+                raise ValueError(
+                    f"{voter}: ballot rationale is {len(judgment.rationale)} characters, too "
+                    f"thin to explain a ranking (minimum {MIN_RATIONALE_CHARS})"
+                )
+
         result = llm.judge(
             model,
             system=system,
             prompt=build_prompt(voter, proposals, ips_status=ips_status),
             tier=Tier.FLAGSHIP,
+            check=check,
         )
         judgment, call = result.value, result.call
-        if len(judgment.rationale) < MIN_RATIONALE_CHARS:
-            raise ValueError(
-                f"{voter}: ballot rationale is {len(judgment.rationale)} characters, too thin "
-                f"to explain a ranking (minimum {MIN_RATIONALE_CHARS})"
-            )
     body = VoteBody(
         voter_agent_id=voter,
         top_five=[str(a) for a in judgment.top_five],

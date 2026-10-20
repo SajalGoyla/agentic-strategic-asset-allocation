@@ -122,6 +122,19 @@ def test_a_contract_violation_is_fed_back_and_retried():
     assert "did not satisfy the output contract" in feedback and "[0, 1]" in feedback
 
 
+def test_an_agent_check_is_fed_back_and_retried():
+    def check(verdict: Verdict) -> None:
+        if not verdict.note or len(verdict.note) < 10:
+            raise ValueError("note is too thin to review")
+
+    llm, http, _ = client(
+        [ok('{"score": 0.5, "note": "..."}'), ok('{"score": 0.5, "note": "a real, long note"}')]
+    )
+    result = llm.judge(Verdict, system="s", prompt="p", check=check)
+    assert result.attempts == 2 and result.value.note == "a real, long note"
+    assert "too thin to review" in http.payloads[1]["messages"][-1]["content"]
+
+
 def test_a_reply_that_is_not_json_is_retried_then_refused():
     llm, _, _ = client([ok("I think 0.5."), ok("still prose"), ok("no")], max_retries=2)
     with pytest.raises(ValueError, match="not valid JSON"):

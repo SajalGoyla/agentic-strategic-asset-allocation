@@ -302,8 +302,14 @@ class LlmClient:
         effort: str = "high",
         max_tokens: int = DEFAULT_MAX_TOKENS,
         cache_system: bool = True,
+        check: Callable[[Any], None] | None = None,
     ) -> Judgment:
         """Ask for one judgment, constrained to ``output_format`` and validated on return.
+
+        ``check`` is an agent's own rule beyond the contract (a rationale long enough to
+        review, a response to every reviewer). It raises ``ValueError``, and the message is fed
+        back for a retry like a contract violation: a weak model's placeholder answer gets a
+        second chance instead of costing the agent its place in the run.
 
         ``system`` is cached on Anthropic: agents that fan out over 18 asset classes or 15
         portfolios resend the same instructions and shared context every time, and cached
@@ -346,6 +352,8 @@ class LlmClient:
                 value = output_format.model_validate(
                     parsed if isinstance(parsed, dict) else parsed.model_dump()
                 )
+                if check is not None:
+                    check(value)
             except (ValidationError, ValueError) as exc:
                 last_error = exc
                 log.warning(

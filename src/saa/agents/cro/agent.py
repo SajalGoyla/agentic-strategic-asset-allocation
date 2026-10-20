@@ -278,18 +278,21 @@ def assess(
     if llm is None:
         return Report(profile=profile, body=body_from(profile, _fallback_judgment(profile)))
 
+    def check(judgment: CroJudgment) -> None:
+        if len(judgment.commentary) < MIN_COMMENTARY_CHARS:
+            raise ValueError(
+                f"{profile.agent_id}: commentary is {len(judgment.commentary)} characters, too "
+                f"thin for a risk report (minimum {MIN_COMMENTARY_CHARS})"
+            )
+
     result = llm.judge(
         CroJudgment,
         system=system,
         prompt=build_prompt(profile, proposal, stage, ips_status=ips_status),
         tier=Tier.FLAGSHIP,
+        check=check,
     )
     judgment: CroJudgment = result.value
-    if len(judgment.commentary) < MIN_COMMENTARY_CHARS:
-        raise ValueError(
-            f"{profile.agent_id}: commentary is {len(judgment.commentary)} characters, too thin "
-            f"for a risk report (minimum {MIN_COMMENTARY_CHARS})"
-        )
     return Report(profile=profile, body=body_from(profile, judgment), call=result.call)
 
 

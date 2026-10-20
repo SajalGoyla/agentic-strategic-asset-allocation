@@ -255,6 +255,23 @@ def revise_agent(
         judgment = fallback_judgment(reviews)
     else:
         model = judgment_model(stage.asset_ids, [r.reviewer_agent_id for r in reviews])
+
+        def check(judgment) -> None:
+            answered = {str(r.reviewer) for r in judgment.response_to_reviews}
+            unanswered = sorted({r.reviewer_agent_id for r in reviews} - answered)
+            if unanswered:
+                raise ValueError(f"{agent_id}: no response to the review by {unanswered}")
+            thin = [
+                str(r.reviewer)
+                for r in judgment.response_to_reviews
+                if len(r.response) < MIN_RESPONSE_CHARS
+            ]
+            if thin or len(judgment.rationale) < MIN_RATIONALE_CHARS:
+                raise ValueError(
+                    f"{agent_id}: revision too thin to audit (responses to {thin}, rationale "
+                    f"{len(judgment.rationale)} characters)"
+                )
+
         result = llm.judge(
             model,
             system=system,
@@ -262,22 +279,9 @@ def revise_agent(
                 proposal, report, reviews, tally, asset_ids=stage.asset_ids, ips_status=ips_status
             ),
             tier=Tier.FLAGSHIP,
+            check=check,
         )
         judgment, call = result.value, result.call
-        answered = {str(r.reviewer) for r in judgment.response_to_reviews}
-        unanswered = sorted({r.reviewer_agent_id for r in reviews} - answered)
-        if unanswered:
-            raise ValueError(f"{agent_id}: no response to the review by {unanswered}")
-        thin = [
-            str(r.reviewer)
-            for r in judgment.response_to_reviews
-            if len(r.response) < MIN_RESPONSE_CHARS
-        ]
-        if thin or len(judgment.rationale) < MIN_RATIONALE_CHARS:
-            raise ValueError(
-                f"{agent_id}: revision too thin to audit (responses to {thin}, rationale "
-                f"{len(judgment.rationale)} characters)"
-            )
 
     levers = judgment.levers()
     candidate = revise(proposal, levers, stage, config)

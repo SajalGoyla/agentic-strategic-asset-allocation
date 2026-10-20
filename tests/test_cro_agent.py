@@ -111,7 +111,9 @@ def test_thin_commentary_is_refused(run_with_proposals, tmp_config):
     run, stage = run_with_proposals
     proposal = cro.load_proposals(run)["equal_weight"]
     profile = cro.profile_proposal(proposal, stage, tmp_config)
-    llm = LlmClient(FakeAnthropic([judgment_payload(commentary="Volatility is 9.1%.")]))
+    llm = LlmClient(
+        FakeAnthropic([judgment_payload(commentary="Volatility is 9.1%.")]), max_retries=0
+    )
     with pytest.raises(ValueError, match="too thin"):
         cro.assess(profile, proposal, stage, llm, ips_status="draft", system="s")
 

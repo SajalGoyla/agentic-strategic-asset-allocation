@@ -215,7 +215,7 @@ def test_a_thin_rationale_is_refused(full_run):
         "invalidation_conditions": ["x"],
         "board_memo": memo_payload(),
     }
-    llm = LlmClient(FakeAnthropic([payload]))
+    llm = LlmClient(FakeAnthropic([payload]), max_retries=0)
     with pytest.raises(ValueError, match="too thin"):
         run_cio(run, None, config=cfg, llm=llm, stage=stage, regime_labels=labels)
 
