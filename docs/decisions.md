@@ -617,3 +617,19 @@ the same reason. An injected Anthropic client always stays on Anthropic, so a dr
 cannot reroute a test; model overrides are scoped to OpenRouter, so a free model id can never
 be sent to Anthropic. `saa-agent llm-check` makes one structured call to confirm the key, the
 model and schema support before a run.
+
+### 48. Gemini as a second dry-run provider, on the same OpenAI-compatible path — settled, 2026-10-20
+OpenRouter's free tier (50 requests a day) stretches a ~100-call run over three or four days,
+and the first dry run spent part of each day on provider errors. The owner's Gemini key has
+per-model free quotas of 15 a minute and 500 a day on Gemini 3.1 Flash Lite, enough for a whole
+run in one sitting. Google serves Gemini through an OpenAI-compatible chat endpoint that takes
+the same `response_format: json_schema`, so `gemini` joins `openrouter` on one code path; an
+`_Endpoint` holds what differs (URL, key, model and pacing variables, the daily-quota hint), and
+the OpenRouter-only fields (`provider`, `plugins`, `usage`) are sent only to OpenRouter. Effort
+goes as `reasoning_effort`, which Gemini maps onto its thinking level. Pacing defaults to 14 a
+minute. Google names its daily quota (`GenerateRequestsPerDayPerProjectPerModel`) rather than
+saying "per-day", and wraps errors in a one-element list; both are handled. Cost is recorded as
+unknown, not zero: a Gemini key can be on a paid tier. Because quotas are per model, the tiers
+may point at two models (`SAA_GEMINI_MODEL_FLAGSHIP` / `_LOW_COST`) to split the load; one model
+for both remains the default, for the reason decision 47 gives.
+

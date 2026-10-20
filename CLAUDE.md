@@ -102,8 +102,9 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 - Skills never call an LLM. If it needs a model, it belongs in an agent.
 - Route by tier (`Tier.FLAGSHIP` for judgment, `Tier.LOW_COST` for formatting) and record every
   call in `header.model_calls`; the project's total API budget is $210–290.
-- Provider is `SAA_LLM_PROVIDER`: `anthropic` (default, paid runs) or `openrouter` (dry runs on
-  free models; `OPENROUTER_API_KEY`, `SAA_OPENROUTER_MODEL`). See `.env.example`.
+- Provider is `SAA_LLM_PROVIDER`: `anthropic` (default, paid runs), or `openrouter` / `gemini`
+  (dry runs on free models; `OPENROUTER_API_KEY` or `GEMINI_API_KEY`, and `SAA_<X>_MODEL`).
+  See `.env.example`.
 - Every agent states in its narrative that the IPS is a draft while `ips.status == "draft"`.
 
 **Code**

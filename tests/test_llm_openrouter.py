@@ -10,6 +10,7 @@ from pydantic import model_validator
 from saa.contracts.asset_class import CmaJudgment
 from saa.contracts.base import Contract, Tier
 from saa.llm import (
+    GEMINI_DEFAULT_MODEL,
     OPENROUTER_DEFAULT_MODEL,
     LlmClient,
     QuotaExhausted,
@@ -28,6 +29,10 @@ def _no_dry_run_env(monkeypatch):
         "SAA_OPENROUTER_MODEL_FLAGSHIP",
         "SAA_OPENROUTER_MODEL_LOW_COST",
         "SAA_OPENROUTER_RPM",
+        "SAA_GEMINI_MODEL",
+        "SAA_GEMINI_MODEL_FLAGSHIP",
+        "SAA_GEMINI_MODEL_LOW_COST",
+        "SAA_GEMINI_RPM",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -66,13 +71,14 @@ class FakeHttp:
         self.responses, self.payloads = list(responses), []
 
     def __call__(self, url, payload):
+        self.url = url
         self.payloads.append(payload)
         return self.responses.pop(0)
 
 
-def client(responses, **kw) -> tuple[LlmClient, FakeHttp, list[float]]:
+def client(responses, provider="openrouter", **kw) -> tuple[LlmClient, FakeHttp, list[float]]:
     http, slept = FakeHttp(responses), []
-    llm = LlmClient(provider="openrouter", http=http, sleep=slept.append, **kw)
+    llm = LlmClient(provider=provider, http=http, sleep=slept.append, **kw)
     llm._pacer.interval = 0.0  # pacing is tested separately
     return llm, http, slept
 
@@ -212,3 +218,49 @@ def test_a_missing_key_is_reported(monkeypatch):
     llm = LlmClient(provider="openrouter")
     with pytest.raises(RuntimeError, match="OPENROUTER_API_KEY"):
         llm.judge(Verdict, system="s", prompt=json.dumps({}))
+
+
+# ---------------------------------------------------------------------------------- gemini
+def test_gemini_gets_the_schema_without_openrouter_only_fields():
+    llm, http, _ = client([ok('{"score": 0.4, "note": null}')], provider="gemini")
+    result = llm.judge(Verdict, system="s", prompt="p", effort="medium")
+    payload = http.payloads[0]
+    assert "generativelanguage.googleapis.com" in http.url
+    assert payload["model"] == GEMINI_DEFAULT_MODEL
+    assert payload["response_format"]["type"] == "json_schema"
+    assert payload["reasoning_effort"] == "medium"
+    assert not {"provider", "plugins", "reasoning", "usage"} & set(payload)
+    assert result.call.cost_usd is None, "a Gemini key may be paid; the cost is not assumed"
+
+
+def test_gemini_tiers_come_from_their_own_variables(monkeypatch):
+    monkeypatch.setenv("SAA_GEMINI_MODEL_FLAGSHIP", "gemini-3.5-flash-lite")
+    monkeypatch.setenv("SAA_GEMINI_MODEL_LOW_COST", "gemini-3.1-flash-lite")
+    llm = LlmClient(provider="gemini", http=FakeHttp([]))
+    assert llm.models == {
+        Tier.FLAGSHIP: "gemini-3.5-flash-lite",
+        Tier.LOW_COST: "gemini-3.1-flash-lite",
+    }
+    assert llm._pacer.interval == pytest.approx(60.0 / 14)
+
+
+def test_googles_daily_quota_stops_the_run():
+    # Google wraps the error in a list and names the quota rather than saying "per-day".
+    body = [
+        {
+            "error": {
+                "code": 429,
+                "message": "Quota exceeded for quota metric 'Generate Content requests' "
+                "(GenerateRequestsPerDayPerProjectPerModel-FreeTier)",
+            }
+        }
+    ]
+    llm, _, _ = client([FakeResponse(429, body)], provider="gemini")
+    with pytest.raises(QuotaExhausted, match="per model"):
+        llm.judge(Verdict, system="s", prompt="p")
+
+
+def test_a_missing_gemini_key_is_reported(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    with pytest.raises(RuntimeError, match="GEMINI_API_KEY"):
+        LlmClient(provider="gemini").judge(Verdict, system="s", prompt="p")
