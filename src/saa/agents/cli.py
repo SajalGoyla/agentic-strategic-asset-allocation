@@ -172,6 +172,17 @@ def _add_cro(sub) -> None:
     )
     rv.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
+    ci = sub.add_parser("cio", help="the recommended allocation and the board memo (stage 6)")
+    ci.add_argument("--run-id", help="the run holding the tally and the revisions", required=True)
+    ci.add_argument("--run-dir", help="override the run directory entirely")
+    ci.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    ci.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="deterministic choice and a templated memo: no API key needed, no spend",
+    )
+    ci.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
 
 def _run_cro(args, config) -> int:
     from saa.agents.cro import render_summary, run_cro, write_summary
@@ -264,6 +275,23 @@ def _run_revise(args, config) -> int:
     return 0 if result.revisions and not result.skipped else 1
 
 
+def _run_cio(args, config) -> int:
+    from saa.agents.cio import render_summary, run_cio
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    store = DataStore(config)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    result = run_cio(
+        run, store, config=config, llm=llm, regime_labels=_regime_labels(store, config, run.as_of)
+    )
+    print(render_summary(result))
+    print(f"  memo     {run.report_path('board_memo.md')}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0
+
+
 def _run_cma_judge(args, config) -> int:
     from saa.agents.cma_judge import render_summary, run_cma_judge, write_summary
     from saa.llm import Budget, LlmClient
@@ -329,6 +357,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_vote(args, config)
     if args.command == "revise":
         return _run_revise(args, config)
+    if args.command == "cio":
+        return _run_cio(args, config)
     return 1
 
 

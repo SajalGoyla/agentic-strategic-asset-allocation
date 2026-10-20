@@ -568,3 +568,30 @@ assets and its own reviewers. Both versions are kept (`pc_proposal-revised.json`
 original), per the contract's `revision_of`. Flagship tier, as the plan routes the revision
 cycle. `--no-llm` keeps every portfolio unchanged and says so, so the CIO reads revised
 proposals uniformly.
+
+### 46. The CIO: compliant ensembles only, breaching ones projected, a stated default — settled, 2026-10-20
+The CIO (§3.6) chooses among the paper's ensemble techniques, built by `skills/ensemble` over
+the fifteen candidates with the shortlisted five's revised proposals in place of their
+originals, each profiled by the CRO's own risk skill. Three choices.
+
+**Only compliant ensembles are offered**, and the model's schema contains no others;
+`CioDecisionBody` still refuses a non-compliant decision, so "non-negotiable" holds twice. The
+registry's judgment schema for `cio_decision` was the whole body; it is now `CioJudgment`
+(ensemble, rationale, dissent, invalidation conditions, memo), with `SCHEMA_VERSION` 3.4.0.
+
+**The drawdown limit binds at the meta-optimisation, and a breaching ensemble is projected.**
+Decision 37 keeps the realised drawdown off the candidates; here it is a constraint, fitted once.
+On the 2026-10-01 free run every averaging ensemble breached by a little -- drawdowns of -25.8%
+to -27.2%, and two at 7.97-7.99% volatility, because averaging portfolios pinned to the 8% floor
+diversifies risk below it -- leaving only two concentrated ensembles (about 5 effective assets)
+compliant. The paper's own chosen ensemble was in the same position (7.54%, -25.6%). Rather than
+force the CIO onto concentration, a breaching ensemble is moved to the nearest compliant
+allocation and kept only if the CRO's quarterly backtest verifies it; all six did, at 13.5-15.7
+effective assets. A projected ensemble is labelled, with its figures before projection, in the
+prompt, the report and the memo.
+
+**The free-run default blends backtest Sharpe with diversification, 25:15**, the weights §4.4
+gives the two dimensions an ensemble has. By Sharpe alone the meta-optimisation (0.69, 4.9
+effective assets) always wins; with the blend the composite-score ensemble (0.63, 15.7) did. The
+free run's recommendation: 7.28% expected return at 8.00% volatility, -23.4% backtest drawdown,
+3.54% tracking error, against the benchmark's 7.18% at 9.37%.

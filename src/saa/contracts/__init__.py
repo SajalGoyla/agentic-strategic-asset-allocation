@@ -50,6 +50,7 @@ from saa.contracts.cio import (
     BoardMemo,
     CioDecision,
     CioDecisionBody,
+    CioJudgment,
     EnsembleMethod,
     MethodScore,
 )
@@ -121,6 +122,7 @@ __all__ = [
     "BoardMemo",
     "CioDecision",
     "CioDecisionBody",
+    "CioJudgment",
     "Cma",
     "CmaBody",
     "CmaJudgment",
