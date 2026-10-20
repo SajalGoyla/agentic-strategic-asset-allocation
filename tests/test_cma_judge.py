@@ -350,7 +350,7 @@ def test_a_thin_rationale_is_rejected(tmp_config):
         "when_preferred": "…",
         "invalidation": "…",
     }
-    llm = LlmClient(FakeAnthropic([payload]))
+    llm = LlmClient(FakeAnthropic([payload]), max_retries=0)
     with pytest.raises(ValueError, match="too thin for peer review"):
         pc_agent.propose(candidates["equal_weight"], stage, llm, ips_status="draft", system="s")
 

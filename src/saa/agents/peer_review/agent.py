@@ -192,14 +192,19 @@ def review(
         cro_report=reports.get(assignment.reviewed),
         reviewer_method=proposals[assignment.reviewer].method,
     )
-    result = llm.judge(ReviewJudgment, system=system, prompt=prompt, tier=Tier.FLAGSHIP)
+
+    def check(judgment: ReviewJudgment) -> None:
+        if len(judgment.rationale) < MIN_RATIONALE_CHARS:
+            raise ValueError(
+                f"{assignment.reviewer} -> {assignment.reviewed}: rationale is "
+                f"{len(judgment.rationale)} characters, too thin for the vote to weigh "
+                f"(minimum {MIN_RATIONALE_CHARS})"
+            )
+
+    result = llm.judge(
+        ReviewJudgment, system=system, prompt=prompt, tier=Tier.FLAGSHIP, check=check
+    )
     judgment: ReviewJudgment = result.value
-    if len(judgment.rationale) < MIN_RATIONALE_CHARS:
-        raise ValueError(
-            f"{assignment.reviewer} -> {assignment.reviewed}: rationale is "
-            f"{len(judgment.rationale)} characters, too thin for the vote to weigh "
-            f"(minimum {MIN_RATIONALE_CHARS})"
-        )
     return Review(assignment=assignment, body=body_from(assignment, judgment), call=result.call)
 
 

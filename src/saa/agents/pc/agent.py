@@ -220,18 +220,21 @@ def propose(
             candidate=candidate, body=candidate.body(_fallback_rationale(candidate, stage))
         )
 
+    def check(answer: Rationale) -> None:
+        if len(answer.rationale) < MIN_RATIONALE_CHARS:
+            raise ValueError(
+                f"{candidate.agent_id}: rationale is {len(answer.rationale)} characters, too "
+                f"thin for peer review (minimum {MIN_RATIONALE_CHARS})"
+            )
+
     result = llm.judge(
         Rationale,
         system=system,
         prompt=build_prompt(candidate, stage, ips_status=ips_status),
         tier=Tier.LOW_COST,
+        check=check,
     )
     answer: Rationale = result.value
-    if len(answer.rationale) < MIN_RATIONALE_CHARS:
-        raise ValueError(
-            f"{candidate.agent_id}: rationale is {len(answer.rationale)} characters, too thin "
-            f"for peer review (minimum {MIN_RATIONALE_CHARS})"
-        )
     notes = (
         f"Key assumption: {answer.key_assumption} "
         f"Main weakness: {answer.main_weakness} "

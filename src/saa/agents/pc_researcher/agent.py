@@ -218,18 +218,22 @@ def research(
             DEFAULT_METHOD if DEFAULT_METHOD in options else next(iter(options)), METHODS
         )
     else:
+
+        def check(choice: ResearchChoice) -> None:
+            if len(choice.rationale) < MIN_RATIONALE_CHARS:
+                raise ValueError(
+                    f"pc_researcher: rationale is {len(choice.rationale)} characters, too thin "
+                    f"for peer review (minimum {MIN_RATIONALE_CHARS})"
+                )
+
         result = llm.judge(
             ResearchChoice,
             system=system_prompt(),
             prompt=build_prompt(stage, registry_candidates, options, ips_status=ips_status),
             tier=Tier.FLAGSHIP,
+            check=check,
         )
         choice, call = result.value, result.call
-        if len(choice.rationale) < MIN_RATIONALE_CHARS:
-            raise ValueError(
-                f"pc_researcher: rationale is {len(choice.rationale)} characters, too thin for "
-                f"peer review (minimum {MIN_RATIONALE_CHARS})"
-            )
     method = options[choice.method_id.value]
     unknown = sorted(set(choice.not_spanned_by) - set(METHODS))
     if unknown:

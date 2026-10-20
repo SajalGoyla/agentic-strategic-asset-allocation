@@ -330,6 +330,14 @@ def run_cio(
             n_candidates=len(candidates),
         )
     else:
+
+        def check(judgment) -> None:
+            if len(judgment.rationale) < MIN_RATIONALE_CHARS:
+                raise ValueError(
+                    f"CIO rationale is {len(judgment.rationale)} characters, too thin to put "
+                    f"before a board (minimum {MIN_RATIONALE_CHARS})"
+                )
+
         result = llm.judge(
             judgment_model(eligible),
             system=system_prompt(),
@@ -342,13 +350,9 @@ def run_cio(
                 ips_status=run.ips_status,
             ),
             tier=Tier.FLAGSHIP,
+            check=check,
         )
         judgment, call = result.value, result.call
-        if len(judgment.rationale) < MIN_RATIONALE_CHARS:
-            raise ValueError(
-                f"CIO rationale is {len(judgment.rationale)} characters, too thin to put before "
-                f"a board (minimum {MIN_RATIONALE_CHARS})"
-            )
         chosen = ensembles[EnsembleMethod(str(judgment.ensemble_method))]
 
     body = decision_body(chosen, judgment, scoring.scores)

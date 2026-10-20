@@ -180,7 +180,7 @@ def test_researcher_can_only_choose_an_implemented_method(tmp_config):
 def test_researcher_rejects_a_thin_rationale(tmp_config):
     stage = stage_inputs(tmp_config)
     registry, _ = build_candidates(stage, tmp_config)
-    llm = LlmClient(FakeAnthropic([research_payload(rationale="Short.")]))
+    llm = LlmClient(FakeAnthropic([research_payload(rationale="Short.")]), max_retries=0)
     with pytest.raises(ValueError, match="too thin"):
         pc_researcher.research(stage, tmp_config, registry, llm, ips_status="draft")
 

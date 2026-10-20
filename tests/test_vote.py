@@ -215,7 +215,7 @@ def test_a_thin_ballot_rationale_is_refused(voting_run):
         {"top_five": [a for a in voters if a != v][:5], "bottom_flag": None, "rationale": "R" * 200}
         for v in voters[1:]
     ]
-    llm = LlmClient(FakeAnthropic(payloads))
+    llm = LlmClient(FakeAnthropic(payloads), max_retries=0)
     result = run_vote(run, None, config=cfg, llm=llm, stage=stage, regime_labels=labels, workers=1)
     assert list(result.skipped) == [voters[0]]
     assert "too thin" in result.skipped[voters[0]]
