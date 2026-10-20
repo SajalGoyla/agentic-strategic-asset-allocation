@@ -366,3 +366,37 @@ def test_the_pc_prompt_frames_the_method_honestly(tmp_config):
     for prompt in (heuristic, optimized):
         assert "main_weakness" in prompt
         assert "IPS compliance" in prompt
+
+
+def test_the_stats_table_reads_the_historical_stats_contract():
+    # Rendered from the real model, so a renamed field fails here and not on a live run.
+    from saa.contracts.asset_class import HistoricalStatsBody, RegimeStats, WindowStats
+
+    stats = HistoricalStatsBody(
+        asset_id="cash",
+        name="Cash",
+        group="cash",
+        ticker="BIL",
+        windows={
+            "10y": WindowStats(
+                window="10y",
+                months=120,
+                sufficient=True,
+                annualized_return_pct=2.1,
+                annualized_volatility_pct=0.5,
+                sharpe_ratio=0.2,
+                max_drawdown_pct=-0.3,
+            )
+        },
+        by_regime=[
+            RegimeStats(
+                regime="late_cycle",
+                months=60,
+                annualized_mean_return_pct=2.4,
+                annualized_volatility_pct=0.4,
+            )
+        ],
+    )
+    table = judge_agent._stats_table(stats)
+    assert "| 10y | 2.10 | 0.50 | 0.20 | -0.30 |" in table
+    assert "| late_cycle | 2.40 | 0.40 | 60 |" in table

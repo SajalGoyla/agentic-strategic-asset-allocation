@@ -148,15 +148,19 @@ def _stats_table(stats: HistoricalStatsBody | None) -> str:
             return "–" if value is None else f"{value:.{places}f}"
 
         lines.append(
-            f"| {name} | {fmt(w.annualized_return)} | {fmt(w.annualized_volatility)} | "
-            f"{fmt(w.sharpe_ratio)} | {fmt(w.max_drawdown)} |"
+            f"| {name} | {fmt(w.annualized_return_pct)} | {fmt(w.annualized_volatility_pct)} | "
+            f"{fmt(w.sharpe_ratio)} | {fmt(w.max_drawdown_pct)} |"
         )
-    by_regime = [r for r in (stats.by_regime or []) if r.annualized_mean_return is not None]
+    by_regime = [r for r in (stats.by_regime or []) if r.annualized_mean_return_pct is not None]
     if by_regime:
         lines += ["", "| regime | mean return % | volatility % | months |", "|---|---|---|---|"]
         for r in by_regime:
-            vol = "–" if r.annualized_volatility is None else f"{r.annualized_volatility:.2f}"
-            lines.append(f"| {r.regime} | {r.annualized_mean_return:.2f} | {vol} | {r.months} |")
+            vol = (
+                "–" if r.annualized_volatility_pct is None else f"{r.annualized_volatility_pct:.2f}"
+            )
+            lines.append(
+                f"| {r.regime} | {r.annualized_mean_return_pct:.2f} | {vol} | {r.months} |"
+            )
     return "\n".join(lines)
 
 

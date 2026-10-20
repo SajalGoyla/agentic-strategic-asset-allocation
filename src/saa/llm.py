@@ -183,10 +183,28 @@ class _Pacer:
             self._sleep(start - now)
 
 
+# Keywords some providers' grammar engines reject outright (NVIDIA: "Unimplemented keys:
+# ["propertyNames"]"). Dropping them only loosens the hint; the contract still validates
+# every reply and feeds a violation back, so a bad key is caught all the same.
+_UNSUPPORTED_KEYWORDS = frozenset({"propertyNames"})
+
+
+def _drop_unsupported(node: Any) -> Any:
+    if isinstance(node, dict):
+        return {
+            key: value if key in ("enum", "const", "default") else _drop_unsupported(value)
+            for key, value in node.items()
+            if key not in _UNSUPPORTED_KEYWORDS
+        }
+    if isinstance(node, list):
+        return [_drop_unsupported(item) for item in node]
+    return node
+
+
 def _strict_schema(output_format: type[Contract]) -> dict[str, Any]:
     from saa.contracts.registry import _require_all_properties
 
-    return _require_all_properties(output_format.model_json_schema())
+    return _drop_unsupported(_require_all_properties(output_format.model_json_schema()))
 
 
 _FENCE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)

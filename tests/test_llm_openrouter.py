@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from pydantic import model_validator
 
+from saa.contracts.asset_class import CmaJudgment
 from saa.contracts.base import Contract, Tier
 from saa.llm import (
     OPENROUTER_DEFAULT_MODEL,
@@ -16,6 +17,19 @@ from saa.llm import (
     resolve_provider,
 )
 from tests.test_macro_agent import FakeAnthropic
+
+
+@pytest.fixture(autouse=True)
+def _no_dry_run_env(monkeypatch):
+    # A developer's .env (loaded by other test modules) must not change what these assert.
+    for name in (
+        "SAA_LLM_PROVIDER",
+        "SAA_OPENROUTER_MODEL",
+        "SAA_OPENROUTER_MODEL_FLAGSHIP",
+        "SAA_OPENROUTER_MODEL_LOW_COST",
+        "SAA_OPENROUTER_RPM",
+    ):
+        monkeypatch.delenv(name, raising=False)
 
 
 class Verdict(Contract):
@@ -78,6 +92,16 @@ def test_the_request_constrains_the_output_to_the_contract_in_strict_mode():
     assert schema["additionalProperties"] is False
     assert payload["provider"] == {"require_parameters": True}
     assert {"id": "response-healing"} in payload["plugins"]
+
+
+def test_keywords_a_provider_rejects_are_dropped_from_the_schema():
+    # The CMA judge's method_weights is a dict keyed by method id -> "propertyNames".
+    assert "propertyNames" in json.dumps(CmaJudgment.model_json_schema())
+    llm, http, _ = client([ok("{}")], max_retries=0)
+    with pytest.raises(ValueError):
+        llm.judge(CmaJudgment, system="s", prompt="p")
+    sent = json.dumps(http.payloads[0]["response_format"]["json_schema"]["schema"])
+    assert "propertyNames" not in sent and "method_weights" in sent
 
 
 # ----------------------------------------------------------------------------------- reply
