@@ -160,6 +160,18 @@ def _add_cro(sub) -> None:
     )
     vt.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
+    rv = sub.add_parser("revise", help="the shortlisted five revise their proposals (§3.5)")
+    rv.add_argument("--run-id", help="the run holding the vote tally", required=True)
+    rv.add_argument("--run-dir", help="override the run directory entirely")
+    rv.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    rv.add_argument("--workers", type=int, default=4, help="revisions written concurrently")
+    rv.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="keep every portfolio unchanged: no API key needed, no spend, no judgment",
+    )
+    rv.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
 
 def _run_cro(args, config) -> int:
     from saa.agents.cro import render_summary, run_cro, write_summary
@@ -238,6 +250,20 @@ def _run_vote(args, config) -> int:
     return 0 if result.ballots and not result.skipped else 1
 
 
+def _run_revise(args, config) -> int:
+    from saa.agents.revision import render_summary, run_revisions, write_summary
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    result = run_revisions(run, DataStore(config), config=config, llm=llm, workers=args.workers)
+    print(render_summary(result))
+    print(f"  summary  {write_summary(result, run)}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0 if result.revisions and not result.skipped else 1
+
+
 def _run_cma_judge(args, config) -> int:
     from saa.agents.cma_judge import render_summary, run_cma_judge, write_summary
     from saa.llm import Budget, LlmClient
@@ -301,6 +327,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_peer_review(args, config)
     if args.command == "vote":
         return _run_vote(args, config)
+    if args.command == "revise":
+        return _run_revise(args, config)
     return 1
 
 

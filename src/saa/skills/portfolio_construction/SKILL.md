@@ -176,3 +176,15 @@ constrained to the IPS reaches 8.0% volatility, Sharpe 0.47 and 2.9% tracking er
 
 `pc/<agent_id>/pc_proposal.json` per agent, `pc/pc_research.json` from the researcher, and
 `reports/pc_proposals.md` for the run.
+
+## Revision of the shortlist
+
+After the vote, the five shortlisted agents revise (§3.5) through `revision.py`. A revision is
+expressed as levers on the method's own portfolio, each the remedy for a common review
+critique: exclude assets, cap any single weight, or shrink up to half-way toward equal weight.
+The levers are applied, then the result is held to the IPS's ex-ante limits with the levers
+kept as constraints, so the re-solve cannot undo them. The revised proposal is filed beside the
+original as `pc/<agent>/pc_proposal-revised.json`, with `revision_of` set. On the 2026-10-01
+free run, a 25% cap on maximum Sharpe moved 9% of the portfolio and raised its effective assets
+from 4.5 to 5.7 at a Sharpe of 0.51 against 0.52; every lever combination tried stayed inside
+the IPS.
