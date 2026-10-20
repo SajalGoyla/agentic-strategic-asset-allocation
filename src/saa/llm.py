@@ -15,7 +15,7 @@ Three things this exists to guarantee:
 * **Spend is attributable.** Every call records tokens and cost against the agent that made it,
   so the project's $210-290 budget can be tracked per stage rather than guessed at.
 
-Two providers, chosen by ``SAA_LLM_PROVIDER`` (default ``anthropic``):
+Three providers, chosen by ``SAA_LLM_PROVIDER`` (default ``anthropic``):
 
 * ``anthropic`` -- the Messages API with ``messages.parse(output_format=...)``, adaptive
   thinking, effort and prompt caching. The paid runs.
@@ -24,6 +24,13 @@ Two providers, chosen by ``SAA_LLM_PROVIDER`` (default ``anthropic``):
   free models, which check the machinery rather than the quality of the judgments. Free models
   are rate-limited (20 requests a minute; 50 a day, or 1,000 a day once $10 of credit has been
   bought), so calls are paced and a 429 is retried with backoff.
+* ``gemini`` -- Google's OpenAI-compatible endpoint for the Gemini API, with the same
+  ``response_format: json_schema``. Also for dry runs: the free tier's limits are per model
+  and per project (for example 15 a minute and 500 a day on a Flash Lite model), enough for a
+  whole run in one sitting.
+
+The two dry-run providers speak the same chat-completions dialect and share one code path;
+an ``_Endpoint`` holds what differs between them.
 """
 
 from __future__ import annotations
@@ -51,7 +58,8 @@ JudgmentT = TypeVar("JudgmentT", bound=Contract)
 
 ANTHROPIC = "anthropic"
 OPENROUTER = "openrouter"
-PROVIDERS = (ANTHROPIC, OPENROUTER)
+GEMINI = "gemini"
+PROVIDERS = (ANTHROPIC, OPENROUTER, GEMINI)
 
 # Project plan §6 routes nuanced judgment to a flagship model and routine formatting to a
 # cheaper one. Prices are USD per million tokens, for the budget arithmetic only.
@@ -69,6 +77,13 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_FREE_RPM = 18
 OPENROUTER_TIMEOUT_S = 600
 OPENROUTER_RATE_RETRIES = 6
+
+# Gemini dry runs. Overridden by SAA_GEMINI_MODEL (both tiers) or SAA_GEMINI_MODEL_FLAGSHIP /
+# SAA_GEMINI_MODEL_LOW_COST; the default is the free tier's most generous text model.
+GEMINI_DEFAULT_MODEL = "gemini-3.1-flash-lite"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+# The free tier allows 15 requests a minute per model; pace a little under it.
+GEMINI_FREE_RPM = 14
 
 PRICING: dict[str, tuple[float, float]] = {
     "claude-opus-5": (5.00, 25.00),
@@ -226,6 +241,54 @@ def _parse_json(text: str) -> tuple[Any, str | None]:
         return None, f"response was not valid JSON ({exc})"
 
 
+@dataclass(frozen=True)
+class _Endpoint:
+    """What differs between two OpenAI-compatible chat APIs."""
+
+    label: str
+    url: str
+    key_env: str
+    model_env: str  # SAA_<X>_MODEL, plus _FLAGSHIP / _LOW_COST
+    default_model: str
+    rpm_env: str
+    default_rpm: float
+    quota_hint: str
+
+
+_ENDPOINTS: dict[str, _Endpoint] = {
+    OPENROUTER: _Endpoint(
+        label="OpenRouter",
+        url=OPENROUTER_URL,
+        key_env="OPENROUTER_API_KEY",
+        model_env="SAA_OPENROUTER_MODEL",
+        default_model=OPENROUTER_DEFAULT_MODEL,
+        rpm_env="SAA_OPENROUTER_RPM",
+        default_rpm=OPENROUTER_FREE_RPM,
+        quota_hint="It allows 50 requests a day, or 1,000 once $10 of credit has been bought.",
+    ),
+    GEMINI: _Endpoint(
+        label="Gemini",
+        url=GEMINI_URL,
+        key_env="GEMINI_API_KEY",
+        model_env="SAA_GEMINI_MODEL",
+        default_model=GEMINI_DEFAULT_MODEL,
+        rpm_env="SAA_GEMINI_RPM",
+        default_rpm=GEMINI_FREE_RPM,
+        quota_hint=(
+            "Free-tier quotas are per model, so another model (SAA_GEMINI_MODEL_*) has its "
+            "own; the count resets at midnight Pacific time."
+        ),
+    ),
+}
+
+
+def _is_daily_quota(message: str) -> bool:
+    # OpenRouter says "free-models-per-day"; Google names the quota
+    # "GenerateRequestsPerDayPerProjectPerModel-FreeTier".
+    text = message.lower()
+    return any(marker in text for marker in ("per-day", "perday", "per day"))
+
+
 def resolve_provider(provider: str | None = None) -> str:
     chosen = (provider or os.getenv("SAA_LLM_PROVIDER") or ANTHROPIC).strip().lower()
     if chosen not in PROVIDERS:
@@ -233,17 +296,23 @@ def resolve_provider(provider: str | None = None) -> str:
     return chosen
 
 
-def openrouter_models() -> dict[Tier, str]:
-    both = os.getenv("SAA_OPENROUTER_MODEL") or OPENROUTER_DEFAULT_MODEL
+def endpoint_models(provider: str) -> dict[Tier, str]:
+    """The model per tier for a dry-run provider, from its SAA_<X>_MODEL* variables."""
+    endpoint = _ENDPOINTS[provider]
+    both = os.getenv(endpoint.model_env) or endpoint.default_model
     return {
-        Tier.FLAGSHIP: os.getenv("SAA_OPENROUTER_MODEL_FLAGSHIP") or both,
-        Tier.LOW_COST: os.getenv("SAA_OPENROUTER_MODEL_LOW_COST") or both,
+        Tier.FLAGSHIP: os.getenv(f"{endpoint.model_env}_FLAGSHIP") or both,
+        Tier.LOW_COST: os.getenv(f"{endpoint.model_env}_LOW_COST") or both,
     }
+
+
+def openrouter_models() -> dict[Tier, str]:
+    return endpoint_models(OPENROUTER)
 
 
 class LlmClient:
     """Thin wrapper over one provider's API. Inject a fake ``client`` (Anthropic) or ``http``
-    (OpenRouter) in tests.
+    (an OpenAI-compatible provider; OpenRouter unless ``provider`` says otherwise) in tests.
 
     The provider comes from ``SAA_LLM_PROVIDER`` only when nothing is injected: an injected
     ``client`` is an Anthropic client, so a `.env` set up for a dry run cannot reroute a test.
@@ -270,12 +339,17 @@ class LlmClient:
         self._sleep = sleep
         self.budget = budget or Budget()
         self.max_retries = max_retries
+        self._endpoint = _ENDPOINTS.get(self.provider)
         if models is not None:
             self.models = dict(models)
+        elif self._endpoint is not None:
+            self.models = endpoint_models(self.provider)
         else:
-            self.models = openrouter_models() if self.provider == OPENROUTER else dict(MODELS)
-        rpm = float(os.getenv("SAA_OPENROUTER_RPM") or OPENROUTER_FREE_RPM)
-        self._pacer = _Pacer(rpm if self.provider == OPENROUTER else 0.0, sleep)
+            self.models = dict(MODELS)
+        rpm = 0.0
+        if self._endpoint is not None:
+            rpm = float(os.getenv(self._endpoint.rpm_env) or self._endpoint.default_rpm)
+        self._pacer = _Pacer(rpm, sleep)
 
     @property
     def client(self) -> Anthropic:
@@ -321,10 +395,8 @@ class LlmClient:
         last_error: Exception | str | None = None
 
         for attempt in range(1, self.max_retries + 2):
-            if self.provider == OPENROUTER:
-                completion = self._openrouter(
-                    output_format, model, system, messages, effort, max_tokens
-                )
+            if self._endpoint is not None:
+                completion = self._chat(output_format, model, system, messages, effort, max_tokens)
             else:
                 completion = self._anthropic(
                     output_format, model, system, messages, effort, max_tokens, cache_system
@@ -412,30 +484,30 @@ class LlmClient:
             refusal=refusal,
         )
 
-    # ------------------------------------------------------------------------ openrouter
+    # ------------------------------------------------------- openai-compatible providers
     def _post(self, payload: dict[str, Any]):
+        endpoint = self._endpoint
         if self._http is not None:
-            return self._http(OPENROUTER_URL, payload)
-        key = os.getenv("OPENROUTER_API_KEY")
+            return self._http(endpoint.url, payload)
+        key = os.getenv(endpoint.key_env)
         if not key:
             raise RuntimeError(
-                "no OpenRouter key found; set OPENROUTER_API_KEY in .env (see .env.example)"
+                f"no {endpoint.label} key found; set {endpoint.key_env} in .env (see .env.example)"
             )
         import requests
 
+        headers = {"Authorization": f"Bearer {key}"}
+        if self.provider == OPENROUTER:
+            headers["HTTP-Referer"] = (
+                "https://github.com/SajalGoyla/agentic-strategic-asset-allocation"
+            )
+            headers["X-Title"] = "agentic-saa"
         return requests.post(
-            OPENROUTER_URL,
-            json=payload,
-            headers={
-                "Authorization": f"Bearer {key}",
-                "HTTP-Referer": "https://github.com/SajalGoyla/agentic-strategic-asset-allocation",
-                "X-Title": "agentic-saa",
-            },
-            timeout=OPENROUTER_TIMEOUT_S,
+            endpoint.url, json=payload, headers=headers, timeout=OPENROUTER_TIMEOUT_S
         )
 
-    def _openrouter(self, output_format, model, system, messages, effort, max_tokens):
-        payload = {
+    def _payload(self, output_format, model, system, messages, effort, max_tokens):
+        payload: dict[str, Any] = {
             "model": model,
             "messages": [{"role": "system", "content": system}, *messages],
             "max_tokens": max_tokens,
@@ -447,12 +519,21 @@ class LlmClient:
                     "schema": _strict_schema(output_format),
                 },
             },
-            # Route only to a provider that honours response_format, and repair near-JSON.
-            "provider": {"require_parameters": True},
-            "plugins": [{"id": "response-healing"}],
-            "reasoning": {"effort": effort},
-            "usage": {"include": True},
         }
+        if self.provider == OPENROUTER:
+            # Route only to a provider that honours response_format, and repair near-JSON.
+            payload["provider"] = {"require_parameters": True}
+            payload["plugins"] = [{"id": "response-healing"}]
+            payload["reasoning"] = {"effort": effort}
+            payload["usage"] = {"include": True}
+        else:
+            # Gemini's compatibility layer maps reasoning_effort onto its thinking level.
+            payload["reasoning_effort"] = effort
+        return payload
+
+    def _chat(self, output_format, model, system, messages, effort, max_tokens):
+        label = self._endpoint.label
+        payload = self._payload(output_format, model, system, messages, effort, max_tokens)
         for attempt in range(OPENROUTER_RATE_RETRIES + 1):
             self._pacer.wait()
             response = self._post(payload)
@@ -466,20 +547,20 @@ class LlmClient:
             if status == 200:
                 break
             message = str((body.get("error") or {}).get("message") or body or status)
-            if status == 429 and "per-day" in message.lower():
+            if status == 429 and _is_daily_quota(message):
                 raise QuotaExhausted(
-                    f"OpenRouter's daily free-model quota is used up ({message}). It allows 50 "
-                    "requests a day, or 1,000 once $10 of credit has been bought."
+                    f"{label}'s daily quota for {model} is used up ({message}). "
+                    f"{self._endpoint.quota_hint}"
                 )
             if status in (429, 500, 502, 503, 504) and attempt < OPENROUTER_RATE_RETRIES:
                 delay = _retry_after(response) or min(60.0, 2.0 ** (attempt + 1))
-                log.warning("OpenRouter %s on %s; retrying in %.0fs", status, model, delay)
+                log.warning("%s %s on %s; retrying in %.0fs", label, status, model, delay)
                 self._sleep(delay)
                 continue
-            raise RuntimeError(f"OpenRouter returned {status} for {model}: {message}")
+            raise RuntimeError(f"{label} returned {status} for {model}: {message}")
 
         if "error" in body:
-            raise RuntimeError(f"OpenRouter error for {model}: {body['error']}")
+            raise RuntimeError(f"{label} error for {model}: {body['error']}")
         choice = (body.get("choices") or [{}])[0]
         message = choice.get("message") or {}
         text = message.get("content") or ""
@@ -511,6 +592,9 @@ def _body(response) -> dict[str, Any]:
         data = response.json()
     except Exception:
         return {"error": {"message": getattr(response, "text", "")}}
+    # Google wraps an error in a one-element list: [{"error": {...}}].
+    if isinstance(data, list) and data and isinstance(data[0], dict):
+        data = data[0]
     return data if isinstance(data, dict) else {}
 
 
