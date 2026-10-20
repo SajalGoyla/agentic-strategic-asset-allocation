@@ -183,10 +183,28 @@ class _Pacer:
             self._sleep(start - now)
 
 
+# Keywords some providers' grammar engines reject outright (NVIDIA: "Unimplemented keys:
+# ["propertyNames"]"). Dropping them only loosens the hint; the contract still validates
+# every reply and feeds a violation back, so a bad key is caught all the same.
+_UNSUPPORTED_KEYWORDS = frozenset({"propertyNames"})
+
+
+def _drop_unsupported(node: Any) -> Any:
+    if isinstance(node, dict):
+        return {
+            key: value if key in ("enum", "const", "default") else _drop_unsupported(value)
+            for key, value in node.items()
+            if key not in _UNSUPPORTED_KEYWORDS
+        }
+    if isinstance(node, list):
+        return [_drop_unsupported(item) for item in node]
+    return node
+
+
 def _strict_schema(output_format: type[Contract]) -> dict[str, Any]:
     from saa.contracts.registry import _require_all_properties
 
-    return _require_all_properties(output_format.model_json_schema())
+    return _drop_unsupported(_require_all_properties(output_format.model_json_schema()))
 
 
 _FENCE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)
@@ -431,9 +449,14 @@ class LlmClient:
             self._pacer.wait()
             response = self._post(payload)
             status = getattr(response, "status_code", 200)
+            body = _body(response)
+            # A provider failure after the stream opened arrives as HTTP 200 with the real
+            # status inside the body ("Upstream idle timeout exceeded", code 504).
+            error = body.get("error") if isinstance(body.get("error"), dict) else None
+            if status == 200 and error and isinstance(error.get("code"), int):
+                status = error["code"]
             if status == 200:
                 break
-            body = _body(response)
             message = str((body.get("error") or {}).get("message") or body or status)
             if status == 429 and "per-day" in message.lower():
                 raise QuotaExhausted(
@@ -447,7 +470,6 @@ class LlmClient:
                 continue
             raise RuntimeError(f"OpenRouter returned {status} for {model}: {message}")
 
-        body = _body(response)
         if "error" in body:
             raise RuntimeError(f"OpenRouter error for {model}: {body['error']}")
         choice = (body.get("choices") or [{}])[0]

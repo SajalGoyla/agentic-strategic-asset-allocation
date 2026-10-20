@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from pydantic import model_validator
 
+from saa.contracts.asset_class import CmaJudgment
 from saa.contracts.base import Contract, Tier
 from saa.llm import (
     OPENROUTER_DEFAULT_MODEL,
@@ -16,6 +17,19 @@ from saa.llm import (
     resolve_provider,
 )
 from tests.test_macro_agent import FakeAnthropic
+
+
+@pytest.fixture(autouse=True)
+def _no_dry_run_env(monkeypatch):
+    # A developer's .env (loaded by other test modules) must not change what these assert.
+    for name in (
+        "SAA_LLM_PROVIDER",
+        "SAA_OPENROUTER_MODEL",
+        "SAA_OPENROUTER_MODEL_FLAGSHIP",
+        "SAA_OPENROUTER_MODEL_LOW_COST",
+        "SAA_OPENROUTER_RPM",
+    ):
+        monkeypatch.delenv(name, raising=False)
 
 
 class Verdict(Contract):
@@ -80,6 +94,16 @@ def test_the_request_constrains_the_output_to_the_contract_in_strict_mode():
     assert {"id": "response-healing"} in payload["plugins"]
 
 
+def test_keywords_a_provider_rejects_are_dropped_from_the_schema():
+    # The CMA judge's method_weights is a dict keyed by method id -> "propertyNames".
+    assert "propertyNames" in json.dumps(CmaJudgment.model_json_schema())
+    llm, http, _ = client([ok("{}")], max_retries=0)
+    with pytest.raises(ValueError):
+        llm.judge(CmaJudgment, system="s", prompt="p")
+    sent = json.dumps(http.payloads[0]["response_format"]["json_schema"]["schema"])
+    assert "propertyNames" not in sent and "method_weights" in sent
+
+
 # ----------------------------------------------------------------------------------- reply
 def test_a_valid_reply_is_validated_and_costed():
     llm, _, _ = client([ok('```json\n{"score": 0.7, "note": "fine"}\n```')])
@@ -120,6 +144,15 @@ def test_a_rate_limit_is_waited_out():
     llm, _, slept = client([limited, ok('{"score": 0.5, "note": null}')])
     assert llm.judge(Verdict, system="s", prompt="p").value.score == 0.5
     assert slept == [7.0]
+
+
+def test_an_upstream_timeout_inside_a_200_is_retried():
+    timeout = FakeResponse(
+        200, {"error": {"message": "Upstream idle timeout exceeded", "code": 504}}
+    )
+    llm, _, slept = client([timeout, ok('{"score": 0.6, "note": null}')])
+    assert llm.judge(Verdict, system="s", prompt="p").value.score == 0.6
+    assert slept == [2.0]
 
 
 def test_an_exhausted_daily_quota_stops_the_run_with_the_fix():
