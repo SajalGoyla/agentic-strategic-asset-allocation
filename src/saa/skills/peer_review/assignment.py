@@ -174,9 +174,85 @@ def assign_reviews(
         ):
             pass
 
+    assignments = _rebalance(assignments, categories, target=reviews_per_agent)
     plan = AssignmentPlan(seed=seed, assignments=assignments, fallbacks=fallbacks)
     validate_plan(plan, categories, reviews_per_agent=reviews_per_agent)
     return plan
+
+
+def _kind(reviewer: str, reviewed: str, categories: dict[str, PcCategory]) -> ReviewKind:
+    same = categories[reviewer] == categories[reviewed]
+    return ReviewKind.INTRA_CATEGORY if same else ReviewKind.INTER_CATEGORY
+
+
+def _redirect(a: Assignment, to: str, categories: dict[str, PcCategory]) -> Assignment:
+    return Assignment(
+        reviewer=a.reviewer,
+        reviewer_category=a.reviewer_category,
+        reviewed=to,
+        reviewed_category=categories[to],
+        kind=a.kind,
+    )
+
+
+def _rebalance(
+    assignments: list[Assignment], categories: dict[str, PcCategory], *, target: int
+) -> list[Assignment]:
+    """Even out the reviews each proposal receives, without touching who reviews or how.
+
+    The greedy pass above occasionally paints itself into a corner near the end: on the
+    15-agent roster about one seed in seven left one proposal with a single review and another
+    with three, and a proposal with one review reaches the vote half-examined. So reviews are
+    redirected along an augmenting path -- a review of an over-reviewed proposal moves to a
+    fully-reviewed one, which frees one of its reviews to move on, until a short proposal gains
+    one. Every move keeps the reviewer and the review kind, so each agent still writes one
+    intra- and one inter-category review and the seeded pairing is otherwise intact. The search
+    scans assignments in order, so the seed still reproduces the plan exactly.
+    """
+    out = list(assignments)
+
+    def augment(short: str) -> bool:
+        received = Counter(a.reviewed for a in out)
+        taken = {a.pair for a in out}
+        # parent[n] = (assignment index currently aimed at n, the node it would move to)
+        parent: dict[str, tuple[int, str] | None] = {short: None}
+        queue = [short]
+        while queue:
+            node = queue.pop(0)
+            for i, a in enumerate(out):
+                source = a.reviewed
+                if (
+                    source in parent
+                    or a.reviewer == node
+                    or (a.reviewer, node) in taken
+                    or _kind(a.reviewer, node, categories) is not a.kind
+                ):
+                    continue
+                parent[source] = (i, node)
+                if received[source] > target:
+                    trial = list(out)
+                    step = source
+                    while parent[step] is not None:
+                        index, to = parent[step]
+                        trial[index] = _redirect(trial[index], to, categories)
+                        step = to
+                    pairs = [t.pair for t in trial]
+                    if len(set(pairs)) == len(pairs):
+                        out[:] = trial
+                        return True
+                    continue
+                queue.append(source)
+        return False
+
+    for _ in range(len(out)):
+        received = Counter(a.reviewed for a in out)
+        short = sorted(agent for agent in categories if received[agent] < target)
+        if not short:
+            break
+        if not any(augment(agent) for agent in short):
+            log.warning("peer review: could not fully balance the review load; %s short", short)
+            break
+    return out
 
 
 def validate_plan(

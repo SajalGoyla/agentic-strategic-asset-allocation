@@ -135,6 +135,27 @@ class ReviewKind(StrEnum):
     INTER_CATEGORY = "inter_category"
 
 
+class ReviewJudgment(Contract):
+    """The reviewing agent's LLM half: the assessment, not the bookkeeping.
+
+    Who reviews whom, and whether it is an intra- or inter-category review, are fixed by the
+    seeded assignment (§3.5: "randomized with a recorded seed"), so the model is never asked for
+    them -- a review that could name its own target could rewrite the protocol.
+    """
+
+    strengths: list[str]
+    weaknesses: list[str]
+    technical_errors: list[str] = Field(default_factory=list)
+    score: float = Field(ge=0.0, le=1.0)
+    rationale: str
+
+    @model_validator(mode="after")
+    def _substantive(self) -> ReviewJudgment:
+        if not self.weaknesses or any(not w.strip() for w in self.weaknesses):
+            raise ValueError("a review that names no weakness is not a review")
+        return self
+
+
 class PeerReviewBody(Contract):
     reviewer_agent_id: str
     reviewer_category: PcCategory

@@ -117,10 +117,21 @@ def test_no_proposal_goes_to_the_vote_unreviewed():
         assert min(counts.values()) >= 1
 
 
-def test_the_review_load_is_close_to_even():
-    for seed in range(25):
-        counts = assign_reviews(ROSTER, seed=seed).review_counts
-        assert max(counts.values()) - min(counts.values()) <= 2
+def test_every_proposal_gets_exactly_two_reviews():
+    """Decision 35's claim, now for every seed: the greedy pass alone left about one seed in
+    seven with a proposal on one review and another on three; the rebalancing redirects reviews
+    until each has exactly two, without changing any agent's reviewer role or review kind."""
+    for seed in range(500):
+        plan = assign_reviews(ROSTER, seed=seed)
+        assert set(plan.review_counts.values()) == {REVIEWS_PER_AGENT}, seed
+        for agent_id in ROSTER:
+            kinds = sorted(a.kind.value for a in plan.for_reviewer(agent_id))
+            expected = (
+                ["inter_category", "inter_category"]
+                if agent_id in plan.fallbacks
+                else ["inter_category", "intra_category"]
+            )
+            assert kinds == expected, (seed, agent_id)
 
 
 def test_the_roster_splits_evenly_between_the_two_framings():

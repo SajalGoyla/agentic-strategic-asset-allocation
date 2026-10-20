@@ -38,6 +38,23 @@ reviewer picks the eligible peer with the fewest reviews so far, with ties broke
 shuffle. The pairing stays random; the load does not. `validate_plan` refuses a plan that would
 send any proposal to the vote unreviewed.
 
+The greedy pass alone still left about one seed in seven unbalanced on the 15-agent roster —
+one proposal with a single review, another with three — so a repair pass follows it
+(decision 43). Reviews are redirected along an augmenting path: a review of an over-reviewed
+proposal moves to a fully-reviewed one, freeing one of its reviews to move on, until the short
+proposal gains one. Every move keeps the reviewer and the review kind, and the search is
+deterministic, so the seed still reproduces the plan. Measured over 2,000 seeds: every proposal
+gets exactly two reviews (was 1,723 of 2,000).
+
+## The reviews themselves
+
+`uv run saa-agent peer-review --run-id <run> [--no-llm]` (`agents/peer_review`) writes the 30
+reviews over this plan. The model fills only `ReviewJudgment` — strengths, weaknesses,
+technical errors, score, rationale — and who reviewed whom and the review kind come from the
+plan. `--no-llm` writes a metric-based review: the six-dimension composite from
+`skills/method_scoring` as the score, and the proposal's best and worst dimensions as its
+strengths and weaknesses.
+
 **A category of one.** The PC-researcher is its own category (Exhibit 9 lists it as "E:
 PC-Researcher"), so it has no intra-category peer and no shuffle will find one. Rather than
 drop its second review, it writes a second inter-category review instead, and the substitution

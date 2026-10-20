@@ -39,6 +39,7 @@ uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
 uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
 uv run saa-agent cro --run-id <run> [--no-llm]  # stage 5: a risk report per candidate
+uv run saa-agent peer-review --run-id <run> [--no-llm]  # stage 5: two reviews per agent
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
 
@@ -59,7 +60,7 @@ src/saa/
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/
               cma_methods/ · signals/ · portfolio_construction/ · risk/ · peer_review/
               method_scoring/
-  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/
+  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/ · peer_review/
               (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
 data/         git-ignored: raw payloads, curated parquet, runs/, reports/

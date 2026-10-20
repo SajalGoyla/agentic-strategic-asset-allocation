@@ -32,7 +32,7 @@ truth.
 | 5. CRO agent (`saa-agent cro`) | Done | Sajal |
 | 5. Peer-review assignment and review prompts (`saa-skill review-assign`) | Done | Shambhawi |
 | 5-6. Six-dimension metric score, shared by the vote and the CIO (`saa-skill method-scores`) | Done | Sajal |
-| 5. Peer-review agent (the reviews themselves) | Not started (week 8) | Shambhawi |
+| 5. Peer-review agent (the reviews themselves, `saa-agent peer-review`) | Done | Sajal (for Shambhawi) |
 | 5. PC revision step after the reviews | Not started (week 8) | Sajal |
 | 5. Borda vote, metric blend, diversity rule | Not started (week 8) | Shambhawi |
 | 6. CIO agent + board memo | Not started (week 9) | both |
