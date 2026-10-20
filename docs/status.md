@@ -325,6 +325,7 @@ agreeing once the Phase 4 backtest estimates the matrix out of sample.
 ## Next, in order
 
 Every Phase 3 stage is built; everything so far is `--no-llm`, so total API spend is $0.00.
+Dry runs on free OpenRouter models are wired in (decision 47): `SAA_LLM_PROVIDER=openrouter`.
 
 1. Wiring: point the macro agent at `RunContext`, then a single `saa-run` command that chains
    the stages, so one command produces a run from data to board memo.

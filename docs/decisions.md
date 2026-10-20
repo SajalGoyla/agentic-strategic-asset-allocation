@@ -595,3 +595,25 @@ gives the two dimensions an ensemble has. By Sharpe alone the meta-optimisation 
 effective assets) always wins; with the blend the composite-score ensemble (0.63, 15.7) did. The
 free run's recommendation: 7.28% expected return at 8.00% volatility, -23.4% backtest drawdown,
 3.54% tracking error, against the benchmark's 7.18% at 9.37%.
+
+### 47. Dry runs on free OpenRouter models, behind the same `judge` — settled, 2026-10-20
+Before a paid run, the owner wants dry runs on free models to check that every stage's
+machinery works end to end with real model output -- schemas, retries, files, the data flow --
+without judging the quality of the judgments. `LlmClient` gains a second provider,
+`openrouter`, selected by `SAA_LLM_PROVIDER`; the Anthropic path is unchanged and remains the
+default, and every agent still calls the one `judge`. The OpenRouter call sends the judgment
+model's schema as `response_format: json_schema` in strict mode (every property required, as
+for Anthropic), with `provider.require_parameters` so it is routed only to an endpoint that
+honours the schema, and the `response-healing` plugin; our own contract validators still run on
+every reply and feed errors back for a retry, which matters because some providers treat the
+schema as a hint. Free models allow 20 requests a minute and 50 a day (1,000 a day once $10 of
+credit has been bought); calls are paced at 18 a minute, a 429 is retried with backoff, and an
+exhausted daily quota stops the run with that explanation. A full run is about 100 calls. The
+default model is `nvidia/nemotron-3-super-120b-a12b:free`, chosen from the live catalogue on
+2026-10-20 as the free model with structured-output support, a 262k context and the strongest
+reasoning; one model serves both tiers so a failure points at the machinery, not at a
+difference between models. `openrouter/free`, which picks a model per call, was rejected for
+the same reason. An injected Anthropic client always stays on Anthropic, so a dry-run `.env`
+cannot reroute a test; model overrides are scoped to OpenRouter, so a free model id can never
+be sent to Anthropic. `saa-agent llm-check` makes one structured call to confirm the key, the
+model and schema support before a run.

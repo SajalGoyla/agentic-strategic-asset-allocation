@@ -35,6 +35,7 @@ uv run saa-skill signals                  # asset-level macro/technical/valuatio
 uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
 uv run saa-skill review-assign --run-id <run> # seeded peer-review pairing (§3.5)
 uv run saa-skill method-scores --run-id <run> # six-dimension score: vote + CIO (§4.4)
+uv run saa-agent llm-check                # one structured call: key, model, schema support
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
 uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
@@ -101,6 +102,8 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 - Skills never call an LLM. If it needs a model, it belongs in an agent.
 - Route by tier (`Tier.FLAGSHIP` for judgment, `Tier.LOW_COST` for formatting) and record every
   call in `header.model_calls`; the project's total API budget is $210–290.
+- Provider is `SAA_LLM_PROVIDER`: `anthropic` (default, paid runs) or `openrouter` (dry runs on
+  free models; `OPENROUTER_API_KEY`, `SAA_OPENROUTER_MODEL`). See `.env.example`.
 - Every agent states in its narrative that the IPS is a draft while `ips.status == "draft"`.
 
 **Code**
