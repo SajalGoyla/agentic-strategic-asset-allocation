@@ -375,12 +375,7 @@ def build_candidate(
     inputs = portfolio_inputs(stage)
     weights = (build or method.build)(inputs)  # type: ignore[operator]
     band = config.ips.objectives.volatility
-    limits = ExAnteLimits(
-        floor=band.min_pct / 100.0,
-        cap=band.max_pct / 100.0,
-        benchmark=stage.benchmark,
-        tracking_error_cap=config.ips.active_risk.tracking_error.max_ex_ante_pct / 100.0,
-    )
+    limits = ex_ante_limits(stage, config)
     weights, unconstrained = enforce_ex_ante_limits(
         weights,
         inputs,
@@ -397,6 +392,36 @@ def build_candidate(
             band.max_pct,
             100 * float(np.sqrt(weights.to_numpy() @ inputs.sigma @ weights.to_numpy())),
         )
+    return candidate_from_weights(
+        method, weights, stage, config, agent=agent, unconstrained_volatility_pct=unconstrained
+    )
+
+
+def ex_ante_limits(stage: StageInputs, config: Config) -> ExAnteLimits:
+    """The IPS limits imposed on every candidate (decision 37), in decimals."""
+    band = config.ips.objectives.volatility
+    return ExAnteLimits(
+        floor=band.min_pct / 100.0,
+        cap=band.max_pct / 100.0,
+        benchmark=stage.benchmark,
+        tracking_error_cap=config.ips.active_risk.tracking_error.max_ex_ante_pct / 100.0,
+    )
+
+
+def candidate_from_weights(
+    method: Method,
+    weights: pd.Series,
+    stage: StageInputs,
+    config: Config,
+    *,
+    agent: str | None = None,
+    unconstrained_volatility_pct: float | None = None,
+) -> Candidate:
+    """Everything about a portfolio once its weights are fixed: statistics and IPS compliance.
+
+    Shared by ``build_candidate`` and the revision step, so a revised proposal is measured and
+    checked exactly as its original was.
+    """
     stats = portfolio_stats(
         weights,
         stage.covariance,
@@ -416,7 +441,7 @@ def build_candidate(
         stats=stats,
         compliance=IpsCompliance.from_report(report),
         agent=agent,
-        unconstrained_volatility_pct=unconstrained,
+        unconstrained_volatility_pct=unconstrained_volatility_pct,
     )
 
 

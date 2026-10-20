@@ -41,6 +41,7 @@ uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
 uv run saa-agent cro --run-id <run> [--no-llm]  # stage 5: a risk report per candidate
 uv run saa-agent peer-review --run-id <run> [--no-llm]  # stage 5: two reviews per agent
 uv run saa-agent vote --run-id <run> [--no-llm]  # stage 5: Borda ballots + tally
+uv run saa-agent revise --run-id <run> [--no-llm]  # stage 5: the shortlist revises
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
 
@@ -62,6 +63,7 @@ src/saa/
               cma_methods/ · signals/ · portfolio_construction/ · risk/ · peer_review/
               method_scoring/ · voting/
   agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/ · peer_review/ · vote/
+              revision/
               (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
 data/         git-ignored: raw payloads, curated parquet, runs/, reports/

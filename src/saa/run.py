@@ -90,8 +90,14 @@ class RunContext:
         asset_id: str | None = None,
         agent_id: str | None = None,
         reviewed: str | None = None,
+        revision: bool = False,
     ) -> Path:
-        """Where this run files one contract."""
+        """Where this run files one contract.
+
+        ``revision`` files a top-five agent's revised proposal beside its original as
+        ``pc_proposal-revised.json`` -- §3.5 keeps both so the audit trail shows what the
+        deliberation changed.
+        """
         entry = spec(contract)
         parts: list[str] = [entry.stage]
         if entry.stage == "cma":
@@ -107,6 +113,10 @@ class RunContext:
             if contract != "peer_review":
                 raise ValueError("`reviewed` applies only to peer_review")
             filename = f"{Path(filename).stem}-{reviewed}.json"
+        if revision:
+            if contract != "pc_proposal":
+                raise ValueError("`revision` applies only to pc_proposal")
+            filename = f"{Path(filename).stem}-revised.json"
         return self.root.joinpath(*parts, filename)
 
     def report_path(self, name: str, *, asset_id: str | None = None) -> Path:
@@ -166,6 +176,7 @@ class RunContext:
         asset_id: str | None = None,
         agent_id: str | None = None,
         reviewed: str | None = None,
+        revision: bool = False,
         provenance: dict[str, dict] | None = None,
         inputs: list[InputRef] | None = None,
         report_path: Path | str | None = None,
@@ -185,7 +196,14 @@ class RunContext:
         )
         output: AgentOutput = spec(contract).output_model(header=header, body=body)
         return write_contract(
-            output, self.path(contract, asset_id=asset_id, agent_id=agent_id, reviewed=reviewed)
+            output,
+            self.path(
+                contract,
+                asset_id=asset_id,
+                agent_id=agent_id,
+                reviewed=reviewed,
+                revision=revision,
+            ),
         )
 
     def write_report(self, text: str, name: str, *, asset_id: str | None = None) -> Path:

@@ -552,3 +552,19 @@ the best candidate from a missing family, recording each swap; and a candidate b
 half the ballots gets a dissent note. `--no-llm` ballots rank by the metric with a 0.05 bonus
 for the voter's own family; they agree far more than agents would (12 of 15 flagged the same
 candidate on the 2026-10-01 free run), so the free tally tests the arithmetic only.
+
+### 45. A revision moves levers, not weights — settled, 2026-10-20
+§3.5 has the top five "revise their proposals, taking into account the peer reviews and the CRO
+report", but a PC agent's weights come from an optimiser, so letting the model rewrite them
+would replace the method with the model's taste. The revision is therefore expressed as levers
+on the method's own portfolio, each the standard remedy for a review critique: exclude assets
+(a mis-estimated input), cap any single weight (concentration), and shrink up to half-way
+toward equal weight (estimation error; DeMiguel, Garlappi and Uppal 2009). The cap at half-way
+keeps a revision a revision rather than a different method. The script applies the levers and
+re-imposes the IPS's ex-ante limits with the levers as constraints, so a revision can neither
+break the policy nor be quietly undone by it. The model must answer every review it received by
+reviewer id -- an unanswered review fails the revision -- and its schema offers only this run's
+assets and its own reviewers. Both versions are kept (`pc_proposal-revised.json` beside the
+original), per the contract's `revision_of`. Flagship tier, as the plan routes the revision
+cycle. `--no-llm` keeps every portfolio unchanged and says so, so the CIO reads revised
+proposals uniformly.
