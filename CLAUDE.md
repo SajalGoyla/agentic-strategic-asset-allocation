@@ -40,6 +40,7 @@ uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per as
 uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
 uv run saa-agent cro --run-id <run> [--no-llm]  # stage 5: a risk report per candidate
 uv run saa-agent peer-review --run-id <run> [--no-llm]  # stage 5: two reviews per agent
+uv run saa-agent vote --run-id <run> [--no-llm]  # stage 5: Borda ballots + tally
 uv run saa-contracts                      # regenerate schemas/ after changing a contract
 ```
 
@@ -47,7 +48,7 @@ uv run saa-contracts                      # regenerate schemas/ after changing a
 
 ```
 config/       universe.yaml (18 assets) · macro_series.yaml (62 FRED series) · ips.yaml
-              macro_scoring.yaml · signals.yaml · data_sources.yaml · cma_inputs.yaml · method_scoring.yaml
+              macro_scoring.yaml · signals.yaml · data_sources.yaml · cma_inputs.yaml · method_scoring.yaml · voting.yaml
               cma.yaml · cma_validation.yaml · wrds.yaml
 src/saa/
   config.py   loads and cross-validates every config file; `load_config()`
@@ -59,8 +60,8 @@ src/saa/
               aggregates) · validation.py · pipeline.py
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/
               cma_methods/ · signals/ · portfolio_construction/ · risk/ · peer_review/
-              method_scoring/
-  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/ · peer_review/
+              method_scoring/ · voting/
+  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/ · peer_review/ · vote/
               (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
 data/         git-ignored: raw payloads, curated parquet, runs/, reports/

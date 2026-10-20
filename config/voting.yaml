@@ -1,0 +1,34 @@
+# The modified Borda vote and its tally (Ang et al. 2026 §3.5).
+#
+# "Each agent submits a top-five ranking (awarding 5, 4, 3, 2, and 1 points) and a bottom flag
+# (-2 points), excluding itself ... The vote totals are then blended with a quantitative metric
+# score ... using a regime-dependent weight ... A diversity constraint requires the top-five
+# shortlist to include representation from at least three of the four families."
+#
+# The points (5/4/3/2/1, -2) and the shortlist size are fixed in `saa.contracts.review`; this
+# file holds what the paper leaves open. Provenance tags as in ips.yaml:
+#   [paper]     Ang, Azimbayev & Kim (2026)
+#   [proposed]  ours -- calibrate after the first paid run; the tests do not pin these values
+
+# Weight on the (normalised) vote in the blend; the metric score gets the rest. The paper says
+# only "regime-dependent". Ours: lean on the objective metric when the regime is hostile, on the
+# agents' judgment when it is benign [proposed].
+vote_weight:
+  expansion: 0.6
+  recovery: 0.6
+  late_cycle: 0.5
+  recession: 0.4
+  default: 0.5
+
+# "at least three of the four families" [paper]. The PC-researcher is its own category and does
+# not count toward the four.
+min_families: 3
+
+# A candidate bottom-flagged by at least this share of ballots gets a dissent note in the tally
+# report -- §4.3: the bottom-ranked methods "trigger dissent reports" [proposed threshold].
+dissent_share: 0.5
+
+# --no-llm ballots rank the field by the six-dimension metric score, plus this bonus for a
+# candidate in the voter's own family -- the paper's agents "hold diverse priors encoded by
+# their PC category" (§3.5) [proposed].
+own_family_bonus: 0.05
