@@ -35,7 +35,7 @@ truth.
 | 5. Peer-review agent (the reviews themselves, `saa-agent peer-review`) | Done | Sajal (for Shambhawi) |
 | 5. PC revision step after the reviews (`saa-agent revise`) | Done | Sajal |
 | 5. Borda vote, metric blend, diversity rule (`saa-agent vote`) | Done | Sajal (for Shambhawi) |
-| 6. CIO agent + board memo | Not started (week 9) | both |
+| 6. CIO agent: ensemble engine, IPS-constrained choice, board memo (`saa-agent cio`) | Done | Sajal |
 | Backtest, stress tests, visualisation | Not started (weeks 10-12) | both |
 
 **Milestone M1 (data and macro layer live, week 3): met.**
@@ -43,6 +43,12 @@ truth.
 methods, a judge and a validation check; the covariance agent is live; the full PC roster (15
 agents across Exhibit 5's four families, plus the researcher and the adversarial diversifier)
 produces candidate portfolios.
+**Milestone M3 (deliberation and CIO ensemble complete, week 9): built, a week early; the
+paid run is still to come** — every stage from the CRO to the board memo runs end to end with
+`--no-llm`, and on the 2026-10-01 free run the CIO recommends an IPS-compliant allocation
+(7.28% expected return at 8.00% volatility against the benchmark's 7.18% at 9.37%; 15.7
+effective assets; -23.4% backtest drawdown). The plan's M3 is "final allocation + board memo
+(v1)"; v1 with model-written reviews, ballots, revisions and memo needs the first paid run.
 
 ## Phase 1 closeout (2026-09-29)
 
@@ -318,19 +324,15 @@ agreeing once the Phase 4 backtest estimates the matrix out of sample.
 
 ## Next, in order
 
-Phase 3, weeks 8-9:
+Every Phase 3 stage is built; everything so far is `--no-llm`, so total API spend is $0.00.
 
-1. A first paid run of the CMA judge and the 15 PC agents (`--cap-usd` set), then
-   `saa-skill cma-validate` on the judged CMAs, then the CRO with a model. Everything so far is
-   `--no-llm`: total API spend is still $0.00.
-2. The peer-review agent: run the 30 assignments, write `peer_review-<reviewed>.json`, with the
-   seed in every header.
-3. The revision step for the top five, after the reviews and the CRO report.
-4. The modified Borda vote: ballots, the metric blend with its regime-dependent weight, and the
-   three-of-four-families diversity rule on the shortlist.
-5. The CIO: the ensemble techniques, including a meta-optimisation constrained to the IPS, the
-   six-dimension score, and the board memo. Only a compliant ensemble may be recommended.
-6. Wiring: point the macro agent at `RunContext`, then a single `saa-run` command.
+1. Wiring: point the macro agent at `RunContext`, then a single `saa-run` command that chains
+   the stages, so one command produces a run from data to board memo.
+2. The first paid run (`--cap-usd` set on every stage): CMA judge, PC agents, CRO, peer
+   reviews, vote, revisions, CIO. Then `saa-skill cma-validate` on the judged CMAs.
+3. Calibrate what the paid run makes measurable: the `[proposed]` thresholds in
+   `config/method_scoring.yaml` and `config/voting.yaml`, and the prompts.
+4. Phase 4 (weeks 10-12): backtest, stress tests, visualisation, final presentation.
 
 ## Data facts worth not re-deriving
 

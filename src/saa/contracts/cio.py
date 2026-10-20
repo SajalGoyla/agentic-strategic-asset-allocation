@@ -85,6 +85,29 @@ class BoardMemo(Contract):
     ips_compliance_statement: str
 
 
+class CioJudgment(Contract):
+    """The CIO's LLM half: which compliant ensemble, and the case to the board.
+
+    The ensembles, their weights and every statistic are computed (``skills/ensemble``); the
+    agent narrows ``ensemble_method`` to the ensembles that passed the IPS, so the model can
+    only choose among allocations it is allowed to recommend.
+    """
+
+    ensemble_method: EnsembleMethod
+    rationale: str
+    dissenting_views: list[str] = Field(default_factory=list)
+    invalidation_conditions: list[str]
+    board_memo: BoardMemo
+
+    @model_validator(mode="after")
+    def _says_when_it_stops_holding(self) -> CioJudgment:
+        if not self.invalidation_conditions:
+            raise ValueError(
+                "§3.6: the CIO must say 'what would cause the portfolio to no longer be valid'"
+            )
+        return self
+
+
 class CioDecisionBody(Contract):
     ensemble_method: EnsembleMethod
     # Weight given to each PC agent's portfolio in the ensemble (Exhibit 10).

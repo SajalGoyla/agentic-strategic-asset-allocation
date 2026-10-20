@@ -67,168 +67,10 @@
       ],
       "title": "EnsembleMethod",
       "type": "string"
-    },
-    "IpsCompliance": {
-      "additionalProperties": false,
-      "description": "\u00a73.5: the CRO checks IPS compliance for every candidate; \u00a73.6: the CIO is bound by it.",
-      "properties": {
-        "compliant": {
-          "title": "Compliant",
-          "type": "boolean"
-        },
-        "not_evaluated": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Not Evaluated",
-          "type": "array"
-        },
-        "violations": {
-          "items": {
-            "$ref": "#/$defs/Violation"
-          },
-          "title": "Violations",
-          "type": "array"
-        }
-      },
-      "required": [
-        "compliant",
-        "violations",
-        "not_evaluated"
-      ],
-      "title": "IpsCompliance",
-      "type": "object"
-    },
-    "MethodScore": {
-      "additionalProperties": false,
-      "description": "One PC method scored on the six dimensions. Each score is 0-1.",
-      "properties": {
-        "agent_id": {
-          "title": "Agent Id",
-          "type": "string"
-        },
-        "backtest_sharpe": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Backtest Sharpe",
-          "type": "number"
-        },
-        "cma_utilization": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Cma Utilization",
-          "type": "number"
-        },
-        "composite": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Composite",
-          "type": "number"
-        },
-        "diversification": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Diversification",
-          "type": "number"
-        },
-        "estimation_robustness": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Estimation Robustness",
-          "type": "number"
-        },
-        "ips_compliance": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Ips Compliance",
-          "type": "number"
-        },
-        "regime_fit": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Regime Fit",
-          "type": "number"
-        }
-      },
-      "required": [
-        "agent_id",
-        "backtest_sharpe",
-        "ips_compliance",
-        "diversification",
-        "regime_fit",
-        "estimation_robustness",
-        "cma_utilization",
-        "composite"
-      ],
-      "title": "MethodScore",
-      "type": "object"
-    },
-    "Violation": {
-      "additionalProperties": false,
-      "description": "Mirrors ``saa.ips.Violation`` so compliance can be embedded in a contract.",
-      "properties": {
-        "entity": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Entity"
-        },
-        "limit": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Limit"
-        },
-        "message": {
-          "title": "Message",
-          "type": "string"
-        },
-        "observed": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Observed"
-        },
-        "rule": {
-          "title": "Rule",
-          "type": "string"
-        },
-        "severity": {
-          "title": "Severity",
-          "type": "string"
-        }
-      },
-      "required": [
-        "rule",
-        "severity",
-        "message",
-        "observed",
-        "limit",
-        "entity"
-      ],
-      "title": "Violation",
-      "type": "object"
     }
   },
   "additionalProperties": false,
+  "description": "The CIO's LLM half: which compliant ensemble, and the case to the board.\n\nThe ensembles, their weights and every statistic are computed (``skills/ensemble``); the\nagent narrows ``ensemble_method`` to the ensembles that passed the IPS, so the model can\nonly choose among allocations it is allowed to recommend.",
   "properties": {
     "board_memo": {
       "$ref": "#/$defs/BoardMemo"
@@ -240,54 +82,8 @@
       "title": "Dissenting Views",
       "type": "array"
     },
-    "effective_n": {
-      "anyOf": [
-        {
-          "type": "number"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Effective N"
-    },
     "ensemble_method": {
       "$ref": "#/$defs/EnsembleMethod"
-    },
-    "ensemble_weights": {
-      "additionalProperties": {
-        "type": "number"
-      },
-      "title": "Ensemble Weights",
-      "type": "object"
-    },
-    "ex_ante_tracking_error_pct": {
-      "anyOf": [
-        {
-          "type": "number"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Ex Ante Tracking Error Pct"
-    },
-    "expected_return_pct": {
-      "title": "Expected Return Pct",
-      "type": "number"
-    },
-    "expected_volatility_pct": {
-      "title": "Expected Volatility Pct",
-      "type": "number"
-    },
-    "final_weights": {
-      "additionalProperties": {
-        "type": "number"
-      },
-      "title": "Final Weights",
-      "type": "object"
     },
     "invalidation_conditions": {
       "items": {
@@ -296,41 +92,18 @@
       "title": "Invalidation Conditions",
       "type": "array"
     },
-    "ips_compliance": {
-      "$ref": "#/$defs/IpsCompliance"
-    },
-    "method_scores": {
-      "items": {
-        "$ref": "#/$defs/MethodScore"
-      },
-      "title": "Method Scores",
-      "type": "array"
-    },
     "rationale": {
       "title": "Rationale",
       "type": "string"
-    },
-    "sharpe_ratio": {
-      "title": "Sharpe Ratio",
-      "type": "number"
     }
   },
   "required": [
     "ensemble_method",
-    "ensemble_weights",
-    "final_weights",
-    "method_scores",
-    "expected_return_pct",
-    "expected_volatility_pct",
-    "sharpe_ratio",
-    "effective_n",
-    "ex_ante_tracking_error_pct",
-    "ips_compliance",
+    "rationale",
     "dissenting_views",
     "invalidation_conditions",
-    "rationale",
     "board_memo"
   ],
-  "title": "CioDecisionBody",
+  "title": "CioJudgment",
   "type": "object"
 }
