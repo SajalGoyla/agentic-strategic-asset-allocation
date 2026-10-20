@@ -191,6 +191,27 @@ VOTE_CONTRACT = "vote"
 VOTE_FILENAME = "vote.json"
 
 
+class BallotJudgment(Contract):
+    """The voting agent's LLM half: the ranking, not who cast it.
+
+    The voter is fixed by the script, so a ballot cannot be cast under another agent's name.
+    The agent restricts each voter's schema further, to the ids of the candidates it may rank
+    (every proposal but its own), so an invalid ballot cannot be produced at all.
+    """
+
+    top_five: list[str]  # ordered best first; 5, 4, 3, 2, 1 points
+    bottom_flag: str | None = None  # -2 points
+    rationale: str
+
+    @model_validator(mode="after")
+    def _consistent(self) -> BallotJudgment:
+        if len(self.top_five) != TOP_N or len(set(self.top_five)) != TOP_N:
+            raise ValueError(f"top_five must name {TOP_N} different candidates")
+        if self.bottom_flag is not None and self.bottom_flag in self.top_five:
+            raise ValueError(f"{self.bottom_flag} is both top-five and bottom-flagged")
+        return self
+
+
 class VoteBody(Contract):
     """One agent's modified-Borda ballot."""
 

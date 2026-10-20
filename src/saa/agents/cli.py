@@ -146,6 +146,20 @@ def _add_cro(sub) -> None:
     )
     pr.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
+    vt = sub.add_parser("vote", help="modified-Borda ballots and the tally (stage 5, §3.5)")
+    vt.add_argument(
+        "--run-id", help="the run holding proposals, CRO reports and reviews", required=True
+    )
+    vt.add_argument("--run-dir", help="override the run directory entirely")
+    vt.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    vt.add_argument("--workers", type=int, default=4, help="ballots cast concurrently")
+    vt.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="metric-ranked ballots only: no API key needed, no spend, no judgment",
+    )
+    vt.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
 
 def _run_cro(args, config) -> int:
     from saa.agents.cro import render_summary, run_cro, write_summary
@@ -192,6 +206,36 @@ def _run_peer_review(args, config) -> int:
     print(f"  summary  {write_summary(result, run)}")
     print(f"  cost     ${result.cost_usd:.4f}")
     return 0 if result.reviews and not result.skipped else 1
+
+
+def _regime_labels(store, config, as_of):
+    """Month-end regime labels, scored as the method-scores skill does, for the metric score."""
+    from saa.agents.macro.agent import load_scoring_config
+    from saa.skills.macro_regime import score_history
+
+    return score_history(store, load_scoring_config(config), as_of=as_of).regimes
+
+
+def _run_vote(args, config) -> int:
+    from saa.agents.vote import render_summary, run_vote, write_summary
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    store = DataStore(config)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    result = run_vote(
+        run,
+        store,
+        config=config,
+        llm=llm,
+        workers=args.workers,
+        regime_labels=_regime_labels(store, config, run.as_of),
+    )
+    print(render_summary(result))
+    print(f"  summary  {write_summary(result, run)}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0 if result.ballots and not result.skipped else 1
 
 
 def _run_cma_judge(args, config) -> int:
@@ -255,6 +299,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_cro(args, config)
     if args.command == "peer-review":
         return _run_peer_review(args, config)
+    if args.command == "vote":
+        return _run_vote(args, config)
     return 1
 
 

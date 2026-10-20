@@ -531,3 +531,24 @@ seeds on the 15-agent roster, 277 left a proposal with one review and another wi
 deterministic repair pass now redirects reviews along an augmenting path, keeping every
 agent's reviewer role and review kind; all 2,000 seeds give every proposal exactly two reviews,
 and the test asserts it for 500.
+
+### 44. The Borda vote: what the model decides, and the tally's open points — settled, 2026-10-20
+Every PC agent casts a ballot (§3.5) at the flagship tier, as the plan routes "Borda-count
+deliberation". The model fills `BallotJudgment` (top five, bottom flag, rationale) and the
+script signs it, so a ballot cannot be cast under another agent's name; and each voter's schema
+is narrowed to the ids it may name -- every candidate but itself -- so a self-vote or an
+unknown agent is not merely rejected but cannot be produced. The registry's judgment schema for
+`vote` was the whole body; it is now `BallotJudgment` (`SCHEMA_VERSION` 3.3.0, body unchanged).
+Every voter reads the same briefing -- every proposal, its CRO figures and both reviews -- in the
+cached system prompt, so 14 of 15 calls read it from cache. The metric score is withheld from
+voters because the tally blends it in separately.
+
+The tally (`skills/voting`) fixes what §3.5 leaves open, all `[proposed]` in
+`config/voting.yaml`: points are min-max normalised before blending, so the regime weight means
+what it says; the weight on the vote is 0.6 in expansion and recovery, 0.5 late-cycle and 0.4
+in recession, leaning on the objective metric when the regime is hostile; the composite is
+rescaled 1.000-0.000 as in Exhibit 9; the diversity rule swaps the lowest-ranked duplicate for
+the best candidate from a missing family, recording each swap; and a candidate bottom-flagged on
+half the ballots gets a dissent note. `--no-llm` ballots rank by the metric with a 0.05 bonus
+for the voter's own family; they agree far more than agents would (12 of 15 flagged the same
+candidate on the 2026-10-01 free run), so the free tally tests the arithmetic only.

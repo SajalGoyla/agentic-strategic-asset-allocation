@@ -1,6 +1,6 @@
 {
   "additionalProperties": false,
-  "description": "One agent's modified-Borda ballot.",
+  "description": "The voting agent's LLM half: the ranking, not who cast it.\n\nThe voter is fixed by the script, so a ballot cannot be cast under another agent's name.\nThe agent restricts each voter's schema further, to the ids of the candidates it may rank\n(every proposal but its own), so an invalid ballot cannot be produced at all.",
   "properties": {
     "bottom_flag": {
       "anyOf": [
@@ -24,18 +24,13 @@
       },
       "title": "Top Five",
       "type": "array"
-    },
-    "voter_agent_id": {
-      "title": "Voter Agent Id",
-      "type": "string"
     }
   },
   "required": [
-    "voter_agent_id",
     "top_five",
     "bottom_flag",
     "rationale"
   ],
-  "title": "VoteBody",
+  "title": "BallotJudgment",
   "type": "object"
 }
