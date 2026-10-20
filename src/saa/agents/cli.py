@@ -133,6 +133,19 @@ def _add_cro(sub) -> None:
     )
     cro.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
+    pr = sub.add_parser("peer-review", help="each PC agent reviews two peers (stage 5, §3.5)")
+    pr.add_argument("--run-id", help="the run holding proposals and CRO reports", required=True)
+    pr.add_argument("--run-dir", help="override the run directory entirely")
+    pr.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    pr.add_argument("--seed", type=int, help="override the seed derived from the run id")
+    pr.add_argument("--workers", type=int, default=4, help="reviews written concurrently")
+    pr.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="metric-based reviews only: no API key needed, no spend, no judgment",
+    )
+    pr.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
 
 def _run_cro(args, config) -> int:
     from saa.agents.cro import render_summary, run_cro, write_summary
@@ -148,6 +161,37 @@ def _run_cro(args, config) -> int:
     print(f"  summary  {write_summary(result, run)}")
     print(f"  cost     ${result.cost_usd:.4f}")
     return 0 if result.reports else 1
+
+
+def _run_peer_review(args, config) -> int:
+    from saa.agents.peer_review import render_summary, run_peer_reviews, write_summary
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    store = DataStore(config)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    labels = None
+    if llm is None:
+        # The free reviews are scored with the six-dimension metric, whose regime fit needs the
+        # regime history; scored here as the method-scores skill does.
+        from saa.agents.macro.agent import load_scoring_config
+        from saa.skills.macro_regime import score_history
+
+        labels = score_history(store, load_scoring_config(config), as_of=run.as_of).regimes
+    result = run_peer_reviews(
+        run,
+        store,
+        config=config,
+        llm=llm,
+        seed=args.seed,
+        workers=args.workers,
+        regime_labels=labels,
+    )
+    print(render_summary(result))
+    print(f"  summary  {write_summary(result, run)}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0 if result.reviews and not result.skipped else 1
 
 
 def _run_cma_judge(args, config) -> int:
@@ -209,6 +253,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_pc(args, config)
     if args.command == "cro":
         return _run_cro(args, config)
+    if args.command == "peer-review":
+        return _run_peer_review(args, config)
     return 1
 
 

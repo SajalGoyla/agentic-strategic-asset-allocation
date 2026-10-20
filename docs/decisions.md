@@ -512,3 +512,22 @@ flattered. **Estimation robustness is a per-method table** from the literature r
 measurement, which would need every optimiser re-run under many perturbed inputs. All
 thresholds are `[proposed]` in `config/method_scoring.yaml`, to calibrate after the first paid
 run. On the free run the composites span 0.40-0.71 (the paper's metric scores span 0.20-0.55).
+
+### 43. The peer-review agent, and reviews balanced by repair — settled, 2026-10-20
+The reviews (§3.5) are written over the seeded plan by `agents/peer_review`, at the flagship
+tier as the plan's model routing assigns peer-review critiques. The model fills a new
+`ReviewJudgment` -- strengths, weaknesses, technical errors, score, rationale -- and the
+reviewer, the reviewed proposal and the review kind come from the plan, so a review can never
+name its own target or relabel its framing. The registry's judgment schema for `peer_review`
+was the whole body, which would have asked the model for those ids; it is now
+`ReviewJudgment` (additive to the judgment schema, `SCHEMA_VERSION` 3.2.0; the body is
+unchanged). A review with no weakness fails validation, and one whose rationale is under 200
+characters is refused, as the PC and CRO agents refuse thin output. `--no-llm` reviews take the
+six-dimension composite (decision 42) as the score, so a free run's reviews agree with its vote
+and CIO.
+
+Building it exposed that decision 35's balancing did not deliver what it claimed: over 2,000
+seeds on the 15-agent roster, 277 left a proposal with one review and another with three. A
+deterministic repair pass now redirects reviews along an augmenting path, keeping every
+agent's reviewer role and review kind; all 2,000 seeds give every proposal exactly two reviews,
+and the test asserts it for 500.
