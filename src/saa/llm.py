@@ -449,9 +449,14 @@ class LlmClient:
             self._pacer.wait()
             response = self._post(payload)
             status = getattr(response, "status_code", 200)
+            body = _body(response)
+            # A provider failure after the stream opened arrives as HTTP 200 with the real
+            # status inside the body ("Upstream idle timeout exceeded", code 504).
+            error = body.get("error") if isinstance(body.get("error"), dict) else None
+            if status == 200 and error and isinstance(error.get("code"), int):
+                status = error["code"]
             if status == 200:
                 break
-            body = _body(response)
             message = str((body.get("error") or {}).get("message") or body or status)
             if status == 429 and "per-day" in message.lower():
                 raise QuotaExhausted(
@@ -465,7 +470,6 @@ class LlmClient:
                 continue
             raise RuntimeError(f"OpenRouter returned {status} for {model}: {message}")
 
-        body = _body(response)
         if "error" in body:
             raise RuntimeError(f"OpenRouter error for {model}: {body['error']}")
         choice = (body.get("choices") or [{}])[0]

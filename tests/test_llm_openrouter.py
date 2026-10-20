@@ -146,6 +146,15 @@ def test_a_rate_limit_is_waited_out():
     assert slept == [7.0]
 
 
+def test_an_upstream_timeout_inside_a_200_is_retried():
+    timeout = FakeResponse(
+        200, {"error": {"message": "Upstream idle timeout exceeded", "code": 504}}
+    )
+    llm, _, slept = client([timeout, ok('{"score": 0.6, "note": null}')])
+    assert llm.judge(Verdict, system="s", prompt="p").value.score == 0.6
+    assert slept == [2.0]
+
+
 def test_an_exhausted_daily_quota_stops_the_run_with_the_fix():
     daily = FakeResponse(429, {"error": {"message": "Rate limit exceeded: free-models-per-day"}})
     llm, _, _ = client([daily])
