@@ -172,6 +172,11 @@ def _add_cro(sub) -> None:
     )
     rv.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
+    sub.add_parser(
+        "llm-check",
+        help="one tiny structured call to the configured provider: key, model, schema support",
+    )
+
     ci = sub.add_parser("cio", help="the recommended allocation and the board memo (stage 6)")
     ci.add_argument("--run-id", help="the run holding the tally and the revisions", required=True)
     ci.add_argument("--run-dir", help="override the run directory entirely")
@@ -292,6 +297,37 @@ def _run_cio(args, config) -> int:
     return 0
 
 
+def _run_llm_check(args, config) -> int:
+    """One small structured judgment, so a dry run fails here rather than 40 calls in."""
+    from saa.contracts.base import Contract, Tier
+    from saa.llm import LlmClient
+
+    class Ping(Contract):
+        regime_guess: str
+        confidence: float
+
+    llm = LlmClient()
+    for tier in (Tier.FLAGSHIP, Tier.LOW_COST):
+        if tier is Tier.LOW_COST and llm.models[Tier.LOW_COST] == llm.models[Tier.FLAGSHIP]:
+            break
+        result = llm.judge(
+            Ping,
+            system="You answer with JSON matching the schema, nothing else.",
+            prompt="Name one macro regime (expansion, late_cycle, recession, recovery) and a "
+            "confidence between 0 and 1.",
+            tier=tier,
+            max_tokens=2000,
+        )
+        call = result.call
+        cost = "n/a" if call.cost_usd is None else f"${call.cost_usd:.4f}"
+        print(
+            f"  {llm.provider} {tier.value}: {call.model} -> {result.value.model_dump()} "
+            f"({call.input_tokens} in / {call.output_tokens} out, {cost}, "
+            f"{result.attempts} attempt(s))"
+        )
+    return 0
+
+
 def _run_cma_judge(args, config) -> int:
     from saa.agents.cma_judge import render_summary, run_cma_judge, write_summary
     from saa.llm import Budget, LlmClient
@@ -359,6 +395,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_revise(args, config)
     if args.command == "cio":
         return _run_cio(args, config)
+    if args.command == "llm-check":
+        return _run_llm_check(args, config)
     return 1
 
 
