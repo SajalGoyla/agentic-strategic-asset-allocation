@@ -372,7 +372,7 @@ and drawdown. Splitting it the way `cma` is split — script metrics on the body
 3.0.0 by the project's own rule. Nothing had ever written a `cro_report`, so nothing broke in
 practice; the bump records that a reader of the old shape would have.
 
-### 37. The IPS's ex-ante limits bind on every candidate; drawdown does not — settled, 2026-10-18
+### 37. The IPS's ex-ante limits bind on every candidate; drawdown does not — superseded by 49, 2026-10-20
 Twelve of the fifteen methods could not reach the IPS volatility floor on their own, which made
 them unreviewable: a 0.65%-volatility portfolio is not a candidate a peer reviewer or the CIO
 can weigh against the mandate. §3.1 makes the IPS the governing document every agent reads, so
@@ -632,4 +632,61 @@ saying "per-day", and wraps errors in a one-element list; both are handled. Cost
 unknown, not zero: a Gemini key can be on a paid tier. Because quotas are per model, the tiers
 may point at two models (`SAA_GEMINI_MODEL_FLAGSHIP` / `_LOW_COST`) to split the load; one model
 for both remains the default, for the reason decision 47 gives.
+
+### 49. Tune a method's own parameter toward the IPS band; force no candidate into it — settled, 2026-10-20
+Supersedes decision 37. The professor's suggestion was that "some of the methods must have
+parameters (like risk-aversion parameters) that can be tweaked to generate portfolios with
+higher volatility without leverage". Decision 37 instead solved every out-of-band method again
+subject to the band and the tracking-error budget, and projected the methods with no objective
+(inverse volatility, inverse variance, HRP) to the nearest in-band portfolio. Checked against
+the suggestion, that was a parameter change for the mean-variance family only: maximum Sharpe
+subject to a volatility floor is the frontier point a lower risk aversion reaches, and the
+constraint's multiplier is that risk aversion. For the rest it was a policy override that broke
+the method's logic. Projected inverse volatility held emerging markets, its most volatile asset,
+at 10.3%, second only to cash, and dropped gold and commodities to zero.
+
+The owner's ruling: tune the methods that have a genuine parameter toward the band, force
+nothing, and let the CRO, the vote and the CIO weigh the volatilities, with the IPS binding on
+the CIO's recommendation as in the paper (§3.6). So:
+
+- **Tuned, by bisection on portfolio volatility to the band edge or the end of the parameter's
+  range.** Maximum Sharpe, Black-Litterman and the resampled frontier by the risk aversion of
+  their mean-variance step (on the posterior for Black-Litterman, in every draw for the
+  resampled frontier), and CVaR minimisation by a minimum expected return, which is Rockafellar
+  and Uryasev's own mean-CVaR formulation. The return is the historical scenario mean, so the
+  method still reads no CMA. Volatility targeting already targets the band midpoint.
+- **Not tuned.** Methods whose only parameter is their definition: inverse volatility's and
+  inverse variance's exponent, risk parity's and tail-risk parity's equal budgets, HRP,
+  maximum diversification, equal weight, market-cap weight, the researcher's library and the
+  adversarial diversifier. Measured for the exponent: w ∝ σ^-k reaches 8% only at k = 0.106,
+  0.43% tracking error from equal weight, so tuning would have made two more copies of 1/N.
+- **Revisions** apply their levers and nothing else.
+- §3.4's Sharpe floor for the adversarial diversifier and maximum entropy is again 75% of the
+  unconstrained maximum, as the paper states.
+
+The proposal contract replaces `policy_adjusted` / `unconstrained_volatility_pct` with
+`tuning` (parameter, value, volatility at the default, whether the band was reached). Schema
+4.0.0, a breaking change.
+
+Measured on the 2026-10-01 inputs (run `dry1`'s CMAs and covariance):
+
+- **Tuned values.** Maximum Sharpe γ = 4.80, Black-Litterman 4.16, the resampled frontier 5.47
+  and CVaR an 8.2% return target, each from 0.6-2.7% to 8.00%.
+- **Maximum Sharpe** is unchanged from decision 37, as the duality says.
+- **Black-Litterman** is now a point on its own frontier, 7.1 effective assets against 4.2
+  before.
+- **The resampled frontier** has 13.1 effective assets against 5.0, and a Sharpe of 0.43
+  against 0.40.
+- **Left outside the band.** Seven methods, at 0.65-3.11% volatility.
+
+The cost moves to the CIO, as expected. On a free run of the whole pipeline (`tune_check`) 7 of
+15 candidates were in the band and the simple average had 4.81% volatility. Six of the eight
+ensembles needed projecting into the band, and the chosen composite-score ensemble went from
+6.39% to 8.00% at 16.3% one-way turnover. The recommendation was compliant: 6.91% return, 8.00%
+volatility, Sharpe 0.39, 13.7 effective assets, 3.70% tracking error. The shortlist is resampled
+frontier, Black-Litterman, equal weight, CVaR and volatility targeting.
+
+Open: whether the CIO should prefer an ensemble that needs no projection when the projection is
+this large is a judgment the CIO agent now makes with the before-and-after figures in hand. It is
+not yet a rule.
 

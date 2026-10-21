@@ -225,6 +225,15 @@ optimum: diversification ratio 2.056, unbeaten by 4000 random long-only portfoli
 1.506 for equal weight ex-cash. Cash is nearly uncorrelated with everything, which is exactly
 what the diversification ratio rewards.
 
+### Candidates are tuned toward the IPS, not forced into it — built, 2026-10-20
+
+Decision 49 supersedes the next section's first change. Methods with a genuine parameter are
+tuned toward the band: risk aversion for maximum Sharpe, Black-Litterman and the resampled
+frontier, and a return target for CVaR. The rest are proposed as they are, and the IPS binds on
+the CIO's recommendation, as in the paper. On the 2026-10-01 inputs 7 of 15 candidates sit in
+the band. The CIO's ensembles then need larger projections: the chosen one moved from 6.39% to
+8.00% volatility.
+
 ### Getting the candidates inside the IPS — built, 2026-10-18
 
 Twelve of the fifteen methods could not reach the IPS volatility floor on their own, which made

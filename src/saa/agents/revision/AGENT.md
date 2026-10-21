@@ -34,9 +34,11 @@ for a common critique:
 | `shrink_to_equal` (0 to 0.5) | the weights are too sensitive to estimation error |
 | `revise: false` | the criticism is wrong, or a change would cost more than it fixes |
 
-The script applies your levers to your method's portfolio and then holds the result to the
-IPS's volatility band and tracking-error budget, as every candidate is held. You do not choose
-weights directly, and you cannot leave the IPS's ex-ante limits.
+The script applies your levers to your method's portfolio, and that is the revised portfolio.
+You do not choose weights directly. Nothing forces the result into the IPS (decision 49): the
+CRO measures it as it measured the original, and the IPS binds on the CIO's recommendation. If
+your portfolio breaches the IPS, a lever that moves it toward compliance is one honest response
+to the CRO report; it is not the only one.
 
 ## Hard constraints
 

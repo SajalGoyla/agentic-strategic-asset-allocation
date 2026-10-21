@@ -42,37 +42,42 @@ reads what the registry produced), then the adversarial diversifier, which "exec
 initial 19 have finished" because it moves away from all of them. "Scenarios" are the monthly
 returns of the 18 assets over every month they share (from 1993-06), through `as_of`.
 
-## The IPS binds on every candidate (decision 37)
+## Tuning toward the IPS band, not forcing into it (decision 49)
 
-Each method runs, and then is solved again **subject to the IPS's ex-ante limits** — the 8-12%
-volatility band and the 6% tracking-error budget — if it could not reach them on its own.
-Twelve of the fifteen could not: a 0.65%-volatility portfolio is not a candidate a peer reviewer
-or the CIO can weigh against the mandate, and §3.1 makes the IPS the document every agent reads.
+No candidate is forced into the IPS. The IPS binds on the CIO's recommendation (§3.6), as in
+the paper; the CRO reports each candidate's breaches, the six-dimension score and the vote
+weigh them, and the CIO's ensembles are built to comply.
 
-The method keeps its own objective. Maximum Sharpe is still the best risk-adjusted portfolio,
-risk parity still the flattest risk contributions, maximum diversification still the highest
-diversification ratio — each now over the portfolios policy permits. A closed-form rule
-(inverse volatility, inverse variance) and an algorithm (HRP) have no objective to re-run, so
-those are projected to the nearest permitted portfolio by weight distance.
+What the skill does instead follows the professor's suggestion: where a method has a **genuine
+parameter** — one the literature itself varies — and its portfolio falls outside the 8-12%
+volatility band, the parameter is turned toward the band, to the band edge or as far as the
+parameter goes. Bisection on portfolio volatility finds the value.
 
-| Imposed | Why |
-|---|---|
-| volatility band | from the covariance matrix the method already used; no new information |
-| tracking-error budget | likewise |
-| **not** the drawdown limit | constraining a *realised* drawdown fits the weights to the 1993-2026 path, the look-ahead §5.1 warns about. The CRO measures it; it binds on the CIO (decision 32) |
-| **not** the return objective | a floor only (CPI + 3%), reported, never imposed (decision 41) |
+| Method | Parameter | What it moves |
+|---|---|---|
+| maximum Sharpe | risk aversion γ in max w'(μ − rf) − (γ/2)w'Σw | along the long-only efficient frontier; the default is the tangency point |
+| Black-Litterman | the same γ, on the posterior returns | the equilibrium's own δ = 2.5 is unchanged |
+| resampled frontier | the same γ, in every draw before averaging | Michaud's own way of picking a point on the resampled frontier |
+| CVaR minimisation | a minimum expected return (historical scenario mean) | along the mean-CVaR frontier — Rockafellar and Uryasev's own formulation; still reads no CMA |
+| volatility targeting | its target volatility (the band midpoint) | already inside the band |
 
-A method already inside the limits is returned untouched — the band is a limit, not a target.
-When one is adjusted, the proposal carries `policy_adjusted` and `unconstrained_volatility_pct`
-so a reviewer can tell the method under policy from the method unconstrained, and the agent is
-told to address it.
+Every other method's only "parameter" is its definition — inverse volatility's exponent,
+risk parity's equal budgets, HRP's recursion — and turning it makes the method something else:
+on the 2026-10-01 inputs, the σ^-k family that holds inverse volatility (k = 1) and inverse
+variance (k = 2) reaches 8% only at k = 0.106, 0.43% tracking error from equal weight. Those
+methods are proposed as they are, outside the band, and the agent is told to argue what the
+portfolio contributes to a compliant ensemble anyway.
 
-Two things this changed elsewhere. §3.4's Sharpe floor of "75% of the maximum Sharpe portfolio"
-is measured against the best Sharpe the **IPS permits**, not the unconstrained maximum: here the
-unconstrained tangency portfolio is 90% short Treasuries at a Sharpe of 0.663, and 75% of that
-is above the best attainable anywhere in the band, which left the floor admitting one portfolio.
-And the PC-researcher substitutes when its method duplicates a registry portfolio, because once
-the band binds, maximum entropy reduces to equal weight (decision 40).
+A tuned proposal carries `tuning` — the parameter, its value, the volatility at the default,
+and whether the band was reached — and its agent is told to say so. On the 2026-10-01 inputs:
+maximum Sharpe γ = 4.80, Black-Litterman 4.16, resampled frontier 5.47, CVaR a 8.2% return
+target, each from 0.6-2.7% to 8.00%. Maximum Sharpe lands on exactly the portfolio decision 37's
+constrained solve found (the volatility constraint's multiplier is the risk aversion), while
+Black-Litterman (7.1 effective assets, from 4.2) and the resampled frontier (13.1, from 5.0;
+Sharpe 0.43 from 0.40) are now points on their own frontiers instead of projections.
+
+§3.4's Sharpe floor for the adversarial diversifier and maximum entropy is again the paper's:
+75% of the unconstrained maximum Sharpe.
 
 ### PC-researcher
 

@@ -30,15 +30,17 @@ from saa.contracts import (
     PcProposalBody,
     read,
 )
+from saa.contracts.portfolio import MethodTuning
 from saa.data.store import DataStore
 from saa.ips import PortfolioMetrics, check_compliance
 from saa.run import RunContext
 from saa.skills.portfolio_construction.methods import (
     METHODS,
-    ExAnteLimits,
     Method,
     PortfolioInputs,
-    enforce_ex_ante_limits,
+    Tuning,
+    portfolio_volatility,
+    tune_toward_band,
 )
 
 log = logging.getLogger(__name__)
@@ -308,17 +310,23 @@ class Candidate:
     # Set when the agent is not named after its method: the PC-researcher runs whichever
     # library method it proposed, under its own id.
     agent: str | None = None
-    # The volatility the method produced before the IPS band was imposed, in percent; None when
-    # the method reached the band on its own and nothing was changed (decision 37).
-    unconstrained_volatility_pct: float | None = None
+    # Set when the method's own parameter was turned toward the IPS band (decision 49).
+    tuning: Tuning | None = None
 
     @property
     def agent_id(self) -> str:
         return self.agent or self.method.id
 
-    @property
-    def policy_adjusted(self) -> bool:
-        return self.unconstrained_volatility_pct is not None
+    def tuning_record(self) -> MethodTuning | None:
+        t = self.tuning
+        if t is None:
+            return None
+        return MethodTuning(
+            parameter=t.knob.parameter,
+            value=t.knob.reported(t.value),
+            untuned_volatility_pct=100 * t.untuned_volatility,
+            reached_band=t.reached_band,
+        )
 
     def body(self, rationale: str, *, notes: str | None = None) -> PcProposalBody:
         return PcProposalBody(
@@ -334,8 +342,7 @@ class Candidate:
             ips_compliance=self.compliance,
             rationale=rationale,
             notes=notes,
-            policy_adjusted=self.policy_adjusted,
-            unconstrained_volatility_pct=self.unconstrained_volatility_pct,
+            tuning=self.tuning_record(),
         )
 
 
@@ -358,54 +365,52 @@ def build_candidate(
     config: Config,
     *,
     build=None,
-    objective=None,
     agent: str | None = None,
 ) -> Candidate:
-    """Run one method, impose the IPS volatility band, and work out everything about the result.
+    """Run one method, tune its own parameter toward the IPS volatility band if it has one, and
+    work out everything about the result.
 
-    ``build`` overrides ``method.build`` when the method needs more than the stage inputs --
-    the adversarial diversifier needs the centroid of the other proposals -- and ``objective``
-    overrides ``method.objective`` for the same reason.
+    ``build`` overrides ``method.build`` when the method needs more than the stage inputs: the
+    adversarial diversifier needs the centroid of the other proposals.
 
-    The band is imposed here rather than inside each method because it is *policy*, not a
-    property of the method (decision 37): §3.1 makes the IPS the governing document every agent
-    reads, and a method left below the volatility floor cannot be peer-reviewed or voted on as a
-    real candidate. A method already inside the band is returned untouched.
+    Nothing is forced into the band (decision 49). A candidate is the method's portfolio, at its
+    default or, where the method has a genuine parameter, at the setting closest to the band;
+    the CRO reports any breach, the vote and the CIO weigh it, and the IPS binds on the CIO's
+    recommendation (§3.6), as in the paper.
     """
     inputs = portfolio_inputs(stage)
     weights = (build or method.build)(inputs)  # type: ignore[operator]
     band = config.ips.objectives.volatility
-    limits = ex_ante_limits(stage, config)
-    weights, unconstrained = enforce_ex_ante_limits(
-        weights,
-        inputs,
-        limits,
-        objective=objective or method.objective,
-        constraints=(method.band_constraints(inputs, limits) if method.band_constraints else ()),
-    )
-    if unconstrained is not None:
+    tuning = None
+    if method.knob is not None and build is None:
+        knob = method.knob(inputs)  # type: ignore[operator]
+        weights, tuning = tune_toward_band(
+            knob, inputs, weights, band.min_pct / 100.0, band.max_pct / 100.0
+        )
+    volatility = 100 * portfolio_volatility(weights, inputs.sigma)
+    if tuning is not None:
         log.info(
-            "%s: %.2f%% volatility outside the %.1f-%.1f%% IPS band; re-solved inside it at %.2f%%",
+            "%s: %.2f%% volatility at its default, outside the %.1f-%.1f%% IPS band; %s tuned "
+            "to %.4g gives %.2f%%%s",
             method.id,
-            unconstrained,
+            100 * tuning.untuned_volatility,
             band.min_pct,
             band.max_pct,
-            100 * float(np.sqrt(weights.to_numpy() @ inputs.sigma @ weights.to_numpy())),
+            tuning.knob.parameter,
+            tuning.knob.reported(tuning.value),
+            volatility,
+            "" if tuning.reached_band else " (as far as the parameter goes)",
         )
-    return candidate_from_weights(
-        method, weights, stage, config, agent=agent, unconstrained_volatility_pct=unconstrained
-    )
-
-
-def ex_ante_limits(stage: StageInputs, config: Config) -> ExAnteLimits:
-    """The IPS limits imposed on every candidate (decision 37), in decimals."""
-    band = config.ips.objectives.volatility
-    return ExAnteLimits(
-        floor=band.min_pct / 100.0,
-        cap=band.max_pct / 100.0,
-        benchmark=stage.benchmark,
-        tracking_error_cap=config.ips.active_risk.tracking_error.max_ex_ante_pct / 100.0,
-    )
+    elif not band.min_pct - 1e-4 <= volatility <= band.max_pct + 1e-4:
+        log.info(
+            "%s: %.2f%% volatility, outside the %.1f-%.1f%% IPS band; the method has no "
+            "parameter to tune, so it is proposed as it is",
+            method.id,
+            volatility,
+            band.min_pct,
+            band.max_pct,
+        )
+    return candidate_from_weights(method, weights, stage, config, agent=agent, tuning=tuning)
 
 
 def candidate_from_weights(
@@ -415,7 +420,7 @@ def candidate_from_weights(
     config: Config,
     *,
     agent: str | None = None,
-    unconstrained_volatility_pct: float | None = None,
+    tuning: Tuning | None = None,
 ) -> Candidate:
     """Everything about a portfolio once its weights are fixed: statistics and IPS compliance.
 
@@ -441,7 +446,7 @@ def candidate_from_weights(
         stats=stats,
         compliance=IpsCompliance.from_report(report),
         agent=agent,
-        unconstrained_volatility_pct=unconstrained_volatility_pct,
+        tuning=tuning,
     )
 
 

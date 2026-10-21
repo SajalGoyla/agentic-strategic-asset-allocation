@@ -6,7 +6,6 @@ No network and no API key: ``FakeAnthropic`` from the macro-agent tests stands i
 import numpy as np
 import pandas as pd
 import pytest
-from pydantic import ValidationError
 
 from saa.agents.cma_judge import agent as judge_agent
 from saa.agents.pc import agent as pc_agent
@@ -14,7 +13,6 @@ from saa.contracts import (
     CmaMethodEstimate,
     CmaMethodId,
     CmaMethodsBody,
-    PcProposalBody,
     Producer,
     Signal,
     SignalCategory,
@@ -280,53 +278,105 @@ def test_a_proposal_carries_a_real_compliance_result(tmp_config):
     assert "objectives.max_drawdown" in candidate.compliance.not_evaluated
 
 
-def test_a_method_that_cannot_reach_the_ips_band_is_re_solved_inside_it(tmp_config):
-    """Decision 37. Inverse variance concentrates in cash, far below the volatility floor."""
+def test_a_method_with_no_parameter_is_proposed_outside_the_band(tmp_config):
+    """Decision 49. Inverse variance concentrates in cash, far below the volatility floor, and
+    has no parameter that changes that without changing the method: it is not forced in."""
     stage = stage_inputs(tmp_config)
     band = tmp_config.ips.objectives.volatility
     candidates, _ = build_candidates(stage, tmp_config, method_ids=["inverse_variance"])
     candidate: Candidate = candidates["inverse_variance"]
 
-    assert candidate.policy_adjusted
-    assert candidate.unconstrained_volatility_pct < band.min_pct, "what the method wanted"
-    # The authority on whether the band is met is `check_compliance`, which carries its own
-    # tolerance -- the solver lands on the floor to within rounding, not exactly on it.
-    assert not any(v.rule == "objectives.volatility" for v in candidate.compliance.violations)
-    assert candidate.stats.expected_volatility_pct == pytest.approx(band.min_pct, abs=1e-6)
-    # The adjustment reaches the contract, so a reviewer and the CRO can see it happened.
-    body = candidate.body("a rationale long enough to be read")
-    assert body.policy_adjusted is True
-    assert body.unconstrained_volatility_pct == candidate.unconstrained_volatility_pct
+    assert candidate.tuning is None
+    assert candidate.stats.expected_volatility_pct < band.min_pct
+    # The breach is reported by the same check the CRO runs; it binds on the CIO, not here.
+    assert any(v.rule == "objectives.volatility" for v in candidate.compliance.violations)
+    assert candidate.body("a rationale long enough to be read").tuning is None
 
 
-def test_a_method_already_inside_the_band_is_left_alone(tmp_config):
-    """The band is a limit, not a target: nothing is moved that does not have to be."""
-    from saa.skills.portfolio_construction import ExAnteLimits, enforce_ex_ante_limits
+def test_maximum_sharpe_is_tuned_along_its_own_frontier(tmp_config):
+    """Its risk aversion is turned until the portfolio reaches the floor, and the portfolio is
+    exactly the mean-variance solution at that risk aversion."""
+    from saa.skills.portfolio_construction import mean_variance
     from saa.skills.portfolio_construction.analysis import portfolio_inputs
 
     stage = stage_inputs(tmp_config)
-    inputs = portfolio_inputs(stage)
     band = tmp_config.ips.objectives.volatility
-    limits = ExAnteLimits(floor=band.min_pct / 100, cap=band.max_pct / 100)
+    candidate = build_candidates(stage, tmp_config, method_ids=["max_sharpe"])[0]["max_sharpe"]
 
+    tuning = candidate.tuning_record()
+    assert tuning is not None and tuning.parameter == "risk_aversion" and tuning.reached_band
+    assert tuning.untuned_volatility_pct < band.min_pct
+    assert candidate.stats.expected_volatility_pct == pytest.approx(band.min_pct, abs=0.01)
+    assert not any(v.rule == "objectives.volatility" for v in candidate.compliance.violations)
+    direct = mean_variance(portfolio_inputs(stage), tuning.value)
+    pd.testing.assert_series_equal(candidate.weights, direct, atol=1e-6)
+    assert candidate.body("a rationale long enough to be read").tuning == tuning
+
+
+def test_cvar_is_tuned_by_a_return_target_and_still_reads_no_cma(tmp_config):
+    stage = stage_inputs(tmp_config)
+    band = tmp_config.ips.objectives.volatility
+    candidate = build_candidates(stage, tmp_config, method_ids=["cvar_minimization"])[0][
+        "cvar_minimization"
+    ]
+    tuning = candidate.tuning_record()
+    assert tuning is not None and tuning.parameter == "minimum_return_pct"
+    assert candidate.stats.expected_volatility_pct == pytest.approx(band.min_pct, abs=0.01)
+    assert not candidate.method.uses_cmas
+
+
+def test_a_portfolio_inside_the_band_is_not_tuned(tmp_config):
+    """The band is a limit, not a target: nothing is moved that does not have to be."""
+    from saa.skills.portfolio_construction import tune_toward_band
+    from saa.skills.portfolio_construction.analysis import portfolio_inputs
+    from saa.skills.portfolio_construction.methods import MAX_SHARPE_KNOB
+
+    inputs = portfolio_inputs(stage_inputs(tmp_config))
     inside = pd.Series({"us_large_cap": 0.4, "intermediate_treasuries": 0.4, "cash": 0.2})
-    held = inside.reindex(IDS).fillna(0.0).to_numpy()
-    sigma = stage.covariance.loc[IDS, IDS].to_numpy()
-    assert limits.contains_volatility(float((held @ sigma @ held) ** 0.5)), "fixture must be in"
-
-    weights, unconstrained = enforce_ex_ante_limits(inside, inputs, limits)
-    assert unconstrained is None, "nothing was adjusted, so there is nothing to disclose"
+    weights, tuning = tune_toward_band(MAX_SHARPE_KNOB, inputs, inside, 0.02, 0.30)
+    assert tuning is None
     pd.testing.assert_series_equal(weights, inside)
 
 
-def test_the_contract_refuses_an_undisclosed_policy_adjustment(tmp_config):
-    """A reviewer must be able to tell the method under policy from the method unconstrained."""
+def test_a_parameter_that_cannot_reach_the_band_goes_as_far_as_it_can(tmp_config):
+    from saa.skills.portfolio_construction import Knob, tune_toward_band
+    from saa.skills.portfolio_construction.analysis import portfolio_inputs
+
+    inputs = portfolio_inputs(stage_inputs(tmp_config))
+    # A knob that only ever mixes treasuries and cash: at most 6% volatility.
+    knob = Knob(
+        parameter="share",
+        description="treasury share",
+        prepare=lambda _inputs: (
+            lambda x: pd.Series(
+                {"us_large_cap": 0.0, "intermediate_treasuries": x, "cash": 1.0 - x}
+            )
+        ),
+        low=0.0,
+        high=1.0,
+        riskier_when_higher=True,
+        log_scale=False,
+    )
+    start = pd.Series({"us_large_cap": 0.0, "intermediate_treasuries": 0.1, "cash": 0.9})
+    weights, tuning = tune_toward_band(knob, inputs, start, 0.08, 0.12)
+    assert tuning is not None and not tuning.reached_band
+    assert tuning.value == 1.0 and weights["intermediate_treasuries"] == 1.0
+
+
+def test_a_revision_applies_its_levers_and_nothing_else(tmp_config):
+    """Decision 49: no IPS re-solve after the levers, so the revised weights are exactly the
+    levers applied to the proposal."""
+    from saa.skills.portfolio_construction.revision import RevisionLevers, apply_levers, revise
+
     stage = stage_inputs(tmp_config)
-    candidates, _ = build_candidates(stage, tmp_config, method_ids=["equal_weight"])
-    payload = candidates["equal_weight"].body("a rationale long enough to be read").model_dump()
-    payload.update(policy_adjusted=True, unconstrained_volatility_pct=None)
-    with pytest.raises(ValidationError, match="must say what the method produced"):
-        PcProposalBody.model_validate(payload)
+    candidate = build_candidates(stage, tmp_config, method_ids=["inverse_variance"])[0][
+        "inverse_variance"
+    ]
+    proposal = candidate.body("a rationale long enough to be read")
+    levers = RevisionLevers(shrink_to_equal=0.5)
+    revised = revise(proposal, levers, stage, tmp_config)
+    expected = apply_levers(pd.Series(proposal.weights), stage.asset_ids, levers)
+    pd.testing.assert_series_equal(revised.weights, expected)
 
 
 def test_no_llm_writes_a_deterministic_rationale(tmp_config):

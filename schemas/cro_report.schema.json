@@ -297,7 +297,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "3.4.0",
+          "default": "4.0.0",
           "title": "Schema Version",
           "type": "string"
         },

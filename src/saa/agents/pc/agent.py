@@ -120,6 +120,36 @@ def _weights_table(candidate: Candidate, stage: StageInputs) -> str:
     return "\n".join(lines)
 
 
+def _band_note(candidate: Candidate) -> str:
+    """How the portfolio relates to the IPS volatility band, which binds on the CIO's
+    recommendation and not on a candidate (decision 49)."""
+    t = candidate.tuning
+    if t is not None:
+        knob = t.knob
+        reach = (
+            f"brings the portfolio to {100 * t.volatility:.2f}%"
+            if t.reached_band
+            else f"is as far as the parameter goes, and reaches only {100 * t.volatility:.2f}%"
+        )
+        return (
+            f"\n\n**Your method's parameter was tuned toward the IPS volatility band.** At its "
+            f"default it produced {100 * t.untuned_volatility:.2f}% volatility. Its parameter is "
+            f"{knob.description}. Setting `{knob.parameter}` to "
+            f"{knob.reported(t.value):.4g} {reach}. This is your method at a different setting, "
+            f"not a different method: say so in your rationale and say what the setting changed."
+        )
+    breaches = [v for v in candidate.compliance.violations if "volatility" in v.rule]
+    if breaches:
+        return (
+            "\n\n**This portfolio is outside the IPS volatility band, as your method produced "
+            "it.** The method has no parameter that would change that without changing what the "
+            "method is, so it is proposed as it is. The band binds on the CIO's recommendation, "
+            "not on you: the CRO will report the breach and the vote will weigh it. Make the case "
+            "for what this portfolio contributes to the CIO's ensemble despite it."
+        )
+    return ""
+
+
 def build_prompt(candidate: Candidate, stage: StageInputs, *, ips_status: str) -> str:
     stats = candidate.stats
     compliance = candidate.compliance
@@ -141,14 +171,7 @@ def build_prompt(candidate: Candidate, stage: StageInputs, *, ips_status: str) -
         )
     if candidate.method.prompt_note:
         cma_note += "\n\n" + candidate.method.prompt_note
-    if candidate.policy_adjusted:
-        cma_note += (
-            f"\n\n**This portfolio was adjusted to meet the IPS.** Your method produced "
-            f"{candidate.unconstrained_volatility_pct:.2f}% volatility on its own, outside the "
-            f"IPS limits, so it was solved again subject to them while keeping its own "
-            f"objective. The weights below are the result. Say so in your rationale and say "
-            f"what the constraint changed."
-        )
+    cma_note += _band_note(candidate)
 
     return f"""Make the case for the portfolio your method produced.
 
@@ -338,17 +361,11 @@ def run_pc_agents(
         else:
             center = centroid(others, stage.asset_ids)
             try:
-                centred = center.reindex(stage.asset_ids).fillna(0.0).to_numpy()
                 candidate = build_candidate(
                     ADVERSARIAL,
                     stage,
                     config,
                     build=lambda inputs: adversarial_diversifier(inputs, center),
-                    # §3.4's objective, so imposing the IPS band keeps it maximally distant
-                    # from the centroid rather than projecting it toward the others.
-                    objective=lambda w, inputs: (
-                        -float((w - centred) @ inputs.sigma @ (w - centred))
-                    ),
                 )
                 proposal = propose(candidate, stage, llm, ips_status=run.ips_status, system=system)
             except Exception as exc:
