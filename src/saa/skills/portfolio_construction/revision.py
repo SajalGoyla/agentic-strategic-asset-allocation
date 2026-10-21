@@ -9,10 +9,11 @@ expressed as levers on that portfolio, each the remedy for a critique a review t
 * **shrink toward equal weight** -- it is too sensitive to estimation error (DeMiguel, Garlappi
   and Uppal 2009: 1/N is the portfolio that estimates nothing).
 
-The levers are applied to the method's own portfolio, and the result is held to the IPS's
-ex-ante limits exactly as every candidate is (decision 37), with the levers kept as
-constraints so the re-solve cannot undo them. A revision changes the portfolio, not the
-method: risk parity revised is still risk parity's portfolio, adjusted.
+The levers are applied to the method's own portfolio and nothing else is done to it: a
+candidate is not forced into the IPS band (decision 49), so neither is its revision. The CRO
+measures the revised portfolio exactly as it measured the original, and the IPS binds on the
+CIO's recommendation. A revision changes the portfolio, not the method: risk parity revised is
+still risk parity's portfolio, adjusted.
 """
 
 from __future__ import annotations
@@ -28,15 +29,12 @@ from saa.skills.portfolio_construction.analysis import (
     Candidate,
     StageInputs,
     candidate_from_weights,
-    ex_ante_limits,
-    portfolio_inputs,
 )
 from saa.skills.portfolio_construction.methods import (
     ADVERSARIAL,
     METHODS,
     RESEARCH_LIBRARY,
     Method,
-    enforce_ex_ante_limits,
 )
 
 MAX_SHRINK = 0.5  # beyond half-way to 1/N the revision has become a different method
@@ -120,44 +118,16 @@ def apply_levers(weights: pd.Series, asset_ids: list[str], levers: RevisionLever
     return pd.Series(w / w.sum(), index=asset_ids, dtype="float64")
 
 
-def lever_constraints(asset_ids: list[str], levers: RevisionLevers) -> list[dict]:
-    """The levers as solver constraints, so re-imposing the IPS band cannot undo them."""
-    cons: list[dict] = []
-    for i, asset in enumerate(asset_ids):
-        if asset in levers.exclude:
-            cons.append({"type": "eq", "fun": lambda w, i=i: w[i]})
-    if levers.max_weight is not None:
-        cap = levers.max_weight
-        # One scalar constraint per asset: the IPS re-solve checks each constraint as a number.
-        for i in range(len(asset_ids)):
-            cons.append({"type": "ineq", "fun": lambda w, i=i: cap - w[i]})
-    return cons
-
-
 def revise(
     proposal: PcProposalBody,
     levers: RevisionLevers,
     stage: StageInputs,
     config: Config,
 ) -> Candidate:
-    """The revised candidate: levers applied, then held to the IPS's ex-ante limits."""
-    method = method_for(proposal)
-    ids = stage.asset_ids
-    target = apply_levers(pd.Series(proposal.weights, dtype="float64"), ids, levers)
-    weights, before_band = enforce_ex_ante_limits(
-        target,
-        portfolio_inputs(stage),
-        ex_ante_limits(stage, config),
-        objective=None,  # nearest permitted portfolio to the revised one
-        constraints=lever_constraints(ids, levers),
-    )
+    """The revised candidate: the levers applied to the proposal's weights."""
+    weights = apply_levers(pd.Series(proposal.weights, dtype="float64"), stage.asset_ids, levers)
     return candidate_from_weights(
-        method,
-        weights,
-        stage,
-        config,
-        agent=proposal.agent_id,
-        unconstrained_volatility_pct=before_band,
+        method_for(proposal), weights, stage, config, agent=proposal.agent_id
     )
 
 

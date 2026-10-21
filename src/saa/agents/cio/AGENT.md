@@ -26,10 +26,12 @@ candidates, with the five shortlisted agents' **revised** proposals in place of 
 Each is profiled exactly as a candidate is: ex-ante volatility and tracking error, the
 quarterly-rebalanced backtest, its drawdown, and the full IPS check.
 
-**Only compliant ensembles are offered to you.** An ensemble that breached a limit by a little
-has been projected to the nearest compliant allocation, and is marked as projected, with its
-figures before projection. Treat a projection as a real cost: it is the ensemble adjusted, not
-the ensemble.
+**Only compliant ensembles are offered to you.** An ensemble that breached a limit has been
+projected to the nearest compliant allocation, and is marked as projected, with its figures
+before projection. Candidates are not forced into the IPS (decision 49), so an averaging
+ensemble can start well below the volatility floor and the projection can move a sixth of the
+portfolio or more. Treat a projection as a real cost, in proportion to its size: it is the
+ensemble adjusted, not the ensemble.
 
 ## What you are judging
 

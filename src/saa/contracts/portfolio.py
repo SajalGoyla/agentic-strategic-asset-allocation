@@ -98,6 +98,20 @@ class PcCategory(StrEnum):
     PC_RESEARCHER = "pc_researcher"
 
 
+class MethodTuning(Contract):
+    """A method's own parameter, turned toward the IPS volatility band (decision 49).
+
+    Recorded so the peer reviewers, the CRO and the CIO can see that the portfolio is the
+    method at a different setting, and what the method produced at its default.
+    """
+
+    parameter: str  # e.g. "risk_aversion", "minimum_return_pct"
+    value: float  # the tuned value, in the parameter's own units
+    untuned_volatility_pct: float
+    # False when the parameter's whole range could not bring the portfolio into the band.
+    reached_band: bool
+
+
 class PcProposalBody(Contract):
     """One candidate portfolio.
 
@@ -124,23 +138,9 @@ class PcProposalBody(Contract):
     # The adversarial diversifier and the researcher agent carry extra context.
     notes: str | None = None
 
-    # Set when the method could not reach the IPS volatility band on its own and was re-solved
-    # subject to it (decision 37). The peer reviewers and the CRO have to be able to see that
-    # this is the method under policy rather than the method unconstrained, so it is a field
-    # rather than a line of prose, and `unconstrained_volatility_pct` records what the method
-    # produced before the band was imposed.
-    policy_adjusted: bool = False
-    unconstrained_volatility_pct: float | None = None
-
-    @model_validator(mode="after")
-    def _adjustment_is_disclosed(self) -> PcProposalBody:
-        if self.policy_adjusted != (self.unconstrained_volatility_pct is not None):
-            raise ValueError(
-                f"{self.agent_id}: policy_adjusted is {self.policy_adjusted} but "
-                f"unconstrained_volatility_pct is {self.unconstrained_volatility_pct}; a policy "
-                "adjustment must say what the method produced on its own"
-            )
-        return self
+    # Set when the method's own parameter was turned toward the IPS volatility band. Candidates
+    # are not forced into the band: the IPS binds on the CIO's recommendation (decision 49).
+    tuning: MethodTuning | None = None
 
     @model_validator(mode="after")
     def _fully_invested(self) -> PcProposalBody:

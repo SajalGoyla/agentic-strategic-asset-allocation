@@ -225,19 +225,8 @@ def resampled_efficient_frontier(
     of data is the information the draw pretends the CMAs carry [proposed]; the seed is fixed so
     the method is deterministic.
     """
-    mu, sigma = inputs.mu, inputs.sigma
-    rng = np.random.default_rng(seed)
-    total = np.zeros(len(mu))
-    for _ in range(draws):
-        sample = rng.multivariate_normal(mu / 12, sigma / 12, size=months, method="cholesky")
-        draw = PortfolioInputs(
-            asset_ids=inputs.asset_ids,
-            covariance=pd.DataFrame(
-                np.cov(sample, rowvar=False) * 12, index=inputs.asset_ids, columns=inputs.asset_ids
-            ),
-            expected_returns=pd.Series(sample.mean(axis=0) * 12, index=inputs.asset_ids),
-            risk_free=inputs.risk_free,
-        )
+    total = np.zeros(len(inputs.asset_ids))
+    for draw in resampled_draws(inputs, draws=draws, months=months, seed=seed):
         try:
             total += max_sharpe(draw).to_numpy()
         except ValueError:
@@ -281,26 +270,11 @@ def black_litterman(
     This is why the method sits in the return-optimized family: without views it collapses to
     the market portfolio, and the whole point is that the CMAs move it away from that.
     """
-    pi = implied_equilibrium_returns(inputs, risk_aversion=risk_aversion).to_numpy()
-    q = inputs.mu
-    sigma = inputs.sigma
-    tau_sigma = tau * sigma
-
-    omega = np.diag(np.maximum(np.diag(tau_sigma), 1e-12) / max(view_confidence, 1e-6))
-    tau_sigma_inv = np.linalg.pinv(tau_sigma)
-    omega_inv = np.linalg.pinv(omega)
-
-    posterior_cov = np.linalg.pinv(tau_sigma_inv + omega_inv)
-    posterior_mu = posterior_cov @ (tau_sigma_inv @ pi + omega_inv @ q)
-
-    blended = PortfolioInputs(
-        asset_ids=inputs.asset_ids,
-        covariance=inputs.covariance,
-        expected_returns=pd.Series(posterior_mu, index=inputs.asset_ids),
-        risk_free=inputs.risk_free,
-        market_weights=inputs.market_weights,
+    return max_sharpe(
+        black_litterman_posterior(
+            inputs, risk_aversion=risk_aversion, tau=tau, view_confidence=view_confidence
+        )
     )
-    return max_sharpe(blended)
 
 
 # ------------------------------------------------------------------------- shared helpers
@@ -614,242 +588,284 @@ def adversarial_diversifier(
     return _normalise(best, inputs.asset_ids)
 
 
-# --------------------------------------------------------------------------------- registry
-# ------------------------------------------------------------------- the IPS band as policy
-# Methods are compared with the band at this tolerance, so a 1e-12 residue is not a breach.
-BAND_TOL = 1e-6
+# --------------------------------------------------------------------- tuning toward the band
+# Decision 49. A method is run as it is defined. Where it has a genuine parameter -- one the
+# literature itself varies, not a change of what the method is -- and its portfolio falls
+# outside the IPS volatility band, that parameter is turned toward the band: as far as the band
+# edge, or as far as the parameter goes. Nothing is forced. A method with no such parameter, or
+# whose parameter cannot reach, is proposed outside the band and the CRO, the vote and the CIO
+# weigh it there; the IPS binds on the CIO's recommendation (§3.6), as in the paper.
+#
+# The tuned value is found by bisection on portfolio volatility, which every knob below moves
+# monotonically: risk aversion along the long-only mean-variance frontier, the return target
+# along the mean-CVaR frontier.
+
+TUNING_STEPS = 40
+TUNING_TOL = 1e-5  # decimal volatility, i.e. 0.001 percentage points
+RISK_AVERSION_RANGE = (1e-3, 1e3)
 
 
-def _objective_max_sharpe(w: np.ndarray, inputs: PortfolioInputs) -> float:
-    return -sharpe_ratio(w, inputs)
+def mean_variance(inputs: PortfolioInputs, risk_aversion: float) -> pd.Series:
+    """Long-only mean-variance: maximise w'(mu - rf) - (gamma/2) w'Sigma w over the simplex.
+
+    The risk-aversion parameter gamma is the classical knob of the return-optimised family: a
+    low gamma walks the frontier toward the highest-return asset, a high one toward the minimum
+    variance portfolio. The problem is a convex quadratic programme, so one start suffices.
+    """
+    sigma, excess = inputs.sigma, inputs.mu - inputs.risk_free
+    n = len(inputs.asset_ids)
+
+    def objective(w):
+        return -float(w @ excess) + 0.5 * risk_aversion * float(w @ sigma @ w)
+
+    def gradient(w):
+        return -excess + risk_aversion * sigma @ w
+
+    best = _simplex_minimize(objective, [np.ones(n) / n], n, gradient=gradient)
+    return _normalise(best, inputs.asset_ids)
 
 
-def _objective_min_cvar(w: np.ndarray, inputs: PortfolioInputs, confidence: float = 0.95) -> float:
-    """Empirical expected shortfall of the scenarios: piecewise linear in the weights."""
-    losses = np.sort(inputs.scenario_matrix @ w)
-    tail = max(1, int(round((1.0 - confidence) * len(losses))))
-    return -float(losses[:tail].mean())
+def cvar_with_return_target(
+    inputs: PortfolioInputs, min_return: float, *, confidence: float = CVAR_CONFIDENCE
+) -> pd.Series:
+    """Rockafellar and Uryasev's (2000) own formulation: minimum CVaR subject to an expected
+    return of at least ``min_return`` (annualised decimal). The expected return is the mean of
+    the historical scenarios, so the method still reads no CMA."""
+    r = inputs.scenario_matrix
+    t, n = r.shape
+    cost = np.concatenate([np.zeros(n), [1.0], np.full(t, 1.0 / ((1.0 - confidence) * t))])
+    a_ub = np.hstack([-r, -np.ones((t, 1)), -np.eye(t)])
+    b_ub = np.zeros(t)
+    # 12 * mean(r)'w >= min_return
+    target_row = np.concatenate([-12.0 * r.mean(axis=0), [0.0], np.zeros(t)])
+    a_ub = np.vstack([a_ub, target_row])
+    b_ub = np.append(b_ub, -min_return)
+    a_eq = np.concatenate([np.ones(n), [0.0], np.zeros(t)])[None, :]
+    bounds = [(0.0, 1.0)] * n + [(None, None)] + [(0.0, None)] * t
+    result = linprog(
+        cost, A_ub=a_ub, b_ub=b_ub, A_eq=a_eq, b_eq=[1.0], bounds=bounds, method="highs"
+    )
+    if not result.success:
+        raise ValueError(f"CVaR programme with a return target failed: {result.message}")
+    return _normalise(result.x[:n], inputs.asset_ids)
 
 
-def _risk_dispersion(w: np.ndarray, covariance: np.ndarray) -> float:
-    """Squared distance of the risk contributions from equal. Zero at risk parity."""
-    w = np.clip(w, 1e-12, None)
-    marginal = covariance @ w
-    contributions = w * marginal / float(w @ marginal)
-    return float(((contributions - 1.0 / len(w)) ** 2).sum())
-
-
-def _objective_risk_parity(w: np.ndarray, inputs: PortfolioInputs) -> float:
-    return _risk_dispersion(w, inputs.sigma)
-
-
-def _objective_tail_risk_parity(w: np.ndarray, inputs: PortfolioInputs) -> float:
-    return _risk_dispersion(w, downside_covariance(inputs.scenario_matrix))
-
-
-def _objective_max_diversification(w: np.ndarray, inputs: PortfolioInputs) -> float:
-    variance = float(w @ inputs.sigma @ w)
-    return -float(w @ inputs.volatilities) / np.sqrt(variance) if variance > 0 else 0.0
-
-
-def _objective_max_entropy(w: np.ndarray, inputs: PortfolioInputs) -> float:
-    w = np.clip(w, 1e-12, None)
-    return float((w * np.log(w)).sum())
+def black_litterman_posterior(
+    inputs: PortfolioInputs,
+    *,
+    risk_aversion: float = 2.5,
+    tau: float = 0.05,
+    view_confidence: float = 1.0,
+) -> PortfolioInputs:
+    """The inputs with the Black-Litterman posterior in place of the CMAs (see
+    ``black_litterman``)."""
+    pi = implied_equilibrium_returns(inputs, risk_aversion=risk_aversion).to_numpy()
+    q = inputs.mu
+    tau_sigma = tau * inputs.sigma
+    omega = np.diag(np.maximum(np.diag(tau_sigma), 1e-12) / max(view_confidence, 1e-6))
+    tau_sigma_inv = np.linalg.pinv(tau_sigma)
+    omega_inv = np.linalg.pinv(omega)
+    posterior_mu = np.linalg.pinv(tau_sigma_inv + omega_inv) @ (tau_sigma_inv @ pi + omega_inv @ q)
+    return PortfolioInputs(
+        asset_ids=inputs.asset_ids,
+        covariance=inputs.covariance,
+        expected_returns=pd.Series(posterior_mu, index=inputs.asset_ids),
+        risk_free=inputs.risk_free,
+        market_weights=inputs.market_weights,
+    )
 
 
 @dataclass(frozen=True)
-class ExAnteLimits:
-    """The IPS limits that can be imposed on a method without look-ahead: both come from the
-    covariance matrix the method already consumed. Decimals."""
+class Knob:
+    """A method's own tunable parameter."""
 
-    floor: float
-    cap: float
-    benchmark: pd.Series | None = None
-    tracking_error_cap: float | None = None
+    parameter: str  # the contract's name for it, e.g. "risk_aversion"
+    description: str  # for the agent's prompt
+    # inputs -> (value -> weights). Preparing once lets a costly method (the resampled
+    # frontier's 200 draws) be re-run at many values cheaply.
+    prepare: object  # Callable[[PortfolioInputs], Callable[[float], pd.Series]]
+    low: float
+    high: float
+    riskier_when_higher: bool
+    log_scale: bool = True
+    report_scale: float = 1.0  # value in the contract = value x this (100 for a return)
 
-    def contains_volatility(self, volatility: float) -> bool:
-        return self.floor - BAND_TOL <= volatility <= self.cap + BAND_TOL
+    def reported(self, value: float) -> float:
+        return value * self.report_scale
 
 
-def max_sharpe_within(inputs: PortfolioInputs, limits: ExAnteLimits) -> float:
-    """The highest Sharpe ratio reachable without breaching the IPS's ex-ante limits."""
+@dataclass(frozen=True)
+class Tuning:
+    """What tuning a knob did. Volatilities are decimals."""
+
+    knob: Knob
+    value: float
+    untuned_volatility: float
+    volatility: float
+    reached_band: bool
+
+
+def portfolio_volatility(weights: pd.Series | np.ndarray, sigma: np.ndarray) -> float:
+    w = weights.to_numpy(dtype=float) if isinstance(weights, pd.Series) else weights
+    return float(np.sqrt(max(float(w @ sigma @ w), 0.0)))
+
+
+def tune_toward_band(
+    knob: Knob, inputs: PortfolioInputs, untuned: pd.Series, floor: float, cap: float
+) -> tuple[pd.Series, Tuning | None]:
+    """Turn ``knob`` until the portfolio's volatility reaches the band edge it lies beyond, or
+    as far as the knob goes. Returns the untuned weights and None when already in the band."""
     sigma = inputs.sigma
-    n = len(inputs.asset_ids)
-    cons = [
-        {"type": "eq", "fun": lambda w: w.sum() - 1.0},
-        {"type": "ineq", "fun": lambda w: float(w @ sigma @ w) - limits.floor**2},
-        {"type": "ineq", "fun": lambda w: limits.cap**2 - float(w @ sigma @ w)},
-    ]
-    if limits.benchmark is not None and limits.tracking_error_cap is not None:
-        b = limits.benchmark.reindex(inputs.asset_ids).fillna(0.0).to_numpy(dtype=float)
-        cons.append(
-            {
-                "type": "ineq",
-                "fun": lambda w: (
-                    limits.tracking_error_cap
-                    - float(np.sqrt(max(float((w - b) @ sigma @ (w - b)), 0.0)))
-                ),
-            }
-        )
-    best = -np.inf
-    for start in volatility_band_starts(inputs, np.ones(n) / n, limits.benchmark):
-        result = minimize(
-            lambda w: -sharpe_ratio(w, inputs),
-            start,
-            method="SLSQP",
-            bounds=[(0.0, 1.0)] * n,
-            constraints=cons,
-            options={"maxiter": 1000, "ftol": 1e-10},
-        )
-        w = np.clip(result.x, 0.0, None)
-        if w.sum() <= 0:
-            continue
-        w = w / w.sum()
-        if limits.contains_volatility(float(np.sqrt(max(float(w @ sigma @ w), 0.0)))):
-            best = max(best, sharpe_ratio(w, inputs))
-    return best
+    untuned_vol = portfolio_volatility(untuned, sigma)
+    if floor - TUNING_TOL <= untuned_vol <= cap + TUNING_TOL:
+        return untuned, None
+    raise_risk = untuned_vol < floor
+    target = floor if raise_risk else cap
+    at = knob.prepare(inputs)
+
+    risky, safe = (knob.high, knob.low) if knob.riskier_when_higher else (knob.low, knob.high)
+    if not raise_risk:
+        risky, safe = safe, risky  # moving toward less risk
+    far = at(risky)
+    far_vol = portfolio_volatility(far, sigma)
+    beyond = far_vol < target if raise_risk else far_vol > target
+    if beyond:  # the knob's end of range still falls short: as close as the method gets
+        return far, Tuning(knob, risky, untuned_vol, far_vol, reached_band=False)
+
+    def scale(x):
+        return np.log(x) if knob.log_scale else x
+
+    def unscale(y):
+        return float(np.exp(y)) if knob.log_scale else float(y)
+
+    # Invariant: `near` is on the untuned side of the target, `ok` on (or past) the band edge.
+    near_y, ok_y = scale(safe), scale(risky)
+    ok_w, ok_vol = far, far_vol
+    for _ in range(TUNING_STEPS):
+        mid = unscale((near_y + ok_y) / 2.0)
+        w = at(mid)
+        v = portfolio_volatility(w, sigma)
+        inside = v >= target if raise_risk else v <= target
+        if inside:
+            ok_y, ok_w, ok_vol = scale(mid), w, v
+        else:
+            near_y = scale(mid)
+        if inside and abs(v - target) < TUNING_TOL:
+            break
+    return ok_w, Tuning(knob, unscale(ok_y), untuned_vol, ok_vol, reached_band=True)
 
 
-def _sharpe_floor(inputs: PortfolioInputs, limits: ExAnteLimits | None = None) -> list[dict]:
-    """§3.4's floor, measured against the best Sharpe ratio the *policy* allows.
+RISK_AVERSION = (
+    "risk aversion (gamma) in the long-only mean-variance problem max w'(mu - rf) - "
+    "(gamma/2) w'Sigma w: lower gamma walks the efficient frontier toward higher risk and return"
+)
 
-    The paper puts the floor at "75% of the maximum Sharpe portfolio" in a setting where the
-    IPS does not bind on candidates. Once it does, the unconstrained maximum is the wrong
-    reference: here the unconstrained tangency portfolio is 90% short Treasuries at a Sharpe of
-    0.66, 75% of which is 0.50 -- above the 0.505 best attainable anywhere inside the 8-12%
-    volatility band. The floor would then admit exactly one portfolio, and the adversarial
-    diversifier and the maximum-entropy researcher both collapsed onto it (decision 37). Taking
-    75% of the best Sharpe the IPS permits keeps the floor doing its job: stopping an
-    indefensible proposal, not dictating a single one.
-    """
-    reference = max_sharpe_within(inputs, limits) if limits else None
-    if reference is None or not np.isfinite(reference) or reference <= 0:
-        return sharpe_floor_constraint(inputs, SHARPE_FLOOR_FRACTION)
-    floor = SHARPE_FLOOR_FRACTION * reference
-    return [{"type": "ineq", "fun": lambda w: sharpe_ratio(w, inputs) - floor}]
+MAX_SHARPE_KNOB = Knob(
+    parameter="risk_aversion",
+    description=RISK_AVERSION
+    + ". Your method's own portfolio is the tangency (maximum Sharpe) point of that frontier",
+    prepare=lambda inputs: lambda gamma: mean_variance(inputs, gamma),
+    low=RISK_AVERSION_RANGE[0],
+    high=RISK_AVERSION_RANGE[1],
+    riskier_when_higher=False,
+)
 
 
-def volatility_band_starts(
-    inputs: PortfolioInputs, target: np.ndarray, benchmark: pd.Series | None = None
-) -> list[np.ndarray]:
-    """Starting points spanning the volatility range, derived only from ``inputs``.
-
-    The band is usually imposed on a portfolio that sits well below the floor, so a search
-    started only from that portfolio stays there. Weights proportional to volatility, and the
-    single most volatile asset, give the solver somewhere high to come down from.
-    """
-    n = len(inputs.asset_ids)
-    vols = inputs.volatilities
-    highest = np.zeros(n)
-    highest[int(np.argmax(vols))] = 1.0
-    candidates = [
-        np.ones(n) / n,
-        vols / vols.sum(),
-        vols**2 / (vols**2).sum(),
-        highest,
-        0.5 * target + 0.5 * vols / vols.sum(),
-        target,
-    ]
-    # The benchmark is inside the tracking-error budget by construction, so it is the one start
-    # guaranteed feasible when that budget is what the method is breaching.
-    if benchmark is not None:
-        b = benchmark.reindex(inputs.asset_ids).fillna(0.0).to_numpy(dtype=float)
-        if b.sum() > 0:
-            b = b / b.sum()
-            candidates += [b, 0.5 * target + 0.5 * b]
-    return [np.clip(c, 0.0, 1.0) for c in candidates]
+def _prepare_black_litterman(inputs: PortfolioInputs):
+    posterior = black_litterman_posterior(inputs)
+    return lambda gamma: mean_variance(posterior, gamma)
 
 
-def enforce_ex_ante_limits(
-    weights: pd.Series,
+BLACK_LITTERMAN_KNOB = Knob(
+    parameter="risk_aversion",
+    description=RISK_AVERSION
+    + ", applied to the Black-Litterman posterior returns. The equilibrium's own risk "
+    "aversion (2.5, used to reverse-optimise the market) is not changed",
+    prepare=_prepare_black_litterman,
+    low=RISK_AVERSION_RANGE[0],
+    high=RISK_AVERSION_RANGE[1],
+    riskier_when_higher=False,
+)
+
+
+def resampled_draws(
     inputs: PortfolioInputs,
-    limits: ExAnteLimits,
     *,
-    objective=None,
-    constraints=(),
-) -> tuple[pd.Series, float | None]:
-    """Re-solve a method inside the IPS's *ex-ante* limits, or return it untouched if already in.
-
-    §3.1 makes the IPS the governing document that every agent reads, so a method that cannot
-    reach the policy on its own is solved again *subject to* it rather than left outside it
-    (decision 37). The method keeps its own objective: maximum Sharpe is still the best
-    risk-adjusted portfolio, risk parity is still the flattest risk contributions -- each now
-    over the portfolios the policy permits. A closed-form rule and an algorithm like HRP have no
-    objective to re-run, so ``objective=None`` projects to the nearest permitted portfolio by
-    squared weight distance instead.
-
-    **Only the ex-ante limits are imposed**: the volatility band and the tracking-error budget,
-    both computed from the covariance matrix the method already consumed. The drawdown limit is
-    deliberately left out, because constraining a *realised* drawdown chooses weights to suit
-    the 1993-2026 path and is the look-ahead bias §5.1 warns about; the CRO measures it and it
-    binds on the CIO's recommendation (decisions 32 and 37). The return objective is likewise
-    reported rather than imposed.
-
-    ``floor``, ``cap`` and ``tracking_error_cap`` are decimals. Returns the weights and, when
-    they were adjusted, the volatility the method produced on its own -- which the agent has to
-    disclose.
-    """
-    ids = inputs.asset_ids
-    sigma = inputs.sigma
-    floor, cap = limits.floor, limits.cap
-    benchmark, tracking_error_cap = limits.benchmark, limits.tracking_error_cap
-    target = weights.reindex(ids).fillna(0.0).to_numpy(dtype=float)
-    original = float(np.sqrt(max(float(target @ sigma @ target), 0.0)))
-
-    active = None
-    if benchmark is not None and tracking_error_cap is not None:
-        active = benchmark.reindex(ids).fillna(0.0).to_numpy(dtype=float)
-
-    def tracking_error(w: np.ndarray) -> float:
-        d = w - active
-        return float(np.sqrt(max(float(d @ sigma @ d), 0.0)))
-
-    inside_band = floor - BAND_TOL <= original <= cap + BAND_TOL
-    inside_te = active is None or tracking_error(target) <= tracking_error_cap + BAND_TOL
-    if inside_band and inside_te:
-        return weights, None
-
-    goal = objective or (lambda w, _inputs: float(((w - target) ** 2).sum()))
-    cons = [
-        {"type": "eq", "fun": lambda w: w.sum() - 1.0},
-        {"type": "ineq", "fun": lambda w: float(w @ sigma @ w) - floor**2},
-        {"type": "ineq", "fun": lambda w: cap**2 - float(w @ sigma @ w)},
-        *constraints,
-    ]
-    if active is not None:
-        cons.append({"type": "ineq", "fun": lambda w: tracking_error_cap - tracking_error(w)})
-    best, best_value = None, np.inf
-    for start in volatility_band_starts(inputs, target, benchmark):
-        result = minimize(
-            lambda w: goal(w, inputs),
-            start,
-            method="SLSQP",
-            bounds=[(0.0, 1.0)] * len(ids),
-            constraints=cons,
-            options={"maxiter": 2000, "ftol": 1e-12},
+    draws: int = RESAMPLE_DRAWS,
+    months: int = RESAMPLE_MONTHS,
+    seed: int = RESAMPLE_SEED,
+) -> list[PortfolioInputs]:
+    """The re-estimated inputs of every resampling draw, from the method's fixed seed."""
+    mu, sigma = inputs.mu, inputs.sigma
+    rng = np.random.default_rng(seed)
+    out = []
+    for _ in range(draws):
+        sample = rng.multivariate_normal(mu / 12, sigma / 12, size=months, method="cholesky")
+        out.append(
+            PortfolioInputs(
+                asset_ids=inputs.asset_ids,
+                covariance=pd.DataFrame(
+                    np.cov(sample, rowvar=False) * 12,
+                    index=inputs.asset_ids,
+                    columns=inputs.asset_ids,
+                ),
+                expected_returns=pd.Series(sample.mean(axis=0) * 12, index=inputs.asset_ids),
+                risk_free=inputs.risk_free,
+            )
         )
-        w = np.clip(result.x, 0.0, None)
-        if w.sum() <= 0:
-            continue
-        w = w / w.sum()
-        volatility = float(np.sqrt(max(float(w @ sigma @ w), 0.0)))
-        if not floor - BAND_TOL <= volatility <= cap + BAND_TOL:
-            continue
-        if active is not None and tracking_error(w) > tracking_error_cap + BAND_TOL:
-            continue
-        if any(
-            (c["fun"](w) < -1e-6) if c["type"] == "ineq" else abs(c["fun"](w)) > 1e-6 for c in cons
-        ):
-            continue
-        value = goal(w, inputs)
-        if value < best_value:
-            best, best_value = w, value
-    if best is None:
-        limits = f"the {floor:.1%}-{cap:.1%} volatility band"
-        if active is not None:
-            limits += f" and the {tracking_error_cap:.1%} tracking-error budget"
-        raise ValueError(f"no portfolio inside {limits} satisfies this method's own constraints")
-    return _normalise(best, ids), 100 * original
+    return out
+
+
+def _prepare_resampled(inputs: PortfolioInputs):
+    draws = resampled_draws(inputs)
+
+    def at(gamma: float) -> pd.Series:
+        total = np.zeros(len(inputs.asset_ids))
+        for draw in draws:
+            total += mean_variance(draw, gamma).to_numpy()
+        return _normalise(total, inputs.asset_ids)
+
+    return at
+
+
+RESAMPLED_KNOB = Knob(
+    parameter="risk_aversion",
+    description=RISK_AVERSION
+    + ", applied in every resampled draw before averaging -- Michaud's own way of choosing "
+    "a point on the resampled frontier",
+    prepare=_prepare_resampled,
+    low=RISK_AVERSION_RANGE[0],
+    high=RISK_AVERSION_RANGE[1],
+    riskier_when_higher=False,
+)
+
+
+def _prepare_cvar(inputs: PortfolioInputs):
+    return lambda target: cvar_with_return_target(inputs, target)
+
+
+def cvar_knob(inputs: PortfolioInputs) -> Knob:
+    """The return target's range comes from the scenarios, so this knob is built per run:
+    from the lowest asset's historical mean to just under the highest's."""
+    means = 12.0 * inputs.scenario_matrix.mean(axis=0)
+    return Knob(
+        parameter="minimum_return_pct",
+        description=(
+            "the minimum expected return, annualised from the historical scenarios, in "
+            "Rockafellar and Uryasev's mean-CVaR problem (min CVaR subject to that return): a "
+            "higher target walks the mean-CVaR frontier toward more risk. Your method's own "
+            "portfolio is the unconstrained minimum-CVaR point"
+        ),
+        prepare=_prepare_cvar,
+        low=float(means.min()),
+        high=float(means.max()) * 0.999,
+        riskier_when_higher=True,
+        log_scale=False,
+        report_scale=100.0,
+    )
+
+
+# --------------------------------------------------------------------------------- registry
 
 
 @dataclass(frozen=True)
@@ -865,13 +881,10 @@ class Method:
     needs_scenarios: bool = False
     # Method-specific framing for the agent's prompt, where the generic one would mislead.
     prompt_note: str | None = None
-    # The method's own objective, re-minimised when the IPS volatility band has to be imposed
-    # (decision 37). None projects to the nearest in-band portfolio instead, which is all a
-    # closed-form rule or an algorithm like HRP admits.
-    objective: object | None = None  # Callable[[np.ndarray, PortfolioInputs], float]
-    # Constraints the method carries in its own right and which must survive the re-solve.
-    # Called as `band_constraints(inputs, limits)`.
-    band_constraints: object | None = None
+    # The method's own tunable parameter, turned toward the IPS volatility band when the
+    # portfolio falls outside it (decision 49). None for a method whose only "parameter" is its
+    # definition -- 1/sigma's exponent, risk parity's equal budgets -- so it is proposed as it is.
+    knob: object | None = None  # Callable[[PortfolioInputs], Knob]
 
 
 METHODS: dict[str, Method] = {
@@ -924,7 +937,7 @@ METHODS: dict[str, Method] = {
             reference="Markowitz (1952)",
             uses_cmas=True,
             build=max_sharpe,
-            objective=_objective_max_sharpe,
+            knob=lambda inputs: MAX_SHARPE_KNOB,
         ),
         Method(
             id="black_litterman",
@@ -933,6 +946,7 @@ METHODS: dict[str, Method] = {
             reference="Black and Litterman (1992)",
             uses_cmas=True,
             build=black_litterman,
+            knob=lambda inputs: BLACK_LITTERMAN_KNOB,
         ),
         Method(
             id="resampled_efficient_frontier",
@@ -941,6 +955,7 @@ METHODS: dict[str, Method] = {
             reference="Michaud (1998)",
             uses_cmas=True,
             build=resampled_efficient_frontier,
+            knob=lambda inputs: RESAMPLED_KNOB,
         ),
         Method(
             id="risk_parity",
@@ -949,7 +964,6 @@ METHODS: dict[str, Method] = {
             reference="Maillard, Roncalli and Teiletche (2010)",
             uses_cmas=False,
             build=risk_parity,
-            objective=_objective_risk_parity,
         ),
         Method(
             id="hierarchical_risk_parity",
@@ -966,7 +980,6 @@ METHODS: dict[str, Method] = {
             reference="Choueifaty and Coignard (2008)",
             uses_cmas=False,
             build=maximum_diversification,
-            objective=_objective_max_diversification,
         ),
         Method(
             id="cvar_minimization",
@@ -976,7 +989,7 @@ METHODS: dict[str, Method] = {
             uses_cmas=False,
             build=cvar_minimization,
             needs_scenarios=True,
-            objective=_objective_min_cvar,
+            knob=cvar_knob,
         ),
         Method(
             id="tail_risk_parity",
@@ -986,7 +999,6 @@ METHODS: dict[str, Method] = {
             uses_cmas=False,
             build=tail_risk_parity,
             needs_scenarios=True,
-            objective=_objective_tail_risk_parity,
         ),
     ]
 }
@@ -1004,8 +1016,6 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             reference="Bera and Park (2008)",
             uses_cmas=True,
             build=maximum_entropy,
-            objective=_objective_max_entropy,
-            band_constraints=_sharpe_floor,
         ),
         Method(
             id="global_minimum_variance",
@@ -1014,7 +1024,6 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             reference="Clarke, de Silva and Thorley (2006)",
             uses_cmas=False,
             build=global_minimum_variance,
-            objective=lambda w, inputs: float(w @ inputs.sigma @ w),
         ),
         Method(
             id="mean_downside_risk",
@@ -1024,7 +1033,6 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             uses_cmas=True,
             build=mean_downside_risk,
             needs_scenarios=True,
-            objective=_objective_mean_downside_risk,
         ),
     ]
 }
@@ -1036,7 +1044,6 @@ ADVERSARIAL = Method(
     reference="Ang, Azimbayev and Kim (2026), section 3.4",
     uses_cmas=True,
     build=adversarial_diversifier,  # also needs the centroid of the other proposals
-    band_constraints=_sharpe_floor,
     prompt_note=(
         "This portfolio is deliberately as far as the Sharpe floor allows from the average of "
         "every other proposal. The paper is explicit that it 'is not intended as a standalone "

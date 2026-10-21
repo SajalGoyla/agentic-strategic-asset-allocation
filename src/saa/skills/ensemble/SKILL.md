@@ -34,8 +34,9 @@ proposals in place of their originals. Writes `reports/cio_ensembles.md`.
 ## IPS discipline
 
 **The drawdown limit binds here.** Constraining a realised drawdown fits weights to the
-1993-2026 path, so decision 37 keeps it off the fifteen candidates and puts it on the
-recommendation — one in-sample fit instead of fifteen. The meta-optimisation imposes it
+1993-2026 path, so it is kept off the fifteen candidates and put on the recommendation — one
+in-sample fit instead of fifteen. Since decision 49 no IPS limit is forced on a candidate, so
+this is also where the volatility band and the tracking-error budget first bind. The meta-optimisation imposes it
 directly. Inside the optimiser the backtest is a vectorised monthly-rebalanced approximation
 with a 0.5pp margin; the CRO's quarterly backtest then verifies the result.
 
@@ -49,6 +50,14 @@ the nearest allocation (squared weight distance) that meets the band, the budget
 drawdown limit, kept only if the CRO's backtest verifies it, and marked as projected with its
 figures before projection. On that run all six projected ensembles verified, at 13.5-15.7
 effective assets.
+
+**Since decision 49 the projections are larger.** With candidates no longer forced into the
+band, 7 of 15 sit inside it on the 2026-10-01 inputs and the simple average of all fifteen has
+4.81% volatility. On that free run six of the eight ensembles were projected for volatility
+alone; the chosen composite-score ensemble went from 6.39% to 8.00% at 16.3% one-way turnover.
+The CIO sees each projected ensemble's figures before projection and is told to treat the
+projection as a real cost; the meta-optimisation and the single best-voted compliant candidate
+need none.
 
 ## The free-run choice
 

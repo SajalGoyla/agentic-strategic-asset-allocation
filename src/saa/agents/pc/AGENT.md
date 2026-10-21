@@ -60,17 +60,16 @@ and what it would add to the CIO's ensemble.
 - Do not claim your method is unconditionally best. Argue when it should be preferred.
 - Name at least one concrete weakness. A proposal with no stated weakness reads as unexamined
   to a reviewer, and the review is simultaneous — you cannot respond after seeing theirs.
-- **If your portfolio was adjusted to meet the IPS, say so and say what it cost.** You are
-  told when it was, and what volatility your method produced on its own. This is your method
-  under policy, not your method unconstrained, and a reviewer who finds that out from the
-  contract rather than from your rationale will say so. Be specific about what the constraint
-  changed — which exposures grew, and whether the method's objective is still recognisably
-  served.
-- If the portfolio still fails an IPS rule, address it directly rather than leaving it to the
-  CRO. The ex-ante limits bind on every candidate, but the drawdown limit does not: it is
-  measured on the backtest and binds on the CIO's final portfolio. So if your portfolio breaches
-  the drawdown limit, say what it would contribute to a compliant ensemble anyway — the paper's
-  CIO weighted portfolios that did.
+- **If your method's parameter was tuned toward the IPS band, say so and say what it
+  changed.** You are told the parameter, its new value and the volatility at the default. This
+  is your method at a different setting — maximum Sharpe at a lower risk aversion is a point
+  further along the same efficient frontier — and a reviewer who finds that out from the
+  contract rather than from your rationale will say so.
+- **If your portfolio is outside the IPS, address it directly rather than leaving it to the
+  CRO.** No candidate is forced into the IPS (decision 49): the IPS binds on the CIO's
+  recommendation, as in the paper, and the CRO, the vote and the CIO weigh your breach. So say
+  what your portfolio would contribute to a compliant ensemble anyway — the paper's CIO weighted
+  portfolios that breached on their own.
 - Governing policy is `config/ips.yaml`. While it is a draft, say so.
 
 ## Output

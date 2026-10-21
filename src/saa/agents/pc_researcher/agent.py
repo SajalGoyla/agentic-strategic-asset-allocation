@@ -240,11 +240,11 @@ def research(
         log.warning("pc_researcher named methods not in the registry: %s", unknown)
 
     candidate = build_candidate(method, stage, config, agent=AGENT_ID)
-    # §3.4: the proposal must be "a novel method not spanned by the current registry". Once the
-    # IPS binds on candidates (decision 37) a library method can reduce to a registry one --
-    # maximum entropy becomes 1/N whenever equal weight already clears the Sharpe floor -- and
-    # a duplicate portfolio is spanned by definition, however novel the objective sounds. So the
-    # duplicate is reported and the next library method is tried.
+    # §3.4: the proposal must be "a novel method not spanned by the current registry". A library
+    # method can reduce to a registry one -- maximum entropy becomes 1/N whenever equal weight
+    # already clears the Sharpe floor, and global minimum variance sits beside inverse variance
+    # when cash dominates -- and a duplicate portfolio is spanned by definition, however novel
+    # the objective sounds. So the duplicate is reported and the next library method is tried.
     duplicate = _duplicate_of(candidate, registry_candidates, stage)
     if duplicate is not None:
         log.warning(

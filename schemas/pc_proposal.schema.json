@@ -91,7 +91,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "3.4.0",
+          "default": "4.0.0",
           "title": "Schema Version",
           "type": "string"
         },
@@ -180,6 +180,36 @@
         "compliant"
       ],
       "title": "IpsCompliance",
+      "type": "object"
+    },
+    "MethodTuning": {
+      "additionalProperties": false,
+      "description": "A method's own parameter, turned toward the IPS volatility band (decision 49).\n\nRecorded so the peer reviewers, the CRO and the CIO can see that the portfolio is the\nmethod at a different setting, and what the method produced at its default.",
+      "properties": {
+        "parameter": {
+          "title": "Parameter",
+          "type": "string"
+        },
+        "reached_band": {
+          "title": "Reached Band",
+          "type": "boolean"
+        },
+        "untuned_volatility_pct": {
+          "title": "Untuned Volatility Pct",
+          "type": "number"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "parameter",
+        "value",
+        "untuned_volatility_pct",
+        "reached_band"
+      ],
+      "title": "MethodTuning",
       "type": "object"
     },
     "ModelCall": {
@@ -314,11 +344,6 @@
           "default": null,
           "title": "Notes"
         },
-        "policy_adjusted": {
-          "default": false,
-          "title": "Policy Adjusted",
-          "type": "boolean"
-        },
         "rationale": {
           "title": "Rationale",
           "type": "string"
@@ -339,17 +364,16 @@
           "title": "Sharpe Ratio",
           "type": "number"
         },
-        "unconstrained_volatility_pct": {
+        "tuning": {
           "anyOf": [
             {
-              "type": "number"
+              "$ref": "#/$defs/MethodTuning"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Unconstrained Volatility Pct"
+          "default": null
         },
         "weights": {
           "additionalProperties": {

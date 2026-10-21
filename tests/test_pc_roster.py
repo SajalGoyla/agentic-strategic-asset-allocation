@@ -107,9 +107,8 @@ def test_researcher_without_a_model_substitutes_when_its_default_is_already_span
     to a registry one is spanned however novel the objective sounds.
 
     Maximum entropy is the paper's own March 2026 choice and the default without a model, but
-    with the IPS volatility band binding (decision 37) it reduces to equal weight whenever
-    equal weight already clears the Sharpe floor. The researcher then moves down its library
-    and says why.
+    it reduces to equal weight whenever equal weight already clears the Sharpe floor. The
+    researcher then moves down its library and says why.
     """
     stage = rich_stage_inputs()
     registry, _ = build_candidates(stage, tmp_config)
@@ -122,9 +121,8 @@ def test_researcher_without_a_model_substitutes_when_its_default_is_already_span
     assert not outcome.research.method_name.startswith("Maximum entropy")
     # The substitution is explained, and against the method it actually ran.
     assert "reduces to" in outcome.proposal.notes
-    assert outcome.research.method_name.lower() in outcome.research.objective.lower() or (
-        outcome.research.reference in outcome.research.objective
-    )
+    ran = outcome.candidate.method
+    assert outcome.research.method_name == ran.name and outcome.research.reference == ran.reference
 
 
 def test_the_researcher_never_duplicates_a_registry_portfolio(tmp_config):
@@ -144,11 +142,16 @@ def test_the_researcher_never_duplicates_a_registry_portfolio(tmp_config):
 
 
 def test_when_every_library_method_is_spanned_the_default_stays_and_says_so(tmp_config, caplog):
-    """Three assets pinned to the volatility floor leave room for essentially one portfolio, so
-    every library method duplicates a registry one. The researcher then keeps its choice rather
-    than fail the stage, and logs it; the peer review sees a proposal it can call redundant."""
+    """A registry that already holds every library portfolio leaves nothing novel to propose.
+    The researcher then keeps its choice rather than fail the stage, and logs it; the peer
+    review sees a proposal it can call redundant."""
+    from saa.skills.portfolio_construction import RESEARCH_LIBRARY, build_candidate
+
     stage = stage_inputs(tmp_config)
-    registry, _ = build_candidates(stage, tmp_config)
+    registry = {
+        f"copy_of_{m}": build_candidate(method, stage, tmp_config, agent=f"copy_of_{m}")
+        for m, method in RESEARCH_LIBRARY.items()
+    }
     with caplog.at_level(logging.WARNING, logger="saa.agents.pc_researcher.agent"):
         outcome = pc_researcher.research(stage, tmp_config, registry, None, ips_status="draft")
     assert outcome.research.method_name.startswith("Maximum entropy")
@@ -158,9 +161,9 @@ def test_when_every_library_method_is_spanned_the_default_stays_and_says_so(tmp_
 def test_researcher_runs_the_method_the_model_chose(tmp_config):
     stage = stage_inputs(tmp_config)
     registry, _ = build_candidates(stage, tmp_config)
-    llm = LlmClient(FakeAnthropic([research_payload()]))
+    llm = LlmClient(FakeAnthropic([research_payload(method_id="mean_downside_risk")]))
     outcome = pc_researcher.research(stage, tmp_config, registry, llm, ips_status="draft")
-    assert outcome.candidate.method.id == "global_minimum_variance"
+    assert outcome.candidate.method.id == "mean_downside_risk"
     assert outcome.candidate.agent_id == "pc_researcher"
     # Names that are not registry methods are dropped from the contract, not trusted.
     assert outcome.research.not_spanned_by == ["risk_parity", "equal_weight"]
