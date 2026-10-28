@@ -234,9 +234,7 @@ def render_report(judged: JudgedAsset, macro: MacroViewBody | None) -> str:
         if blend is not None
         else "no auto-blend to compare against"
     )
-    weights = ", ".join(
-        f"{m.value} {w:.0%}" for m, w in sorted(judgment.method_weights.items()) if w > 0
-    )
+    weights = ", ".join(f"{m.value} {w:.0%}" for m, w in sorted(judgment.weights.items()) if w > 0)
     regime = macro.judgment.regime.value if macro is not None else "unknown"
 
     lines = [
@@ -314,7 +312,7 @@ def judge_asset(
     judgment: CmaJudgment = result.value
 
     unavailable = {m.method for m in methods.methods if m.unavailable_reason is not None}
-    named = {m for m, w in judgment.method_weights.items() if w > 0}
+    named = {m for m, w in judgment.weights.items() if w > 0}
     if named & unavailable:
         raise ValueError(
             f"{evidence.asset_id}: judge weighted unavailable methods "

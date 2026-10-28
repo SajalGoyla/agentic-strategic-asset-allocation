@@ -774,3 +774,22 @@ second model, a partial answer to §5.1's single-LLM caveat ("an alternative app
 multiple foundation models"). Rejected: Haiku for the low tier. The reviews and ballots are
 judgments the vote and the CIO weigh, not formatting.
 
+
+### 52. CMA method weights as a list; Anthropic replies validated by our client — settled, 2026-10-28
+The first paid CMA-judge run failed on all 18 assets: "method weights sum to 0.0000". The
+`method_weights` field was a mapping keyed by method id. A mapping with open keys has no strict
+JSON-schema form, and Anthropic's `transform_schema` turns it into an object with no
+properties and `additionalProperties: false`, so `{}` was the only answer Claude could give.
+One judgment's rationale said so: the schema "allows no named keys". The free providers'
+grammar engines had tolerated the open mapping.
+
+- **`method_weights` is a list of `{method, weight}` entries**, and `CmaJudgment.weights`
+  gives the mapping back to readers. A file written before schema 5.0.0 still reads: a
+  validator accepts the old mapping. Schema 5.0.0, a breaking change for writers.
+- **The Anthropic call is `messages.create`, not `messages.parse`.** `parse` validated the
+  reply against the contract inside the SDK and raised before the call returned. A contract
+  miss was therefore neither retried nor charged to the budget: the failed stage reported
+  $0.0000 while Anthropic billed every call. Replies are now parsed and validated in `judge`,
+  like the other providers'.
+- **A test walks every judgment model's Anthropic schema** for objects that allow no keys, so
+  a new open mapping fails in CI, not on a paid run.

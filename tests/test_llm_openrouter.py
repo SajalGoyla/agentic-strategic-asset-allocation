@@ -104,14 +104,18 @@ def test_the_request_constrains_the_output_to_the_contract_in_strict_mode():
     assert {"id": "response-healing"} in payload["plugins"]
 
 
+class Keyed(Contract):
+    weights: dict[Tier, float]
+
+
 def test_keywords_a_provider_rejects_are_dropped_from_the_schema():
-    # The CMA judge's method_weights is a dict keyed by method id -> "propertyNames".
-    assert "propertyNames" in json.dumps(CmaJudgment.model_json_schema())
+    # A dict keyed by an enum -> "propertyNames", which NVIDIA's grammar engine rejects.
+    assert "propertyNames" in json.dumps(Keyed.model_json_schema())
     llm, http, _ = client([ok("{}")], max_retries=0)
     with pytest.raises(ValueError):
-        llm.judge(CmaJudgment, system="s", prompt="p")
+        llm.judge(Keyed, system="s", prompt="p")
     sent = json.dumps(http.payloads[0]["response_format"]["json_schema"]["schema"])
-    assert "propertyNames" not in sent and "method_weights" in sent
+    assert "propertyNames" not in sent and "weights" in sent
 
 
 # ----------------------------------------------------------------------------------- reply
@@ -285,3 +289,72 @@ def test_every_agent_has_a_tier_and_a_typo_fails_loudly():
     assert tier_for("cio") is Tier.FLAGSHIP and tier_for("peer_review") is Tier.LOW_COST
     with pytest.raises(KeyError, match="no tier set"):
         tier_for("chief_risk_officer")
+
+
+def _closed_empty_objects(node, path="$"):
+    """Objects that allow no keys: what a dict with open keys becomes in a strict schema."""
+    found = []
+    if isinstance(node, dict):
+        if (
+            node.get("type") == "object"
+            and not node.get("properties")
+            and node.get("additionalProperties") is False
+        ):
+            found.append(path)
+        for key, child in node.items():
+            found += _closed_empty_objects(child, f"{path}.{key}")
+    elif isinstance(node, list):
+        for i, child in enumerate(node):
+            found += _closed_empty_objects(child, f"{path}[{i}]")
+    return found
+
+
+def test_every_judgment_can_be_answered_under_anthropics_strict_schema():
+    """Decision 52: a dict field reached Claude as an object allowing no keys, so every CMA
+    judgment came back with empty method weights."""
+    import anthropic
+
+    from saa.agents.pc.agent import Rationale
+    from saa.agents.pc_researcher.agent import ResearchChoice
+    from saa.agents.revision.agent import RevisionJudgment
+    from saa.contracts import (
+        BallotJudgment,
+        CioJudgment,
+        CmaJudgment,
+        CroJudgment,
+        MacroJudgment,
+        ReviewJudgment,
+    )
+
+    for model in (
+        MacroJudgment,
+        CmaJudgment,
+        Rationale,
+        ResearchChoice,
+        CroJudgment,
+        ReviewJudgment,
+        BallotJudgment,
+        RevisionJudgment,
+        CioJudgment,
+    ):
+        assert not _closed_empty_objects(anthropic.transform_schema(model)), model.__name__
+
+
+def test_an_anthropic_contract_miss_is_retried_and_charged():
+    weights = [{"method": "historical_erp", "weight": 1.0}]
+    judgment = {
+        "selection": "single_method",
+        "expected_return_pct": 7.0,
+        "confidence": "medium",
+        "dispersion": "tight",
+        "regime_logic": "r",
+        "valuation_context": "v",
+        "signal_alignment": "s",
+        "rationale": "x",
+    }
+    empty = {**judgment, "method_weights": []}
+    good = {**judgment, "method_weights": weights}
+    llm = LlmClient(FakeAnthropic([empty, good]))
+    result = llm.judge(CmaJudgment, system="s", prompt="p")
+    assert result.attempts == 2 and result.value.weights == {"historical_erp": 1.0}
+    assert llm.budget.calls == 2, "the failed attempt is billed, so it is counted"

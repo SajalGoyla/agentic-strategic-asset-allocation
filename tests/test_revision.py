@@ -159,7 +159,7 @@ class ByAgent:
         self.payloads, self.calls = payloads, []
         self.messages = self
 
-    def parse(self, **kwargs):
+    def create(self, **kwargs):
         self.calls.append(kwargs)
         prompt = kwargs["messages"][0]["content"]
         agent = next(a for a in self.payloads if f"You are `{a}`" in prompt)

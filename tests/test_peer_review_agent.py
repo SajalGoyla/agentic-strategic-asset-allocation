@@ -16,7 +16,7 @@ from saa.llm import LlmClient
 from saa.run import RunContext
 from saa.skills.method_scoring import load_scoring_settings, score_candidates
 from saa.skills.peer_review import seed_for
-from tests.test_macro_agent import FakeAnthropic
+from tests.test_macro_agent import FakeAnthropic, schema_title
 from tests.test_pc_roster import rich_stage_inputs
 
 LONG = "The method's premise depends on expected returns being stable across regimes. " * 4
@@ -125,7 +125,7 @@ def test_the_model_writes_the_assessment_and_the_plan_writes_the_rest(reviewed_r
     assert len(result.reviews) == n and not result.skipped
 
     calls = llm._client.messages.calls
-    assert all(c["output_format"] is ReviewJudgment for c in calls)
+    assert all(schema_title(c) == "ReviewJudgment" for c in calls)
     for assignment in result.plan.assignments:
         body = result.reviews[assignment.pair].body
         assert body.kind is assignment.kind

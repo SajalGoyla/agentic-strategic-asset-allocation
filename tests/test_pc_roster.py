@@ -11,7 +11,7 @@ import pytest
 from saa.agents import pc_researcher
 from saa.agents.pc import agent as pc_agent
 from saa.contracts import read
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.portfolio_construction import METHODS, StageInputs, build_candidates
 from tests.test_cma_judge import stage_inputs
@@ -256,7 +256,7 @@ def test_one_call_per_agent_and_a_flagship_researcher(stage_run, tmp_config):
     assert len(result.proposals) == roster
     calls = llm._client.messages.calls
     assert len(calls) == roster
-    assert calls[len(METHODS)]["model"] == llm.models[pc_researcher.agent.Tier.FLAGSHIP]
+    assert calls[len(METHODS)]["model"] == llm.models[tier_for("pc_researcher")]
     research = read("pc_research", run.path("pc_research"))
     assert research.header.produced_by.value == "llm"
     assert research.header.model_calls
