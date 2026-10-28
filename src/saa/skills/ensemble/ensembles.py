@@ -33,6 +33,7 @@ from saa.skills.risk import RiskProfile, profile_portfolio
 log = logging.getLogger(__name__)
 
 MONTHS_PER_YEAR = 12
+HELD_SHARE = 0.01  # a candidate with less of the ensemble than this is not counted as held
 TRIM_SHARE = 0.1  # share of candidates the trimmed mean drops as outliers, at least one
 # The meta-optimisation's drawdown constraint is fitted on a monthly-rebalanced approximation
 # of the backtest; the CRO's quarterly backtest then verifies it. A margin keeps the two from
@@ -70,12 +71,38 @@ class Ensemble:
     sharpe_ratio: float
     note: str = ""
     # Set when the ensemble breached the IPS and its allocation was projected to the nearest
-    # compliant one; this is the profile it had before.
+    # compliant one; this is the profile and the allocation it had before.
     projected_from: RiskProfile | None = None
+    unprojected_weights: pd.Series | None = None
 
     @property
     def policy_adjusted(self) -> bool:
         return self.projected_from is not None
+
+    @property
+    def projection_turnover(self) -> float:
+        """How far the projection moved the allocation: one-way turnover, as a fraction."""
+        if self.unprojected_weights is None:
+            return 0.0
+        before = self.unprojected_weights.reindex(self.final_weights.index).fillna(0.0)
+        return float(0.5 * (self.final_weights - before).abs().sum())
+
+    @property
+    def candidates_held(self) -> int:
+        return sum(1 for w in self.ensemble_weights.values() if w >= HELD_SHARE)
+
+    @property
+    def largest_share(self) -> tuple[str, float]:
+        agent = max(self.ensemble_weights, key=lambda a: (self.ensemble_weights[a], a))
+        return agent, self.ensemble_weights[agent]
+
+    @property
+    def effective_candidates(self) -> float:
+        """The effective number of candidates in the ensemble, by the same entropy measure as
+        the effective number of assets: an equal mix of k scores k."""
+        w = np.array([v for v in self.ensemble_weights.values() if v > 0])
+        w = w / w.sum()
+        return float(np.exp(-(w * np.log(w)).sum()))
 
     @property
     def compliant(self) -> bool:
@@ -272,6 +299,7 @@ def evaluate(
     note: str = "",
     final_weights: pd.Series | None = None,
     projected_from: RiskProfile | None = None,
+    unprojected_weights: pd.Series | None = None,
 ) -> Ensemble:
     """The final allocation an ensemble implies, profiled exactly as a candidate is.
     ``final_weights`` overrides the weighted sum, for a policy-projected ensemble."""
@@ -316,6 +344,7 @@ def evaluate(
         sharpe_ratio=(expected - stage.risk_free) / volatility if volatility > 0 else float("nan"),
         note=note,
         projected_from=projected_from,
+        unprojected_weights=unprojected_weights,
     )
 
 
@@ -366,6 +395,7 @@ def _projected(ensemble: Ensemble, x: EnsembleInputs, config: Config) -> Ensembl
         config,
         final_weights=projected,
         projected_from=ensemble.profile,
+        unprojected_weights=ensemble.final_weights,
         note=f"projected into the IPS; it breached {breaches}",
     )
     if adjusted.compliant:
@@ -374,19 +404,12 @@ def _projected(ensemble: Ensemble, x: EnsembleInputs, config: Config) -> Ensembl
     return ensemble
 
 
-def ensemble_score(ensemble: Ensemble, n_assets: int) -> float:
-    """What the free run ranks compliant ensembles by: backtest Sharpe and diversification, the
-    two of §4.4's six dimensions an ensemble has (the other four describe a method), in the
-    paper's own 25:15 ratio. Sharpe uses the method score's scale (0 -> 0, 0.8 -> 1)."""
-    sharpe = ensemble.profile.backtest_sharpe
-    sharpe_score = 0.0 if sharpe is None else float(np.clip(sharpe / 0.8, 0.0, 1.0))
-    diversification = float(np.clip(ensemble.profile.effective_n / n_assets, 0.0, 1.0))
-    return (25 * sharpe_score + 15 * diversification) / 40
-
-
-def default_choice(ensembles: dict[EnsembleMethod, Ensemble], n_assets: int) -> EnsembleMethod:
-    """The deterministic choice among compliant ensembles, by ``ensemble_score``."""
+def default_choice(
+    ensembles: dict[EnsembleMethod, Ensemble], scores: dict[EnsembleMethod, float]
+) -> EnsembleMethod:
+    """The deterministic choice among compliant ensembles: the best six-dimension composite
+    (``method_scoring.score_mix``), the rubric the candidates are scored on."""
     eligible = [e for e in ensembles.values() if e.compliant]
     if not eligible:
         raise ValueError("no ensemble is IPS-compliant; the CIO cannot recommend an allocation")
-    return max(eligible, key=lambda e: (ensemble_score(e, n_assets), e.method.value)).method
+    return max(eligible, key=lambda e: (scores.get(e.method, 0.0), e.method.value)).method

@@ -590,7 +590,7 @@ allocation and kept only if the CRO's quarterly backtest verifies it; all six di
 effective assets. A projected ensemble is labelled, with its figures before projection, in the
 prompt, the report and the memo.
 
-**The free-run default blends backtest Sharpe with diversification, 25:15**, the weights §4.4
+**The free-run default blends backtest Sharpe with diversification, 25:15** (since decision 50, the full six-dimension composite), the weights §4.4
 gives the two dimensions an ensemble has. By Sharpe alone the meta-optimisation (0.69, 4.9
 effective assets) always wins; with the blend the composite-score ensemble (0.63, 15.7) did. The
 free run's recommendation: 7.28% expected return at 8.00% volatility, -23.4% backtest drawdown,
@@ -689,4 +689,64 @@ frontier, Black-Litterman, equal weight, CVaR and volatility targeting.
 Open: whether the CIO should prefer an ensemble that needs no projection when the projection is
 this large is a judgment the CIO agent now makes with the before-and-after figures in hand. It is
 not yet a rule.
+
+### 50. Give the CIO what the paper's CIO receives; show a revision its own consequences — settled, 2026-10-28
+The free run `dry2` (Gemini models, decision 49's candidates) ended in meta-optimisation:
+86% maximum Sharpe, 12.6% Black-Litterman, 1% market cap, 5.4 effective assets. Its rationale
+was that the ensemble needed no projection. It did not weigh the single best-voted candidate,
+also unprojected at 13.1 effective assets, and one invalidation condition called 8% the
+volatility "ceiling". Its prompt was about 2,100 tokens: the ensembles, the tally and the
+dissents.
+
+The owner's ruling: align with the paper and force nothing. Each change was checked against
+the paper's text, and the ones the paper does not support were dropped.
+
+- **The CIO gets §3.6's inputs.** "The CIO-agent receives the strategy review output — the 21
+  candidate portfolios, their peer reviews, CRO risk reports, vote tallies, and metric scores."
+  The prompt now carries a digest per candidate, in vote order. Each entry has the statistics
+  and IPS status, the vote and metric score, the CRO's risk score and binding risk, and each
+  peer review's main weakness and technical errors. On `dry2` the prompt is about 5,300 tokens.
+- **The IPS limits are stated in the prompt**, floor and ceiling named, with the escalation
+  rules. There is no validator on the CIO's prose; the error came from never being told.
+- **Every ensemble is scored on the candidates' six-dimension rubric** (§3.6: "on the same
+  diagnostic suite used for individual portfolios"), by `method_scoring.score_mix`.
+  - Measured on the allocation: backtest Sharpe, IPS compliance, diversification, and its
+    in-regime Sharpe placed on the candidates' range.
+  - Inherited as the mix-weighted average of its candidates: estimation robustness and CMA use,
+    which describe a method, not a portfolio.
+  - The free-run default now picks by this composite.
+- **Each ensemble shows what it is made of**: candidates holding at least 1%, the largest
+  share, the effective number of candidates, and the one-way turnover a projection cost.
+- **A revision sees its own consequences once.** §3.5 has the top five revise "taking into
+  account the peer reviews and the CRO report". On `dry2` the CVaR revision's 40% cap moved it
+  from 8.00% to 7.96%, a new breach it never saw. If the levers create a hard breach the
+  original did not have, the agent is shown the revised figures once. Its second answer is
+  filed as it is, so it may keep the breach and say why.
+
+Rejected:
+
+- **A cap on any one candidate's share of the meta-optimisation.** The paper has none. Its
+  breadth (Exhibit 10: 2.7-11.1% per method) comes from the CIO's judgment, and its scoring
+  "gives the CIO agent latitude to value ensemble diversification alongside standalone
+  quality".
+- **Changing the adversarial diversifier, the diversity rule, or the vote.** Each matches the
+  paper. The paper's adversarial was concentrated too (2.4 effective assets, -46.3% drawdown)
+  and its peers voted it to the bottom, "a feature, not a flaw". Its diversity rule has no
+  compliance condition either. Its market-cap portfolio ranked 19th of 21 with 0 points and
+  still got the CIO's largest weight, 11.1%.
+- **Correcting the short-Treasury CMA.** The yield block is the mean of DGS1-3 on 2026-10-01,
+  4.81%, against about 4.0% for bills. That is the data, not an error.
+
+Measured on `dry2`'s stages 1-5 (run `cio_check`), the ensembles' composites are 0.707-0.777.
+The meta-optimisation scores lowest, 0.707: the best backtest Sharpe score (0.86) and CMA use
+(0.87), but diversification 0.30 and an inherited estimation robustness of 0.26, from maximum
+Sharpe. The composite-score ensemble scores highest, 0.777, and is the free-run default, as
+before. The single method (the resampled frontier) and the regime-conditional ensemble tie at
+0.766. Whether the model CIO now weighs these differently is what the paid run will show.
+
+A note for the professor, not settled in code. §3.6 calls IPS compliance at the CIO
+"non-negotiable", yet the paper's own recommendation broke two limits: 7.54% volatility
+against an 8% floor, and a -25.6% drawdown against -25%. Decision 46 projects every ensemble
+fully into compliance. That is stricter than the paper, and it is what makes the averaging
+ensembles need projections of 17-31% turnover on these inputs.
 

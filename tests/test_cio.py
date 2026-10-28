@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 from pydantic import ValidationError
 
-from saa.agents.cio import judgment_model, load_candidates, run_cio
+from saa.agents.cio import judgment_model, load_candidates, run_cio, score_ensembles
 from saa.agents.cro import agent as cro_agent
 from saa.agents.pc import agent as pc_agent
 from saa.agents.peer_review import run_peer_reviews
@@ -21,6 +21,7 @@ from saa.contracts.cio import BoardMemo
 from saa.llm import LlmClient
 from saa.run import RunContext
 from saa.skills.ensemble import (
+    Ensemble,
     EnsembleInputs,
     backtest_sharpe_weighted,
     build_ensembles,
@@ -32,7 +33,12 @@ from saa.skills.ensemble import (
     single_method,
     trimmed_mean,
 )
-from saa.skills.method_scoring import load_cro_reports
+from saa.skills.method_scoring import (
+    load_cro_reports,
+    load_proposals,
+    load_scoring_settings,
+    score_candidates,
+)
 from tests.test_macro_agent import FakeAnthropic
 from tests.test_pc_roster import RICH_IDS, rich_stage_inputs
 
@@ -151,9 +157,43 @@ def test_projection_moves_an_allocation_into_the_volatility_band(ensemble_inputs
     assert band.min_pct - 0.01 <= 100 * np.sqrt(w @ sigma @ w) <= band.max_pct + 0.01
 
 
+def test_an_ensemble_reports_what_it_is_made_of(ensemble_inputs, config):
+    ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
+    e = ensembles[EnsembleMethod.SIMPLE_AVERAGE]
+    n = len(ensemble_inputs.candidates)
+    assert e.candidates_held == n and e.effective_candidates == pytest.approx(n)
+    lead = Ensemble(e.method, {"a": 0.9, "b": 0.1}, e.final_weights, e.profile, 0.0, 0.0)
+    assert lead.largest_share == ("a", 0.9) and lead.candidates_held == 2
+    assert 1.0 < lead.effective_candidates < 2.0
+    assert lead.projection_turnover == 0.0
+    for e in ensembles.values():
+        if e.policy_adjusted:
+            assert 0.0 < e.projection_turnover <= 1.0
+
+
+def test_ensembles_are_scored_on_the_candidates_rubric(full_run, ensemble_inputs, config):
+    """§3.6: each ensemble "on the same diagnostic suite used for individual portfolios"."""
+    run, stage, labels, cfg = full_run
+    settings = load_scoring_settings(cfg)
+    scoring = score_candidates(
+        load_proposals(run), load_cro_reports(run), stage, settings, labels=labels
+    )
+    ensembles, _ = build_ensembles(
+        ensemble_inputs, config, compliant_candidates=list(scoring.scores)
+    )
+    scores = score_ensembles(ensembles, scoring, stage, settings, labels)
+    assert set(scores) == set(ensembles)
+    single = ensembles[EnsembleMethod.SINGLE_METHOD]
+    (only,) = single.ensemble_weights
+    # What only a method has is inherited from the one candidate it holds.
+    s, c = scores[EnsembleMethod.SINGLE_METHOD], scoring.scores[only]
+    assert s.estimation_robustness == pytest.approx(c.estimation_robustness)
+    assert s.cma_utilization == pytest.approx(c.cma_utilization)
+
+
 def test_with_nothing_compliant_there_is_no_choice():
     with pytest.raises(ValueError, match="no ensemble is IPS-compliant"):
-        default_choice({}, 18)
+        default_choice({}, {})
 
 
 # --------------------------------------------------------------------------------- the agent
@@ -195,9 +235,16 @@ def test_the_model_chooses_only_among_compliant_ensembles(full_run):
         "invalidation_conditions": ["a regime change"],
         "board_memo": memo_payload(),
     }
-    llm = LlmClient(FakeAnthropic([payload]))
-    result = run_cio(run, None, config=cfg, llm=llm, stage=stage, regime_labels=labels)
+    fake = FakeAnthropic([payload])
+    result = run_cio(run, None, config=cfg, llm=LlmClient(fake), stage=stage, regime_labels=labels)
     assert result.chosen is EnsembleMethod.META_OPTIMIZATION
+    # §3.6's inputs: the IPS limits, the candidates with their CRO reports and peer reviews.
+    prompt = fake.messages.calls[0]["messages"][0]["content"]
+    assert "8% (floor) and 12% (ceiling)" in prompt
+    assert "candidates held" in prompt and "largest share" in prompt
+    assert "## The candidates" in prompt and "review by `" in prompt and "CRO" in prompt
+    for agent_id in load_proposals(run):
+        assert f"`{agent_id}`" in prompt
     decision = read("cio_decision", run.path("cio_decision"))
     assert decision.header.produced_by.value == "hybrid" and decision.header.model_calls
     assert decision.body.board_memo.ips_compliance_statement.startswith("IPS v0.2")

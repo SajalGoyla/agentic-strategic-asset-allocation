@@ -13,7 +13,13 @@ from pydantic import ValidationError
 from saa.agents.cro import agent as cro_agent
 from saa.agents.pc import agent as pc_agent
 from saa.agents.peer_review import run_peer_reviews
-from saa.agents.revision import RevisionJudgment, judgment_model, run_revisions
+from saa.agents.revision import (
+    RevisionJudgment,
+    consequence_note,
+    judgment_model,
+    run_revisions,
+)
+from saa.agents.revision.agent import revise_agent, system_prompt
 from saa.agents.vote import load_reviews, run_vote
 from saa.contracts import read
 from saa.llm import LlmClient
@@ -25,7 +31,7 @@ from saa.skills.portfolio_construction.revision import (
     revise,
     turnover,
 )
-from tests.test_macro_agent import FakeAnthropic
+from tests.test_macro_agent import FakeAnthropic, FakeResponse, FakeUsage
 from tests.test_pc_roster import RICH_IDS, rich_stage_inputs
 
 W = pd.Series([0.40, 0.25, 0.15, 0.10, 0.05, 0.03, 0.02], index=RICH_IDS)
@@ -145,6 +151,21 @@ def test_without_a_model_the_shortlist_is_kept_and_filed_beside_the_originals(vo
         assert original.revision_of is None, "the original is untouched"
 
 
+class ByAgent:
+    """A fake SDK that answers each shortlisted agent from its own payload, however many times
+    it is asked, so a one-time note to one agent cannot shift the answers of the next."""
+
+    def __init__(self, payloads: dict[str, dict]):
+        self.payloads, self.calls = payloads, []
+        self.messages = self
+
+    def parse(self, **kwargs):
+        self.calls.append(kwargs)
+        prompt = kwargs["messages"][0]["content"]
+        agent = next(a for a in self.payloads if f"You are `{a}`" in prompt)
+        return FakeResponse(parsed_output=self.payloads[agent], usage=FakeUsage())
+
+
 def responses(run, agent_id, text="Accepted: the concentration point is fair, so capped it."):
     return [
         {"reviewer": r.reviewer_agent_id, "response": text}
@@ -156,8 +177,8 @@ def responses(run, agent_id, text="Accepted: the concentration point is fair, so
 def test_a_model_revision_moves_the_levers_and_answers_every_review(voted_run):
     run, stage, cfg = voted_run
     shortlist = read("vote_tally", run.path("vote_tally")).body.shortlist
-    payloads = [
-        {
+    payloads = {
+        a: {
             "revise": True,
             "max_weight_pct": 35.0,
             "shrink_to_equal": 0.2,
@@ -165,8 +186,8 @@ def test_a_model_revision_moves_the_levers_and_answers_every_review(voted_run):
             "rationale": "R" * 220,
         }
         for a in shortlist
-    ]
-    llm = LlmClient(FakeAnthropic(payloads))
+    }
+    llm = LlmClient(ByAgent(payloads))
     result = run_revisions(run, None, config=cfg, llm=llm, stage=stage, workers=1)
     assert not result.skipped
     for item in result.revisions.values():
@@ -175,6 +196,46 @@ def test_a_model_revision_moves_the_levers_and_answers_every_review(voted_run):
         assert "Responses to reviews" in item.body.notes
     first = read("pc_proposal", run.path("pc_proposal", agent_id=shortlist[0], revision=True))
     assert first.header.produced_by.value == "hybrid" and first.header.model_calls
+
+
+def test_a_lever_that_creates_a_breach_is_shown_once_then_kept(voted_run):
+    """§3.5: the agent revises "taking into account ... the CRO report". A shrink that drops a
+    tuned portfolio below the volatility floor is shown to it once; repeating it files it."""
+    run, stage, cfg = voted_run
+    proposal = load_proposals(run)["max_sharpe"]
+    assert proposal.ips_compliance.compliant
+    levers = RevisionLevers(shrink_to_equal=0.5)
+    note = consequence_note(proposal, levers, stage, cfg)
+    assert note and "newly breaches" in note and "volatility" in note
+    assert consequence_note(proposal, RevisionLevers(), stage, cfg) is None
+
+    reviews = load_reviews(run)
+    reviews = [r for r in reviews if r.reviewed_agent_id == "max_sharpe"]
+    tally = read("vote_tally", run.path("vote_tally")).body
+    payload = {
+        "revise": True,
+        "shrink_to_equal": 0.5,
+        "response_to_reviews": responses(run, "max_sharpe"),
+        "rationale": "R" * 220,
+    }
+    fake = FakeAnthropic([payload, payload])
+    result = revise_agent(
+        "max_sharpe",
+        proposal,
+        None,
+        reviews,
+        tally,
+        stage,
+        cfg,
+        LlmClient(fake),
+        ips_status="draft",
+        system=system_prompt(),
+    )
+    calls = fake.messages.calls
+    assert len(calls) == 2, "shown once, then the same levers are accepted"
+    assert "newly breaches" in calls[1]["messages"][-1]["content"]
+    assert result.levers.shrink_to_equal == 0.5
+    assert not result.body.ips_compliance.compliant, "the agent's choice is filed as it is"
 
 
 def test_a_revision_that_ignores_a_review_is_refused(voted_run):

@@ -225,6 +225,14 @@ optimum: diversification ratio 2.056, unbeaten by 4000 random long-only portfoli
 1.506 for equal weight ex-cash. Cash is nearly uncorrelated with everything, which is exactly
 what the diversification ratio rewards.
 
+### The CIO sees what the paper's CIO sees — built, 2026-10-28
+
+Decision 50. The CIO prompt now carries §3.6's inputs: a digest of every candidate (CRO report,
+peer reviews, vote and metric score), the IPS limits, each ensemble's six-dimension score, its
+composition, and the size of any projection. A revision whose levers create a new hard IPS
+breach is shown the revised figures once and may keep them. Nothing is capped or forced. On
+`dry2`'s inputs the CIO prompt grows from about 2,100 to 5,300 tokens, a few cents on a paid run.
+
 ### Candidates are tuned toward the IPS, not forced into it — built, 2026-10-20
 
 Decision 49 supersedes the next section's first change. Methods with a genuine parameter are

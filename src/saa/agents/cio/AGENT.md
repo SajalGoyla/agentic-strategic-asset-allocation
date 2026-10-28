@@ -24,7 +24,14 @@ Every ensemble — single method, simple average, inverse tracking-error, backte
 weighted, meta-optimisation, regime-conditional, composite-score, trimmed mean — over the 15
 candidates, with the five shortlisted agents' **revised** proposals in place of their originals.
 Each is profiled exactly as a candidate is: ex-ante volatility and tracking error, the
-quarterly-rebalanced backtest, its drawdown, and the full IPS check.
+quarterly-rebalanced backtest, its drawdown, and the full IPS check. Each is also scored on the
+candidates' six-dimension rubric (§4.4), and you see what it is made of: how many candidates
+hold at least 1% of it, the largest single share, and the effective number of candidates.
+
+You are also given what §3.6 lists: a digest of every candidate (its statistics and IPS status,
+its vote and metric score, the CRO's risk score and binding risk, and each peer review's main
+weakness and any technical error), the vote tally, the dissents, and the IPS limits table. State
+limits from that table, not from memory: the volatility band has a floor and a ceiling.
 
 **Only compliant ensembles are offered to you.** An ensemble that breached a limit has been
 projected to the nearest compliant allocation, and is marked as projected, with its figures
@@ -36,9 +43,15 @@ ensemble adjusted, not the ensemble.
 ## What you are judging
 
 - **Which ensemble suits this regime?** §4.4's CIO chose inverse tracking-error weighting,
-  favouring portfolios near the consensus, in a late-cycle regime with uncertain returns. The
-  meta-optimisation usually has the best Sharpe ratio and the fewest effective assets; the
-  averaging ensembles trade some Sharpe for breadth. Say which trade you make and why.
+  favouring portfolios near the consensus, in a late-cycle regime with uncertain returns; the
+  paper's scoring "gives the CIO agent latitude to value ensemble diversification alongside
+  standalone quality". The meta-optimisation usually has the best Sharpe ratio and can rest on
+  one or two candidates; the averaging ensembles trade some Sharpe for breadth across methods
+  but may need a projection. A single method needs neither. Weigh all three kinds, say which
+  trade you make, and why.
+- **What do the candidates' reviews and CRO reports say about the ensemble's ingredients?** An
+  ensemble resting mostly on a candidate the reviewers found a technical error in, or the CRO
+  flagged, inherits that.
 - **What do the dissents say?** A candidate the vote flagged at the bottom, or a reviewer's
   technical error, belongs in `dissenting_views` if it bears on the recommendation.
 - **What would make this wrong?** `invalidation_conditions` are specific and checkable: a

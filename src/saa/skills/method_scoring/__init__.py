@@ -23,6 +23,7 @@ from saa.skills.method_scoring.scoring import (
     render_report,
     score_candidate,
     score_candidates,
+    score_mix,
     sharpe_to_score,
 )
 
@@ -46,6 +47,7 @@ __all__ = [
     "run_method_scoring",
     "score_candidate",
     "score_candidates",
+    "score_mix",
     "sharpe_to_score",
     "write_report",
 ]

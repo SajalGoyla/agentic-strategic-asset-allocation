@@ -1,13 +1,15 @@
 """The CIO agent (Ang et al. 2026 §3.6, §4.4, stage 6).
 
 The ensembles are built and profiled by ``skills/ensemble`` over every candidate, with the
-shortlisted five's revised proposals in place of their originals. Only IPS-compliant ensembles
-reach the model, whose schema offers nothing else; it chooses one and writes the rationale, the
-dissenting views, the invalidation conditions and the board memo. ``CioDecisionBody`` refuses a
+shortlisted five's revised proposals in place of their originals, and scored on the candidates'
+six-dimension rubric. The model sees what §3.6 lists -- the candidates, their peer reviews, CRO
+risk reports, vote tallies and metric scores -- as a digest, with the IPS limits and the
+compliant ensembles. Only IPS-compliant ensembles reach the model, whose schema offers nothing
+else; it chooses one and writes the rationale, the dissenting views, the invalidation conditions
+and the board memo. ``CioDecisionBody`` refuses a
 non-compliant decision, so "non-negotiable" (§3.6) holds even if every other check failed.
 
-``--no-llm`` picks the compliant ensemble with the best blend of backtest Sharpe and
-diversification and writes a templated memo from the numbers, so the pipeline runs from data
+``--no-llm`` picks the compliant ensemble with the best six-dimension composite and writes a templated memo from the numbers, so the pipeline runs from data
 to a recommended allocation for free.
 """
 
@@ -24,6 +26,7 @@ import numpy as np
 import pandas as pd
 from pydantic import create_model
 
+from saa.agents.vote import load_reviews
 from saa.config import Config, load_config
 from saa.contracts import (
     BoardMemo,
@@ -33,6 +36,7 @@ from saa.contracts import (
     EnsembleMethod,
     ModelCall,
     PcProposalBody,
+    PeerReviewBody,
     Producer,
     Tier,
     read,
@@ -48,13 +52,15 @@ from saa.skills.ensemble import (
     EnsembleInputs,
     build_ensembles,
     default_choice,
-    ensemble_score,
 )
 from saa.skills.method_scoring import (
+    ScoringResult,
+    ScoringSettings,
     load_cro_reports,
     load_proposals,
     load_scoring_settings,
     score_candidates,
+    score_mix,
 )
 from saa.skills.portfolio_construction import StageInputs, gather_inputs
 
@@ -123,30 +129,168 @@ def dissent(run: RunContext, tally: VoteTallyBody, share: float = 0.5) -> list[s
     ]
 
 
+def score_ensembles(
+    ensembles: dict[EnsembleMethod, Ensemble],
+    scoring: ScoringResult,
+    stage: StageInputs,
+    settings: ScoringSettings,
+    labels: pd.Series | None,
+) -> dict[EnsembleMethod, MethodScore]:
+    """Every ensemble on the six-dimension rubric the candidates are scored on (§3.6, §4.4)."""
+    return {
+        method: score_mix(
+            f"ensemble:{method.value}",
+            e.final_weights,
+            e.ensemble_weights,
+            backtest_sharpe=e.profile.backtest_sharpe,
+            effective_n=e.profile.effective_n,
+            compliance=e.profile.compliance,
+            candidates=scoring,
+            stage=stage,
+            settings=settings,
+            labels=labels,
+        )
+        for method, e in ensembles.items()
+    }
+
+
+def ips_limits(config: Config) -> str:
+    """The IPS's limits as the CIO is held to them, so it can state them without guessing."""
+    ips = config.ips
+    o = ips.objectives
+    bench = ", ".join(f"{a} {w:.0%}" for a, w in ips.active_risk.benchmark.weights.items())
+    permitted = ips.universe.permitted
+    rows = [
+        "| rule | limit | severity |",
+        "|---|---|---|",
+        f"| expected real return | at least CPI + {o.return_.min_pct:g}% (no ceiling) | "
+        f"{o.return_.severity} |",
+        f"| ex-ante volatility | between {o.volatility.min_pct:g}% (floor) and "
+        f"{o.volatility.max_pct:g}% (ceiling) | {o.volatility.severity} |",
+        f"| backtest maximum drawdown | no worse than {o.max_drawdown.limit_pct:g}% | "
+        f"{o.max_drawdown.severity} |",
+        f"| ex-ante tracking error to the benchmark ({bench}) | at most "
+        f"{ips.active_risk.tracking_error.max_ex_ante_pct:g}% | "
+        f"{ips.active_risk.tracking_error.severity} |",
+        f"| long only, no leverage, no derivatives | "
+        f"{'yes' if permitted.long_only and not permitted.leverage else 'see policy'} | hard |",
+    ]
+    escalation = [
+        f"- {e.condition}"
+        + (f" (threshold {e.threshold:g})" if e.threshold is not None else "")
+        + f": {e.action}"
+        + (f". {e.note}" if e.note else "")
+        for e in ips.escalation
+    ]
+    return (
+        f"IPS v{ips.version}, {ips.status}. Rebalancing {ips.rebalancing.cadence}; horizon "
+        f"{o.cma_horizon_years} years.\n\n"
+        + "\n".join(rows)
+        + "\n\nEscalation rules:\n"
+        + ("\n".join(escalation) or "- none")
+    )
+
+
+def _first(items: list[str]) -> str:
+    return items[0] if items else "none stated"
+
+
+def candidate_digest(
+    candidates: dict[str, PcProposalBody],
+    reports: dict[str, CroReportBody],
+    reviews: list[PeerReviewBody],
+    tally: VoteTallyBody,
+) -> str:
+    """One block per candidate, in vote order: what §3.6 gives the CIO -- the portfolio, its
+    CRO report, its peer reviews, its vote and metric scores -- cut to what bears on a choice."""
+    by_reviewed: dict[str, list[PeerReviewBody]] = {}
+    for r in reviews:
+        by_reviewed.setdefault(r.reviewed_agent_id, []).append(r)
+    blocks = []
+    for row in tally.rows:
+        p = candidates.get(row.agent_id)
+        if p is None:
+            continue
+        report = reports.get(row.agent_id)
+        hard = [v.rule for v in p.ips_compliance.violations if v.severity == "hard"]
+        eff = "–" if p.effective_n is None else f"{p.effective_n:.1f}"
+        top = ", ".join(f"{a} {w:.0%}" for a, w in _top(pd.Series(p.weights), 3))
+        lines = [
+            f"### {row.rank}. `{row.agent_id}` — {p.method} ({p.category.value})"
+            + (" — revised" if p.revision_of else ""),
+            f"- vote {row.vote_points} points, metric score {row.metric_score:.3f}, composite "
+            f"{row.composite:.3f}",
+            f"- return {p.expected_return_pct:.2f}%, volatility {p.expected_volatility_pct:.2f}%, "
+            f"Sharpe {p.sharpe_ratio:.2f}, {eff} effective assets; top: {top}",
+            f"- IPS: {'compliant' if p.ips_compliance.compliant else 'breaches ' + ', '.join(hard)}",
+        ]
+        if report is not None:
+            dd = "–" if report.max_drawdown_pct is None else f"{report.max_drawdown_pct:.1f}%"
+            bs = "–" if report.backtest_sharpe is None else f"{report.backtest_sharpe:.2f}"
+            lines.append(
+                f"- CRO{' (on the original)' if p.revision_of else ''}: risk score "
+                f"{report.risk_score:.2f}, backtest Sharpe {bs}, drawdown {dd}; binding risk: "
+                f"{_first(report.judgment.key_risks)}"
+            )
+        for r in sorted(by_reviewed.get(row.agent_id, []), key=lambda r: r.reviewer_agent_id):
+            errors = "; ".join(r.technical_errors)
+            lines.append(
+                f"- review by `{r.reviewer_agent_id}` ({r.score:.2f}): {_first(r.weaknesses)}"
+                + (f" Technical errors: {errors}" if errors else "")
+            )
+        blocks.append("\n".join(lines))
+    return "\n\n".join(blocks)
+
+
+def _projection(e: Ensemble) -> str:
+    if e.projected_from is None:
+        return "none"
+    before = e.projected_from
+    return (
+        f"from {before.ex_ante_volatility_pct:.2f}% vol, {before.max_drawdown_pct:.1f}% DD; "
+        f"{e.projection_turnover:.1%} of the portfolio moved"
+    )
+
+
 def build_prompt(
     ensembles: dict[EnsembleMethod, Ensemble],
+    scores: dict[EnsembleMethod, MethodScore],
     tally: VoteTallyBody,
     dissents: list[str],
+    digest: str,
     *,
+    config: Config,
     regime: str | None,
-    n_assets: int,
     ips_status: str,
 ) -> str:
     rows = [
-        "| ensemble | vol % | TE % | backtest DD % | backtest Sharpe | exp. return % | eff. N "
-        "| top holdings | note |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| ensemble | composite | vol % | TE % | backtest DD % | backtest Sharpe | exp. return % "
+        "| Sharpe | eff. N assets | candidates held | largest share | eff. N candidates "
+        "| projection | top holdings |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    dims = [
+        "| ensemble | Sharpe 25% | IPS 15% | divers. 15% | regime 20% | robust. 15% | CMA 10% "
+        "| composite |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for method, e in ensembles.items():
         if not e.compliant:
             continue
-        p = e.profile
+        p, s = e.profile, scores[method]
         top = ", ".join(f"{a} {w:.0%}" for a, w in _top(e.final_weights, 3))
+        lead, share = e.largest_share
         rows.append(
-            f"| {method.value} | {p.ex_ante_volatility_pct:.2f} | "
+            f"| {method.value} | {s.composite:.3f} | {p.ex_ante_volatility_pct:.2f} | "
             f"{p.ex_ante_tracking_error_pct:.2f} | {p.max_drawdown_pct:.1f} | "
-            f"{p.backtest_sharpe:.2f} | {e.expected_return_pct:.2f} | {p.effective_n:.1f} | "
-            f"{top} | {e.note or '-'} |"
+            f"{p.backtest_sharpe:.2f} | {e.expected_return_pct:.2f} | {e.sharpe_ratio:.2f} | "
+            f"{p.effective_n:.1f} | {e.candidates_held} | {lead} {share:.0%} | "
+            f"{e.effective_candidates:.1f} | {_projection(e)} | {top} |"
+        )
+        dims.append(
+            f"| {method.value} | {s.backtest_sharpe:.2f} | {s.ips_compliance:.2f} | "
+            f"{s.diversification:.2f} | {s.regime_fit:.2f} | {s.estimation_robustness:.2f} | "
+            f"{s.cma_utilization:.2f} | {s.composite:.3f} |"
         )
     excluded = [m.value for m, e in ensembles.items() if not e.compliant]
     tally_rows = "\n".join(
@@ -159,15 +303,35 @@ As-of regime: {regime or "unknown"}
 Governing IPS status: {ips_status}
 Shortlist after the vote and the revisions: {", ".join(tally.shortlist)}
 
+## The IPS limits your recommendation is held to
+{ips_limits(config)}
+
 ## The IPS-compliant ensembles (choose one)
 {chr(10).join(rows)}
 
+"Candidates held" counts candidates with at least 1% of the ensemble; "eff. N candidates" is
+the entropy-based effective number of them. "Projection" is how far the ensemble had to be moved
+to comply with the IPS, from the figures it had before.
+
 {"Not offered, because no compliant allocation could be found: " + ", ".join(excluded) if excluded else ""}
+
+### The same six-dimension score as the candidates (§4.4)
+What the allocation has is measured on it: backtest Sharpe, IPS compliance, diversification,
+and its Sharpe ratio in the current regime placed on the candidates' range. Estimation
+robustness and CMA use are the mix of its candidates'. The scores inform your judgment; they
+do not make it.
+
+{chr(10).join(dims)}
 
 ## The vote (Exhibit 9)
 | rank | agent | family | points | composite |
 |---|---|---|---|---|
 {tally_rows}
+
+## The candidates: portfolio, CRO report, peer reviews, scores
+The shortlisted five are shown as revised; their CRO reports are on the originals.
+
+{digest}
 
 ## Dissent
 {chr(10).join("- " + d for d in dissents) or "None at the threshold."}
@@ -190,6 +354,7 @@ def fallback_judgment(
     regime: str | None,
     ips_status: str,
     n_candidates: int,
+    score: float,
 ) -> CioJudgment:
     """``--no-llm``: the default choice, and a memo written from the numbers alone."""
     p = chosen.profile
@@ -208,7 +373,8 @@ def fallback_judgment(
     top = "; ".join(f"{a} {w:.1%}" for a, w in _top(chosen.final_weights))
     projected = (
         f" It was projected into the IPS from {chosen.projected_from.ex_ante_volatility_pct:.2f}% "
-        f"volatility and a {chosen.projected_from.max_drawdown_pct:.1f}% drawdown."
+        f"volatility and a {chosen.projected_from.max_drawdown_pct:.1f}% drawdown, moving "
+        f"{chosen.projection_turnover:.1%} of the portfolio."
         if chosen.policy_adjusted
         else ""
     )
@@ -233,8 +399,8 @@ def fallback_judgment(
         rationale=(
             f"Generated without a model (--no-llm). The {chosen.method.value} ensemble of the "
             f"{n_candidates} candidate portfolios is the IPS-compliant ensemble with the best "
-            "blend of backtest Sharpe ratio and diversification, weighted 25:15 as in §4.4 "
-            f"(Sharpe {p.backtest_sharpe:.2f}, {p.effective_n:.1f} effective assets).{projected} "
+            f"six-dimension composite of §4.4, {score:.3f} (backtest Sharpe "
+            f"{p.backtest_sharpe:.2f}, {p.effective_n:.1f} effective assets).{projected} "
             "No judgment has been applied: the regime, the reviews and the dissents were not "
             "weighed, and the memo is assembled from the figures."
         ),
@@ -291,9 +457,8 @@ def run_cio(
     candidates = load_candidates(run, tally.shortlist)
     reports = load_cro_reports(run)
     stage = stage or gather_inputs(run, store, config=config)
-    scoring = score_candidates(
-        load_proposals(run), reports, stage, load_scoring_settings(config), labels=regime_labels
-    )
+    settings = load_scoring_settings(config)
+    scoring = score_candidates(load_proposals(run), reports, stage, settings, labels=regime_labels)
     x = EnsembleInputs(
         weights=pd.DataFrame(
             {a: pd.Series(p.weights, dtype="float64") for a, p in candidates.items()}
@@ -315,11 +480,12 @@ def run_cio(
             "allocation (escalate: config/ips.yaml `hard_violation_unresolved`)"
         )
     dissents = dissent(run, tally)
-    n_assets = len(stage.asset_ids)
+    scores = score_ensembles(ensembles, scoring, stage, settings, regime_labels)
+    composites = {m: s.composite for m, s in scores.items()}
 
     call = None
     if llm is None:
-        chosen = ensembles[default_choice(ensembles, n_assets)]
+        chosen = ensembles[default_choice(ensembles, composites)]
         judgment = fallback_judgment(
             chosen,
             stage,
@@ -328,6 +494,7 @@ def run_cio(
             regime=scoring.regime,
             ips_status=run.ips_status,
             n_candidates=len(candidates),
+            score=composites[chosen.method],
         )
     else:
 
@@ -343,10 +510,12 @@ def run_cio(
             system=system_prompt(),
             prompt=build_prompt(
                 ensembles,
+                scores,
                 tally,
                 dissents,
+                candidate_digest(candidates, reports, load_reviews(run), tally),
+                config=config,
                 regime=scoring.regime,
-                n_assets=n_assets,
                 ips_status=run.ips_status,
             ),
             tier=Tier.FLAGSHIP,
@@ -356,7 +525,7 @@ def run_cio(
         chosen = ensembles[EnsembleMethod(str(judgment.ensemble_method))]
 
     body = decision_body(chosen, judgment, scoring.scores)
-    run.write_report(render_ensembles(ensembles, failed, chosen.method, n_assets), ENSEMBLE_REPORT)
+    run.write_report(render_ensembles(ensembles, failed, chosen.method, scores), ENSEMBLE_REPORT)
     memo = run.write_report(render_memo(body, run), MEMO_REPORT)
     run.write(
         DECISION_CONTRACT,
@@ -414,27 +583,31 @@ def render_ensembles(
     ensembles: dict[EnsembleMethod, Ensemble],
     failed: dict[EnsembleMethod, str],
     chosen: EnsembleMethod,
-    n_assets: int,
+    scores: dict[EnsembleMethod, MethodScore],
 ) -> str:
     lines = [
         "# CIO ensembles",
         "",
         "Every ensemble of the candidate portfolios, profiled as a candidate is (§3.6). Only "
         "IPS-compliant ensembles may be recommended; a projected one breached a limit and was "
-        "moved to the nearest compliant allocation.",
+        "moved to the nearest compliant allocation. The score is the candidates' six-dimension "
+        "composite (§4.4).",
         "",
-        "| ensemble | IPS | vol % | TE % | DD % | backtest Sharpe | return % | eff. N | score | "
-        "chosen | note |",
-        "|---|---|---|---|---|---|---|---|---|---|---|",
+        "| ensemble | IPS | vol % | TE % | DD % | backtest Sharpe | return % | eff. N | "
+        "candidates held | largest share | projection moved | score | chosen | note |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for method, e in ensembles.items():
         p = e.profile
+        lead, share = e.largest_share
+        moved = f"{e.projection_turnover:.1%}" if e.policy_adjusted else "-"
         lines.append(
             f"| {method.value} | {'pass' if e.compliant else 'FAIL'} | "
             f"{p.ex_ante_volatility_pct:.2f} | {p.ex_ante_tracking_error_pct:.2f} | "
             f"{p.max_drawdown_pct:.1f} | {p.backtest_sharpe:.2f} | {e.expected_return_pct:.2f} | "
-            f"{p.effective_n:.1f} | {ensemble_score(e, n_assets):.3f} | "
-            f"{'yes' if method is chosen else ''} | {e.note or '-'} |"
+            f"{p.effective_n:.1f} | {e.candidates_held} | {lead} {share:.0%} | {moved} | "
+            f"{scores[method].composite:.3f} | {'yes' if method is chosen else ''} | "
+            f"{e.note or '-'} |"
         )
     if failed:
         lines += ["", "## Could not be built", ""]
