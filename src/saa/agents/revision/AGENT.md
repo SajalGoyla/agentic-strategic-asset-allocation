@@ -40,6 +40,11 @@ CRO measures it as it measured the original, and the IPS binds on the CIO's reco
 your portfolio breaches the IPS, a lever that moves it toward compliance is one honest response
 to the CRO report; it is not the only one.
 
+If your levers would create a hard IPS breach the original did not have — a cap that drops the
+volatility below the floor, say — you are shown the revised portfolio's figures once before it
+is filed. You may keep the same levers, saying why the trade is worth it, or change them. Your
+second answer is filed as it is.
+
 ## Hard constraints
 
 - Respond to **every** review you received, by reviewer — accept the point, rebut it, or

@@ -6,8 +6,10 @@ reviews and the CRO report."
 The shortlist comes from ``review/vote_tally.json``. Each shortlisted agent reads its proposal,
 its CRO report, the two reviews it received and its vote result, and answers with levers
 (``skills/portfolio_construction/revision``) rather than weights: exclude assets, cap a weight,
-shrink toward equal weight, or keep the portfolio. The script applies them, holds the result to
-the IPS's ex-ante limits, and files it beside the original as ``pc_proposal-revised.json``.
+shrink toward equal weight, or keep the portfolio. The script applies them and nothing else
+(decision 49), and files the result beside the original as ``pc_proposal-revised.json``. If the
+levers would create a hard IPS breach the original did not have, the agent is shown the revised
+portfolio's figures once and may keep or change them (decision 50).
 
 ``--no-llm`` keeps every portfolio unchanged and says so, so the CIO stage can read a revised
 proposal for every shortlisted agent in a free run.
@@ -28,6 +30,7 @@ from saa.config import Config, load_config
 from saa.contracts import (
     Contract,
     CroReportBody,
+    IpsCompliance,
     ModelCall,
     PcProposalBody,
     PeerReviewBody,
@@ -218,6 +221,32 @@ Your case: {proposal.rationale}
 """
 
 
+def new_breaches(before: IpsCompliance, after: IpsCompliance) -> list[str]:
+    """Hard IPS breaches the revision has and the original did not."""
+    had = {v.rule for v in before.violations if v.severity == "hard"}
+    return [v.message for v in after.violations if v.severity == "hard" and v.rule not in had]
+
+
+def consequence_note(
+    proposal: PcProposalBody, levers: RevisionLevers, stage: StageInputs, config: Config
+) -> str | None:
+    """What the levers do to the portfolio, when they create a hard IPS breach it did not have.
+    Information, not a refusal: the agent may answer with the same levers."""
+    revised = revise(proposal, levers, stage, config)
+    new = new_breaches(proposal.ips_compliance, revised.compliance)
+    if not new:
+        return None
+    s = revised.stats
+    return (
+        f"Before your revision is filed, here is what your levers ({levers.describe()}) do. "
+        f"The revised portfolio has expected return {s.expected_return_pct:.2f}%, volatility "
+        f"{s.expected_volatility_pct:.2f}% (was {proposal.expected_volatility_pct:.2f}%), Sharpe "
+        f"{s.sharpe_ratio:.2f} and {s.effective_n:.1f} effective assets, and it newly breaches "
+        f"the IPS: {'; '.join(new)}. This is shown once and is not a rule: keep the same levers "
+        "and say in the rationale why the trade is worth it, or change them."
+    )
+
+
 def fallback_judgment(reviews: list[PeerReviewBody]) -> RevisionJudgment:
     return RevisionJudgment(
         revise=False,
@@ -255,8 +284,10 @@ def revise_agent(
         judgment = fallback_judgment(reviews)
     else:
         model = judgment_model(stage.asset_ids, [r.reviewer_agent_id for r in reviews])
+        shown = False
 
         def check(judgment) -> None:
+            nonlocal shown
             answered = {str(r.reviewer) for r in judgment.response_to_reviews}
             unanswered = sorted({r.reviewer_agent_id for r in reviews} - answered)
             if unanswered:
@@ -271,6 +302,13 @@ def revise_agent(
                     f"{agent_id}: revision too thin to audit (responses to {thin}, rationale "
                     f"{len(judgment.rationale)} characters)"
                 )
+            # §3.5 has the agent revise "taking into account ... the CRO report"; a lever can
+            # create a breach the agent never sees. Shown once, then whatever it answers stands.
+            if not shown:
+                note = consequence_note(proposal, judgment.levers(), stage, config)
+                if note:
+                    shown = True
+                    raise ValueError(note)
 
         result = llm.judge(
             model,

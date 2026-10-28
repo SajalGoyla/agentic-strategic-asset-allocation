@@ -23,6 +23,7 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
 from saa.config import Config
+from saa.contracts.base import IpsCompliance
 from saa.contracts.cio import SCORE_WEIGHTS, MethodScore
 from saa.contracts.portfolio import PcProposalBody
 from saa.contracts.review import CroReportBody
@@ -91,11 +92,12 @@ def sharpe_to_score(sharpe: float | None, anchors: tuple[float, float]) -> float
     return float(np.clip((sharpe - lo) / (hi - lo), 0.0, 1.0))
 
 
-def ips_compliance_score(report: CroReportBody, s: IpsComplianceSettings) -> float:
+def ips_compliance_score(report: CroReportBody | IpsCompliance, s: IpsComplianceSettings) -> float:
     """1.0 for a compliant portfolio; each breach costs by its kind and, for a hard one, by how
     far past the limit it is. A rule never evaluated costs nothing here -- the CRO lists it."""
+    compliance = getattr(report, "ips_compliance", report)
     score = 1.0
-    for v in report.ips_compliance.violations:
+    for v in compliance.violations:
         if v.severity != "hard":
             score -= s.soft
             continue
@@ -347,6 +349,56 @@ def score_candidates(
             proposals[agent_id], reports[agent_id], stage, settings, fit=fits[agent_id]
         )
     return ScoringResult(scores=scores, details=details, regime=regime)
+
+
+def score_mix(
+    label: str,
+    weights: pd.Series,
+    mix: dict[str, float],
+    *,
+    backtest_sharpe: float | None,
+    effective_n: float | None,
+    compliance: IpsCompliance,
+    candidates: ScoringResult,
+    stage: StageInputs,
+    settings: ScoringSettings,
+    labels: pd.Series | None = None,
+) -> MethodScore:
+    """A blend of candidates scored on the candidates' own rubric (§3.6: the CIO "evaluates
+    each ensemble on the same diagnostic suite used for individual portfolios").
+
+    ``weights`` is the allocation, ``mix`` the share of each candidate in it. What the
+    allocation has is measured on it: backtest Sharpe, IPS compliance, diversification, and its
+    regime Sharpe placed on the candidates' range. What only a method has -- estimation
+    robustness, whether it reads the CMAs -- is the mix-weighted average of its candidates'.
+    """
+    total = sum(mix.values()) or 1.0
+    share = {a: w / total for a, w in mix.items() if a in candidates.scores}
+
+    def blended(dim: str) -> float:
+        return sum(w * getattr(candidates.scores[a], dim) for a, w in share.items())
+
+    sharpe = sharpe_to_score(backtest_sharpe, settings.sharpe_anchors)
+    measured = [d.regime.sharpe for d in candidates.details.values() if d.regime.sharpe is not None]
+    fit = regime_fit(weights, "", stage, candidates.regime, labels, settings)
+    if fit.source == "measured" and fit.sharpe is not None and len(measured) > 1:
+        lo, hi = min(measured), max(measured)
+        fit_score = NEUTRAL if hi - lo < 1e-12 else (fit.sharpe - lo) / (hi - lo)
+    else:
+        fit_score = blended("regime_fit")
+    reads = sum(w * float(candidates.details[a].uses_cmas) for a, w in share.items())
+    cma = settings.cma_utilization.uses_cmas_share
+    dims = {
+        "backtest_sharpe": NEUTRAL if sharpe is None else sharpe,
+        "ips_compliance": ips_compliance_score(compliance, settings.ips_compliance),
+        "diversification": float(np.clip((effective_n or 0.0) / len(stage.asset_ids), 0.0, 1.0)),
+        "regime_fit": float(np.clip(fit_score, 0.0, 1.0)),
+        "estimation_robustness": blended("estimation_robustness"),
+        "cma_utilization": cma * reads + (1.0 - cma) * cma_alignment(weights, stage),
+    }
+    dims = {k: round(float(v), 6) for k, v in dims.items()}
+    composite = round(sum(dims[k] * w for k, w in SCORE_WEIGHTS.items()), 6)
+    return MethodScore(agent_id=label, composite=composite, **dims)
 
 
 # --------------------------------------------------------------------------------- report

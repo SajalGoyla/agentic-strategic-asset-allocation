@@ -61,8 +61,13 @@ need none.
 
 ## The free-run choice
 
-`--no-llm` picks the compliant ensemble with the best blend of backtest Sharpe and
-diversification — the two of §4.4's six dimensions an ensemble has — in the paper's own
-25:15 ratio. Ranking by Sharpe alone always picks the concentrated meta-optimisation; on the
-2026-10-01 run the blend picked the composite-score ensemble (Sharpe 0.63, 15.7 effective
-assets) over it (0.69, 4.9). With a model, the CIO chooses and has to say what it traded.
+Every ensemble is scored on the candidates' six-dimension rubric by
+`method_scoring.score_mix` (decision 50). What the allocation has is measured on it: backtest
+Sharpe, IPS compliance, diversification, and its Sharpe ratio in the current regime placed on
+the candidates' range. What only a method has, estimation robustness and whether it reads the
+CMAs, is the mix-weighted average of its candidates'. `--no-llm` picks the compliant ensemble
+with the best composite. With a model, the CIO chooses and has to say what it traded.
+
+Each `Ensemble` also reports its composition, so a concentrated mix is visible: the candidates
+holding at least 1% of it, the largest single share, the effective number of candidates, and
+for a projected ensemble the one-way turnover the projection cost.
