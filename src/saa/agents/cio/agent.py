@@ -38,14 +38,13 @@ from saa.contracts import (
     PcProposalBody,
     PeerReviewBody,
     Producer,
-    Tier,
     read,
 )
 from saa.contracts.cio import DECISION_CONTRACT, MethodScore
 from saa.contracts.review import TALLY_CONTRACT, VoteTallyBody
 from saa.data.store import DataStore
 from saa.ips import real_return_pct
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.ensemble import (
     Ensemble,
@@ -518,7 +517,7 @@ def run_cio(
                 regime=scoring.regime,
                 ips_status=run.ips_status,
             ),
-            tier=Tier.FLAGSHIP,
+            tier=tier_for("cio"),
             check=check,
         )
         judgment, call = result.value, result.call

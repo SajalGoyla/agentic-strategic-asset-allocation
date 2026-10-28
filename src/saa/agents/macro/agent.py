@@ -31,12 +31,11 @@ from saa.contracts import (
     Producer,
     RegimeHistoryBody,
     RegimeMonth,
-    Tier,
     write,
 )
 from saa.contracts.macro import DIMENSIONS
 from saa.data.store import DataStore
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.macro_scoring_config import MacroScoringConfig, cross_validate
 from saa.skills.macro_regime import (
     ScorePanel,
@@ -250,7 +249,7 @@ def run(
         MacroJudgment,
         system=system_prompt(),
         prompt=build_prompt(dimensions, panel, as_of=as_of_date, ips_status=config.ips.status),
-        tier=Tier.FLAGSHIP,
+        tier=tier_for("macro"),
     )
     judgment: MacroJudgment = judged.value
 

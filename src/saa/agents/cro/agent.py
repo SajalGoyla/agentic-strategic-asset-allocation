@@ -31,13 +31,12 @@ from saa.contracts import (
     PcCategory,
     PcProposalBody,
     Producer,
-    Tier,
     read,
 )
 from saa.contracts.portfolio import PROPOSAL_CONTRACT, PROPOSAL_FILENAME
 from saa.contracts.review import CRO_CONTRACT
 from saa.data.store import DataStore
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.portfolio_construction import StageInputs, gather_inputs
 from saa.skills.risk import RiskProfile, profile_portfolio
@@ -289,7 +288,7 @@ def assess(
         CroJudgment,
         system=system,
         prompt=build_prompt(profile, proposal, stage, ips_status=ips_status),
-        tier=Tier.FLAGSHIP,
+        tier=tier_for("cro"),
         check=check,
     )
     judgment: CroJudgment = result.value

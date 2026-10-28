@@ -10,12 +10,14 @@ from pydantic import model_validator
 from saa.contracts.asset_class import CmaJudgment
 from saa.contracts.base import Contract, Tier
 from saa.llm import (
+    AGENT_TIERS,
     GEMINI_DEFAULT_MODEL,
     OPENROUTER_DEFAULT_MODEL,
     LlmClient,
     QuotaExhausted,
     openrouter_models,
     resolve_provider,
+    tier_for,
 )
 from tests.test_macro_agent import FakeAnthropic
 
@@ -33,6 +35,8 @@ def _no_dry_run_env(monkeypatch):
         "SAA_GEMINI_MODEL_FLAGSHIP",
         "SAA_GEMINI_MODEL_LOW_COST",
         "SAA_GEMINI_RPM",
+        "SAA_ANTHROPIC_MODEL_FLAGSHIP",
+        "SAA_ANTHROPIC_MODEL_LOW_COST",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -264,3 +268,20 @@ def test_a_missing_gemini_key_is_reported(monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     with pytest.raises(RuntimeError, match="GEMINI_API_KEY"):
         LlmClient(provider="gemini").judge(Verdict, system="s", prompt="p")
+
+
+# ------------------------------------------------------------------------------- anthropic
+def test_anthropic_tiers_default_to_opus_and_sonnet_and_can_be_overridden(monkeypatch):
+    llm = LlmClient(FakeAnthropic([]))
+    assert llm.models == {Tier.FLAGSHIP: "claude-opus-5-5", Tier.LOW_COST: "claude-sonnet-5-5"}
+    monkeypatch.setenv("SAA_ANTHROPIC_MODEL_LOW_COST", "claude-haiku-5-5")
+    assert LlmClient(FakeAnthropic([])).models[Tier.LOW_COST] == "claude-haiku-5-5"
+
+
+def test_every_agent_has_a_tier_and_a_typo_fails_loudly():
+    agents = {"macro", "cma_judge", "pc", "pc_researcher", "cro", "peer_review", "vote"}
+    agents |= {"revision", "cio"}
+    assert set(AGENT_TIERS) == agents
+    assert tier_for("cio") is Tier.FLAGSHIP and tier_for("peer_review") is Tier.LOW_COST
+    with pytest.raises(KeyError, match="no tier set"):
+        tier_for("chief_risk_officer")

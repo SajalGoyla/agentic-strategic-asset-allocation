@@ -32,12 +32,11 @@ from saa.contracts import (
     PeerReviewBody,
     Producer,
     ReviewJudgment,
-    Tier,
 )
 from saa.contracts.cio import MethodScore
 from saa.contracts.review import REVIEW_CONTRACT
 from saa.data.store import DataStore
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.method_scoring import (
     load_cro_reports,
@@ -202,7 +201,7 @@ def review(
             )
 
     result = llm.judge(
-        ReviewJudgment, system=system, prompt=prompt, tier=Tier.FLAGSHIP, check=check
+        ReviewJudgment, system=system, prompt=prompt, tier=tier_for("peer_review"), check=check
     )
     judgment: ReviewJudgment = result.value
     return Review(assignment=assignment, body=body_from(assignment, judgment), call=result.call)

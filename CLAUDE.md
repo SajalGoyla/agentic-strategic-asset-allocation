@@ -100,8 +100,9 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
 - An agent is four things (paper §3.2): an `AGENT.md` description, scripts, skills, and an
   output contract. Keep arithmetic in scripts and judgment in the model.
 - Skills never call an LLM. If it needs a model, it belongs in an agent.
-- Route by tier (`Tier.FLAGSHIP` for judgment, `Tier.LOW_COST` for formatting) and record every
-  call in `header.model_calls`; the project's total API budget is $210–290.
+- Route by tier with `tier_for("<agent>")`: the agent-to-tier map is `saa.llm.AGENT_TIERS`
+  (decision 51; Opus 5.5 and Sonnet 5.5 by default). Record every call in
+  `header.model_calls`; the project's total API budget is $210–290.
 - Provider is `SAA_LLM_PROVIDER`: `anthropic` (default, paid runs), or `openrouter` / `gemini`
   (dry runs on free models; `OPENROUTER_API_KEY` or `GEMINI_API_KEY`, and `SAA_<X>_MODEL`).
   See `.env.example`.
