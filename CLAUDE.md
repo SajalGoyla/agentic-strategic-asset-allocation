@@ -22,7 +22,9 @@ plus a board memo. Python 3.11+, `uv`, pandas, pydantic, Anthropic SDK.
 
 ```bash
 uv sync                                   # environment
-uv run pytest                             # all tests (integration ones skip without a data lake)
+uv run pytest tests/test_<area>.py        # while coding: the file for what you changed
+uv run pytest --lf                        # rerun only what failed last time
+uv run pytest -n 8 --dist loadfile        # all tests, before a PR (~5 min; serial ~15)
 uv run ruff format src tests && uv run ruff check src tests --fix
 
 uv run saa-data ingest                    # fetch every source, build history, validate

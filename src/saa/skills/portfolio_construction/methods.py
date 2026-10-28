@@ -605,12 +605,15 @@ TUNING_TOL = 1e-5  # decimal volatility, i.e. 0.001 percentage points
 RISK_AVERSION_RANGE = (1e-3, 1e3)
 
 
-def mean_variance(inputs: PortfolioInputs, risk_aversion: float) -> pd.Series:
+def mean_variance(
+    inputs: PortfolioInputs, risk_aversion: float, *, start: np.ndarray | None = None
+) -> pd.Series:
     """Long-only mean-variance: maximise w'(mu - rf) - (gamma/2) w'Sigma w over the simplex.
 
     The risk-aversion parameter gamma is the classical knob of the return-optimised family: a
     low gamma walks the frontier toward the highest-return asset, a high one toward the minimum
-    variance portfolio. The problem is a convex quadratic programme, so one start suffices.
+    variance portfolio. The problem is a convex quadratic programme, so one start suffices,
+    and ``start`` (a nearby solution) changes only how fast it is reached.
     """
     sigma, excess = inputs.sigma, inputs.mu - inputs.risk_free
     n = len(inputs.asset_ids)
@@ -621,7 +624,8 @@ def mean_variance(inputs: PortfolioInputs, risk_aversion: float) -> pd.Series:
     def gradient(w):
         return -excess + risk_aversion * sigma @ w
 
-    best = _simplex_minimize(objective, [np.ones(n) / n], n, gradient=gradient)
+    x0 = np.ones(n) / n if start is None else np.asarray(start, dtype=float)
+    best = _simplex_minimize(objective, [x0], n, gradient=gradient)
     return _normalise(best, inputs.asset_ids)
 
 
@@ -818,11 +822,16 @@ def resampled_draws(
 
 def _prepare_resampled(inputs: PortfolioInputs):
     draws = resampled_draws(inputs)
+    # Bisection visits nearby risk aversions, so each draw starts from its last solution:
+    # the same convex optimum, reached in far fewer iterations than from equal weight.
+    last: list[np.ndarray | None] = [None] * len(draws)
 
     def at(gamma: float) -> pd.Series:
         total = np.zeros(len(inputs.asset_ids))
-        for draw in draws:
-            total += mean_variance(draw, gamma).to_numpy()
+        for i, draw in enumerate(draws):
+            w = mean_variance(draw, gamma, start=last[i]).to_numpy()
+            last[i] = w
+            total += w
         return _normalise(total, inputs.asset_ids)
 
     return at
