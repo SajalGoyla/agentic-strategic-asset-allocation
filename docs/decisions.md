@@ -750,3 +750,27 @@ against an 8% floor, and a -25.6% drawdown against -25%. Decision 46 projects ev
 fully into compliance. That is stricter than the paper, and it is what makes the averaging
 ensembles need projections of 17-31% turnover on these inputs.
 
+### 51. Opus 5.5 for the decisions that set the run, Sonnet 5.5 for per-portfolio assessments — settled, 2026-10-28
+The tiers were Opus 5 and Sonnet 5, with every agent on the flagship except the PC rationales.
+The current generation is cheaper or equal: Opus 5.5 is $4 / $20 per million tokens against
+Opus 5's $5 / $25, and Sonnet 5.5 is $2 / $10, the same as Sonnet 5. The owner asked for a mix.
+The map is `saa.llm.AGENT_TIERS`, one line per agent; `tier_for` refuses an agent missing from
+it. The models are overridable by `SAA_ANTHROPIC_MODEL_FLAGSHIP` / `_LOW_COST`.
+
+| Tier | Agents | Calls per run | Why |
+|---|---|---|---|
+| Opus 5.5 | macro, CMA judge, PC researcher, revisions, CIO | about 26 | They set the inputs (regime, CMAs), choose a method, change a portfolio, or make the recommendation |
+| Sonnet 5.5 | PC rationales, CRO, peer reviews, votes | about 74 | Each assesses one portfolio, or ranks fourteen, with every number computed for it |
+
+On `dry2`'s token counts, before thinking tokens:
+- **Opus 5.5 calls:** about 120k input and 136k output, about $3.20. The CMA judge's 121k output
+  tokens are most of it.
+- **Sonnet 5.5 calls:** about 313k input and 28k output, about $0.90.
+
+Thinking tokens are billed as output and the free models wrote few, so a paid run should land
+around $5-9 against $6-11 with everything on Opus 5.5. The saving is modest because the costly
+agent stays on the flagship. The case for the split is that the deliberation layer runs on a
+second model, a partial answer to §5.1's single-LLM caveat ("an alternative approach is to use
+multiple foundation models"). Rejected: Haiku for the low tier. The reviews and ballots are
+judgments the vote and the CIO weigh, not formatting.
+

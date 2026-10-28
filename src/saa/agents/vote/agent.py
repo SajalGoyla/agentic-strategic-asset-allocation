@@ -34,7 +34,6 @@ from saa.contracts import (
     PcProposalBody,
     PeerReviewBody,
     Producer,
-    Tier,
     read,
 )
 from saa.contracts.cio import MethodScore
@@ -47,7 +46,7 @@ from saa.contracts.review import (
     VoteBody,
 )
 from saa.data.store import DataStore
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.method_scoring import (
     load_cro_reports,
@@ -244,7 +243,7 @@ def cast(
             model,
             system=system,
             prompt=build_prompt(voter, proposals, ips_status=ips_status),
-            tier=Tier.FLAGSHIP,
+            tier=tier_for("vote"),
             check=check,
         )
         judgment, call = result.value, result.call

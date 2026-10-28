@@ -35,11 +35,10 @@ from saa.contracts import (
     ModelCall,
     Producer,
     SignalsBody,
-    Tier,
     read,
 )
 from saa.contracts.asset_class import CMA_CONTRACT, HistoricalStatsBody
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 
 log = logging.getLogger(__name__)
@@ -310,7 +309,7 @@ def judge_asset(
         CmaJudgment,
         system=system,
         prompt=build_prompt(evidence, macro, as_of=as_of, ips_status=ips_status),
-        tier=Tier.FLAGSHIP,
+        tier=tier_for("cma_judge"),
     )
     judgment: CmaJudgment = result.value
 

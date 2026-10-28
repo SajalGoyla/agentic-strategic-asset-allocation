@@ -22,9 +22,9 @@ import numpy as np
 from pydantic import Field
 
 from saa.config import Config
-from saa.contracts import Contract, ModelCall, PcProposalBody, Tier
+from saa.contracts import Contract, ModelCall, PcProposalBody
 from saa.contracts.portfolio import PcResearchBody
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.skills.portfolio_construction import (
     METHODS,
     RESEARCH_LIBRARY,
@@ -230,7 +230,7 @@ def research(
             ResearchChoice,
             system=system_prompt(),
             prompt=build_prompt(stage, registry_candidates, options, ips_status=ips_status),
-            tier=Tier.FLAGSHIP,
+            tier=tier_for("pc_researcher"),
             check=check,
         )
         choice, call = result.value, result.call
