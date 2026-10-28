@@ -495,28 +495,45 @@ class LlmClient:
         system_blocks: list[dict[str, Any]] = [{"type": "text", "text": system}]
         if cache:
             system_blocks[0]["cache_control"] = {"type": "ephemeral"}
-        response = self.client.messages.parse(
+        import anthropic
+
+        # messages.create, not messages.parse: parse validates against the model inside the
+        # SDK and raises before the call is returned, so a contract error was neither retried
+        # nor charged to the budget. Here the reply is validated in `judge`, like every
+        # provider's.
+        response = self.client.messages.create(
             model=model,
             max_tokens=max_tokens,
             system=system_blocks,
             messages=messages,
-            output_format=output_format,
             thinking={"type": "adaptive"},
-            output_config={"effort": effort},
+            output_config={
+                "effort": effort,
+                "format": {
+                    "type": "json_schema",
+                    "schema": anthropic.transform_schema(output_format),
+                },
+            },
         )
         usage = response.usage
         refusal = None
         if response.stop_reason == "refusal":
             refusal = getattr(getattr(response, "stop_details", None), "category", "unknown")
-        parsed = response.parsed_output
+        text = "".join(
+            getattr(b, "text", "") for b in response.content if getattr(b, "type", "") == "text"
+        )
+        parsed, error = _parse_json(text) if text else (None, "empty response")
+        if parsed is None and response.stop_reason == "max_tokens":
+            error = "response was cut off at max_tokens before the JSON closed"
         return _Completion(
             parsed=parsed,
-            text=_as_text(parsed),
+            text=text,
             input_tokens=getattr(usage, "input_tokens", 0) or 0,
             output_tokens=getattr(usage, "output_tokens", 0) or 0,
             cache_read_tokens=getattr(usage, "cache_read_input_tokens", 0) or 0,
             cost_usd=estimate_cost_usd(model, usage),
             refusal=refusal,
+            parse_error=error,
         )
 
     # ------------------------------------------------------- openai-compatible providers

@@ -3,8 +3,10 @@
 No network: a stub stands in for the Anthropic client, so these run in CI and cost nothing.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import date
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -33,13 +35,22 @@ class FakeResponse:
     stop_reason: str = "end_turn"
     stop_details: Any = None
 
+    @property
+    def content(self) -> list[SimpleNamespace]:
+        """The reply as the API returns it: one text block holding the JSON."""
+        if self.parsed_output is None:
+            return []
+        value = self.parsed_output
+        text = value.model_dump_json() if hasattr(value, "model_dump_json") else json.dumps(value)
+        return [SimpleNamespace(type="text", text=text)]
+
 
 class FakeMessages:
     def __init__(self, outputs: list[Any]):
         self.outputs = list(outputs)
         self.calls: list[dict] = []
 
-    def parse(self, **kwargs):
+    def create(self, **kwargs):
         self.calls.append(kwargs)
         value = self.outputs.pop(0) if self.outputs else self.outputs
         if isinstance(value, Exception):
@@ -50,6 +61,11 @@ class FakeMessages:
 class FakeAnthropic:
     def __init__(self, outputs: list[Any]):
         self.messages = FakeMessages(outputs)
+
+
+def schema_title(call: dict) -> str:
+    """The output contract a recorded call asked for."""
+    return call["output_config"]["format"]["schema"]["title"]
 
 
 def judgment_payload(**overrides) -> dict:
@@ -87,7 +103,7 @@ def test_the_judgment_schema_is_what_constrains_the_model():
     """Agents are constrained by the judgment contract, never asked for free-form JSON."""
     client = LlmClient(FakeAnthropic([judgment_payload()]))
     client.judge(MacroJudgment, system="s", prompt="p")
-    assert client._client.messages.calls[0]["output_format"] is MacroJudgment
+    assert schema_title(client._client.messages.calls[0]) == "MacroJudgment"
 
 
 def test_system_prompt_is_cached():
@@ -160,7 +176,7 @@ def test_cached_input_is_cheaper_than_fresh_input():
 
 def test_a_refusal_is_surfaced_not_swallowed():
     class Refusing(FakeMessages):
-        def parse(self, **kwargs):
+        def create(self, **kwargs):
             self.calls.append(kwargs)
             return FakeResponse(parsed_output=None, usage=FakeUsage(), stop_reason="refusal")
 

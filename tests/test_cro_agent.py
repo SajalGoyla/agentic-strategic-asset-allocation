@@ -13,7 +13,7 @@ from saa.llm import LlmClient
 from saa.run import RunContext
 from saa.skills.portfolio_construction import build_candidates
 from tests.test_cma_judge import stage_inputs
-from tests.test_macro_agent import FakeAnthropic
+from tests.test_macro_agent import FakeAnthropic, schema_title
 
 METHODS = ["equal_weight", "max_sharpe", "risk_parity"]
 COMMENTARY = (
@@ -89,7 +89,7 @@ def test_the_model_writes_the_assessment_and_never_the_numbers(run_with_proposal
     report = cro.assess(profile, proposal, stage, llm, ips_status="draft", system="s")
 
     # The judgment schema is what constrains the model, and it holds no metric at all.
-    assert llm._client.messages.calls[0]["output_format"] is CroJudgment
+    assert schema_title(llm._client.messages.calls[0]) == "CroJudgment"
     assert set(CroJudgment.model_fields) == {
         "key_risks",
         "concentration_assessment",

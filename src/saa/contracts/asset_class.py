@@ -18,7 +18,7 @@ from __future__ import annotations
 from datetime import date
 from enum import StrEnum
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from saa.contracts.base import AgentOutput, Confidence, Contract
 
@@ -295,15 +295,24 @@ class SelectionMode(StrEnum):
     AUTO_BLEND = "auto_blend"
 
 
+class MethodWeight(Contract):
+    method: CmaMethodId
+    weight: float
+
+
 class CmaJudgment(Contract):
     """The CMA judge's structured output -- the LLM half of the asset-class agent.
 
     Fields follow the five judgment steps of Exhibit 4, so the rationale is forced to cover
     dispersion, regime, valuation and signal alignment rather than a bare assertion.
+
+    ``method_weights`` is a list of entries, not a mapping keyed by method: a mapping with
+    open keys has no strict JSON-schema form, and Anthropic's structured outputs turn it into
+    an object that allows no keys at all, so every weight came back empty (decision 52).
     """
 
     selection: SelectionMode
-    method_weights: dict[CmaMethodId, float]
+    method_weights: list[MethodWeight]
     expected_return_pct: float
     confidence: Confidence
     dispersion: Dispersion
@@ -312,15 +321,30 @@ class CmaJudgment(Contract):
     signal_alignment: str  # step 4
     rationale: str
 
+    @field_validator("method_weights", mode="before")
+    @classmethod
+    def _legacy_mapping(cls, value):
+        # Runs written before schema 5.0.0 stored {method: weight}; they still read.
+        if isinstance(value, dict):
+            return [{"method": m, "weight": w} for m, w in value.items()]
+        return value
+
+    @property
+    def weights(self) -> dict[CmaMethodId, float]:
+        return {e.method: e.weight for e in self.method_weights}
+
     @model_validator(mode="after")
     def _weights_sum_to_one(self) -> CmaJudgment:
-        total = sum(self.method_weights.values())
+        methods = [e.method for e in self.method_weights]
+        if len(set(methods)) != len(methods):
+            raise ValueError("a method is weighted more than once")
+        total = sum(e.weight for e in self.method_weights)
         if abs(total - 1.0) > 1e-4:
             raise ValueError(f"method weights sum to {total:.4f}, expected 1.0")
-        if any(w < 0 for w in self.method_weights.values()):
+        if any(e.weight < 0 for e in self.method_weights):
             raise ValueError("method weights must be non-negative")
         if self.selection == SelectionMode.SINGLE_METHOD:
-            chosen = [m for m, w in self.method_weights.items() if w > 0]
+            chosen = [e.method for e in self.method_weights if e.weight > 0]
             if len(chosen) != 1:
                 raise ValueError(f"single_method selection has {len(chosen)} weighted methods")
         return self
