@@ -35,13 +35,12 @@ from saa.contracts import (
     PcProposalBody,
     PeerReviewBody,
     Producer,
-    Tier,
     read,
 )
 from saa.contracts.portfolio import PROPOSAL_CONTRACT
 from saa.contracts.review import TALLY_CONTRACT, VoteTallyBody
 from saa.data.store import DataStore
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.method_scoring import load_cro_reports, load_proposals
 from saa.skills.portfolio_construction import StageInputs, gather_inputs
@@ -316,7 +315,7 @@ def revise_agent(
             prompt=build_prompt(
                 proposal, report, reviews, tally, asset_ids=stage.asset_ids, ips_status=ips_status
             ),
-            tier=Tier.FLAGSHIP,
+            tier=tier_for("revision"),
             check=check,
         )
         judgment, call = result.value, result.call

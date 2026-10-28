@@ -102,7 +102,7 @@ Constraining an LLM:
 from saa.contracts import MacroJudgment
 
 response = client.messages.parse(
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     max_tokens=16000,
     messages=[...],
     output_format=MacroJudgment,   # validated on the way back

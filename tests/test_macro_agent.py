@@ -118,13 +118,14 @@ def test_retries_are_bounded_then_the_agent_fails():
         client.judge(MacroJudgment, system="s", prompt="p")
 
 
-def test_every_call_is_recorded_for_the_budget():
+def test_every_call_is_recorded_for_the_budget(monkeypatch):
+    monkeypatch.delenv("SAA_ANTHROPIC_MODEL_FLAGSHIP", raising=False)
     budget = Budget()
     client = LlmClient(FakeAnthropic([judgment_payload()]), budget=budget)
     result = client.judge(MacroJudgment, system="s", prompt="p")
     assert budget.calls == 1
     assert budget.spent_usd == pytest.approx(result.call.cost_usd)
-    assert result.call.model == "claude-opus-5"
+    assert result.call.model == "claude-opus-5-5"
     assert result.call.input_tokens == 4_000
 
 

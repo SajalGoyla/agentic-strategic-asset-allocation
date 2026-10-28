@@ -24,10 +24,10 @@ from pathlib import Path
 import pandas as pd
 
 from saa.config import Config, load_config
-from saa.contracts import Contract, ModelCall, PcProposalBody, Producer, Tier
+from saa.contracts import Contract, ModelCall, PcProposalBody, Producer
 from saa.contracts.portfolio import PROPOSAL_CONTRACT, RESEARCH_CONTRACT
 from saa.data.store import DataStore
-from saa.llm import LlmClient
+from saa.llm import LlmClient, tier_for
 from saa.run import RunContext
 from saa.skills.portfolio_construction import (
     ADVERSARIAL,
@@ -254,7 +254,7 @@ def propose(
         Rationale,
         system=system,
         prompt=build_prompt(candidate, stage, ips_status=ips_status),
-        tier=Tier.LOW_COST,
+        tier=tier_for("pc"),
         check=check,
     )
     answer: Rationale = result.value

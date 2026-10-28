@@ -62,11 +62,44 @@ GEMINI = "gemini"
 PROVIDERS = (ANTHROPIC, OPENROUTER, GEMINI)
 
 # Project plan §6 routes nuanced judgment to a flagship model and routine formatting to a
-# cheaper one. Prices are USD per million tokens, for the budget arithmetic only.
+# cheaper one. Overridden by SAA_ANTHROPIC_MODEL_FLAGSHIP / SAA_ANTHROPIC_MODEL_LOW_COST.
 MODELS: dict[Tier, str] = {
-    Tier.FLAGSHIP: "claude-opus-5",
-    Tier.LOW_COST: "claude-sonnet-5",
+    Tier.FLAGSHIP: "claude-opus-5-5",
+    Tier.LOW_COST: "claude-sonnet-5-5",
 }
+
+# Which tier each agent's calls use (decision 51). The flagship sets the run's inputs and its
+# answer: the regime, the CMAs, the researcher's method choice, the revisions and the CIO. The
+# high-volume assessments of one portfolio at a time, where every number is computed for the
+# model, go to the cheaper tier. Moving an agent is a one-line change here.
+AGENT_TIERS: dict[str, Tier] = {
+    "macro": Tier.FLAGSHIP,
+    "cma_judge": Tier.FLAGSHIP,
+    "pc": Tier.LOW_COST,
+    "pc_researcher": Tier.FLAGSHIP,
+    "cro": Tier.LOW_COST,
+    "peer_review": Tier.LOW_COST,
+    "vote": Tier.LOW_COST,
+    "revision": Tier.FLAGSHIP,
+    "cio": Tier.FLAGSHIP,
+}
+
+
+def tier_for(agent: str) -> Tier:
+    """The tier an agent's calls go to; an unlisted agent is a typo, not a default."""
+    try:
+        return AGENT_TIERS[agent]
+    except KeyError:
+        raise KeyError(f"no tier set for agent {agent!r} in saa.llm.AGENT_TIERS") from None
+
+
+def anthropic_models() -> dict[Tier, str]:
+    """The Anthropic model per tier, from SAA_ANTHROPIC_MODEL_* or the defaults."""
+    return {
+        tier: os.getenv(f"SAA_ANTHROPIC_MODEL_{tier.name}") or model
+        for tier, model in MODELS.items()
+    }
+
 
 # Dry runs: one free model for both tiers, so a failure points at the machinery rather than at
 # a difference between two models. Overridden by SAA_OPENROUTER_MODEL (both tiers) or
@@ -86,6 +119,8 @@ GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/compl
 GEMINI_FREE_RPM = 14
 
 PRICING: dict[str, tuple[float, float]] = {
+    "claude-opus-5-5": (4.00, 20.00),
+    "claude-sonnet-5-5": (2.00, 10.00),
     "claude-opus-5": (5.00, 25.00),
     "claude-sonnet-5": (2.00, 10.00),
     "claude-haiku-4-5": (1.00, 5.00),
@@ -345,7 +380,7 @@ class LlmClient:
         elif self._endpoint is not None:
             self.models = endpoint_models(self.provider)
         else:
-            self.models = dict(MODELS)
+            self.models = anthropic_models()
         rpm = 0.0
         if self._endpoint is not None:
             rpm = float(os.getenv(self._endpoint.rpm_env) or self._endpoint.default_rpm)
