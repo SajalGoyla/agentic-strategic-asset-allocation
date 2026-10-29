@@ -326,6 +326,7 @@ class Candidate:
             value=t.knob.reported(t.value),
             untuned_volatility_pct=100 * t.untuned_volatility,
             reached_band=t.reached_band,
+            untuned_sharpe=t.untuned_sharpe,
         )
 
     def body(self, rationale: str, *, notes: str | None = None) -> PcProposalBody:

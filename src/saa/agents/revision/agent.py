@@ -161,12 +161,10 @@ def build_prompt(
         for a in asset_ids
         if proposal.weights.get(a, 0.0) > 0.0005
     )
+    # The CRO's check adds the drawdown limit on the backtest to the ex-ante one.
+    compliance = report.ips_compliance if report is not None else proposal.ips_compliance
     hard = (
-        "\n".join(
-            f"- {v.rule}: {v.message}"
-            for v in proposal.ips_compliance.violations
-            if v.severity == "hard"
-        )
+        "\n".join(f"- {v.rule}: {v.message}" for v in compliance.violations if v.severity == "hard")
         or "None."
     )
     risk = (
@@ -196,13 +194,13 @@ Governing IPS status: {ips_status}
 ## Your proposal
 Expected return {proposal.expected_return_pct:.2f}%, volatility
 {proposal.expected_volatility_pct:.2f}%, Sharpe {proposal.sharpe_ratio:.2f}, effective assets
-{proposal.effective_n if proposal.effective_n is not None else "–"}.
+(exp of weight entropy) {proposal.effective_n if proposal.effective_n is not None else "–"}.
 
 | asset | weight |
 |---|---|
 {weights}
 
-Hard IPS breaches: {hard}
+Hard IPS breaches, including the backtest drawdown: {hard}
 
 Your case: {proposal.rationale}
 

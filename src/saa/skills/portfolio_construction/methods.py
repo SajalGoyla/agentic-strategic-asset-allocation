@@ -693,6 +693,9 @@ class Knob:
     riskier_when_higher: bool
     log_scale: bool = True
     report_scale: float = 1.0  # value in the contract = value x this (100 for a return)
+    # What the method produces before tuning, said plainly: the default is a portfolio, not a
+    # value of the parameter, and an agent left to guess named the wrong number (decision 53).
+    default_point: str = "the method's own portfolio"
 
     def reported(self, value: float) -> float:
         return value * self.report_scale
@@ -707,6 +710,7 @@ class Tuning:
     untuned_volatility: float
     volatility: float
     reached_band: bool
+    untuned_sharpe: float | None = None
 
 
 def portfolio_volatility(weights: pd.Series | np.ndarray, sigma: np.ndarray) -> float:
@@ -726,6 +730,7 @@ def tune_toward_band(
     raise_risk = untuned_vol < floor
     target = floor if raise_risk else cap
     at = knob.prepare(inputs)
+    untuned_sharpe = sharpe_ratio(untuned.to_numpy(dtype=float), inputs)
 
     risky, safe = (knob.high, knob.low) if knob.riskier_when_higher else (knob.low, knob.high)
     if not raise_risk:
@@ -734,7 +739,7 @@ def tune_toward_band(
     far_vol = portfolio_volatility(far, sigma)
     beyond = far_vol < target if raise_risk else far_vol > target
     if beyond:  # the knob's end of range still falls short: as close as the method gets
-        return far, Tuning(knob, risky, untuned_vol, far_vol, reached_band=False)
+        return far, Tuning(knob, risky, untuned_vol, far_vol, False, untuned_sharpe)
 
     def scale(x):
         return np.log(x) if knob.log_scale else x
@@ -756,7 +761,7 @@ def tune_toward_band(
             near_y = scale(mid)
         if inside and abs(v - target) < TUNING_TOL:
             break
-    return ok_w, Tuning(knob, unscale(ok_y), untuned_vol, ok_vol, reached_band=True)
+    return ok_w, Tuning(knob, unscale(ok_y), untuned_vol, ok_vol, True, untuned_sharpe)
 
 
 RISK_AVERSION = (
@@ -772,6 +777,7 @@ MAX_SHARPE_KNOB = Knob(
     low=RISK_AVERSION_RANGE[0],
     high=RISK_AVERSION_RANGE[1],
     riskier_when_higher=False,
+    default_point="the long-only tangency (maximum-Sharpe) portfolio",
 )
 
 
@@ -789,6 +795,7 @@ BLACK_LITTERMAN_KNOB = Knob(
     low=RISK_AVERSION_RANGE[0],
     high=RISK_AVERSION_RANGE[1],
     riskier_when_higher=False,
+    default_point="the long-only tangency portfolio of the Black-Litterman posterior",
 )
 
 
@@ -846,6 +853,7 @@ RESAMPLED_KNOB = Knob(
     low=RISK_AVERSION_RANGE[0],
     high=RISK_AVERSION_RANGE[1],
     riskier_when_higher=False,
+    default_point="the average of every draw's long-only tangency portfolio",
 )
 
 
@@ -871,6 +879,7 @@ def cvar_knob(inputs: PortfolioInputs) -> Knob:
         riskier_when_higher=True,
         log_scale=False,
         report_scale=100.0,
+        default_point="the unconstrained minimum-CVaR portfolio",
     )
 
 

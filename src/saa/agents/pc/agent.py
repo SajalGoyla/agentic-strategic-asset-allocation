@@ -126,14 +126,18 @@ def _band_note(candidate: Candidate) -> str:
     t = candidate.tuning
     if t is not None:
         knob = t.knob
+        sharpe = (
+            f" and a Sharpe ratio of {t.untuned_sharpe:.2f}" if t.untuned_sharpe is not None else ""
+        )
         reach = (
             f"brings the portfolio to {100 * t.volatility:.2f}%"
             if t.reached_band
             else f"is as far as the parameter goes, and reaches only {100 * t.volatility:.2f}%"
         )
         return (
-            f"\n\n**Your method's parameter was tuned toward the IPS volatility band.** At its "
-            f"default it produced {100 * t.untuned_volatility:.2f}% volatility. Its parameter is "
+            f"\n\n**Your method's parameter was tuned toward the IPS volatility band.** Its "
+            f"default is {knob.default_point}, which is not a value of `{knob.parameter}`; it "
+            f"has {100 * t.untuned_volatility:.2f}% volatility{sharpe}. Its parameter is "
             f"{knob.description}. Setting `{knob.parameter}` to "
             f"{knob.reported(t.value):.4g} {reach}. This is your method at a different setting, "
             f"not a different method: say so in your rationale and say what the setting changed."
@@ -188,16 +192,20 @@ Governing IPS status: {ips_status}
 | expected return | {stats.expected_return_pct:.2f}% |
 | volatility | {stats.expected_volatility_pct:.2f}% |
 | Sharpe ratio | {stats.sharpe_ratio:.2f} |
-| effective number of assets | {stats.effective_n:.1f} of {len(stage.asset_ids)} |
+| effective number of assets (exp of weight entropy, Meucci 2009; not 1/HHI) | {stats.effective_n:.1f} of {len(stage.asset_ids)} |
 | tracking error vs. the IPS benchmark | {te} |
 | concentration (Herfindahl) | {stats.concentration_hhi:.3f} |
 
 ## Weights
 {_weights_table(candidate, stage)}
 
-## IPS compliance
-Compliant: **{compliance.compliant}**
+## IPS compliance (ex-ante)
+Compliant on the ex-ante limits (return, volatility, tracking error): **{compliance.compliant}**
 {violations}
+
+The drawdown limit is a backtest measure. The CRO checks it after you write, so do not call the
+portfolio fully IPS-compliant on this result alone. Expected return and Sharpe ratio above are
+computed from the judged CMAs for every method, including one whose weights ignore them.
 
 ## What to write
 

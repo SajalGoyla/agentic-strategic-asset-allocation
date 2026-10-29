@@ -358,3 +358,5 @@ def test_an_anthropic_contract_miss_is_retried_and_charged():
     result = llm.judge(CmaJudgment, system="s", prompt="p")
     assert result.attempts == 2 and result.value.weights == {"historical_erp": 1.0}
     assert llm.budget.calls == 2, "the failed attempt is billed, so it is counted"
+    # The header records the judgment once, with both attempts' tokens.
+    assert result.call.attempts == 2 and result.call.input_tokens == 2 * 4_000

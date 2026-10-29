@@ -793,3 +793,37 @@ grammar engines had tolerated the open mapping.
   like the other providers'.
 - **A test walks every judgment model's Anthropic schema** for objects that allow no keys, so
   a new open mapping fails in CI, not on a paid run.
+
+### 53. What the first paid run's reviewers caught: label what the prompts show — settled, 2026-10-29
+Run `claude1` (Opus 5.5 / Sonnet 5.5, as of 2026-10-01, about $5.00) recommended
+meta-optimisation over three candidates: 7.26% expected return at 8.00% volatility, 9.9
+effective assets, 3.34% tracking error and a -23.1% backtest drawdown. The reviewers reported
+technical errors in 18 of 30 reviews, against 7 on Gemini. Most were about what the PC agents
+wrote, but five trace to what the prompts showed them:
+
+- **An escalation was missed.** The macro agent's confidence was 0.36, below the IPS's 0.40
+  `regime_confidence_below` trigger, yet the memo said no rule had fired: the CIO was never
+  given the confidence. The script now evaluates the escalation rules. The CIO prompt shows the
+  confidence and the triggered rules, and `CioDecisionBody.escalations` and a script-written
+  memo section record them.
+- **"IPS pass" was ex-ante only, and unlabelled.** Equal weight and volatility targeting passed
+  ex-ante and breached the -25% drawdown limit on the backtest (-26.7%, -28.1%). Four reviewers
+  caught the contradiction. The PC prompt now says its check is ex-ante. The peer-review, vote,
+  revision and CIO prompts show the CRO's full check beside it. A revision whose weights moved
+  is marked as not re-backtested.
+- **The effective number of assets is the entropy measure** (Meucci 2009), shown next to the
+  Herfindahl. Five reviewers took it for 1/HHI and called the two inconsistent. Every prompt
+  now names the measure.
+- **The tuning note did not name the default.** The Black-Litterman agent took the
+  equilibrium's 2.5 for the default risk aversion and wrote that 4.2 was "lowered" from it. The
+  note now says the default is a portfolio (the tangency, or the minimum-CVaR point), not a
+  value of the parameter. It gives the default's Sharpe ratio, which for the mean-variance family
+  is the maximum: `MethodTuning.untuned_sharpe`.
+- **Retries were not in the headers.** `header.model_calls` kept only the last attempt of a
+  judgment. A record now sums its attempts and carries `attempts`.
+
+Schema 5.1.0, additive. Not changed here, and taken to the professor: whether a revision that
+moves 55% of a portfolio (the researcher's) is still its method; whether Black-Litterman's Ω
+should carry the CMA judge's per-asset confidence; and the regime call itself. Claude read
+expansion at 0.36, Gemini late-cycle at 0.42, and the paper late-cycle in March 2026.
+

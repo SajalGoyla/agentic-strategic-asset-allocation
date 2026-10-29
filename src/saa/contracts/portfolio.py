@@ -110,6 +110,8 @@ class MethodTuning(Contract):
     untuned_volatility_pct: float
     # False when the parameter's whole range could not bring the portfolio into the band.
     reached_band: bool
+    # The ex-ante Sharpe ratio at the default: for the mean-variance family, the maximum.
+    untuned_sharpe: float | None = None
 
 
 class PcProposalBody(Contract):

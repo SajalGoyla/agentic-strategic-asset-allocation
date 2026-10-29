@@ -306,6 +306,8 @@ def test_maximum_sharpe_is_tuned_along_its_own_frontier(tmp_config):
     tuning = candidate.tuning_record()
     assert tuning is not None and tuning.parameter == "risk_aversion" and tuning.reached_band
     assert tuning.untuned_volatility_pct < band.min_pct
+    # Tuning walks down from the tangency: the default has the higher Sharpe ratio.
+    assert tuning.untuned_sharpe >= candidate.stats.sharpe_ratio - 1e-9
     assert candidate.stats.expected_volatility_pct == pytest.approx(band.min_pct, abs=0.01)
     assert not any(v.rule == "objectives.volatility" for v in candidate.compliance.violations)
     direct = mean_variance(portfolio_inputs(stage), tuning.value)
@@ -415,7 +417,12 @@ def test_the_pc_prompt_frames_the_method_honestly(tmp_config):
     assert "inherits their estimation error" in optimized
     for prompt in (heuristic, optimized):
         assert "main_weakness" in prompt
-        assert "IPS compliance" in prompt
+        assert "IPS compliance (ex-ante)" in prompt and "CRO checks it" in prompt
+        assert "not 1/HHI" in prompt
+    # Decision 53: the default is a portfolio, not a value of the parameter.
+    assert "tangency (maximum-Sharpe) portfolio, which is not a value of `risk_aversion`" in (
+        optimized
+    )
 
 
 def test_the_stats_table_reads_the_historical_stats_contract():

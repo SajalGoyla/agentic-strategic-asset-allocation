@@ -128,13 +128,15 @@ def field_briefing(
     lines = [
         "# The field",
         "",
-        "| agent | method | family | return % | vol % | Sharpe | eff. N | TE % | backtest "
-        "Sharpe | max DD % | CRO risk | IPS hard breaches |",
+        "| agent | method | family | return % | vol % | Sharpe | eff. N (entropy) | TE % | "
+        "backtest Sharpe | max DD % | CRO risk | IPS hard breaches (incl. backtest drawdown) |",
         "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for agent_id in sorted(proposals):
         p, r = proposals[agent_id], reports.get(agent_id)
-        hard = [v.rule.split(".")[-1] for v in p.ips_compliance.violations if v.severity == "hard"]
+        # The CRO's check is the full one: it adds the drawdown limit on the backtest.
+        compliance = r.ips_compliance if r is not None else p.ips_compliance
+        hard = [v.rule.split(".")[-1] for v in compliance.violations if v.severity == "hard"]
         te = "–" if p.ex_ante_tracking_error_pct is None else f"{p.ex_ante_tracking_error_pct:.2f}"
         eff = "–" if p.effective_n is None else f"{p.effective_n:.1f}"
         bs = "–" if r is None or r.backtest_sharpe is None else f"{r.backtest_sharpe:.2f}"

@@ -33,6 +33,12 @@ its vote and metric score, the CRO's risk score and binding risk, and each peer 
 weakness and any technical error), the vote tally, the dissents, and the IPS limits table. State
 limits from that table, not from memory: the volatility band has a floor and a ceiling.
 
+The IPS escalation rules are evaluated for you, with the macro agent's regime confidence. Report
+any that are triggered in the memo's IPS statement; the memo also carries a script-written
+escalations section, so a statement that contradicts it will be visible to the board.
+A candidate's IPS line distinguishes the ex-ante check from the backtest one: a portfolio can
+pass the first and breach the drawdown limit on the second.
+
 **Only compliant ensembles are offered to you.** An ensemble that breached a limit has been
 projected to the nearest compliant allocation, and is marked as projected, with its figures
 before projection. Candidates are not forced into the IPS (decision 49), so an averaging
