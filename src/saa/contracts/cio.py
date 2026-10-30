@@ -130,6 +130,9 @@ class CioDecisionBody(Contract):
     invalidation_conditions: list[str]
     rationale: str
     board_memo: BoardMemo
+    # The IPS escalation rules this decision triggers, evaluated by the script, not the model
+    # (decision 53): the first paid run's memo said none fired while one had.
+    escalations: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _weights_and_compliance(self) -> CioDecisionBody:

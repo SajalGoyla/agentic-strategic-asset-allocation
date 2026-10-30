@@ -428,6 +428,7 @@ class LlmClient:
         model = self.models[tier]
         messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
         last_error: Exception | str | None = None
+        spent: list[ModelCall] = []
 
         for attempt in range(1, self.max_retries + 2):
             if self._endpoint is not None:
@@ -446,6 +447,7 @@ class LlmClient:
                 cost_usd=completion.cost_usd,
             )
             self.budget.record(call)
+            spent.append(call)
 
             if completion.refusal is not None:
                 raise RuntimeError(f"{model} declined the request ({completion.refusal})")
@@ -483,7 +485,7 @@ class LlmClient:
                 ]
                 continue
 
-            return Judgment(value=value, call=call, attempts=attempt)
+            return Judgment(value=value, call=_summed(spent), attempts=attempt)
 
         raise ValueError(
             f"{output_format.__name__} did not satisfy its contract after "
@@ -657,6 +659,21 @@ def _retry_after(response) -> float | None:
         return float(value) if value is not None else None
     except (TypeError, ValueError):
         return None
+
+
+def _summed(calls: list[ModelCall]) -> ModelCall:
+    """One record for a judgment's attempts: the header lists judgments, and the bill includes
+    the retries."""
+    costs = [c.cost_usd for c in calls]
+    return calls[-1].model_copy(
+        update={
+            "input_tokens": sum(c.input_tokens for c in calls),
+            "output_tokens": sum(c.output_tokens for c in calls),
+            "cache_read_tokens": sum(c.cache_read_tokens for c in calls),
+            "cost_usd": None if any(c is None for c in costs) else sum(costs),
+            "attempts": len(calls),
+        }
+    )
 
 
 def _as_text(parsed: Any) -> str:

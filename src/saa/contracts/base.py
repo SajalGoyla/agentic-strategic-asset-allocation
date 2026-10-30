@@ -34,7 +34,7 @@ from typing import Generic, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Bump the minor version for additive changes, the major for anything that breaks a reader.
-SCHEMA_VERSION = "5.0.0"
+SCHEMA_VERSION = "5.1.0"
 
 # Weights come out of optimisers as floats; compare with a tolerance.
 WEIGHT_SUM_TOL = 1e-6
@@ -83,6 +83,8 @@ class ModelCall(Contract):
     output_tokens: int = 0
     cache_read_tokens: int = 0
     cost_usd: float | None = None
+    # Retries are billed too: one record per judgment, summed over its attempts (decision 53).
+    attempts: int = 1
 
 
 class InputRef(Contract):

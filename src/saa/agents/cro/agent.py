@@ -119,7 +119,10 @@ def _metrics_table(profile: RiskProfile) -> str:
         ("monthly 95% VaR (loss)", pct(profile.var_95_pct)),
         ("monthly 95% CVaR (loss)", pct(profile.cvar_95_pct)),
         ("maximum drawdown", pct(profile.max_drawdown_pct)),
-        ("effective number of assets", f"{profile.effective_n:.1f}"),
+        (
+            "effective number of assets (exp of weight entropy, Meucci 2009; not 1/HHI)",
+            f"{profile.effective_n:.1f}",
+        ),
         ("concentration (Herfindahl)", f"{profile.concentration_hhi:.3f}"),
         (
             "months of backtest history",

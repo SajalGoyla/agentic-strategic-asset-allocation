@@ -11,6 +11,7 @@ import pytest
 from pydantic import ValidationError
 
 from saa.agents.cio import judgment_model, load_candidates, run_cio, score_ensembles
+from saa.agents.cio.agent import escalations
 from saa.agents.cro import agent as cro_agent
 from saa.agents.pc import agent as pc_agent
 from saa.agents.peer_review import run_peer_reviews
@@ -281,3 +282,21 @@ def test_the_cio_needs_the_vote_first(tmp_config, tmp_path):
     run = RunContext.create(tmp_config, as_of="2026-10-01", run_id="r", root=tmp_path / "run")
     with pytest.raises(FileNotFoundError, match="saa-agent vote"):
         run_cio(run, None, config=tmp_config, llm=None)
+
+
+def test_the_escalation_rules_are_evaluated_by_the_script(config):
+    """Decision 53: the first paid run's memo said no rule fired at a regime confidence of 0.36,
+    below the IPS's 0.40 trigger."""
+    fired = escalations(config, confidence=0.36, composite=0.80)
+    assert len(fired) == 1 and fired[0].startswith("regime_confidence_below")
+    low = escalations(config, confidence=0.9, composite=0.2)
+    assert len(low) == 1 and low[0].startswith("cio_selects_below_composite")
+    assert escalations(config, confidence=None, composite=None) == []
+
+
+def test_the_memo_carries_the_scripts_escalations(full_run):
+    run, stage, labels, cfg = full_run
+    result = run_cio(run, None, config=cfg, llm=None, stage=stage, regime_labels=labels)
+    memo = (run.root / "reports" / "board_memo.md").read_text(encoding="utf-8")
+    assert "## Escalations under the IPS" in memo
+    assert all(e in memo for e in result.body.escalations)

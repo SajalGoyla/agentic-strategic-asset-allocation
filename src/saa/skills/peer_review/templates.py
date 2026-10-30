@@ -96,6 +96,19 @@ The CRO's assessment: {report.judgment.commentary}
 Key risks it named: {"; ".join(report.judgment.key_risks)}"""
 
 
+def _backtest_compliance(report: CroReportBody | None) -> str:
+    """The CRO's full check, which adds the drawdown limit on the backtest. Shown beside the
+    ex-ante result because a proposal that passes one can fail the other."""
+    if report is None:
+        return "No CRO check: the backtest drawdown limit was not evaluated."
+    breaches = [v for v in report.ips_compliance.violations if v.severity == "hard"]
+    listed = "".join(f"\n- {v.rule}: {v.message}" for v in breaches)
+    return (
+        "With the backtest (the CRO's check, including the drawdown limit): "
+        f"**{'compliant' if not breaches else 'breaches'}**{listed}"
+    )
+
+
 def render_review_prompt(
     assignment: Assignment,
     reviewed: PcProposalBody,
@@ -148,14 +161,16 @@ Governing IPS status: {ips_status}
 | expected return | {reviewed.expected_return_pct:.2f}% |
 | expected volatility | {reviewed.expected_volatility_pct:.2f}% |
 | Sharpe ratio | {reviewed.sharpe_ratio:.2f} |
-| effective number of assets | {effective_n} of {len(asset_ids)} |
+| effective number of assets (exp of weight entropy, Meucci 2009; not 1/HHI) | {effective_n} of {len(asset_ids)} |
 | ex-ante tracking error vs. the IPS benchmark | {te} |
 
 {_weights_table(reviewed.weights, asset_ids, benchmark)}
 
 ### IPS compliance
-Compliant (no hard violation): **{reviewed.ips_compliance.compliant}**
+Ex-ante (return, volatility, tracking error; no hard violation): **{reviewed.ips_compliance.compliant}**
 {violations}
+
+{_backtest_compliance(cro_report)}
 
 A breach does not disqualify a candidate — the hard limits bind on the CIO's final portfolio,
 not on each proposal. Treat a breach as evidence about what this portfolio would contribute,

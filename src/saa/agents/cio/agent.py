@@ -190,6 +190,37 @@ def ips_limits(config: Config) -> str:
     )
 
 
+def regime_confidence(run: RunContext) -> float | None:
+    """The macro agent's confidence score, if this run has a macro view."""
+    path = run.path("macro_view")
+    if not path.exists():
+        return None
+    return read("macro_view", path).body.judgment.confidence_score
+
+
+def escalations(config: Config, *, confidence: float | None, composite: float | None) -> list[str]:
+    """The IPS escalation rules a decision triggers. ``composite`` is the chosen ensemble's
+    six-dimension score; None before the choice, when only the regime rule can be judged.
+    ``hard_violation_unresolved`` is not here: it stops the stage before a choice exists."""
+    out = []
+    for e in config.ips.escalation:
+        if e.threshold is None:
+            continue
+        if e.condition == "regime_confidence_below" and confidence is not None:
+            if confidence < e.threshold:
+                out.append(
+                    f"{e.condition}: the macro agent's regime confidence is {confidence:.2f}, "
+                    f"below {e.threshold:g}; action: {e.action}. {e.note or ''}".rstrip()
+                )
+        elif e.condition == "cio_selects_below_composite" and composite is not None:
+            if composite < e.threshold:
+                out.append(
+                    f"{e.condition}: the chosen ensemble's composite is {composite:.3f}, below "
+                    f"{e.threshold:g}; action: {e.action}. {e.note or ''}".rstrip()
+                )
+    return out
+
+
 def _first(items: list[str]) -> str:
     return items[0] if items else "none stated"
 
@@ -199,6 +230,7 @@ def candidate_digest(
     reports: dict[str, CroReportBody],
     reviews: list[PeerReviewBody],
     tally: VoteTallyBody,
+    originals: dict[str, PcProposalBody] | None = None,
 ) -> str:
     """One block per candidate, in vote order: what §3.6 gives the CIO -- the portfolio, its
     CRO report, its peer reviews, its vote and metric scores -- cut to what bears on a choice."""
@@ -212,6 +244,23 @@ def candidate_digest(
             continue
         report = reports.get(row.agent_id)
         hard = [v.rule for v in p.ips_compliance.violations if v.severity == "hard"]
+        ex_ante = "compliant" if not hard else "breaches " + ", ".join(hard)
+        original = (originals or {}).get(row.agent_id)
+        moved = p.revision_of is not None and (
+            original is None
+            or any(
+                abs(p.weights.get(a, 0.0) - original.weights.get(a, 0.0)) > 1e-9
+                for a in set(p.weights) | set(original.weights)
+            )
+        )
+        if moved or report is None:
+            # A revision is not re-backtested; its CRO report is on the original.
+            ips = f"ex-ante {ex_ante}; backtest drawdown not re-checked after revision"
+        else:
+            full = [v.rule for v in report.ips_compliance.violations if v.severity == "hard"]
+            ips = f"ex-ante {ex_ante}; with the backtest " + (
+                "compliant" if not full else "breaches " + ", ".join(full)
+            )
         eff = "–" if p.effective_n is None else f"{p.effective_n:.1f}"
         top = ", ".join(f"{a} {w:.0%}" for a, w in _top(pd.Series(p.weights), 3))
         lines = [
@@ -220,14 +269,14 @@ def candidate_digest(
             f"- vote {row.vote_points} points, metric score {row.metric_score:.3f}, composite "
             f"{row.composite:.3f}",
             f"- return {p.expected_return_pct:.2f}%, volatility {p.expected_volatility_pct:.2f}%, "
-            f"Sharpe {p.sharpe_ratio:.2f}, {eff} effective assets; top: {top}",
-            f"- IPS: {'compliant' if p.ips_compliance.compliant else 'breaches ' + ', '.join(hard)}",
+            f"Sharpe {p.sharpe_ratio:.2f}, {eff} effective assets (entropy); top: {top}",
+            f"- IPS: {ips}",
         ]
         if report is not None:
             dd = "–" if report.max_drawdown_pct is None else f"{report.max_drawdown_pct:.1f}%"
             bs = "–" if report.backtest_sharpe is None else f"{report.backtest_sharpe:.2f}"
             lines.append(
-                f"- CRO{' (on the original)' if p.revision_of else ''}: risk score "
+                f"- CRO{' (on the original)' if moved else ''}: risk score "
                 f"{report.risk_score:.2f}, backtest Sharpe {bs}, drawdown {dd}; binding risk: "
                 f"{_first(report.judgment.key_risks)}"
             )
@@ -261,7 +310,26 @@ def build_prompt(
     config: Config,
     regime: str | None,
     ips_status: str,
+    confidence: float | None = None,
 ) -> str:
+    triggered = escalations(config, confidence=confidence, composite=None)
+    below = [
+        f"{m.value} ({s.composite:.3f})"
+        for m, s in scores.items()
+        if ensembles[m].compliant
+        and any(
+            e.condition == "cio_selects_below_composite"
+            and e.threshold is not None
+            and s.composite < e.threshold
+            for e in config.ips.escalation
+        )
+    ]
+    escalation_block = "\n".join(f"- TRIGGERED: {t}" for t in triggered) or "- none triggered"
+    escalation_block += (
+        "\n- cio_selects_below_composite would trigger if you chose: " + ", ".join(below)
+        if below
+        else "\n- cio_selects_below_composite: no offered ensemble is below its threshold"
+    )
     rows = [
         "| ensemble | composite | vol % | TE % | backtest DD % | backtest Sharpe | exp. return % "
         "| Sharpe | eff. N assets | candidates held | largest share | eff. N candidates "
@@ -298,8 +366,12 @@ def build_prompt(
     )
     return f"""Choose the recommended allocation and write the board memo.
 
-As-of regime: {regime or "unknown"}
+As-of regime: {regime or "unknown"} (macro agent's confidence: {"unknown" if confidence is None else f"{confidence:.2f}"})
 Governing IPS status: {ips_status}
+
+## IPS escalation rules in this run
+Evaluated by the script; the memo's IPS statement must report any that are triggered.
+{escalation_block}
 Shortlist after the vote and the revisions: {", ".join(tally.shortlist)}
 
 ## The IPS limits your recommendation is held to
@@ -479,6 +551,7 @@ def run_cio(
             "allocation (escalate: config/ips.yaml `hard_violation_unresolved`)"
         )
     dissents = dissent(run, tally)
+    confidence = regime_confidence(run)
     scores = score_ensembles(ensembles, scoring, stage, settings, regime_labels)
     composites = {m: s.composite for m, s in scores.items()}
 
@@ -512,10 +585,13 @@ def run_cio(
                 scores,
                 tally,
                 dissents,
-                candidate_digest(candidates, reports, load_reviews(run), tally),
+                candidate_digest(
+                    candidates, reports, load_reviews(run), tally, load_proposals(run)
+                ),
                 config=config,
                 regime=scoring.regime,
                 ips_status=run.ips_status,
+                confidence=confidence,
             ),
             tier=tier_for("cio"),
             check=check,
@@ -523,7 +599,13 @@ def run_cio(
         judgment, call = result.value, result.call
         chosen = ensembles[EnsembleMethod(str(judgment.ensemble_method))]
 
-    body = decision_body(chosen, judgment, scoring.scores)
+    body = decision_body(chosen, judgment, scoring.scores).model_copy(
+        update={
+            "escalations": escalations(
+                config, confidence=confidence, composite=composites[chosen.method]
+            )
+        }
+    )
     run.write_report(render_ensembles(ensembles, failed, chosen.method, scores), ENSEMBLE_REPORT)
     memo = run.write_report(render_memo(body, run), MEMO_REPORT)
     run.write(
@@ -650,6 +732,9 @@ Run `{run.run_id}`, as of {run.as_of}. Recommended by the CIO agent; ensemble
 
 ## What would make this recommendation wrong
 {chr(10).join("- " + c for c in body.invalidation_conditions)}
+
+## Escalations under the IPS
+{chr(10).join("- " + e for e in body.escalations) or "None triggered."}
 
 ## Dissenting views
 {chr(10).join("- " + d for d in body.dissenting_views) or "None recorded."}
