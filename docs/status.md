@@ -3,10 +3,10 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-10-16** (project week 7 of 12). Phases 1 and 2 are complete and closed. Phase 3
-is in progress: week 7's half — the CRO agent and the peer-review assignment — is done; the
-review cycle, the Borda vote and the CIO follow in weeks 8-9. `main` is the only source of
-truth.
+**As of 2026-11-04.** Phases 1-3 are complete: every stage runs end to end on Claude, and two
+paid runs (`claude1`, `claude2`) have produced board memos. Phase 4 (out-of-sample backtests,
+historical as-of runs, stress tests, visualisation) is next and passes to Shambhawi; see
+"Paid runs" and "Next, in order" below. `main` is the only source of truth.
 
 ## By pipeline stage
 
@@ -43,8 +43,8 @@ truth.
 methods, a judge and a validation check; the covariance agent is live; the full PC roster (15
 agents across Exhibit 5's four families, plus the researcher and the adversarial diversifier)
 produces candidate portfolios.
-**Milestone M3 (deliberation and CIO ensemble complete, week 9): built, a week early; the
-paid run is still to come** — every stage from the CRO to the board memo runs end to end with
+**Milestone M3 (deliberation and CIO ensemble complete, week 9): met** with the paid runs
+below. Before them, every stage from the CRO to the board memo runs end to end with
 `--no-llm`, and on the 2026-10-01 free run the CIO recommends an IPS-compliant allocation
 (7.28% expected return at 8.00% volatility against the benchmark's 7.18% at 9.37%; 15.7
 effective assets; -23.4% backtest drawdown). The plan's M3 is "final allocation + board memo
@@ -339,18 +339,64 @@ every candidate (8.40 vs 8.41, 14.99 vs 15.09). That is not independent confirma
 Ledoit–Wolf matrix is estimated over the same history the backtest runs through. It will stop
 agreeing once the Phase 4 backtest estimates the matrix out of sample.
 
+## Paid runs (2026-10-29 to 2026-11-03)
+
+Both as of 2026-10-01, Opus 5.5 for macro, CMA judge, researcher, revisions and CIO; Sonnet 5.5
+for the PC agents, CRO, reviews and ballots (decision 51). The run folders are in git-ignored
+`data/runs/`; they are shared outside git.
+
+- **`claude1`** (all six stages, about $5.00 recorded; an earlier CMA-judge attempt that failed
+  on the schema bug of decision 52 cost a further $2-4, unrecorded). Its reviewers' findings
+  became decision 53.
+- **`claude2`** (stages 4-6 rerun on `claude1`'s stages 1-3 after decision 53, $3.68).
+
+| | `claude1` | `claude2` | 60/30/10 benchmark | Paper §4.4 |
+|---|---|---|---|---|
+| CIO's ensemble | meta-optimisation | composite score | – | inverse TE |
+| Expected return | 7.26% | 6.94% | 6.68% | 6.87% |
+| Volatility | 8.00% | 8.00% | 9.37% | 7.54% |
+| Sharpe | 0.43 | 0.39 | 0.31 | 0.43 |
+| Effective assets (entropy) | 9.9 | 14.5 | – | 11.2 |
+| Backtest max drawdown | −23.1% | −23.2% | – | −25.6% |
+| Cash + short Treasuries | 5.7% | 18.4% | – | 15.4% |
+
+- **Macro:** expansion, "borderline late-cycle", confidence 0.36 (Gemini's dry run said
+  late-cycle at 0.42; the paper, late-cycle). The 0.36 triggers the IPS regime-confidence
+  escalation, which `claude2`'s memo reports and `claude1`'s missed.
+- **CMAs:** within 0.7pp of the Gemini dry run's; `cma-validate` passes 17 of 18, warning on
+  US growth (9.27% against the paper's 6.2%).
+- **The vote is stable across runs:** same top four in the same order (resampled frontier,
+  Black-Litterman, researcher, CVaR), same shortlist.
+- **The revisions are not.** The researcher moved 55% of its portfolio in `claude1` and 33% in
+  `claude2`; Black-Litterman kept its portfolio once and capped weights at 30% the next time.
+  That changed meta-optimisation's composition (82% Black-Litterman in `claude2`), and the CIO
+  rejected that concentration for the 14-candidate composite, citing the low regime confidence.
+  The risk profile of the recommendation barely moved; its composition did.
+- **Reviewer-flagged technical errors** fell from 37 (18 of 30 reviews) to 22 (15 of 30) after
+  decision 53's prompt labels; no call needed a retry in either run.
+- **Spend to date:** about $12-14 of the project's API budget, including the failed attempt.
+
+### Open questions for the faculty adviser
+
+1. Is a revision that moves a third to a half of the portfolio still its method?
+2. Should Black-Litterman's Ω carry the CMA judge's per-asset confidence? Now
+   Ω = diag(τΣ) / view_confidence with view_confidence = 1.
+3. The regime call differs by model (expansion vs late-cycle): which do we report?
+4. Keep the strict IPS projection, or tolerate near-misses as the paper's own pick did
+   (7.54% volatility, −25.6% drawdown)?
+5. Is the CIO's run-to-run sensitivity acceptable, or should revisions be held to fewer moves?
+
 ## Next, in order
 
-Every Phase 3 stage is built; everything so far is `--no-llm`, so total API spend is $0.00.
-Dry runs on free OpenRouter models are wired in (decision 47): `SAA_LLM_PROVIDER=openrouter`.
-
-1. Wiring: point the macro agent at `RunContext`, then a single `saa-run` command that chains
-   the stages, so one command produces a run from data to board memo.
-2. The first paid run (`--cap-usd` set on every stage): CMA judge, PC agents, CRO, peer
-   reviews, vote, revisions, CIO. Then `saa-skill cma-validate` on the judged CMAs.
-3. Calibrate what the paid run makes measurable: the `[proposed]` thresholds in
-   `config/method_scoring.yaml` and `config/voting.yaml`, and the prompts.
-4. Phase 4 (weeks 10-12): backtest, stress tests, visualisation, final presentation.
+1. **Phase 4: out of sample.** A free `--no-llm` run at one past as-of date first, to check the
+   as-of handling end to end (never yet tried at a historical date); then paid runs at, say,
+   2008-06, 2020-01 and 2022-01 (about $5 each), and each recommendation's realised 1-3 year
+   return, volatility and drawdown against the 60/30/10 benchmark.
+2. A third run on `claude1`'s stages 1-3 to measure run-to-run variation properly.
+3. Calibrate the `[proposed]` thresholds in `config/method_scoring.yaml` and
+   `config/voting.yaml` against the two runs.
+4. Wiring: a single `saa-run` command that chains the stages.
+5. Stress tests, visualisation, final presentation.
 
 ## Data facts worth not re-deriving
 
