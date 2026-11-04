@@ -1,0 +1,119 @@
+{
+  "header": {
+    "schema_version": "4.0.0",
+    "contract": "correlation_row",
+    "agent": "us-value",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T19:54:59.904852Z",
+    "produced_by": "script",
+    "provenance": {
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      },
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "market/prices_daily": {
+        "run_id": "20261019T212802Z",
+        "sha256": "043f911a31c92ff7f5c2402afacd007b9c8b2bc9aaab418c213739bc57825924"
+      }
+    },
+    "inputs": [],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "asset_id": "us_value",
+    "end": "2026-09-30",
+    "months": {
+      "3y": 36,
+      "5y": 60,
+      "10y": 120,
+      "since_1990": 441
+    },
+    "correlations": {
+      "3y": {
+        "us_large_cap": 0.7917233576281377,
+        "us_small_cap": 0.8777360876689575,
+        "us_growth": 0.5056733174828315,
+        "intl_developed": 0.7620479667638077,
+        "emerging_markets": 0.5437440108693008,
+        "short_treasuries": 0.3807718891064077,
+        "intermediate_treasuries": 0.5753575243241766,
+        "long_treasuries": 0.6244212351772165,
+        "ig_corporates": 0.6740825757273247,
+        "hy_corporates": 0.7786945000586684,
+        "intl_sovereigns": 0.5578387933752383,
+        "intl_corporates": 0.5653919961916368,
+        "usd_em_debt": 0.792398632344724,
+        "reits": 0.857646028034352,
+        "gold": 0.14523446668941994,
+        "commodities": -0.05964550109354285,
+        "cash": 0.06491423786135388
+      },
+      "5y": {
+        "us_large_cap": 0.8786201616523291,
+        "us_small_cap": 0.8808760120177858,
+        "us_growth": 0.6787548308560973,
+        "intl_developed": 0.8496841755554528,
+        "emerging_markets": 0.6250383687673352,
+        "short_treasuries": 0.3854347462905111,
+        "intermediate_treasuries": 0.5385686177982332,
+        "long_treasuries": 0.546070034082168,
+        "ig_corporates": 0.6952901291595717,
+        "hy_corporates": 0.8158592963856297,
+        "intl_sovereigns": 0.6345717780063678,
+        "intl_corporates": 0.7194516841625749,
+        "usd_em_debt": 0.7855512269204529,
+        "reits": 0.8708241193722296,
+        "gold": 0.2351702927672225,
+        "commodities": 0.2527893569877424,
+        "cash": 0.08471461089957757
+      },
+      "10y": {
+        "us_large_cap": 0.9128776448208606,
+        "us_small_cap": 0.8954271930084052,
+        "us_growth": 0.7394462190952562,
+        "intl_developed": 0.8598809970475121,
+        "emerging_markets": 0.6596224176157497,
+        "short_treasuries": 0.05081466706434743,
+        "intermediate_treasuries": 0.09782982977552555,
+        "long_treasuries": 0.08543171192877914,
+        "ig_corporates": 0.5481800325238401,
+        "hy_corporates": 0.810240270542436,
+        "intl_sovereigns": 0.445337618110491,
+        "intl_corporates": 0.643364982994882,
+        "usd_em_debt": 0.6781998889426845,
+        "reits": 0.8187243357211766,
+        "gold": 0.13017648161461678,
+        "commodities": 0.45754652475632523,
+        "cash": -0.04013919203668051
+      },
+      "since_1990": {
+        "us_large_cap": 0.9325419010392634,
+        "us_small_cap": 0.8263325041550125,
+        "us_growth": 0.7992605899433569,
+        "intl_developed": 0.7935666139725329,
+        "emerging_markets": 0.6938068265885138,
+        "short_treasuries": -0.058491357177614126,
+        "intermediate_treasuries": -0.03984051538781626,
+        "long_treasuries": -0.049980726676284865,
+        "ig_corporates": 0.3679239549445516,
+        "hy_corporates": 0.6639861919983302,
+        "intl_sovereigns": 0.30770061825689987,
+        "intl_corporates": 0.41399988930439396,
+        "usd_em_debt": 0.5492737395182907,
+        "reits": 0.6660078663985901,
+        "gold": 0.06673150417960641,
+        "commodities": 0.25492794076491565,
+        "cash": -0.01282079442721494
+      }
+    }
+  }
+}

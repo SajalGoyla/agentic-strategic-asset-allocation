@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-variance",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.493214Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/cvar_minimization/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/cvar_minimization/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3481,
+        "output_tokens": 3313,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.040764,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_variance",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "cvar_minimization",
+    "reviewed_category": "non_traditional",
+    "kind": "inter_category",
+    "strengths": [
+      "The objective fits the problem. It minimises 95% expected shortfall over actual monthly scenarios, so skew and fat tails enter directly. It does not rely on a covariance matrix that assumes symmetry.",
+      "The proposal is honest about the unconstrained solution. The pure minimum-CVaR point is effectively cash (0.62% vol, Sharpe 0.04). The author adds a return floor in the Rockafellar-Uryasev mean-CVaR form rather than presenting a near-cash portfolio as a real candidate.",
+      "It makes no pretence of using CMAs. The weights come from scenarios and the reported return and Sharpe come from the CMAs, and the case says so. That separation makes it a distinct, CMA-free view that is easy to judge.",
+      "The reported numbers are internally consistent. The weights sum to 100% and 2.9 effective assets follows from the weight entropy. Ex-ante vol of 8.00% against backtest vol of 7.91% shows the covariance used for the IPS check is not misleading about ordinary volatility. The drawdown score (0.75) matches 18.7% against a 25% limit.",
+      "The diversifier logic is economically sensible for an expansion regime. Equity carries the return, while duration and gold are the assets with a plausible record of offsetting equity losses. The weaknesses are stated openly: in-sample dependence, duration exposure and the stock-bond correlation risk."
+    ],
+    "weaknesses": [
+      "The premise is that the 1993+ tail months are representative of future tail months. A 95% tail on roughly 400 monthly observations is about 20 months, dominated by a few episodes (2000-02, 2008, 2020, 2022). The hedge weights are therefore fitted to a handful of crises, and a different crisis mix would give materially different weights.",
+      "The Treasury sleeve (37.3%) is justified by a sample from a long era of falling yields. Intermediate Treasuries hedged equity in 2000-02 and 2008 because rates fell. If stock-bond correlation is persistently positive, as in 2022 or an inflation or rate shock, equity and duration (83% of the portfolio together) fall together. The tail hedge then fails exactly when it is needed. Only a few months from a positive-correlation regime sit in the sample, so the LP gives them little weight.",
+      "Gold (15.9%, the largest active bet at +15.9%) is a single-asset hedge estimated from a window that includes the post-2001 bull market but not the 1980 collapse. The LP picks it because it fits those scenarios best. The weight is a sample-exploiting vertex solution, not a robust allocation, as the author admits. The gold position also drives much of the 3.6% tracking error.",
+      "The return floor is calibrated on a different basis from the one used to evaluate the portfolio. The constraint is the historical scenario mean (8.219) but the reported CMA return is 6.46%. The stated expected return is therefore well below what the optimiser was told to achieve. The tuned floor was also chosen to land on the 8% volatility band edge, so the final portfolio is partly set by the IPS band, not only by the method.",
+      "Sitting exactly on the volatility floor leaves no margin. Backtest vol of 7.91% is already below 8%. Any estimation noise puts the portfolio outside the band if it is applied to realised volatility. It is compliant only because the check is ex-ante.",
+      "The backtest Sharpe of 0.74 and the drawdown of -18.72% are in-sample for the weights. The return target and the weights both come from the same history, so these figures overstate what to expect. Because the CMAs are ignored, nothing in the portfolio reflects a forward view of equity returns or yields in the current regime.",
+      "The concentration is extreme (4 of 18 assets, 2.9 effective) with no per-asset cap in the IPS. Short Treasuries at 1.4% is a negligible residual that adds operational noise and no diversification. The portfolio is a bet on three assets."
+    ],
+    "technical_errors": [],
+    "score": 0.55,
+    "rationale": "The method is applied coherently and the author states its limits more candidly than most. The tail-aware, CMA-free logic is a legitimate premise and the numbers reconcile. The premise is also fragile. The tail protection comes from two historical relationships (Treasuries and gold offsetting equity) estimated on about 20 tail months from an era of falling yields and a gold bull market. Neither the weights nor the backtest can test that. Ex-ante compliance has no margin, since the portfolio sits on the volatility floor and backtest vol is already below it, and the return floor was tuned to the band edge. The 83% combined weight in equity and duration is the critical exposure, and it fails in precisely the rate-shock regime the sample under-represents. I give the portfolio moderate credit as a diversifying ensemble input whose hedge weights should not be trusted at face value. A hard breach would not be a reason to dismiss it, and the IPS remains a draft, so no breach is final."
+  }
+}

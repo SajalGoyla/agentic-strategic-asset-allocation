@@ -1,0 +1,203 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-maximum-diversification",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.476465Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 965,
+        "output_tokens": 1294,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.016257399999999998
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "maximum_diversification",
+    "method": "Maximum diversification",
+    "category": "risk_structured",
+    "weights": {
+      "us_small_cap": 0.014322277115910963,
+      "us_growth": 0.013222009752760687,
+      "emerging_markets": 0.0004170037016617467,
+      "short_treasuries": 0.05478117030301296,
+      "long_treasuries": 0.04494267934467749,
+      "reits": 0.004762103184345237,
+      "gold": 0.017455174799890893,
+      "commodities": 0.02369574861030518,
+      "cash": 0.826401833187435
+    },
+    "expected_return_pct": 4.236044301186743,
+    "expected_volatility_pct": 1.2310878350637147,
+    "sharpe_ratio": 0.3379485113385194,
+    "effective_n": 2.1429146828763783,
+    "ex_ante_tracking_error_pct": 8.656468994379834,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 1.83% is below the CPI + 3.0% target",
+          "observed": 1.8327904466458822,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 1.23% outside the 8.0-12.0% band",
+          "observed": 1.2310878350637147,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 8.66% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 8.656468994379834,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Maximum diversification maximises the ratio of the weighted average asset volatility to portfolio volatility, using only the covariance matrix. It makes no return forecast, so none of the CMA estimation error reaches it. That is the argument in an expansion regime, where the CMAs are most likely to be optimistic and crowded, and the one thing the covariance matrix reliably tells us is which assets offer genuinely different risk. Here it finds the diversification in a small set of low-correlation assets (the short and long Treasuries, gold, commodities and a few equity sleeves). Everything else is dominated by cash.\n\nThe cash weight is the method behaving as designed and also a sign that the problem is poorly conditioned for it. Cash has near-zero volatility and near-zero correlation with the rest, so a diversification-ratio maximiser can use it to pull portfolio volatility far below the weighted-average volatility. The result is an effective number of assets of only 2.1 of 18, and a portfolio that is diversified in the ratio sense but concentrated in the Herfindahl sense. Reviewers should not read the 1.23% volatility as a low-risk achievement. It reflects a portfolio that is mostly not invested in risk assets.\n\nThe portfolio is outside the IPS on three hard limits: expected real return of 1.83% against the CPI + 3.0% target, volatility of 1.23% against the 8-12% band, and tracking error of 8.66% against the 6% budget. The method has no parameter that moves it toward the band without becoming a different method, so I am not tuning it. The IPS is still a draft, and the band binds on the CIO's final recommendation, not on this candidate. Standing alone, the portfolio fails the mandate. What it contributes to a compliant ensemble is a clean, forecast-free read on which non-cash assets diversify one another: Treasuries, gold and commodities as the low-correlation sleeves, and small and growth equity as the equity exposures with the least overlap. A CIO can take that structure, pair it with return-seeking sleeves, and use it to set the diversifying part of a portfolio at the required volatility. The Sharpe of 0.34 is also modest, so the case rests on its role in an ensemble, not on its stand-alone return per unit of risk.",
+    "revision_of": null,
+    "notes": "Key assumption: The covariance matrix is a reliable description of how assets will co-move, so that the lowest-correlation assets today will still diversify one another, and the diversification ratio is the right objective with no return view at all. Main weakness: The portfolio is 82.6% cash with 2.1 effective assets. It earns 4.24% against a 1.83% real return, versus a CPI + 3% target, and it sits far outside the IPS volatility band and tracking-error budget. Near-zero-volatility cash gives the diversification ratio an easy way to look good, so the optimiser is exploiting the covariance structure rather than finding broad diversification. Any error in the cash correlation estimates, or a rate shock that lowers cash returns, hits the whole portfolio. Preferred when: When expected-return forecasts are judged unreliable, when the covariance estimates are trusted more than the CMAs, or when the CIO needs a forecast-free input for the diversifying sleeve of an ensemble that will be scaled up to the IPS volatility band. It also helps when a late-cycle or stressed regime makes correlation structure the more informative evidence. Invalidated if: The portfolio is the wrong choice if the IPS return and volatility requirements are treated as binding on every candidate, if the correlations that make cash, Treasuries and gold look diversifying break down (for example, Treasuries and equities selling off together), or if the CMAs turn out to be accurate enough that a return-aware method earns materially more per unit of risk. It is also wrong if inflation stays above the cash rate, since an 82.6% cash holding then loses real value.",
+    "tuning": null
+  }
+}

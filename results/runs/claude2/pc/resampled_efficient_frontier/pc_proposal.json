@@ -1,0 +1,194 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "pc-resampled-efficient-frontier",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:25:21.378476Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1388,
+        "output_tokens": 1409,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.018253400000000003,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "resampled_efficient_frontier",
+    "method": "Resampled efficient frontier",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.0021547297728096155,
+      "us_small_cap": 0.053192019660555895,
+      "us_value": 0.09808904318575852,
+      "us_growth": 0.09408597132521491,
+      "intl_developed": 0.03389013749515044,
+      "emerging_markets": 0.039207550741223306,
+      "short_treasuries": 0.1452403164732212,
+      "intermediate_treasuries": 0.05408443167169127,
+      "long_treasuries": 0.14128414271607123,
+      "ig_corporates": 0.04298935056643536,
+      "hy_corporates": 0.03433222620459289,
+      "intl_sovereigns": 0.0007464389721282727,
+      "intl_corporates": 0.018521368372219675,
+      "usd_em_debt": 0.03689647283511635,
+      "reits": 0.08272512981698346,
+      "gold": 0.06413209632203125,
+      "commodities": 0.05438388902967487,
+      "cash": 0.0040446848391214475
+    },
+    "expected_return_pct": 7.109868383729862,
+    "expected_volatility_pct": 8.000379670656306,
+    "sharpe_ratio": 0.4112140322285454,
+    "effective_n": 13.337728357395397,
+    "ex_ante_tracking_error_pct": 4.325304962309168,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "This is Michaud's resampled efficient frontier run at a different setting from its default, and a reviewer should read it that way. The default, the average of 200 long-only tangency portfolios drawn from N(mu, Sigma), has 2.84% volatility and a Sharpe of 0.54. That is far below the draft IPS 8-12% band. Risk aversion gamma was lowered to 5.511 in every draw before averaging, which moves the portfolio along its own resampled frontier to 8.00% volatility. The setting did two things. It bought return, 7.11% expected, and tracking error of 4.33% against the benchmark. It also cost Sharpe, which fell from 0.54 to 0.41, because the frontier is concave and the extra risk is paid for at a worsening rate. The method did not change. Averaging still does the work.\n\nThe case for it rests on what resampling does to estimation error. A plain maximum Sharpe portfolio takes small, noisy gaps between two CMAs and turns them into large bets. Here the weights flip between draws and average out, so the result holds 13.3 of 18 effective assets and none of the positions looks like a covariance-singularity artifact. The Herfindahl is 0.087. The largest positions are short and long Treasuries, US value and growth, and REITs, and none dominates. Nothing sits at a corner, which suggests the diversification comes from the resampling and not from a hard constraint.\n\nThe regime is expansion. In that regime, return forecasts carry some information but not enough to optimise against without hedging. That supports a method that uses the CMAs and discounts them for their own uncertainty. Equal weight discards the forecasts, and maximum Sharpe trusts them fully. This portfolio sits between the two. It is compliant on the ex-ante limits of return, volatility and tracking error under the draft IPS. The drawdown limit is a backtest measure that the CRO still has to check, so full compliance is not claimed.\n\nTwo cautions apply. The resampling noise is calibrated to the same Sigma and mu that may be wrong, so it protects against sampling error in the inputs, not against bias in the CMAs. And the volatility was reached by a tuning choice, not by the method's own logic, so the 8% figure reflects the policy band more than any property of the forecasts.",
+    "revision_of": null,
+    "notes": "Key assumption: The judged CMAs are right on average but noisy, and the covariance matrix is a fair description of risk, so that averaging optimal portfolios over draws from N(mu, Sigma) removes the noise-driven bets without removing the real signal. Main weakness: Resampling only corrects sampling noise around the CMAs; it cannot fix a systematic bias in them, and the portfolio inherits any such bias. It is also an averaging device, not a risk model: the 8% volatility came from lowering gamma, not from the method, and that cost Sharpe (0.54 to 0.41). The weights are diffuse partly because averaging blurs conviction, so the portfolio may hold small positions in assets whose forecasts are weak and give up return that a sharper method would capture. The result also depends on the number of draws, the seed and the 10-year sample length assumed in each draw. Preferred when: When return forecasts carry some information but are noisy, as in an expansion regime with imprecise CMAs, and the committee wants an optimised portfolio without the concentration of plain maximum Sharpe. It is also preferred when the IPS risk band binds and a point on the efficient frontier is wanted that is diversified and in the band, and when reviewers distrust single-point optimisation. It adds the most to a compliant ensemble as the return-seeking, diversified sleeve. Invalidated if: It is the wrong choice if the CMAs are biased in a common direction, for example if the expected return premia on equities, REITs or long Treasuries are overstated, since the averaging would not remove this. It is also wrong if the covariance matrix understates tail or regime-shift risk, if the backtest drawdown breaches the IPS limit when the CRO checks it, or if a covariance-only method does as well in the vote because the regime favours structure over forecasts. If the draft IPS band changes materially, the tuning would no longer fit and the gamma setting would need to be redone.",
+    "tuning": {
+      "parameter": "risk_aversion",
+      "value": 5.510752895334103,
+      "untuned_volatility_pct": 2.8405888330220286,
+      "reached_band": true,
+      "untuned_sharpe": 0.5413040303384185
+    }
+  }
+}

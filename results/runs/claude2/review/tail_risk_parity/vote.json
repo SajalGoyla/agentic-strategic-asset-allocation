@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "vote",
+    "agent": "vote-tail-risk-parity",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:34:01.342138Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 327,
+        "output_tokens": 828,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0391015,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "tail_risk_parity",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "pc_researcher",
+      "black_litterman",
+      "cvar_minimization",
+      "max_sharpe"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "The IPS is a draft, so I weigh judgment over strict compliance. I am tail_risk_parity and have excluded myself. I favour portfolios that pass the draft IPS or come close, and that rely on covariance structure over forecasts, in line with the late-cycle finding in §4.3. First is resampled_efficient_frontier: it passes every hard limit, is the most diversified compliant option (effective N 13.3, TE 4.33), and its reviewers found only a mislabelled gamma description, not an execution error. Its main weakness is drawdown headroom under 1 point (-24.3% vs -25%). Second is pc_researcher: its Sharpe is among the highest (0.51), its drawdown is modest (-10.9%), its CRO risk is low (0.33), and it breaches only two limits (volatility band and TE, narrowly). Its reviewers flagged a mismatch between the narrative and the solved result, which keeps it from first. Third is black_litterman: compliant, effective N 6.1, backtest Sharpe 0.70, with the only error being the Omega mechanism description. Fourth is cvar_minimization: compliant with a good backtest Sharpe (0.74), a drawdown of -18.7%, and direct treatment of tail risk. Its weakness is fitting to a handful of crises and a return floor tuned to the band edge. It is also a different family from the return-optimised picks, which helps meet the family-spread rule. Fifth is max_sharpe: compliant, but 46% in us_value reflects one judged CMA gap and its drawdown (-24.7%) is close to the limit. Resampled beats max_sharpe because averaging over draws diffuses that CMA sensitivity. The first choice beats the fifth on diversification (13.3 vs 3.8 effective N), drawdown headroom, and less dependence on a single return-gap input. I flag market_cap_weight: it has a -40.6% drawdown, CRO risk of 0.80, and a hard drawdown breach. Reviewers also showed the ETF-AUM proxy is not a valid capitalisation weight, with double-counting of overlapping classes. The CIO should not lean on it. I left the adversarial diversifier unflagged because its orthogonality has ensemble value, even though it breaches three limits."
+  }
+}

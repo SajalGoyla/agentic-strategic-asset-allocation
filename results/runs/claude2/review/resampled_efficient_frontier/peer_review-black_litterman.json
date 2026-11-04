@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-resampled-efficient-frontier",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.452126Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/black_litterman/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3693,
+        "output_tokens": 4949,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.057548,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "resampled_efficient_frontier",
+    "reviewer_category": "return_optimized",
+    "reviewed_agent_id": "black_litterman",
+    "reviewed_category": "return_optimized",
+    "kind": "intra_category",
+    "strengths": [
+      "The reported numbers are internally consistent. The effective-asset count of 6.1 matches the exp-entropy of the weights, which I recomputed. The active weights imply the 14.1% equity underweight and +17.1% fixed income that the CRO cites. Sharpe of 0.41 at 7.06% return and 8.00% vol implies a risk-free rate of about 3.8%, which also reproduces the 0.58 Sharpe at 2.60% vol for the tangency point.",
+      "The proposal is candid that this is a tuned setting, not the method's own optimum. It names the cost: Sharpe falls from 0.58 to 0.41. It also correctly describes lowering gamma as moving along the same long-only posterior frontier. The delta=2.5 reverse-optimisation step is left untouched, so the equilibrium anchor is not distorted to hit the policy band.",
+      "The result looks like Black-Litterman working. It is diversified across 9 positions with no single-asset dominance. The largest position is 37%, and it is a core holding that follows from the bond-heavy equilibrium and the CMAs, not a corner solution from one extreme forecast. This is the intended effect of the shrinkage.",
+      "Ex-ante volatility (8.00%) and backtest volatility (7.97%) agree closely, so the shrunk covariance matrix is well calibrated for the sample. Tracking error is 3.01%, the drawdown is -21.2% against the -25% limit, and the CRO finds it compliant. The proposal is usable as it stands against the draft IPS.",
+      "The risks are disclosed in full: the ETF-size market-cap proxy, the CMAs feeding both the weights and the headline statistics, and the 1993+ correlation regime."
+    ],
+    "weaknesses": [
+      "The tuned gamma lands the portfolio exactly on the 8.00% volatility boundary, and the backtest volatility is 7.97%, just below it. The IPS is a draft. Any covariance refresh, small CMA revision or change to the band would push the portfolio off the boundary. The solution is a knife-edge, not a robust interior point, and the proposal gives no sensitivity of weights to gamma or to the covariance estimate.",
+      "The equilibrium anchor is built from ETF sizes, and the universe has overlapping asset classes: us_large_cap, us_value, us_growth and us_small_cap. Style funds are subsets of, or overlap with, the broad large-cap fund, so ETF-AUM weights are not a partition of the market portfolio. Reverse-optimised returns Π therefore embed double counting. The -41% large-cap versus +13.6% value and +6.7% growth tilt may partly reflect this, not a genuine view. The proposal admits the proxy is rough but does not address the overlap.",
+      "The weights are pulled toward bonds. A 47% bond sleeve (37.4% intermediate and 9.7% long Treasuries) rests on CMA duration views plus a bond-heavy equilibrium. The covariance comes from 1993+ data with mostly negative stock-bond correlation. The CRO flags that rate-shock drawdown would exceed the backtest. The -21.2% drawdown is only about 4 points inside the -25% limit, with little room if correlations turn positive as in 2022.",
+      "There is a large gap between ex-ante Sharpe (0.41) and backtest Sharpe (0.70), and the proposal does not reconcile it. The backtest Sharpe is flattered by the falling-rate sample. The ex-ante return of 7.06% comes from the same CMAs the method consumes, so neither figure independently validates the portfolio.",
+      "The portfolio holds only 1.8% in emerging markets and nothing in the other 9 assets. Because the pull toward equilibrium is moderate, the non-held assets are presumably dropped by the long-only constraint or low CMAs. The proposal does not explain why, so the diversification is somewhat narrower than '6.1 of 18' suggests. The gold and REIT diversifiers are rate-sensitive and add to duration risk in a rate shock."
+    ],
+    "technical_errors": [
+      "The stated mechanism does not follow from the stated specification. With Omega = diag(tau*Sigma) and views on every asset, the posterior is not shrunk harder on volatile assets. With P = I and a near-diagonal Sigma, view uncertainty scales with asset variance exactly as prior uncertainty does, so tau and the asset's variance cancel. The blend is roughly 50/50 between equilibrium and CMA for every asset. Only off-diagonal covariance terms create differences. The claim that 'a noisy CMA on a volatile asset gets pulled back toward equilibrium' is therefore not supported. The shrinkage is closer to a uniform average. The diversification benefit is real, but it is attributable to the equilibrium prior and the long-only constraint more than to volatility-sensitive view weighting."
+    ],
+    "score": 0.62,
+    "rationale": "As an execution audit, this is a competent Black-Litterman implementation. The arithmetic checks out, and the effective-asset count, active weights and implied Sharpe numbers all reconcile. The tuning to the IPS band is done in a principled way: gamma is lowered along the frontier, delta is held at 2.5, and the cost in Sharpe is disclosed. It passes the ex-ante limits and the CRO's backtest check, and the CRO's composite risk score is a moderate 0.40. It loses points for three reasons. First, the one analytical claim about how Omega handles noisy views is mis-described: with Omega = diag(tau*Sigma), the blend is near uniform rather than volatility-adaptive. Second, the equilibrium prior is built from overlapping ETF-size proxies (large cap, value, growth, small cap) that do not form a partition of the market, which contaminates the anchor on the very equity tilts that drive tracking error. Third, the solution sits at the exact 8.00% volatility boundary of a draft IPS, with the backtest at 7.97%, and 47% of the portfolio is in duration whose tail the 1993+ sample does not show, with drawdown only 4 points inside the limit. None of these is disqualifying, and no hard breach exists. The portfolio is a reasonable, honestly argued candidate whose fragility lies in its inputs and in the knife-edge tuning more than in the optimiser."
+  }
+}

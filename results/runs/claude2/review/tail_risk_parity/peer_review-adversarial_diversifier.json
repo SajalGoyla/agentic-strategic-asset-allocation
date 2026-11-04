@@ -1,0 +1,184 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-tail-risk-parity",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.421073Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/adversarial_diversifier/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/adversarial_diversifier/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3585,
+        "output_tokens": 3402,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.04959,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "tail_risk_parity",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "adversarial_diversifier",
+    "reviewed_category": "non_traditional",
+    "kind": "intra_category",
+    "strengths": [
+      "Execution matches the method's design. A 100% single-asset vertex gives effective N of 1.0 (exp of entropy), and the proposal says this is the optimiser working as intended, not a failed solve. The effective-N figure is the entropy-based measure and is correct.",
+      "The numbers are internally coherent. Ex-ante volatility (1.69%) matches the backtest (1.69%), and ex-ante Sharpe 0.52 against backtest 0.44 is a plausible gap. The implied risk-free rate is about 3.8%, so Sharpe uses an excess return of roughly 0.9%. The 0.52 is not a degenerate or mis-scaled figure.",
+      "It states the IPS breaches plainly (return, volatility, tracking error), does not argue for holding the portfolio alone, and ties each breach to the cash-like corner and the draft IPS.",
+      "It identifies the real model risk: the corner clears the 75% Sharpe floor only through one judged CMA. This is also a useful diagnostic, because it shows the Sharpe floor does not force any equity or duration exposure and so cannot show whether a proposal is earning its risk.",
+      "It names the regime tension: expansion usually favours risk assets, so this is a dissenting position, and it says so."
+    ],
+    "weaknesses": [
+      "The whole case rests on one judged input, the short-Treasury expected return, which is about 0.9 points above the implied risk-free rate while carrying 1.69% volatility. A near-risk-free asset earning a positive, sizeable excess return is a questionable CMA. The proposal flags the dependence but gives no break-even (how far the CMA would have to fall to breach the floor) or sensitivity test. The caveat is therefore unquantified.",
+      "The case for a diversifying sleeve is weak. Blending a small weight of a cash-like asset into a growth-heavy ensemble is just de-risking, which the CIO could do with a plain cash weight or volatility targeting. The proposal does not show what this vertex offers beyond that, and it concedes the point in its 'invalidated if' notes.",
+      "Against the 60/40 benchmark it is 60 points underweight equity. Under expansion it would drift far from the benchmark (9.30% tracking error) and miss the CPI+3% objective by a wide margin. Reinvestment risk is also unhedged, since falling policy rates cut the yield almost immediately.",
+      "The tracking-error and distance claims are not reconciled. The proposal says the vertex is furthest from the centroid, yet tracking error to the centroid is only 5.01%, well below the 9.30% to the benchmark. It also says the risk-based methods already lean into cash and short Treasuries, so it is unclear why this corner is the farthest point.",
+      "It adds no information about how the method behaves with realistic constraints. A single-asset corner under a Sharpe floor says little about the rest of the feasible region. Any asset with a similar Sharpe would also have qualified, so the choice of short Treasuries is largely an accident of the CMAs.",
+      "The IPS is a draft, so the breaches are provisional. They would be hard breaches on any final portfolio that gave this vertex material weight."
+    ],
+    "technical_errors": [
+      "The claim that 'the ensemble is not already spanning the low-risk region' contradicts the proposal's own statement that risk parity, HRP, CVaR and tail-risk parity already lean heavily into cash and short Treasuries. A 5.01% tracking error to the centroid is also not obviously 'far'. The conclusion about the ensemble's coverage does not follow from the evidence given, and the distance metric used to select the vertex is not defined."
+    ],
+    "score": 0.4,
+    "rationale": "As a piece of method execution it is sound. The corner is what the adversarial-diversifier objective should return, the statistics are consistent with each other and with the CRO's backtest, and the proposal describes its role and its IPS breaches honestly. The score is held down for three reasons. The result carries little information beyond 'one CMA makes cash clear the Sharpe floor'. The diversifying-sleeve argument is not shown to add anything over a plain cash weight. The one internal inconsistency is the claim about the centroid and ensemble coverage. The CRO's low composite score of 0.37 reflects absolute safety, not quality, and the proposal would fail the return target, volatility band and tracking-error budget as a standalone holding. Its main value is as a calibration point for the Sharpe floor and the short-Treasury CMA. That points to a sensitivity test on the short-Treasury CMA, not a recommendation to hold the portfolio."
+  }
+}

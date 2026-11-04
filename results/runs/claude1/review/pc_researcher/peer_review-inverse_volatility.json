@@ -1,0 +1,184 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-pc-researcher",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.186110Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/inverse_volatility/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/inverse_volatility/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3936,
+        "output_tokens": 4517,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.053714
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "pc_researcher",
+    "reviewer_category": "pc_researcher",
+    "reviewed_agent_id": "inverse_volatility",
+    "reviewed_category": "heuristic",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal is candid about its limits. It states that all three hard IPS breaches (volatility 3.11% vs the 8-12% band, real return 2.60% vs CPI+3%, tracking error 6.90% vs 6.0%) follow from the method's definition. It does not argue them away or tune the method to hide them, and it frames the portfolio as a sleeve rather than a standalone answer.",
+      "The method is transparent and cheap to audit. Weights depend only on the diagonal of the covariance matrix, so there are no correlation-estimation errors and no optimiser corner solutions. Every weight can be reproduced by hand.",
+      "The stated invalidation conditions are specific: reliable CMAs, a CIO who needs a standalone compliant portfolio, falling short-rate yields, or rising correlations. A reader can check each of them against the regime.",
+      "The ex-ante and backtest volatilities agree (3.11% vs 3.10%), and the CRO finds absolute-loss risk low (95% VaR 1.17%, max drawdown -9.0%), so the covariance diagonal is not obviously misestimated.",
+      "The method fits an expansion regime in one narrow respect: when return dispersion is noisy, skipping return forecasts is defensible. The proposal does not claim more than that."
+    ],
+    "weaknesses": [
+      "The core premise fails for the asset that matters most. Inverse volatility implicitly assumes return per unit of risk is similar across assets. For cash, the risk-free numeraire, this is an artifact: weight is proportional to 1/σ, and σ is near zero and is a measurement of short-rate smoothness, not of risk. A small change in that estimate moves tens of points between cash and everything else (the CRO flags this). Nearly half the book rests on the least informative number in the covariance matrix. 'Not a view that cash is attractive' is true, but the method still takes an implicit return view that scales with σ and is overridden by the cash artifact.",
+      "Capital diversification is not risk diversification. The 7.6 effective assets is an entropy-style count of capital weights. By inverse HHI the same weights give about 4.0 effective assets, and cash and short Treasuries are about 63% of capital while contributing almost no risk. Nearly all risk sits in the roughly 26% held in credit, equities, REITs and commodities. Because correlation is ignored, those positions are sized as independent and will tend to fall together in credit or equity stress. The 'spreading risk rather than betting' claim is therefore weaker than presented.",
+      "The portfolio gives up the growth engine in an expansion regime, when the equity and credit risk premia are typically being paid. About 10% equity, 58 points under the benchmark's large-cap weight, produces a 6.9% tracking error and a 0.29 realised beta. The risk it takes on is real-return shortfall and inflation risk, which the 0.30 composite risk score and the VaR cannot see. The low score reflects a metric blind spot, not low risk.",
+      "The role as an ensemble sleeve is less valuable than argued. Much of the sleeve is a cash allocation, which the CIO can set directly. The non-cash remainder is an equal-risk-ish spread with no correlation information, so it adds little beyond what a cash weight plus any diversified risky sleeve would give. The forecast-independence benefit is also partly illusory, because compliance and return evaluation still use the CMAs for cash and short Treasuries.",
+      "The sole free parameter, the exponent k, cannot fix the breaches. The proposal itself says reaching the vol band makes it near-equal-weight, a different method. So the method has no internal control over its own volatility, tracking error or return level. That makes it a poor standalone candidate whatever the regime.",
+      "The method assumes each asset's own volatility is stable and informative. Volatility estimated from the 1993+ window, which includes a long bond rally and a low-short-rate era, may not carry over. The CRO notes that backtest and ex-ante volatility agreeing is weak confirmation because both use the same history. IPS status: the governing IPS is a draft, so the breach verdicts are provisional, but the margins here (vol at about a third of the band floor) are too large to be draft-sensitive."
+    ],
+    "technical_errors": [
+      "The statement that the portfolio 'gets that Sharpe without relying on estimated returns being right' is incorrect. The weights are forecast-free, but the 0.39 Sharpe and the 2.60% real return are computed from the CMAs, mostly the cash and short-Treasury return assumptions on about 63% of the book. The CRO's backtest Sharpe of 0.57 differs from the proposal's 0.39 for exactly this reason: one is a realised-path number, the other a CMA-dependent ex-ante one. 'Forecast-free' applies to the weights only, not to the evaluation or the compliance outcome.",
+      "The comparison of 7.6 effective assets with the '1.6-asset corner' of a max-Sharpe solve mixes measures if the 1.6 is an inverse-HHI count. On the same HHI basis this portfolio's effective count is about 4.0 (cash alone is 46% of weight), so the stated risk-spreading advantage is overstated."
+    ],
+    "score": 0.42,
+    "rationale": "I judged the method on its own premise. Inverse volatility is a legitimate forecast-free heuristic, and the proposer is honest about its shortcomings and positions it correctly as a sleeve. As a portfolio it is weak. It fails three hard IPS limits by wide margins. Its largest position, cash at 46%, is set by a near-zero volatility estimate that is an artifact rather than information. It ignores correlation in the risky sleeve, so its diversification is nominal. And it forgoes risk premia in an expansion regime. Two claims are also overstated: that the Sharpe is independent of forecasts, and that 7.6 effective assets shows risk spreading. Credit goes for candour, reproducibility, low absolute-loss risk and a sensible ensemble framing, but the sleeve's marginal value to a blended book is modest because it is mostly a cash allocation the CIO can choose directly. The score is below the midpoint. The breaches are evidence about the method's role, not grounds for dismissal, but the premise problems are structural rather than draft-IPS artifacts."
+  }
+}

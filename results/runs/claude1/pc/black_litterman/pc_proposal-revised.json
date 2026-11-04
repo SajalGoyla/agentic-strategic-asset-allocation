@@ -1,0 +1,188 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "revise-black-litterman",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:43:46.361020Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5751,
+        "output_tokens": 4512,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.123779
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "black_litterman",
+    "method": "Black-Litterman",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.18831915271603672,
+      "us_small_cap": 0.050467445487631664,
+      "us_value": 0.13616105734279788,
+      "us_growth": 0.06705746225632007,
+      "emerging_markets": 0.017889609762977515,
+      "intermediate_treasuries": 0.37398713834301206,
+      "long_treasuries": 0.09739221015832127,
+      "reits": 0.025069909501542354,
+      "gold": 0.04365601443136039
+    },
+    "expected_return_pct": 7.061555185477916,
+    "expected_volatility_pct": 8.000465083587136,
+    "sharpe_ratio": 0.4051708433960834,
+    "effective_n": 6.132397850935284,
+    "ex_ante_tracking_error_pct": 3.00630174606684,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I am not revising the weights. I am correcting the case. Governing policy is the draft config/ips.yaml, so all compliance statements are provisional.\n\nCorrections to the original case:\n(a) Delta = 2.5 is the equilibrium risk aversion used only for reverse optimisation. The solve on the posterior used a separate risk-aversion coefficient whose default was above 4.202. Lowering it to 4.202 moved the portfolio along the posterior frontier from 2.60% to 8.00% volatility. The earlier 'gamma 2.5-equivalent' wording was wrong.\n(b) Omega = diag(tau*Sigma) is variance-scaled shrinkage, not confidence-weighted views. Tau should accompany the filing.\n(c) The claim that the portfolio tilts off market weights only where the CMAs justify it is withdrawn. The ETF-AUM prior is low-risk and double-counts overlapping US equity sleeves, so the tilts mix prior construction and CMA information. What remains true is that posterior returns are shrunk toward a market prior, which makes this less forecast-fragile than pure max Sharpe.\n(d) The portfolio sits on the 8% volatility floor with no low-side margin.\n\nWhy no lever moves:\n- The binding risk the CRO identifies is equity and duration losing together, with -21.2% drawdown against a -25% limit.\n- A max-weight cap on intermediate Treasuries would push weight mostly into the US equity sleeves. That buys volatility margin but spends drawdown headroom, the margin a board would feel.\n- Shrink-to-equal across the 18-asset universe adds cash and short Treasuries. It would likely push volatility below the floor, creating a hard breach the original lacks.\n- Excluding the overlapping value and growth sleeves would redistribute 20.3% across all assets rather than fix the prior.\n- So no lever improves one weakness without worsening another. The low-side volatility margin is better handled by the CIO blending this candidate with higher-volatility shortlisted portfolios than by distorting this one.\n\nWhat the CIO gets: a compliant, prior-shrunk US-equity-plus-intermediate-duration profile with 3.01% tracking error. Ex-ante volatility (8.00%) is validated by the backtest (7.97%). It has three known limits:\n- It is sensitive to a positive stock-bond correlation.\n- The backtest flatters duration, since the 1993 start excludes 1970s inflation; read the drawdown and CVaR as lower bounds.\n- The US equity tilt is partly an artefact of the overlapping-ETF prior.\n\nThe ex-ante Sharpe of 0.41, not the backtest 0.70, is the forward guide.",
+    "revision_of": "pc/black_litterman/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- max_sharpe: Both technical errors are accepted as errors in my write-up. Neither is an error in the weights. (1) Gamma direction: you are right that the text cannot be reproduced as written. I conflated two parameters. Delta = 2.5 is the equilibrium risk aversion used only to reverse-optimise implied returns. The solve on the posterior uses a separate risk-aversion coefficient, and its default was higher than 4.202. Lowering it to 4.202 is what raised volatility from 2.60% to 8.00%. The phrase 'gamma 2.5-equivalent defaults' was wrong and should be struck. The correct statement: delta 2.5 is untouched (prior unchanged), and the solve gamma was lowered to 4.202 (point moved along the posterior frontier). (2) Reconciling delta and gamma: once gamma differs from delta, the market portfolio is no longer the optimum under the prior. The 2.60% default volatility shows the ETF-AUM equilibrium plus the long-only budget constraint is itself low-risk. I accept that this weakens my 'tilts off market weights only where the CMAs justify it' claim. Without a reported equilibrium-versus-final weight comparison the claim is undemonstrated, and I withdraw it. The defensible claim is narrower: the posterior returns are shrunk toward an equilibrium prior, and the risk level is a policy choice. (3) Omega: accepted. Omega = diag(tau*Sigma) scales view uncertainty by asset variance. It does not encode judged confidence in each CMA. Tau should be reported with the filed proposal; I do not restate a value here that I cannot verify. (4) Volatility floor: accepted. My sentence about 'the floor's inverse problem only on the upside' was garbled. The plain version: the portfolio sits on the 8% floor with no low-side margin, and a quiet period could take realised volatility below it. I did not move it inside the band because the available levers trade that margin directly against the drawdown margin (-21.2% vs -25%), which is the thinner and more consequential one. A cap on intermediate Treasuries pushes weight mostly into the US equity sleeves, worsening drawdown. Shrinking toward 18-asset equal weight adds cash and short Treasuries and likely pulls volatility below the floor. (5) Style tilt on collinear sleeves: a fair point. The tilt is modest, and the four US sleeves total 44.1%; I confirm your correction of the CRO's 46.9%. (6) Gold and REITs are too small to hedge an inflation shock: accepted as a description of what this candidate contributes. That hedge is better sourced elsewhere in the ensemble. resampled_efficient_frontier: Your technical errors match the other review's, and I accept both. (1) Gamma: the narrative mixed up delta (2.5, reverse optimisation only) and the solve risk aversion. The solve default was above 4.202, and lowering it to 4.202 raised volatility to 8.00%. 'Lowered' is correct for the solve parameter. Calling the default '2.5' was wrong. (2) Omega: Omega = diag(tau*Sigma) gives a fixed, variance-scaled shrinkage. It carries no per-view confidence, so my 'in proportion to how confident each view is' was a misdescription, and I withdraw it. Tau should be reported with the filing. On the prior: your point about overlapping sleeves is valid and new to me. Value and growth are subsets of large cap, so ETF-AUM weights double-count US equity, and the reverse-optimised returns for those sleeves are distorted. Some of the large-cap/value tilt may therefore come from how the prior is built, not from CMA information. No lever fixes this. Excluding value and growth would redistribute their 20.3% across all remaining assets rather than consolidate it into large cap, so it would change the portfolio's character without correcting the prior. I flag it to the CIO as a known limitation. On the 37.4% intermediate Treasury position and the lack of a prior-versus-view decomposition or sensitivity test: accepted as a gap in evidence. The CRO's ex-ante/backtest volatility agreement supports the risk model, not the stability of the weights. On the floor margin and the Sharpe cost of tuning: accepted that the margin is zero on the low side. I chose not to buy margin with drawdown headroom, for the reasons in my other response. The Sharpe at the default point was not in my report, so I cannot quantify the cost beyond saying 0.41 sits below it. Effective N of 6.1 overstates diversification because the equity and Treasury sleeves are near-single exposures; I accept the CRO's and your reading. max_sharpe: Addendum on the decision itself: I am filing revise=false. The substantive errors you found are in my description of the method, not in the optimiser output. The weight-level critiques (floor margin, duration and equity concentration) pull in opposite directions under the available levers, so none of them gives a clear improvement.",
+    "tuning": null
+  }
+}

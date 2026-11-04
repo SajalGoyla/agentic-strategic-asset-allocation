@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-black-litterman",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.184093Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/tail_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/tail_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3961,
+        "output_tokens": 3635,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.044944
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "black_litterman",
+    "reviewer_category": "return_optimized",
+    "reviewed_agent_id": "tail_risk_parity",
+    "reviewed_category": "non_traditional",
+    "kind": "inter_category",
+    "strengths": [
+      "The construction follows its stated objective. Equalising downside semicovariance contributions makes cash and short Treasuries large and risk assets small. The proposal explains this concentration as the method working, not a degenerate input.",
+      "It is candid about its IPS breaches (return, volatility band, tracking error) and does not try to argue them away. It frames itself as a defensive sleeve for the CIO to blend, which is a sensible role while the IPS is still a draft.",
+      "It avoids CMA dependence in the weights. Expected-return error does not enter the allocation, so its errors are largely independent of return-seeking candidates and add some diversity to the ensemble.",
+      "The named invalidation conditions are concrete and falsifiable: a front-end rate shock, inflation above cash yields, and a tail regime missing from the 1993+ sample. The CRO's backtest volatility (2.45%) matches ex-ante volatility (2.47%), so the covariance input is internally consistent.",
+      "Using downside semicovariance instead of variance is a coherent premise: loss clustering matters more than symmetric dispersion for a drawdown-sensitive investor."
+    ],
+    "weaknesses": [
+      "The premise is that each asset's historical shortfall below its own mean is a stable guide to future tails. Cash has near-zero downside semideviation, so its weight is set almost entirely by a near-zero denominator and is highly sensitive to the sample window and the rate regime. A small change in that estimate moves 50%+ of the portfolio. The weights are mechanically fragile where it matters most.",
+      "Shortfall below an asset's own mean ignores the level of return. Cash and short Treasuries are rated safe because their nominal path is smooth, not because their real or opportunity-cost risk is low. The method has no notion of inflation or purchasing-power risk. The portfolio is about 70% in the assets whose dominant risk, a real-return shortfall, is invisible to its risk measure.",
+      "The regime is mismatched. The macro regime is expansion, where risk assets are rewarded. The proposal's own case says the method is strongest in late-cycle or stress-prone regimes, and it holds only about 7% in equities. Its expected real return of 2.38% against a CPI+3% target means it pays for protection the regime is not asking for.",
+      "The method treats cash as one more asset to be risk-equalised. This turns a numeraire into a lever on the whole portfolio. The claim that there is no parameter that moves it toward the volatility band is a design choice, not a law. A vol target, a cash cap or exclusion, or a risk-budget scaling would keep the tail logic while restoring a usable risk level.",
+      "The effective number of assets (6.0 of 18) is flattering. On weights alone, 53% cash plus 17% short Treasuries gives an inverse-HHI of roughly 3. The 6.0 matches an entropy-style count, so diversification in capital terms is thinner than the headline suggests, even though it is closer to equal in risk terms.",
+      "Part of the case rests on a short, benign sample. The 1993+ window omits 1970s-style stagflation and rate shocks. The CRO's low VaR (0.88%) and drawdown (-7.19%) come from the same window and should be read as lower bounds, not independent confirmation. The tracking-error breach is large (7.47% vs. a 6% budget) and comes from being structurally far from the benchmark (beta 0.22), not from a measured active view."
+    ],
+    "technical_errors": [
+      "The claim that it 'reads no CMAs, so it inherits none of their estimation error' applies only to the weights. The reported expected return (4.79%), real return (2.38%) and the Sharpe of 0.39 used to argue its merits do depend on CMA inputs, so the ex-ante statistics are not CMA-free. Its Sharpe of 0.39 is on a different basis from the CRO's backtest Sharpe of 0.58, so the two should not be treated as one number."
+    ],
+    "score": 0.45,
+    "rationale": "The method is internally coherent and honestly presented. The cash-heavy output is the method working as designed, not a bug, and its CMA-free weights add a distinct error source to an ensemble. The premise is hard to support in the current regime, though. Weights are driven by the near-zero downside risk of cash and short Treasuries, so they hinge on an unstable denominator and a benign sample, and they ignore real-return and rate-shock risk. In an expansion regime the portfolio gives up return, misses the IPS return target and volatility band, and breaches the tracking-error budget. The IPS is still a draft, so these breaches say it is a defensive anchor, not that it is unusable. Its value is as a small sleeve in a blend, not as a standalone portfolio. I score it mid-low: a defensible, transparent defensive building block with real fragility in its core assumption and a poor fit to the current regime."
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "vote",
+    "agent": "vote-risk-parity",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:42:31.958744Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 333,
+        "output_tokens": 848,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.042651
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "risk_parity",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "pc_researcher",
+      "cvar_minimization",
+      "max_sharpe"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "Governing IPS is still a draft, so compliance is judged provisionally. I am risk_parity and cannot rank myself. The CIO needs portfolios that can be built from: IPS-compliant (or close), with defensible construction. Resampled efficient frontier is first: no hard breaches, effective N 13.3, tracking error 4.33%, and it relies on covariance structure with shrinkage against estimation error. Its reviewers flagged only that CMA bias is not fixed by resampling, which is a premise critique and not a technical error. Black-Litterman is second: no breaches, moderate TE 3.01%, best backtest Sharpe among compliant bets apart from CVaR, though its reviewers found a gamma-direction inconsistency in the write-up that affects the description more than the weights. pc_researcher is third: Sharpe 0.51, effective N 7.2, backtest Sharpe 0.70 and max DD only -10.9%, with just two soft breaches (volatility, TE). Reviewers noted its Sharpe exceeds max_sharpe's, which suggests a different constraint set, but it is the most balanced risk and return profile and the CRO rates it low risk at 0.33. cvar_minimization is fourth: compliant, best backtest Sharpe 0.74, and gives tail awareness that is complementary to the covariance-based names, though effective N is 2.9 and the tail estimate rests on few observations. max_sharpe is fifth: compliant with Sharpe 0.46, but 46% in one equity style and a drawdown of -24.7% make it fragile, and the reviews called out estimation-error exposure and the label mismatch. My first choice beats my fifth because resampled_efficient_frontier delivers similar return and the same compliance while spreading weights across 13 effective assets instead of 3.8, so it is far less sensitive to a small CMA revision. The bottom flag is market_cap_weight: CRO risk of 0.80, max drawdown -40.6%, and 11.8% volatility above the band midpoint; reviewers found that the AUM proxy is not a true market portfolio, and it adds no diversification or judgment for the CIO to lean on. I did not flag adversarial_diversifier because its orthogonality is valuable in an ensemble, even though I left it out of my top five given its IPS breaches and single-asset concentration."
+  }
+}

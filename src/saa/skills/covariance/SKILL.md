@@ -16,7 +16,7 @@ uv run saa-skill covariance                                   # Ledoit-Wolf, all
 uv run saa-skill covariance --as-of 2020-04-01                # point-in-time
 uv run saa-skill covariance --method exponential --halflife-months 60
 uv run saa-skill covariance --method regime_conditional \
-    --regime-history data/runs/<run>/macro/regime_history.json --regime recession
+    --regime-history results/runs/<run>/macro/regime_history.json --regime recession
 ```
 
 ## Estimators

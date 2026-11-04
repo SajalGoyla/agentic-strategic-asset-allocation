@@ -1,0 +1,198 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "revise-resampled-efficient-frontier",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:35:23.779080Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/resampled_efficient_frontier/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5533,
+        "output_tokens": 2962,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.091887,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "resampled_efficient_frontier",
+    "method": "Resampled efficient frontier",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.0021547297728096155,
+      "us_small_cap": 0.053192019660555895,
+      "us_value": 0.09808904318575852,
+      "us_growth": 0.09408597132521491,
+      "intl_developed": 0.03389013749515044,
+      "emerging_markets": 0.039207550741223306,
+      "short_treasuries": 0.1452403164732212,
+      "intermediate_treasuries": 0.05408443167169127,
+      "long_treasuries": 0.14128414271607123,
+      "ig_corporates": 0.04298935056643536,
+      "hy_corporates": 0.03433222620459289,
+      "intl_sovereigns": 0.0007464389721282727,
+      "intl_corporates": 0.018521368372219675,
+      "usd_em_debt": 0.03689647283511635,
+      "reits": 0.08272512981698346,
+      "gold": 0.06413209632203125,
+      "commodities": 0.05438388902967487,
+      "cash": 0.0040446848391214475
+    },
+    "expected_return_pct": 7.109868383729862,
+    "expected_volatility_pct": 8.000379670656306,
+    "sharpe_ratio": 0.4112140322285454,
+    "effective_n": 13.337728357395397,
+    "ex_ante_tracking_error_pct": 4.325304962309168,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I am not revising the weights. The one technical error, the 'tangency' label, is a description error. Each draw solves a long-only mean-variance utility problem at gamma = 5.511, and the portfolio is the average of those solutions. The numbers stand as computed.\n\nThe substantive critiques from both reviewers and the CRO converge on fragility. Drawdown headroom is under 1 point (-24.27% vs -25%), and volatility sits exactly at the 8% floor. These two edges pull in opposite directions:\n- Shrinking toward equal weight, or capping the 14.5% short and 14.1% long Treasury positions, would likely push ex-ante volatility below the 8% floor. That would be a new hard breach to gain uncertain drawdown relief.\n- Excluding assets renormalises toward more equity and real assets, which would worsen the drawdown.\nThe lever that would actually fix this is gamma or a sleeve blend, and that belongs to the CIO's construction stage.\n\nThe portfolio's value to the CIO is unchanged: a diversified, IPS-compliant resampled frontier point (effective N 13.3, HHI 0.087), with ex-ante and backtest volatility in close agreement. Its known weaknesses are:\n- vulnerability to common CMA bias\n- a Gaussian treatment of tails\n- a 20.1% real-asset tilt and 0.77 beta\n- value/growth-for-large-cap and short/long Treasury patterns that are partly collinearity, not conviction\n- unreported sensitivity to T, draw count and seed\n\nIt should be used in an ensemble, not standalone, with drawdown as the figure to watch. The governing IPS (config/ips.yaml) is still a draft. A change to the drawdown limit or the 8-12% volatility band would change how binding these edges are, and could justify re-running at a different gamma.",
+    "revision_of": "pc/resampled_efficient_frontier/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- max_sharpe: Technical error accepted. 'Tangency' was the wrong label. A long-only tangency portfolio does not depend on gamma, so gamma cannot move it along the frontier. Each draw actually solves a long-only, fully invested mean-variance utility problem, maximise w'mu - (gamma/2) w'Sigma w, on inputs drawn from N(mu, Sigma). The weights are then averaged. The 'default' (2.84% vol, Sharpe 0.54) is that same resampled utility portfolio at the method's default, higher gamma. The filed portfolio is the resampled utility portfolio at gamma = 5.511. The weights and statistics are unchanged, because the error was in the description, not the computation. The CIO should read the proposal as a resampled mean-variance-utility portfolio.\n\nI also accept the diversification point. The 0.2% large cap beside 9.8% value and 9.4% growth is a substitution pattern among collinear inputs. Economically it is about 19% US large-company equity, not a large-cap bet. The short/long Treasury barbell is likewise partly collinearity showing through. The small positions (intl_sovereigns 0.1%, cash 0.4%, large cap 0.2%) are averaging residue. 'Nothing at a corner' was weaker evidence than I presented.\n\nI accept that T, the draw count and the seed are unreported free parameters. I cannot add a sensitivity study through the revision levers, so this stays an open limitation.\n\nOn drawdown headroom (-24.27% vs -25%) and the volatility floor, I agree both are knife-edge. The two constraints pull in opposite directions, though. Any lever that lowers loss risk lowers volatility below the 8% floor, which would be a new hard breach. Any lever that raises volatility worsens the drawdown. The right control is gamma, which is not a revision lever. I therefore leave the weights unchanged and flag this for the CIO, who can blend this portfolio with a lower-drawdown sleeve. The real-asset tilt, rate-shock exposure and 0.77 beta are acknowledged risks of the CMA inputs, not errors. cvar_minimization: I agree with the main points, and none is a computational error.\n\n(1) Common CMA bias: conceded, and already stated in the case. Resampling centred on mu cannot remove a shared bias, and no lever available here fixes that.\n\n(2) Gaussian draws understate the left tail: conceded. The CRO's CVaR-to-VaR evidence supports it, and so does the 2022 positive stock-bond correlation scenario for the 28.6% Treasury sleeve set beside about 24.5% small/value/growth equity. I considered the levers. Shrinking toward equal weight or capping the Treasury sleeves alters the mix only marginally against that scenario. Both also risk moving volatility off the 8% floor, which would create a hard breach the original lacks, without a clear drawdown gain.\n\n(3) and (4) Drawdown headroom under 1 point and volatility at the band floor: agreed. This is the binding tension. Volatility-based tuning is a poor control for drawdown, as you say.\n\n(5) Reaching 8% more efficiently by combining the low-risk default resampled portfolio with a return-seeking sleeve is a fair suggestion. It is better implemented at the CIO's ensemble stage than through my levers, which cannot add a sleeve.\n\n(6) The real-asset tilt and large-cap underweight follow from the CMAs and are disclosed.\n\n(7) Sensitivity to draws, seed and T is unreported: accepted as an open limitation.\n\nNo revision. The criticisms are correct about fragility, but the available levers would trade one IPS edge for another.",
+    "tuning": null
+  }
+}

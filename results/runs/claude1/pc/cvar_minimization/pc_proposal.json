@@ -1,0 +1,178 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-cvar-minimization",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.477659Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 879,
+        "output_tokens": 1255,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.015695399999999998
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "cvar_minimization",
+    "method": "CVaR minimisation",
+    "category": "non_traditional",
+    "weights": {
+      "us_large_cap": 0.45430149132705694,
+      "short_treasuries": 0.01355833571276643,
+      "intermediate_treasuries": 0.37295289657538394,
+      "gold": 0.1591872763847927
+    },
+    "expected_return_pct": 6.4606021974786625,
+    "expected_volatility_pct": 8.000788118257944,
+    "sharpe_ratio": 0.33004276059414206,
+    "effective_n": 2.936244077736521,
+    "ex_ante_tracking_error_pct": 3.5974405044844353,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "This is CVaR minimisation at a tuned setting, not its default. Unconstrained, the method gives the minimum-CVaR point, which sits in cash at 0.62% volatility and is far below the 8-12% IPS band. I raised the minimum expected return (historical scenario mean, annualised) to 8.219%, which is Rockafellar and Uryasev's own mean-CVaR formulation. That moves the portfolio along the mean-CVaR frontier to the 8.00% band edge. The setting is what turned a cash portfolio into a diversified risky one. The result is IPS-compliant, though the governing IPS is still a draft. It sits right at the volatility floor and has 3.60% tracking error to the benchmark. Within the band it is a risk-minimising portfolio: it takes the least tail loss that the return target allows. The method reads no CMAs, so none of their estimation error reaches it. It also does not depend on a covariance matrix or any Gaussian assumption. It optimises over the realised monthly scenarios from 1993, so skew, fat tails and the correlation breakdowns that happened in sell-offs count directly. The return target is also a historical scenario mean, not a forecast. What the method found is a barbell of equities, intermediate Treasuries and gold, with little else. Equities carry the return, and the Treasuries and gold are the assets that historically paid off in the bad months. That pattern is a result of the tail data, not of an assumed correlation structure. Where covariance-based methods call two assets diversifiers on average, this one asks whether they diversified in the worst 5% of months. The concentration is real: 2.9 effective assets of 18, and the IPS sets no per-asset caps. The ensemble should read it as a tail-hedged growth sleeve, not a broad portfolio.",
+    "revision_of": null,
+    "notes": "Key assumption: The 1993-onward monthly scenarios are a fair sample of the tail outcomes to come, so Treasuries and gold will keep offsetting equity losses in the worst months, and the historical mean is a sensible return target. Main weakness: The portfolio is only as good as the tail history. Few months fall in the worst 5%, and the sample has few episodes in which stocks and bonds fell together, as in an inflation-driven rate shock. Treasuries make up over a third of the portfolio and gold about 16%, so a regime where bonds stop hedging equities would hurt. The 8.219% return target is also a historical average that drives which assets are held, so a strong run for gold or bonds in the sample is built into the weights. The portfolio holds 4 of 18 assets, and the 8.00% volatility lands exactly on the band edge, leaving no buffer if realised volatility drifts below the floor. Preferred when: It should be preferred when tail loss matters more than average volatility. That means an investor worried about drawdowns, in a regime where return forecasts look unreliable and the covariance matrix is questionable. It also suits an expansion regime, where equity exposure is wanted but a defensive ballast of duration and gold is also wanted. It is a good ensemble component next to return-optimised methods because it uses neither CMAs nor a parametric risk model. Invalidated if: This is the wrong choice if the stock-bond correlation turns persistently positive, so Treasuries stop offsetting equity drawdowns and the hedge in the sample no longer applies. It is also wrong if gold's historical role as a tail hedge proves a one-off feature of the sample, or if the draft IPS band or tracking-error limit changes so that 8.00% volatility no longer fits. The case also weakens if the CMAs prove reliable enough that a return-aware method earns more for the same tail risk. It would also be wrong if a reviewer shows the result depends mainly on a few crisis months in the scenario set.",
+    "tuning": {
+      "parameter": "minimum_return_pct",
+      "value": 8.21930204086955,
+      "untuned_volatility_pct": 0.6226336348709235,
+      "reached_band": true
+    }
+  }
+}

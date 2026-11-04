@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-cvar-minimization",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.182220Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/hierarchical_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/hierarchical_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3644,
+        "output_tokens": 5522,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.06318
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "cvar_minimization",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "hierarchical_risk_parity",
+    "reviewed_category": "risk_structured",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal is candid. It identifies the 91.9% cash weight as HRP working as designed on this input, not as a diversification success, and it does not oversell 1.4 effective assets. Its stated invalidators (a sustained inflation surprise, falling short rates, reliable CMAs) are the right ones.",
+      "The method needs no expected-return inputs and no covariance inversion. The CRO's backtest volatility (0.64%) matches the ex-ante figure (0.65%), so the shrunk covariance is not distorting this portfolio. That is a real robustness property when CMAs are thin.",
+      "The IPS breaches (volatility, real return, tracking error) are reported fully and attributed to the method, not explained away. The proposal also notes that the governing IPS is a draft and that hard limits bind on the CIO's final portfolio, not on each candidate.",
+      "The weights are internally consistent: they sum to 100%, the active weights reconcile to +92% cash, -60% equity and -32% fixed income, and the Herfindahl of about 0.85 matches the weights shown.",
+      "Nominal tail risk is very low (VaR 0.04%, max drawdown -0.50%), so as ballast it does what it says."
+    ],
+    "weaknesses": [
+      "Premise: 'no expected returns' is not a neutral stance. Weighting purely by inverse variance implies that risk is not compensated, or that all assets earn roughly the same return per unit of variance. The ex-ante Sharpe of 0.14 implies a cash yield of about 3.8% and almost no excess return, so the portfolio is effectively a cash view. The claim of 'no exposure to CMA error' is true only in the sense that the method ignores the CMAs. It does not make the portfolio return-agnostic.",
+      "Regime fit is weak. The proposal calls the stance defensible in expansion, but an expansion with positive real growth is when equities and credit are rewarded, and the portfolio holds none of them. Tight spreads are an argument for trimming credit, not for 92% cash and zero equity. The text's own 'defensible stance' framing and its 'not a candidate for recommendation' conclusion pull against each other.",
+      "Universe design is the real knob, and the proposal says there is none. HRP is built for assets with comparable risk. Adding a near-constant, rate-driven series makes the allocation hostage to that one asset's variance, which the proposal itself concedes. The claim that no genuine parameter moves volatility overlooks that including or excluding cash, or running HRP on excess returns, changes the result completely. Correlations of a near-zero-variance series with the other assets are also noisy, so cash's place in the clustering tree is weakly identified.",
+      "The 8% that is not cash carries almost all of HRP's actual information, and it is diluted into dust weights of 0.1-0.4%. The proposal's claim that it 'shows what a pure risk-minimising ordering of the 18 assets looks like' is therefore not borne out. The ordering is visible in the method, not in the portfolio, and the long-bond, credit and equity rankings are lost. Seven of 18 assets show as unheld, though HRP weights are normally strictly positive, so the proposal should say what truncation threshold was applied.",
+      "Ensemble value is overstated. A small weight in a 92%-cash portfolio is almost the same as a small cash weight, which the CIO can set directly. The marginal contribution of this candidate over a plain cash allocation is mainly the 6.4% short-treasury sleeve and the dust, which is small.",
+      "Both Sharpe figures (0.14 ex-ante, 0.50 in backtest) have near-zero excess-return numerators and denominators. A three-fold gap between them mostly reflects sample cash yields versus CMA cash yields. Neither should be used to compare this proposal with methods that carry real risk. The proposal's prediction that it would 'almost certainly fail the CRO' is also not what the CRO found: the composite is 0.28, driven by tracking error and concentration, not by risk.",
+      "The real-return tail is the exposure that matters, and nothing in the proposal or the 400-month backtest measures it. The backtest sample has mostly positive real short rates and falling inflation. The low nominal VaR and drawdown therefore say little about a stagflationary or negative-real-rate regime, which is where a 92% cash portfolio would be hurt.",
+      "Effective-N reporting is ambiguous. The proposal cites 1.4 effective assets alongside a Herfindahl of 0.848 as if they measure the same thing. The inverse Herfindahl is about 1.18, and 1.4 matches an entropy-based measure. Both describe the same concentration, but the definition should be stated."
+    ],
+    "technical_errors": [],
+    "score": 0.3,
+    "rationale": "The estimator seems to be applied as intended: clustering, inverse-variance bisection, no inversion, and weights and active positions that reconcile. The CRO's ex-ante and backtest volatilities agree. This is not a technical-error case; it is a premise problem. What HRP must believe here is that variance is the only useful information about an asset and that a risk-free asset belongs in the same clustering universe as risky assets. On that universe the method collapses into a cash holding, with an ex-ante Sharpe of 0.14 and nearly zero excess return. It also fails the draft IPS on return, volatility and tracking error together. In an expansion regime, where risk is compensated, the stance has little support, and its main exposure, real cash returns and falling short rates, is one the backtest cannot test. The IPS breaches are evidence about the portfolio's role (a defensive sleeve) and not a verdict on it. But that role is close to what a plain cash allocation would give the ensemble, and the dust weights hide the ordering information the proposal says it provides. The proposal earns credit for being unusually honest about its own limits and for needing no CMAs, but as a standalone portfolio and as an informative ensemble component it is weak. The score of 0.3 reflects a correctly executed method whose output is of limited value here."
+  }
+}

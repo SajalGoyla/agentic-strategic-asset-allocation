@@ -1,0 +1,79 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.063027Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/cash/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/cash/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/cash/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2106,
+        "output_tokens": 1657,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.0442572
+      }
+    ],
+    "report_path": "cma/cash/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "cash",
+    "horizon_years": 3,
+    "expected_return_pct": 3.82,
+    "volatility_pct": 0.6202,
+    "method_range": [
+      3.0019,
+      4.0346
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.8
+        },
+        {
+          "method": "survey_consensus",
+          "weight": 0.2
+        }
+      ],
+      "expected_return_pct": 3.82,
+      "confidence": "medium_high",
+      "dispersion": "tight",
+      "regime_logic": "The regime read is a stall-speed expansion with sticky inflation and restrictive real rates, bordering on late-cycle, and the classification confidence is low (0.36). For cash the regime matters only through the policy-rate path over the next 3 years, since cash has no risk premium to tilt. Restrictive policy (monetary_policy -0.22) and a 20-30% recession probability point to some easing from today's 4.03% bill yield within the horizon. Sticky inflation (-0.27) argues the easing will be gradual and partial rather than a fast return to a 3% neutral rate. The regime_adjusted candidate adds nothing distinct: its -0.11% regime excess return is just the T-bill yield with noise. A modest downward tilt from the starting yield is warranted, not a large one.",
+      "valuation_context": "Valuation for cash is the starting yield. At 4.03%, DTB3 is high against its own post-1990 history (yield_level +0.57), and that is the dominant determinant of cash return over a short horizon. The 3-year trailing return of 4.45% reflects the peak of the hiking cycle and is already rolling down; the 1-year return is 3.66%. The SPF BILL10 median of 3.00% is a 10-year average. It embeds a long-run neutral rate below today's level, so it overstates the decline likely within 3 years. Even so, it is a usable anchor for where bills are expected to drift. Historical_erp, regime_adjusted and bl_equilibrium are all the current T-bill plus a near-zero excess. Weighting them would only double-count the starting yield under different labels.",
+      "signal_alignment": "The composite +0.22 is mildly supportive, led by yield_level (+0.57) and by trend and momentum readings that mostly reflect the steady accrual of a high bill yield. Mean_reversion (-0.73) and regime_fit (-0.42) point the other way: the elevated recent returns are unlikely to persist as policy eases. That fits a final estimate set slightly below the starting yield rather than at it. Technical signals carry little information for a near-riskless asset whose return is set mechanically by the bill rate.",
+      "rationale": "For cash, yield_building_block (4.03%, confidence 0.80) is the strongest single candidate, because the bill rate largely determines the return. I depart from it only to reflect an expected roll-down of short rates over a 3-year horizon, given restrictive policy and a non-trivial recession probability. I do that by giving 20% weight to survey_consensus (3.00%), which captures the market-consensus drift toward a lower neutral rate. The weight is kept small because that survey covers 10 years and would overstate the decline within 3. The historical, regime and BL candidates are dropped as redundant restatements of the same 4.03% T-bill. The 1.03pp dispersion comes from the horizon mismatch between a spot yield and a 10-year survey, not from a data problem. Result: 0.8 x 4.03 + 0.2 x 3.00 = 3.82%, within [3.00, 4.03] and close to the 3.78% auto-blend, with a cleaner justification. Volatility is 0.62% per the covariance matrix. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once the policy is finalised."
+    }
+  }
+}

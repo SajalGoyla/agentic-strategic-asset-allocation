@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-resampled-efficient-frontier",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.178023Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/black_litterman/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3785,
+        "output_tokens": 4210,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.050342
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "resampled_efficient_frontier",
+    "reviewer_category": "return_optimized",
+    "reviewed_agent_id": "black_litterman",
+    "reviewed_category": "return_optimized",
+    "kind": "intra_category",
+    "strengths": [
+      "Compliant with the draft IPS with no hard violations, so it can stand as a CIO candidate without repair. Tracking error of 3.01% is moderate.",
+      "Ex-ante volatility of 8.00% against backtest volatility of 7.97% shows the shrunk covariance describes this weight vector well. The risk side of the method is consistent.",
+      "The proposal is candid that it is tuned, not default. It reports that the default solve gave 2.60% volatility, that the IPS band drove the tuning, and that this cost Sharpe.",
+      "Effective N of 6.1 across nine holdings, with no corner solution, looks like BL working, not a degenerate covariance input. Shrinking toward a market prior does damp the CMA-driven concentration seen in a pure return optimiser.",
+      "Invalidation conditions are well chosen: CMAs with no predictive value, a rising stock-bond correlation, and a shifted IPS band. The stock-bond correlation is the risk the -21.2% drawdown most directly reflects.",
+      "The 4.4% gold and 2.5% REIT sleeves give a small real-asset hedge."
+    ],
+    "weaknesses": [
+      "The volatility target is met by tuning gamma, not produced by the views. The 8.00% sits on the band floor, and the backtest 7.97% is technically below it. A small realised drift makes it non-compliant on the low side, and the proposal's own text on this margin is muddled ('floor's inverse problem only on the upside').",
+      "Drawdown headroom is thin: -21.2% against a -25% limit. The stock-bond correlation is the main driver. About 47% is in intermediate and long Treasuries, which are only a hedge while that correlation stays low. The 1993-start history is kind to duration, so the backtest Sharpe of 0.70 versus ex-ante 0.41 should not be read as skill.",
+      "The four US equity sleeves (large cap, small cap, value, growth) total about 44%, and are largely one exposure. Effective N of 6.1 overstates diversification. The CRO's 46.9% figure for these four does not match the table (44.1%; 45.9% with EM).",
+      "The ETF-AUM equilibrium prior is suspect for this universe because the sleeves overlap. Value and growth are subsets of large cap, so AUM weights double-count US equity. Reverse-optimised returns for those assets are then distorted, and the resulting tilts toward large cap and value may reflect prior construction, not CMA information. The proposal acknowledges the ETF proxy bias but not this overlap.",
+      "Treasury concentration (37.4% intermediate) is attributed to posterior return per unit risk, with no decomposition. The proposal does not say how much comes from the prior versus the views, or how sensitive it is to the bond CMAs. Nothing shows the weights are stable to modest CMA perturbation, which matters for a position this size.",
+      "The Sharpe given up to reach the band (0.41, below the default tangency point) is stated but not quantified against the default. The reader cannot see the cost of the policy-driven move."
+    ],
+    "technical_errors": [
+      "The tuning description is directionally inconsistent. It says risk aversion was 'lowered' to 4.202 from a default of 2.5, but 4.202 is higher. Higher risk aversion in a mean-variance solve reduces risk, and the solve needed more than 2.60% volatility. Either gamma is parameterised inversely to delta or the direction is misstated. The parameterisation should be stated, because as written the 8.00% result cannot be reproduced from the narrative.",
+      "The description says views are moved 'in proportion to how confident each view is', yet Ω = diag(τΣ) is purely variance-based and carries no per-view confidence. If so, the confidence in the CMAs plays no role, and the blend is a fixed variance-scaled shrinkage. The text claims a mechanism that the stated Ω does not implement. τ is also not reported, though it sets the blend between prior and CMAs."
+    ],
+    "score": 0.62,
+    "rationale": "Judged on execution within the return-optimised framework, this is a competent, compliant BL proposal. The posterior is blended sensibly, the covariance is validated by the 8.00% vs 7.97% agreement, and the concentration looks like the method working, not a singular input. The proposal is also honest that gamma was tuned. I deduct for three things. First, the account of the tuning is inconsistent (gamma 4.202 described as 'lowered' from 2.5), and the claimed confidence-weighting does not match Ω = diag(τΣ), so a reader cannot fully trust the stated method. Second, the prior is built on overlapping US equity ETFs whose AUM double-counts exposure, which weakens the claim that tilts reflect CMAs. Third, the portfolio's risk is concentrated in one scenario: equity and duration losing together when the stock-bond correlation rises, with only about 4 points of drawdown headroom. The volatility sits on the floor of the draft-IPS band by construction, and compliance is only against provisional limits. As an ensemble candidate it offers a prior-anchored US equity plus intermediate-duration profile, and its value depends on the CIO's view on inflation and duration risk. Scored as a good but not strong proposal, with parameter reporting to be clarified."
+  }
+}

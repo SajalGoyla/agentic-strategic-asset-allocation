@@ -16,7 +16,7 @@ uv run saa-skill cma-methods                                  # all 18 assets, t
 uv run saa-skill cma-methods --as-of 2020-04-01               # point-in-time
 uv run saa-skill cma-methods --assets us_large_cap ig_corporates cash
 uv run saa-skill cma-methods --run-id <run>                   # reuse that run's covariance.json
-uv run saa-skill cma-methods --regime-history data/runs/<run>/macro/regime_history.json
+uv run saa-skill cma-methods --regime-history results/runs/<run>/macro/regime_history.json
 ```
 
 Without `--regime-history`, the CLI scores the regime history itself with the macro skill.

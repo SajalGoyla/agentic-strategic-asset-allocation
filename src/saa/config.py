@@ -280,6 +280,9 @@ class ValidationSettings(BaseModel):
 
 class Settings(BaseModel):
     data_dir: Path
+    # Pipeline runs are tracked in git, apart from the ignored data lake: they hold results
+    # computed from licensed data, never the data itself (owner's ruling, 2026-10-01).
+    runs_dir: Path = Path("results/runs")
     keep_raw: bool = True
     http: HttpSettings
     fred: FredSettings
@@ -380,7 +383,10 @@ def load_config(config_dir: Path | str | None = None) -> Config:
     data_dir = Path(os.getenv("SAA_DATA_DIR") or settings.data_dir)
     if not data_dir.is_absolute():
         data_dir = PROJECT_ROOT / data_dir
-    settings = settings.model_copy(update={"data_dir": data_dir})
+    runs_dir = Path(os.getenv("SAA_RUNS_DIR") or settings.runs_dir)
+    if not runs_dir.is_absolute():
+        runs_dir = PROJECT_ROOT / runs_dir
+    settings = settings.model_copy(update={"data_dir": data_dir, "runs_dir": runs_dir})
 
     universe = Universe.model_validate(_read_yaml(config_dir / "universe.yaml"))
     macro = MacroCatalog.model_validate(_read_yaml(config_dir / "macro_series.yaml"))

@@ -1,0 +1,261 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "vote_tally",
+    "agent": "vote-tally",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:34:01.350757Z",
+    "produced_by": "script",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "vote",
+        "path": "review/adversarial_diversifier/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/black_litterman/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/cvar_minimization/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/equal_weight/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/hierarchical_risk_parity/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/inverse_variance/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/inverse_volatility/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/market_cap_weight/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/max_sharpe/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/maximum_diversification/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/pc_researcher/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/resampled_efficient_frontier/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/risk_parity/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/tail_risk_parity/vote.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote",
+        "path": "review/volatility_targeting/vote.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "rows": [
+      {
+        "agent_id": "resampled_efficient_frontier",
+        "method": "Resampled efficient frontier",
+        "category": "return_optimized",
+        "vote_points": 65,
+        "metric_score": 0.80205,
+        "composite": 1.0,
+        "rank": 1
+      },
+      {
+        "agent_id": "black_litterman",
+        "method": "Black-Litterman",
+        "category": "return_optimized",
+        "vote_points": 55,
+        "metric_score": 0.787644,
+        "composite": 0.893292,
+        "rank": 2
+      },
+      {
+        "agent_id": "pc_researcher",
+        "method": "Maximum entropy with a Sharpe floor",
+        "category": "pc_researcher",
+        "vote_points": 48,
+        "metric_score": 0.656543,
+        "composite": 0.752417,
+        "rank": 3
+      },
+      {
+        "agent_id": "cvar_minimization",
+        "method": "CVaR minimisation",
+        "category": "non_traditional",
+        "vote_points": 30,
+        "metric_score": 0.680648,
+        "composite": 0.587704,
+        "rank": 4
+      },
+      {
+        "agent_id": "max_sharpe",
+        "method": "Maximum Sharpe ratio",
+        "category": "return_optimized",
+        "vote_points": 14,
+        "metric_score": 0.693227,
+        "composite": 0.436455,
+        "rank": 5
+      },
+      {
+        "agent_id": "equal_weight",
+        "method": "Equal weight (1/N)",
+        "category": "heuristic",
+        "vote_points": 0,
+        "metric_score": 0.753937,
+        "composite": 0.331293,
+        "rank": 6
+      },
+      {
+        "agent_id": "volatility_targeting",
+        "method": "Volatility targeting",
+        "category": "heuristic",
+        "vote_points": 0,
+        "metric_score": 0.72946,
+        "composite": 0.317907,
+        "rank": 7
+      },
+      {
+        "agent_id": "tail_risk_parity",
+        "method": "Tail-risk parity",
+        "category": "non_traditional",
+        "vote_points": 8,
+        "metric_score": 0.488875,
+        "composite": 0.265405,
+        "rank": 8
+      },
+      {
+        "agent_id": "inverse_volatility",
+        "method": "Inverse volatility",
+        "category": "heuristic",
+        "vote_points": 3,
+        "metric_score": 0.547433,
+        "composite": 0.248013,
+        "rank": 9
+      },
+      {
+        "agent_id": "risk_parity",
+        "method": "Risk parity (equal risk contribution)",
+        "category": "risk_structured",
+        "vote_points": 2,
+        "metric_score": 0.499425,
+        "composite": 0.211876,
+        "rank": 10
+      },
+      {
+        "agent_id": "maximum_diversification",
+        "method": "Maximum diversification",
+        "category": "risk_structured",
+        "vote_points": 0,
+        "metric_score": 0.456232,
+        "composite": 0.16849,
+        "rank": 11
+      },
+      {
+        "agent_id": "inverse_variance",
+        "method": "Inverse variance",
+        "category": "heuristic",
+        "vote_points": 0,
+        "metric_score": 0.446595,
+        "composite": 0.163219,
+        "rank": 12
+      },
+      {
+        "agent_id": "market_cap_weight",
+        "method": "Market-cap weight",
+        "category": "heuristic",
+        "vote_points": -18,
+        "metric_score": 0.693259,
+        "composite": 0.120216,
+        "rank": 13
+      },
+      {
+        "agent_id": "adversarial_diversifier",
+        "method": "Adversarial diversifier",
+        "category": "non_traditional",
+        "vote_points": 0,
+        "metric_score": 0.275869,
+        "composite": 0.069856,
+        "rank": 14
+      },
+      {
+        "agent_id": "hierarchical_risk_parity",
+        "method": "Hierarchical risk parity",
+        "category": "risk_structured",
+        "vote_points": -12,
+        "metric_score": 0.364996,
+        "composite": 0.0,
+        "rank": 15
+      }
+    ],
+    "shortlist": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "pc_researcher",
+      "cvar_minimization",
+      "equal_weight"
+    ],
+    "regime": "expansion",
+    "vote_weight": 0.6,
+    "metric_weight": 0.4,
+    "diversity_categories": 3
+  }
+}

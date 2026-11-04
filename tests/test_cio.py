@@ -50,7 +50,10 @@ def full_run(config, tmp_path_factory):
     """Every stage before the CIO, free: proposals, CRO, reviews, vote, revisions."""
     root = tmp_path_factory.mktemp("cio")
     cfg = dataclasses.replace(
-        config, settings=config.settings.model_copy(update={"data_dir": root / "data"})
+        config,
+        settings=config.settings.model_copy(
+            update={"data_dir": root / "data", "runs_dir": root / "runs"}
+        ),
     )
     stage = rich_stage_inputs()
     labels = pd.Series(

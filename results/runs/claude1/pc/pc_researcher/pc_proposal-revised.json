@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "revise-pc-researcher",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:43:46.362755Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/pc_researcher/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5347,
+        "output_tokens": 3777,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.107438
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "pc_researcher",
+    "method": "Maximum entropy with a Sharpe floor",
+    "category": "pc_researcher",
+    "weights": {
+      "us_large_cap": 0.0155394627494971,
+      "us_small_cap": 0.04704535434524787,
+      "us_value": 0.19999999999999996,
+      "us_growth": 0.08049299911796293,
+      "intl_developed": 0.022200937022586197,
+      "emerging_markets": 0.02488583762608883,
+      "intermediate_treasuries": 0.18444587112233107,
+      "long_treasuries": 0.09381277927058715,
+      "ig_corporates": 0.08524219931186598,
+      "hy_corporates": 0.06626181413002416,
+      "intl_sovereigns": 0.014213557098739225,
+      "intl_corporates": 0.01790508022225705,
+      "usd_em_debt": 0.02150836491370087,
+      "reits": 0.028080039199437887,
+      "gold": 0.06612072675257627,
+      "commodities": 0.032244977117097284
+    },
+    "expected_return_pct": 7.264735203941316,
+    "expected_volatility_pct": 8.217487882188221,
+    "sharpe_ratio": 0.4191956536264491,
+    "effective_n": 11.460510192852746,
+    "ex_ante_tracking_error_pct": 3.761227719713242,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Both reviewers and the CRO identified one root cause. The Sharpe floor is scale-invariant, so maximising entropy loaded 55% into short_treasuries and cash. That gave a 3.82% volatility portfolio against the 8-12% band of the draft IPS (config/ips.yaml is still a draft), and a 6.24% tracking error against the 6.0% budget, driven by a 42% equity underweight. It also inflated the effective N.\n\nThe revision keeps the method, maximum weight breadth subject to a CMA-implied efficiency floor, and removes the artefact:\n- Excluding cash and short_treasuries forces breadth across risky assets.\n- A 20% cap stops us_value, about 24% after renormalisation, from dominating.\n- A 0.2 shrink toward equal weight cuts sensitivity to individual μ rankings and turns dust positions into deliberate small allocations, while staying well short of equal weight.\n\nI expect equity of roughly 40%, higher volatility, lower tracking error, higher inverse-HHI breadth, and a lower ex-ante Sharpe than 0.51.\n\nI acknowledge two errors in the original. The volatility floor was never imposed, though the text implied it was. The 0.46 max_sharpe figure was not a ceiling in my own feasible set.\n\nVolatility may still land somewhat below 8%. If so, the portfolio's role is a broad, moderate-risk ensemble component for the CIO to blend with higher-beta candidates. The added duration exposure and the residual reliance on noisy μ remain open risks for the CRO to measure.",
+    "revision_of": "pc/pc_researcher/pc_proposal.json",
+    "notes": "Revision: excluded cash, short_treasuries; capped every weight at 20%; shrunk 20% of the way toward equal weight; one-way turnover 55.4%. Responses to reviews -- inverse_variance: I accept the central diagnosis. A Sharpe floor is scale-invariant, so blending in cash or short treasuries leaves the ratio unchanged. Entropy maximisation therefore treated the zero-volatility block as free breadth, and the 55% in short_treasuries and cash came from the objective, not from a view. That caused both hard breaches: volatility of 3.82% against 8-12%, and tracking error of 6.24% against 6.0%. I have excluded cash and short_treasuries, so breadth must now be spent across risky assets. The renormalised risky sleeve is roughly 40% equity with intermediate and long duration, credit and real assets, so beta and volatility rise and the equity underweight that drove tracking error shrinks.\n\nI also accept that effective N of 7.2 overstated breadth. On an inverse-HHI basis it was roughly 4. Removing the 42.8% block and adding a 0.2 shrink toward equal raises the inverse-HHI breadth materially. A 20% cap stops us_value, which would otherwise be about 24% after renormalisation, from becoming the new dominant line. The shrink also lifts the 0.2% us_large_cap and other dust positions, which reduces the sensitivity to one or two CMA rankings that you flagged.\n\nOn your technical errors:\n(1) Volatility constraint. You are right. Only the upper volatility cap was imposed and the 8% floor was not. That mis-specified the draft IPS band, and my text described it wrongly. I cannot add a volatility floor as a lever. The exclusion is the direct remedy, and the CRO will measure the result.\n(2) Sharpe 0.51 above max_sharpe's 0.46. The 0.46 I quoted was max_sharpe's reported figure from a different feasible set, not a ceiling from my own inputs and constraints. With cash available and no volatility floor, the true max-Sharpe in my set exceeds 0.51. My claim that the method gives up Sharpe holds only in a common feasible set, and the stated 0.36-0.46 floor range did not match the floor actually used. The revised portfolio will give up ex-ante Sharpe, likely to below 0.51. I accept that as the price of compliance.\n\nOn inflation, removing near-cash cuts the low-real-return block. It adds duration, which I hedge only partly through the retained gold and commodities. That exposure remains for the CRO to test. max_sharpe: I accept that the portfolio did not fit the expansion regime I described. Equity beta was about 0.37, us_large_cap was 0.2%, the equity underweight was 42%, and the Sharpe came from low volatility rather than paid risk. The mechanism was the scale-invariant floor treating near-cash as free breadth. I have excluded cash and short_treasuries, applied a 20% single-asset cap, and shrunk 0.2 toward equal weight. Breadth now falls across risky assets, which raises equity and volatility toward the draft IPS band and cuts the tracking error that comes from the equity underweight.\n\nOn the dust positions, I agree they come from entropy's infinite slope at zero. The shrink turns them into deliberate small allocations, and removing the 42.8% line makes the weight-space breadth closer to risk-space breadth.\n\nOn your technical errors:\n(1) Sharpe 0.51 versus the 0.36-0.46 range. The 0.46 was max_sharpe's figure under its own constraints, not a bound in my feasible set, where near-cash and no volatility floor allowed a higher ratio. The text's floor range did not describe the floor actually used. I withdraw the claim that this run gave up Sharpe versus max_sharpe. After revision it will, because the method now competes in a risk-bearing set.\n(2) Volatility specification. Only the upper cap was imposed. The 8% floor and the tracking-error budget were not enforced as the text implied. I acknowledge that error.\n\nOn the free floor parameter, you are right that I gave no sensitivity analysis. The shrink and the cap reduce how much the result depends on where the floor binds, but they do not remove the dependence on μ.\n\nOn distinctiveness, the revised portfolio is a broad risky-asset mix with a duration and real-asset tilt. It is not equal weight, since the shrink stops at 0.2. I do not rely on the March precedent as evidence of quality.",
+    "tuning": null
+  }
+}

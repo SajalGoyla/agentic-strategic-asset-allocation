@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-volatility-targeting",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.148833Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/market_cap_weight/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/market_cap_weight/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3634,
+        "output_tokens": 4426,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.059928
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "volatility_targeting",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "market_cap_weight",
+    "reviewed_category": "heuristic",
+    "kind": "intra_category",
+    "strengths": [
+      "The method is applied transparently with no tuned parameters. Weights sum to 100%, and the active weights reconcile to a 60% US large cap, 30% intermediate Treasury and 10% IG corporate benchmark. The reported 0.264 Herfindahl matches the weights.",
+      "Construction needs no CMAs or covariance, so it inherits no optimiser error. The proposal also says plainly that its concentration is a data artefact and not a view.",
+      "Ex-ante volatility (11.78%) and backtest volatility (11.83%) agree closely, so the shrunk covariance used for the statistics is not misdescribing the portfolio. It is IPS-compliant ex-ante, with the draft status of the IPS flagged.",
+      "The write-up is candid. It names the ETF-size proxy, the thin defensive sleeve, the lack of volatility headroom and the pro-cyclicality, and it gives concrete conditions under which the proposal is invalidated. It is useful as a low-judgment reference portfolio for the committee.",
+      "Turnover and judgment are low, and a deviation from this portfolio can be stated explicitly, which suits a CIO who wants an anchor."
+    ],
+    "weaknesses": [
+      "The proxy is the main execution problem. ETF AUM is a poor stand-in for asset-class market capitalisation. The portfolio holds only 4.8% intl developed and 1.9% EM, and about 10.8% in all fixed income, plus 9.2% in gold. A true global market portfolio would hold far more non-US equity and much more bonds. The case calls the concentration 'the method working as designed', but it looks more like a degenerate input showing through than the market portfolio the method is meant to approximate.",
+      "The asset classes overlap, so ETF sizes are not a partition. us_large_cap, us_growth, us_value and arguably us_small_cap share holdings. Weighting each by its fund size double-counts US equity and inflates the dominant exposure, about 66% in one US equity factor.",
+      "The case overstates diversification. It cites 7.0 effective assets, but the inverse Herfindahl of 0.264 is about 3.8. Risk is concentrated in US equity beta (realised beta of 1.23 to the benchmark), and the 17 of 18 assets held say little about risk diversification.",
+      "The claim that no estimation error can reach the proposal is too strong. Proxy error is itself estimation error. The reported return and Sharpe also depend on CMAs, and the ex-ante volatility depends on the covariance matrix.",
+      "The drawdown is severe: -40.6% backtest, composite risk score 0.80. Fixed income is about 29 points below the benchmark and there is nothing defensive besides gold. The CRO's note that this is probably a floor is credible, given a sample starting in 1993 that favours US equities.",
+      "There is little volatility headroom. At 11.78% against a 12% cap, a modest rise in equity volatility or correlations would breach the band. The method cannot trim as this happens, and it buys more of what has risen. The proposal is also IPS-compliant only because the ex-ante volatility stays inside the band, with no deliberate margin.",
+      "The Sharpe gap needs explaining: ex-ante 0.32 against backtest 0.63. The ex-ante figure rests on CMAs that the case says it does not use, and the case does not say which is the better guide."
+    ],
+    "technical_errors": [
+      "The 'effective number of assets' of 7.0 is inconsistent with the stated Herfindahl of 0.264 if it is defined as 1/HHI, which gives about 3.8. The 7.0 matches an entropy-based measure, exp(H). The definition should be stated, and the 'more diversified' argument should not rest on the entropy figure.",
+      "The case lists the portfolio as IPS-compliant with no violation, while the CRO links the equity exposure to an 'IPS drawdown breach'. Either the compliance check omits the backtest drawdown limit or the CRO is using a different test. This needs reconciling so the compliance statement is not read as a clean pass, especially while the IPS is a draft."
+    ],
+    "score": 0.5,
+    "rationale": "As a passive reference, the method is cleanly specified and the ex-ante statistics are internally consistent with the CRO's backtest volatility. As executed here, the proxy undermines the central claim. ETF AUM produces a US-heavy, overlapping, gold-heavy allocation that is not the market portfolio the argument from Sharpe (1964) relies on. The case defends this as the method working, when it reflects the input. The concentration, the 40.6% drawdown, the thin defensive sleeve and the near-ceiling volatility are real costs that a baseline role does not remove. The effective-N definition and the unreconciled compliance versus drawdown statements reduce confidence in the write-up. The proposal is a reasonable but flawed benchmark and not a strong portfolio, so I score it at the midpoint."
+  }
+}

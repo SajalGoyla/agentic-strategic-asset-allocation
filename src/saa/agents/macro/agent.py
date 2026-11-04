@@ -309,7 +309,7 @@ def _regime_history(panel: ScorePanel, scoring: MacroScoringConfig) -> RegimeHis
 
 
 def _write_all(view, history, report: str, out_dir, run_id: str) -> dict[str, Path]:
-    root = Path(out_dir) if out_dir else PROJECT_ROOT / "data" / "runs" / run_id / "macro"
+    root = Path(out_dir) if out_dir else load_config().settings.runs_dir / run_id / "macro"
     root.mkdir(parents=True, exist_ok=True)
     report_path = root / "macro.md"
     report_path.write_text(report, encoding="utf-8")

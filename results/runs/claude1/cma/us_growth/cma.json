@@ -1,0 +1,91 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.007589Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_growth/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/us_growth/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/us_growth/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2231,
+        "output_tokens": 2462,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.091829
+      }
+    ],
+    "report_path": "cma/us_growth/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "us_growth",
+    "horizon_years": 3,
+    "expected_return_pct": 9.27,
+    "volatility_pct": 16.9069,
+    "method_range": [
+      7.1172,
+      14.3829
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "historical_erp",
+          "weight": 0.15
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.1
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "inverse_gordon",
+          "weight": 0.25
+        },
+        {
+          "method": "implied_erp_cape",
+          "weight": 0.25
+        }
+      ],
+      "expected_return_pct": 9.27,
+      "confidence": "medium",
+      "dispersion": "wide",
+      "regime_logic": "Stage 1 calls this an expansion, but only at 0.36 confidence. It describes stall-speed growth (+0.05), sticky inflation and restrictive real rates, and puts it at the border of late-cycle, with a 20-30% recession probability. Growth equities are long-duration assets. Restrictive real rates and sticky inflation are the conditions that compress their multiples, and the inflation-alignment signal is mildly negative. The regime_adjusted candidate (14.38%) is conditioned on the expansion label. That label is weakly held, and the credibility-weighted premium of +10.68% excess comes mostly from expansion periods with falling or low rates, which are not today's rate backdrop. Under Exhibit 4, a borderline late-cycle reading tilts toward valuation methods rather than the expansion default of the auto-blend. I therefore cut regime_adjusted to 10% and give no extra weight to the expansion framing. Financial conditions (+0.35) are still supportive, which argues against weighting only the bearish valuation candidates.",
+      "valuation_context": "Valuations are stretched. IWF's trailing earnings yield of 3.39% implies a P/E near 30. The net payout yield is only 1.77% (0.65% dividends plus 1.12% net buybacks). Both valuation-based candidates sit at 7.1-7.6%. That agreement between independent inputs (earnings yield and payout plus growth) supports giving them substantial weight. The Gordon candidate carries zero valuation drift because the group has no long valuation history. So it does not assume a derating, and its 7.61% is if anything generous for a group at this multiple. Two input caveats lower their weight somewhat: the CAPE-style method uses the ETF P/E as a proxy rather than a cyclically adjusted figure, and the WRDS payout dates from 2025-12, rolled forward by price. The historical 13.46% averages a 1990-2026 sample whose returns were boosted by multiple expansion and a secular fall in rates. That tailwind cannot be repeated from this starting point. The backward-looking and valuation-based estimates disagree by about 6pp, and I read that gap as information about stretched starting valuations, not as noise. Mean reversion in valuations is slow over 3 years, though, so I do not lean entirely on the valuation methods.",
+      "signal_alignment": "The composite is close to neutral (-0.05), but the components point clearly. The mean-reversion signal is strongly negative (-0.55) after a 24% annualised 3-year run. 12-1 momentum has turned negative (-0.19), and the 1-year return (7.4%) has slowed sharply from the 3-year pace. Trend (+0.04) and relative momentum (+0.11) are only marginally positive. The negative signals point the same way as the lower, valuation-based candidates, so they confirm a below-history estimate rather than calling for a hedge against it. The macro alignment signals are small in magnitude, which suggests this asset's returns are only weakly tied to the regime dimensions. That is a further reason not to lean on regime_adjusted.",
+      "rationale": "Governing policy is config/ips.yaml, which is still a draft, so this assumption is provisional. For US Growth (an IWF-based stand-in, not Russell membership), the main decision is the gap between the backward-looking methods (13.5-14.4%) and the valuation methods (7.1-7.6%). The auto-blend (10.43%) weights by each method's self-stated confidence. That gives the historical and expansion-conditioned methods 43% combined, despite stretched multiples, restrictive real rates and a weakly held, borderline-late-cycle regime. I use a custom blend instead: 25% each on inverse_gordon, implied_erp_cape and bl_equilibrium, 15% on historical_erp and 10% on regime_adjusted. That gives 9.27%. The result keeps some weight on the long-run premium, since mean reversion is slow over 3 years and financial conditions remain easy. It anchors mainly on the valuation and equilibrium evidence, and the technical mean-reversion and momentum signals support that choice. Black-Litterman (8.54%) acts as a neutral, return-agnostic middle anchor, although its weights reflect ETF sizes. The implied excess return of about 5.2% over the 4.03% T-bill, at 16.9% volatility, gives a Sharpe ratio near 0.31. That is plausible for a richly valued, higher-volatility equity segment and sits sensibly above a large-cap estimate in the 8% range. No survey consensus exists for this asset. Confidence is medium: dispersion is wide, but two independent valuation methods and the equilibrium method cluster in a 7-8.5% range."
+    }
+  }
+}

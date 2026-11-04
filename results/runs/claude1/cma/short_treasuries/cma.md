@@ -1,0 +1,31 @@
+# CMA — short_treasuries
+
+**Expected return:** 4.70% (3y, nominal, arithmetic)  
+**Volatility:** 1.69%  
+**Confidence:** medium_high  
+**Selection:** custom_blend — bl_equilibrium 15%, yield_building_block 85%  
+**Candidate range:** 4.03% to 4.88% (tight); +0.04pp vs. the auto-blend  
+**Regime:** expansion
+
+## Candidates
+
+| method | estimate % | confidence | components | rationale |
+|---|---|---|---|---|
+| `historical_erp` | 4.88 | 0.30 | risk_free_pct +4.03, excess_return_pct +0.85, months +441.00 | +0.85% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield. |
+| `regime_adjusted` | 4.86 | 0.25 | risk_free_pct +4.03, regime_excess_return_pct +0.82, unconditional_excess_return_pct +0.86, regime_months +180.00, credibility_weight +0.75 | After the 180 past months labelled expansion, excess returns over the next 3 years averaged +0.82% a year (all months +0.86%); credibility weight 0.75, plus 4.03% T-bill. |
+| `bl_equilibrium` | 4.03 | 0.40 | risk_free_pct +4.03, implied_excess_return_pct +0.00, market_weight_pct +1.56, risk_aversion +2.50 | Equilibrium excess return +0.00% at a 1.6% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size. |
+| `inverse_gordon` | – | – | – | unavailable: not applicable to fixed_income |
+| `implied_erp_cape` | – | – | – | unavailable: not applicable to fixed_income |
+| `survey_consensus` | – | – | – | unavailable: no public consensus forecast for this asset; the judge may use the macro agent's view instead (the paper's alternative) |
+| `yield_building_block` | 4.82 | 0.80 | yield_pct +4.81, credit_loss_pct -0.00, variance_addback_pct +0.01 | 4.81% starting yield - 0.00% expected credit loss + 0.01% variance add-back (mean of DGS1, DGS2, DGS3). |
+| `auto_blend` | 4.66 | 0.54 | weight:historical_erp +0.17, weight:regime_adjusted +0.14, weight:bl_equilibrium +0.23, weight:yield_building_block +0.46 | Confidence-weighted average of 4 methods: historical_erp 17%, regime_adjusted 14%, bl_equilibrium 23%, yield_building_block 46%. |
+
+## Judgment
+
+**Regime logic.** The stage-1 call is a low-confidence (0.36) stall-speed expansion that is borderline late-cycle, with sticky inflation and restrictive real rates. For a roughly 2-year-duration Treasury held over a 3-year horizon, regime matters mainly through the reinvestment path, not through the starting carry. If the 20-30% recession risk materialises, cuts give a capital gain on the existing ladder, which is roughly offset by rolling into lower yields. If sticky inflation forces further tightening, the reverse happens. Over a horizon about 1.5x duration these effects largely net out, so regime does not argue for departing materially from the starting yield. I give regime_adjusted no weight. It is essentially the historical premium shrunk toward itself (180 expansion months, credibility 0.75), and with a regime label this uncertain it adds no conditioning information beyond historical_erp.
+
+**Valuation context.** The starting yield is the valuation for this asset. The 1-3y yield averages 4.81%, high against its own post-2008 history (yield_level +0.73), and about 0.8pp above the 4.03% T-bill. That steep front-end slope means the market is pricing either some further tightening or a term premium. Either way, the yield building block already captures it, because holding to a horizon near duration earns the starting yield almost regardless of the rate path. historical_erp (4.88%) is backward-looking and draws its +0.85pp excess from 1990-2026, a secular decline in yields that delivered repeated duration gains. Its closeness to the yield candidate is coincidental rather than corroborating, so I give it no weight. bl_equilibrium (4.03%) sets a zero excess return because short Treasuries hedge the equity-heavy ETF market portfolio. That is a CAPM artefact rather than a valuation view, and it implicitly treats the 80bp front-end term spread as unearnable.
+
+**Signal alignment.** The signals split cleanly by horizon. Valuation (yield_level +0.73) supports the high starting-yield estimate and dominates the +0.16 composite. The technical signals are negative: mean_reversion -0.52 after a decent 3-year run, trend -0.38 and relative_momentum -0.33. Together they say yields have recently backed up or price momentum has faded. For a 2-year-duration bond these are short-horizon price effects worth tens of basis points at most, and a rate back-up actually raises forward carry. Macro alignment signals are all near zero, consistent with a low-beta asset. regime_fit -0.34 reflects weaker returns in past expansions, when cuts were absent. I take the technical and regime-fit softness as a reason to shade modestly below the pure yield figure, not to override it. That shading is the 15% weight on the equilibrium anchor.
+
+**Rationale.** For short Treasuries the yield building block is the strongest single candidate. The horizon (3 years) sits close to duration (about 2 years), there is no credit loss, and the variance add-back is negligible at 1.7% volatility. It carries 85% of the weight. I depart from it slightly, giving 15% to bl_equilibrium (the T-bill rate), for one specific reason. The 4.81% yield sits 0.8pp above the 4.03% bill, and over a 3-year horizon part of the ladder rolls at whatever front-end rates prevail. If the pricing of further tightening proves too high, or the late-cycle risk brings cuts, reinvestment yields fall toward bill levels. The technical and regime-fit signals lean the same way. The result is 0.85 x 4.82 + 0.15 x 4.03 = 4.70%. That is inside the [4.03, 4.88] range and just above the 4.66% auto-blend. The auto-blend gives 54% combined weight to the two historical methods, which are biased by the 1990-2026 yield decline, and to the CAPM equilibrium, whose zero premium is an artefact. The implied excess over bills is about 0.67pp at 1.69% volatility, a Sharpe ratio near 0.4, plausible for the asset. The tight 0.85pp dispersion reflects genuine methodological differences (carry versus zero premium), not a data problem. The governing policy, config/ips.yaml, is still a draft, so this CMA should be revisited once the IPS is finalised.

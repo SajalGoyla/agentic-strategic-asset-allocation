@@ -1,0 +1,220 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.394060Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2392,
+        "output_tokens": 1807,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.033034,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "adversarial_diversifier",
+    "method": "Adversarial diversifier",
+    "category": "non_traditional",
+    "ex_ante_volatility_pct": 1.6910836996139367,
+    "backtest_volatility_pct": 1.6932015259912225,
+    "var_95_pct": 0.4946943747237292,
+    "cvar_95_pct": 0.7343363623599014,
+    "max_drawdown_pct": -5.362116955945451,
+    "backtest_sharpe": 0.44032579986845566,
+    "ex_ante_tracking_error_pct": 9.300290295505928,
+    "backtest_months": 400,
+    "effective_n": 1.0,
+    "concentration_hhi": 1.0,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.6,
+      "active_fixed_income": 0.6,
+      "active_real_assets": 0.0,
+      "benchmark_beta": 0.022064687479520676
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 2.29% is below the CPI + 3.0% target",
+          "observed": 2.2860492379835673,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 1.69% outside the 8.0-12.0% band",
+          "observed": 1.6910836996139367,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 9.30% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 9.300290295505928,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.36664414888722685,
+    "risk_score_components": {
+      "volatility": 0.0,
+      "concentration": 1.0,
+      "drawdown": 0.21448467823781805,
+      "tail": 0.08681986218514902,
+      "tracking_error": 1.0
+    },
+    "judgment": {
+      "key_risks": [
+        "Opportunity-cost and return-shortfall risk in short_treasuries: the 100% position cannot reach CPI + 3% and is 60 points underweight equity against the 60/40 benchmark, so in expansion the shortfall shows up as drift from the benchmark rather than as loss.",
+        "Reinvestment and inflation risk: the whole portfolio is one short-duration rate exposure. Falling policy rates cut its yield almost immediately, and inflation above the CMA assumption erodes real return with no other asset to offset it.",
+        "Single-input dependence: the corner only clears the Sharpe floor because of the judged short-Treasury expected return and its tiny variance. A modest CMA error would change the result, so model risk sits in one number.",
+        "Zero diversification: effective N is 1.0, so there is no second source of return or risk. Any issuer, liquidity or policy event in the short Treasury sleeve hits 100% of the portfolio, though that is unlikely for this asset.",
+        "Tail risk is understated rather than large: the portfolio takes almost no equity or duration drawdown risk, but the 1993-onward panel has no episode of sharp inflation or an abrupt rate shock for short-duration paper."
+      ],
+      "concentration_assessment": "This is the method working, not failing. The proposer is a vertex optimiser that picks the point furthest from the other proposals subject to a Sharpe floor, and the lowest-variance asset dominates when excess return per unit of volatility is high relative to a tiny variance. A Herfindahl of 1.000 and effective N of 1.0 are the intended outcome rather than a near-singular covariance matrix. The concentration is still real. It is a statement about how favourable the CMA is to short_treasuries, not evidence of diversification, and a single asset gives the portfolio no protection if that CMA is wrong.",
+      "tail_risk_assessment": "The backtest tail is small and credible for what it measures: a monthly 95% loss of about half a percent, CVaR slightly worse, and a drawdown near -5%. Short Treasuries held through 2000, 2008 and 2020 did not suffer large mark-to-market losses, so the panel does contain the relevant stress episodes. The limit of the 1993 start is the absence of the 1970s and early-1980s, when inflation and rates rose sharply. Short-duration paper would have had a shallow nominal drawdown in that period but a deeply negative real return, which a nominal drawdown figure cannot show. The tail the IPS drawdown limit measures is therefore benign, while the real-purchasing-power tail is understated. Mild, slow erosion from inflation is the more plausible bad outcome than a sudden loss.",
+      "ips_assessment": "The return breach (expected real return 2.29% against CPI + 3.0%) is structural. A cash-like corner cannot reach a target that requires risk-asset premia, so the candidate would pull a blend away from the objective rather than toward it. The volatility breach (1.69% against the 8-12% band) is below the floor, not above the ceiling. It is non-compliant but not risky, and the risk score correctly gives it 0 on volatility. What it means for an ensemble is that any weight placed here lowers blended volatility, so the CIO would need offsetting higher-volatility sleeves to keep the final portfolio inside the band. The tracking error breach (9.30% against the 6.0% budget) is the one that reflects genuine risk: relative to the 60/40 benchmark this is a large bet, being 60 points underweight equity and 60 points overweight fixed income (as short Treasuries), and benchmark beta of 0.02 confirms almost no co-movement. In expansion this would likely lag the benchmark materially. These are breaches of a draft IPS, and the limits bind on the CIO's final portfolio, not on this proposal, so they describe its contribution to an ensemble rather than disqualify it.",
+      "commentary": "The binding risk is benchmark-relative: tracking error and the return shortfall, not loss. The score of 0.37 is the sum of two maximal components (concentration and tracking error) against near-zero volatility and tail components, which accurately describes a portfolio that is safe in absolute terms but far from the policy portfolio and from the return objective. I would not read the score as a statement that this portfolio will lose money.\n\nEx-ante and backtest volatility agree (both 1.69%), so the covariance estimate is not in question here. For a single low-variance asset that is expected, since the shrinkage has little to act on, and the realised path confirms the figure. The number to trust is the backtest drawdown and VaR as measures of nominal loss, and neither should be read as a measure of real return risk. The more informative figure is the tracking error, which rests on the covariance between short Treasuries and the benchmark's equity and bond holdings and is the most dependable indicator of how differently this portfolio behaves.\n\nThe proposer's own caveat is worth reviewers' attention: feasibility under the Sharpe floor depends on the short-Treasury CMA. If that expected return is overstated relative to risk assets, the portfolio's Sharpe advantage disappears, and the expansion regime makes that error more costly. The data cannot test this because the CMA is a judgment input rather than a historical estimate. The Sharpe of 0.44 is a backtest figure and should not be read as confirmation of the CMA used for the floor. The governing IPS is a draft, so the thresholds used here may change."
+    }
+  }
+}

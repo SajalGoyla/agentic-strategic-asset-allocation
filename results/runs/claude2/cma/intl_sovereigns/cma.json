@@ -1,0 +1,83 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.041604Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_sovereigns/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/intl_sovereigns/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/intl_sovereigns/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2149,
+        "output_tokens": 2363,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.058549199999999996
+      }
+    ],
+    "report_path": "cma/intl_sovereigns/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intl_sovereigns",
+    "horizon_years": 3,
+    "expected_return_pct": 4.27,
+    "volatility_pct": 8.4545,
+    "method_range": [
+      4.0024,
+      5.3234
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.6
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.2
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.2
+        }
+      ],
+      "expected_return_pct": 4.27,
+      "confidence": "medium",
+      "dispersion": "tight",
+      "regime_logic": "Stage 1 calls a stall-speed expansion with sticky inflation and restrictive real rates, borderline late-cycle, but only at 0.36 confidence. A low-confidence call should not drive a large tilt. For developed-market sovereign duration, a borderline late-cycle setting with a 20-30% recession probability is mildly supportive: yields have room to fall if growth stalls, and the price gain would cushion the carry. Sticky inflation cuts the other way, by keeping term premia from compressing. The regime-adjusted candidate (4.23%) finds that, after past expansion months, this asset's forward excess return over T-bills was slightly negative. That fits late-expansion rate rises eroding duration returns. I give it a modest 20% weight as a regime check on the long-run historical premium rather than as a primary anchor. Its 0.75 credibility weight on 180 months is reasonable, but the regime label itself is uncertain.",
+      "valuation_context": "For bonds the starting yield is the valuation. The 3.65% average local yield across Germany, Japan, the UK, France and Canada sits high against the post-2010 history, which the +0.45 yield_level signal confirms. That makes the yield building block (4.00% after the 0.36pp variance add-back) the natural anchor. Three caveats limit how far I lean on it. First, the 3-year horizon is shorter than the duration of an index like BWX, so roll-down and re-pricing matter more than at a horizon near duration. Second, the recipe is an equal-weighted mean of five yields, while the cap-weighted index carries a large weight in low-yielding Japan, so the true index yield may sit somewhat below 3.65%. Third, the holding is unhedged, so the USD return also carries currency moves the yield does not forecast. The historical candidate (5.32%) is backward-looking. It embeds the 1990-2026 secular fall in global yields, which a 3.65% starting point cannot repeat, so I give it no weight. Black-Litterman (5.11%) is a CAPM equilibrium built on a tiny ETF-AUM market weight. It adds a forward-looking cross-check that is independent of the trailing return path, so it gets 20%.",
+      "signal_alignment": "The composite signal is essentially neutral (+0.03), but its components disagree in an informative way. The only valuation signal, yield level at +0.45, supports the carry-based anchor. The technical signals are uniformly negative: relative momentum -0.78, trend -0.43 and 12-1 momentum -0.27. They reflect a 1-year return of -5.73% and a 5-year return of -4.22%, losses driven by rising local yields and, for an unhedged holder, dollar strength. The macro alignment signals are near zero. Bond momentum has weak predictive power at a 3-year horizon compared with starting yield, so I do not cut below the yield building block. Instead I hedge against the negative technicals by keeping the blend near the bottom of the range rather than accepting the 4.63% auto-blend. The auto-blend gives the yield-blind historical method a 21% weight.",
+      "rationale": "Dispersion is tight (1.32pp), so the choice is between a yield-anchored estimate near 4.0% and a confidence-weighted blend pulled up by the historical premium. For a sovereign bond portfolio the starting yield is the strongest single predictor. I therefore weight yield_building_block at 60%, with regime_adjusted (20%) and bl_equilibrium (20%) as forward-looking checks. I drop historical_erp, which is inflated by three decades of falling yields. The result is 0.6 x 4.00 + 0.2 x 4.23 + 0.2 x 5.11 = 4.27%, within [4.00, 5.32]. That is about 0.24pp above the 4.03% T-bill, a thin term premium consistent with a 4.27% return on 8.45% volatility. The thin premium is plausible for an unhedged foreign duration asset whose volatility comes mostly from currency, which carries little expected premium. Confidence is medium rather than high for three reasons. The candidates agree, but FX is unforecast, the equal-weighted yield proxy may overstate the index yield given Japan's weight, and the macro regime call is low-confidence. Governing policy is config/ips.yaml, which is still a draft; this assumption should be revisited once the IPS is finalised."
+    }
+  }
+}

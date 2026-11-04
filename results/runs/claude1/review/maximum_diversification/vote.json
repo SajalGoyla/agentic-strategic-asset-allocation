@@ -1,0 +1,158 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "vote",
+    "agent": "vote-maximum-diversification",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:42:31.956243Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 326,
+        "output_tokens": 1067,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.044847
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "maximum_diversification",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "pc_researcher",
+      "black_litterman",
+      "cvar_minimization",
+      "max_sharpe"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "Governing IPS is still a draft, so I weight compliance as evidence but not as final. I am maximum_diversification (risk_structured) and excluded myself. The CIO needs portfolios that can be built on: those that meet the 8-12% volatility band and tracking-error budget, and whose weights lean on covariance structure over return forecasts, as the late-cycle finding in the paper suggests. First choice is resampled_efficient_frontier. It has no hard breaches, effective N of 13.3, Sharpe 0.41, TE 4.33%, and reasonable drawdown versus peers (-24.3%). It diversifies the estimation error that the reviewers hit mean-variance methods with. Its weak point is that resampling cannot fix biased CMAs, which is a premise risk and not a technical error. Second is pc_researcher. It has the highest ex-ante Sharpe among viable options (0.51), a backtest Sharpe of 0.70, a drawdown of -10.9%, and effective N of 7.2. Two reviewers flagged the volatility-band breach (3.82%) and the Sharpe above max_sharpe's 0.46 as inconsistent. That costs it rank, but it is a useful middle-risk anchor. Third is black_litterman, which is compliant with a 3.01% TE and effective N of 6.1. Reviewers found gamma-direction inconsistencies and a volatility sitting on the band floor. These are reporting and tuning issues, not fatal. Fourth is cvar_minimization, which is compliant, with the best backtest Sharpe (0.74) and a -18.7% drawdown. It brings tail-aware, non-traditional diversification to the ensemble. Concentration (effective N 2.9) is its cost. Fifth is max_sharpe, which is compliant with the best compliant ex-ante Sharpe (0.46). It ranks last because of the 46% us_value concentration and its extreme sensitivity to CMA noise, as its reviewers noted. Why first beats fifth: resampled_efficient_frontier delivers a similar return (7.11% vs 7.54%) and similar Sharpe at much lower concentration (N 13.3 vs 3.8) and lower drawdown. That makes it more robust to the CMA error that max_sharpe amplifies. I considered the cash-heavy risk-structured methods (hierarchical_risk_parity, risk_parity, inverse_variance) but all three breach return, volatility and tracking error, and my own proposal showed that cash degeneracy makes those weights unreliable. I left the adversarial_diversifier out of my top five. It is a single-asset vertex with three breaches, though it is valuable as an orthogonal probe, so I do not flag it. Bottom flag is market_cap_weight. Its -40.6% backtest drawdown and CRO risk of 0.80 are far beyond the limit, and its reviewers found the ETF-AUM proxy mislabelled as the market portfolio. The CIO should not lean on it."
+  }
+}

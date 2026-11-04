@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-variance",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.462139Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/volatility_targeting/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/volatility_targeting/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4002,
+        "output_tokens": 1451,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.023186,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_variance",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "volatility_targeting",
+    "reviewed_category": "heuristic",
+    "kind": "intra_category",
+    "strengths": [
+      "Forecast-free and diversified: effective N of 17.0 of 18 means no estimation-error concentration, and the method needs no CMAs or covariance matrix, which suits a noisy-CMA setting.",
+      "Ex-ante return, volatility and tracking error all sit inside the draft IPS limits, and the CRO's backtest volatility (8.91%) matches the ex-ante 8.90%, so the volatility estimate is internally consistent.",
+      "The narrative is candid about the main weakness (blindness to cross-asset risk differences) and about the lagging 12-month window, and it states clear invalidation conditions.",
+      "As an ensemble component it is a stable, low-turnover anchor that barely moves when CMAs are revised."
+    ],
+    "weaknesses": [
+      "Equal weighting ignores risk: about 59% of the book sits in equity-like, credit, REIT and commodity sleeves that fall together, which produced the -28.14% drawdown, 3 points past the -25% limit. This bites in a correlated growth or rates shock.",
+      "Four overlapping US equity sleeves (large, small, value, growth) at 5.9% each look like diversification but are highly correlated, so the effective number of assets of 17.0 overstates diversification in risk terms.",
+      "Rate-sensitive sleeves (about 29% of weight) offer little offset in a stock-bond correlation regime like 2022, so the portfolio has no real defensive lever.",
+      "Large benchmark deviations (-54 points in us_large_cap, -24 points in intermediate_treasuries, +17.6 points in real assets) are labelled a deliberate bet on breadth, but they are a by-product of equal weighting and not a considered view.",
+      "Because there is no cash sleeve, the volatility-targeting feature does nothing in this output. The portfolio is effectively a plain equal-weight portfolio under a different label, which undercuts its stated distinguishing feature and its place in the ensemble as a volatility-targeted candidate.",
+      "Volatility of 8.9% sits only about 1 point above the lower band edge, so a calmer forward covariance or blending with lower-risk candidates could breach the floor."
+    ],
+    "technical_errors": [
+      "The narrative says the portfolio is scaled to 10% trailing realised volatility with the remainder in cash, but the weights show 17 assets at about 5.9% each (sum about 100%) and no cash. Realised and ex-ante volatility are both about 8.9%, not 10%, so the scaling either was not applied or was a no-op. The description does not match the computed output.",
+      "The quoted Sharpe of 0.36 does not match the CRO's backtest Sharpe of 0.56. The difference may be ex-ante versus realised, but the proposal does not say so. The 7.02% return and 8.90% volatility imply a Sharpe of about 0.36 only with a risk-free rate near 3.9%, so the basis should be stated.",
+      "The claim that the 'target is already the band midpoint, so nothing was moved' is inconsistent with 8.90% volatility. If the target were 10% and scaling had been applied, volatility would sit at the target or the portfolio would hold cash. The text also says 'equal-risk-neutral' where it means return-neutral."
+    ],
+    "score": 0.45,
+    "rationale": "As a forecast-free equal-weight anchor the proposal is sensible and honest about its limits, and its ex-ante statistics comply with the draft IPS. Its execution is flawed in the one respect that defines the method. The 10% volatility-targeting and cash sleeve described in the text are not visible in the weights, and realised and ex-ante volatility both come out at about 8.9%. The reported Sharpe is also inconsistent with the CRO's figure, so the narrative and the computed output disagree. The substantive risk is the backtest drawdown of -28.14%, which breaches the draft limit. The cause is the method's blindness to correlation: equal slots pile roughly 59% of the book into assets that sell off together. The breach is evidence about what the portfolio contributes (breadth, not downside protection), not grounds for dismissal. Because the IPS limits bind only on the CIO's final portfolio, the candidate remains usable as an ensemble component, but a reader should treat it as plain equal weight, not as a working volatility-targeted portfolio. The score reflects a reasonable heuristic with a documentation and implementation mismatch and a clear drawdown failure."
+  }
+}

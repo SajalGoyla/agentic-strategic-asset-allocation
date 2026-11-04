@@ -109,7 +109,7 @@ Every file is `header` + `body`:
 ## Runs and reproducibility
 
 ```
-data/runs/<pipeline_run_id>/
+results/runs/<pipeline_run_id>/
   macro/macro-view.json, regime_history.json
   cma/<asset_id>/{historical_stats,correlation_row,cma_methods,cma,signals,scenarios}.json
   pc/{covariance.json, <agent_id>/pc_proposal.json}

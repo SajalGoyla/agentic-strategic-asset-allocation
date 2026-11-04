@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-cvar-minimization",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.456981Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/tail_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/tail_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4251,
+        "output_tokens": 6138,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.070554,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "cvar_minimization",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "tail_risk_parity",
+    "reviewed_category": "non_traditional",
+    "kind": "intra_category",
+    "strengths": [
+      "The execution looks like this method working. Weights fall in inverse order of downside risk: cash 53.2% and short_treasuries 16.9% are largest, then intermediate_treasuries, ig_corporates and the other credit sleeves, with equities, EM, REITs and commodities at about 1-1.4% each. No risky asset sits at a boundary and the matrix is not near-singular.",
+      "The reported numbers are internally consistent. Active weights against the 60/40 benchmark reconcile (us_large_cap 1.4-60 = -58.6, intermediate_treasuries 4.1-30 = -25.9, ig_corporates 3.2-10 = -6.8). The 6.0 effective assets matches exp(entropy) of the stated weights, which I get at about 6.1 by hand. The roughly 53% equity underweight and the roughly 70% cash plus short-Treasury share also check out. Ex-ante volatility of 2.47% against 2.45% backtest agrees.",
+      "The semicovariance objective suits Spinu's convex solver. The Estrada-style matrix built from truncated below-mean deviations is a symmetric Gram matrix, so it is PSD, and the equal-contribution problem is well posed with a unique long-only solution.",
+      "The proposal consumes no return forecasts, so CMA noise cannot reach the weights. That is a real advantage when the cross-section of forecasts is compressed.",
+      "The write-up is candid. It names the three IPS breaches, treats the draft IPS as provisional, does not claim standalone suitability, and states what would invalidate it (an out-of-sample rates-and-inflation shock, a window change that moves the cash weight).",
+      "The drawdown of -7.19% and monthly 95% VaR of 0.88% show large headroom against any plausible drawdown limit. The proposal could contribute that to an ensemble."
+    ],
+    "weaknesses": [
+      "The allocation is anchored by one tiny, noisily estimated number: the downside semivariance of cash and short Treasuries. Equal tail contribution makes dollar weight roughly inversely proportional to that figure, so a modest change in the window or in cash's shortfall estimate could swing 70% of the book and rescale every risky weight. The proposal says a different window would show fragility but reports no sensitivity run, though it is cheap to produce.",
+      "The mean-shortfall semicovariance only registers months where both assets are below their own means. A month where equities fall and Treasuries rally contributes nothing to the Treasury's tail risk, so duration gets no hedge credit. That is a property of this matrix choice, and it understates diversification between equities and government bonds. Bond weights are probably lower than a symmetric or conditional co-downside measure would give. The proposal does not acknowledge this.",
+      "The downside threshold is each asset's own historical mean over 1993 onward. Cash and short-bond means are dominated by the high-rate 1990s and 2000s and by the zero-rate 2009-15 stretch. That makes the shortfall for exactly the assets carrying the weight a regime-dependent quantity. The claim that no estimation error reaches the weights is therefore overstated, because the sample mean is itself an estimate. The proposal also does not say how assets with shorter native histories are handled in a 1993-06 panel.",
+      "The standalone portfolio misses all three IPS targets by wide margins: volatility of 2.47% against 8-12%, real return of 2.38% against the target, and tracking error of 7.47% against 6%. The ensemble case is conditional. The IPS has a volatility floor and a return target, so blending this sleeve in helps only if the other components overshoot risk or drawdown. If the compliant candidates sit near the band, diluting them with a 2.5%-vol sleeve pushes the blend further from the floor and the return target. The claim that it brings the blend toward the IPS limits is untested.",
+      "The preferred-when argument leans on the paper's late-cycle finding favouring covariance-driven methods, but the regime is expansion. In an expansion the benchmark-relative cost of a defensive book is highest, and the proposal does not reconcile this with its own case.",
+      "Real-return and purchasing-power risk is the largest unmodelled exposure, as the CRO notes. Nothing in the method, which looks only at nominal shortfalls, speaks to inflation regimes outside the sample. The risky sleeve is also thin, with 16 assets at 1-4% each and semicovariances estimated from few extreme months."
+    ],
+    "technical_errors": [
+      "The claim that the 0.39 Sharpe comes almost entirely from cash and short-duration yield is wrong as stated. Sharpe is measured on excess return over the risk-free rate, and cash earns about that rate, so it contributes roughly zero excess return. Backing out from the table, implied rf is about 3.8% (4.79 - 0.39 x 2.47) and excess return is only about 1%. That excess must come from the roughly 30% risky and term-premium sleeve, plus any short-Treasury spread over cash. The cash weight lowers volatility, which is the denominator, but does not produce the numerator. The CRO's commentary repeats the same attribution for the 0.58 backtest Sharpe, so it should not be taken as a statement of where the risk-adjusted return originates."
+    ],
+    "score": 0.55,
+    "rationale": "As an audit of execution within the tail-risk framework, this is competent. The solver and objective are appropriate, the weight ordering matches the inverse-downside logic, and the arithmetic reconciles. The concentration in cash and short Treasuries is the method behaving as designed, not a degenerate input. It does rest on a very small, regime-dependent semivariance estimate for the dominant assets, and no sensitivity analysis is offered. The semicovariance form also gives bonds no credit as an equity hedge. One factual error in the written case, attributing Sharpe to cash yield, should be corrected. Standalone, the portfolio misses every IPS return and risk objective, and its ensemble value is plausible but asserted, not demonstrated. IPS breaches are evidence, not a verdict, and the IPS is still a draft. The weaknesses are structural and mostly acknowledged. That keeps the score near the middle: sound execution of a method whose output is of limited standalone use."
+  }
+}
