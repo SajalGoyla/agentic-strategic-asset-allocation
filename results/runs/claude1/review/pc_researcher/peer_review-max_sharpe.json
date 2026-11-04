@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-pc-researcher",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.210493Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/max_sharpe/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/max_sharpe/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3433,
+        "output_tokens": 4005,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.047588
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "pc_researcher",
+    "reviewer_category": "pc_researcher",
+    "reviewed_agent_id": "max_sharpe",
+    "reviewed_category": "return_optimized",
+    "kind": "inter_category",
+    "strengths": [
+      "Candid about what it is: it discloses that the tangency portfolio had 1.89% volatility, far below the 8-12% IPS band. It also says that moving to gamma = 4.64 traded Sharpe for return and risk budget, rather than presenting 0.46 as the method's optimum.",
+      "Internally coherent. Ex-ante figures follow from the stated method: 7.54% return at 8.00% volatility and 0.46 Sharpe implies a risk-free rate near 3.9%. Ex-ante volatility (8.00%) agrees with the CRO's backtest (7.90%).",
+      "It names its own premise and its failure modes: the value-over-growth CMA, the stock-bond hedge and covariance stability. It also proposes a falsification test, namely that a resampled or shrunk version with similar Sharpe and broader holdings would show the concentration was estimation error.",
+      "Strictly IPS-compliant with no hard breach, and it uses the risk budget that the mandate allows. The 3.87% tracking error is labelled as an active bet on the CMAs, not as diversification.",
+      "Using the CMAs directly is a coherent stance in an expansion regime. It gives the ensemble a component that expresses the return views, which the covariance-driven members do not."
+    ],
+    "weaknesses": [
+      "The premise is that CMA point estimates are accurate enough to deserve 46% in one equity style. Mean-variance optimisation maximises estimation error. The proposal itself says the position rests on a 'modest' CMA spread, yet no estimation uncertainty or shrinkage enters the weights. A small revision to the value-versus-growth CMA would move a large share of the portfolio. This bites in any regime where value's edge is noise or reverses.",
+      "The label 'maximum Sharpe' is misleading. The delivered portfolio maximises mean-variance utility at a gamma chosen to hit the volatility floor, so it is not Sharpe-maximising. The chosen gamma is a constraint-fitting device, not a preference. Its Sharpe of 0.46 is well below the method's own optimum, so the portfolio is a mean-variance utility choice at a gamma tuned to the IPS band, not a test of the Sharpe-maximisation premise.",
+      "The expansion regime does not validate the CMAs. The argument that return dispersion and term premium are 'more informative' in expansions is asserted without evidence, and expansion is where value-versus-growth leadership is most contested. Regime support for the premise is weak, not strong.",
+      "The CMA-implied low-risk tangency (1.89% volatility, presumably mostly short Treasuries) shows the CMAs rate equities as poor compensation per unit of risk. The 8% portfolio therefore holds a 46% equity position the method itself would not pick on a Sharpe basis. Its justification is only that it is the cheapest way to fill the band, not a conviction.",
+      "Both risk numbers share the post-1993 negative stock-bond correlation. If the hedge fails (an inflation shock hitting equities and long duration together), the 46% value position and the 21.8% long-Treasury sleeve fall together. This is the central covariance premise, and the ex-ante/backtest volatility agreement cannot test it because both come from the same sample.",
+      "Drawdown headroom is essentially zero: -24.75% against a -25% limit, with a component score of 0.99. Compliance is a function of one historical path. Volatility is also a knife-edge, sitting exactly on the 8.00% floor.",
+      "Concentration is understated by the headline. On an inverse-Herfindahl basis (HHI 0.313) the effective count is about 3.2, not 3.8, which is an entropy-based figure. Combined with the single-style equity exposure, the benchmark beta of 0.80 understates the idiosyncratic risk.",
+      "The backtest Sharpe (0.67) exceeds the ex-ante Sharpe (0.46). That is likely an in-sample flattering of the historical path, not evidence that the CMAs are right, and it should not be read as confirmation."
+    ],
+    "technical_errors": [],
+    "score": 0.5,
+    "rationale": "I judge the method on its own logic. For this portfolio to make sense, the CMA ranking, especially value over growth, must be reliable enough that nearly half the portfolio can rest on it. The covariance matrix must also stay stable, especially the negative stock-bond correlation that makes the Treasury sleeves hedges. Neither belief is tested by anything in the proposal, and the expansion regime does not specifically support either. The execution is honest and consistent: the numbers follow from the stated method, the IPS is satisfied (it is only a draft), and the author names the right failure modes. I found no technical error. The proposal is penalised for resting on unshrunk point forecasts, for a tuned gamma that leaves it away from the method's Sharpe optimum, and for a drawdown with no margin. Its compliance depends on a single historical path. It is a reasonable but fragile ensemble component, moderately valuable if the CMAs hold and poor if they do not. A resampled or shrunk variant would resolve most of the doubts."
+  }
+}

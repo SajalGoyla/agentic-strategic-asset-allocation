@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-market-cap-weight",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.200680Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/resampled_efficient_frontier/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/resampled_efficient_frontier/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3986,
+        "output_tokens": 4056,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.049204
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "market_cap_weight",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "resampled_efficient_frontier",
+    "reviewed_category": "return_optimized",
+    "kind": "inter_category",
+    "strengths": [
+      "It names its premise plainly: the judged CMAs are right on average and noisy in an unbiased way. It also says that resampling cannot fix a biased mu, because every draw is centred on the same inputs. That is an honest statement of what the method can and cannot do.",
+      "The breadth is real. No position exceeds 14.5% and the largest weights are modest, so the portfolio does not corner-solve on small return gaps. The CRO's volatility agreement (8.00% ex-ante vs 7.96% backtest) also gives no sign of a degenerate covariance matrix behind the spread.",
+      "It is open that the 8.00% volatility comes from tuning gamma (default 2.84%, lowered to 5.511) and is not a risk level the method chose. Raising this itself makes the proposal easier to judge.",
+      "It is IPS-compliant under the draft, with 4.33% tracking error against a 6% budget. It uses return information while hedging confidence in it, which is a defensible stance in an expansion regime where the CMAs presumably have some signal.",
+      "The arithmetic I could check holds up: the equity sleeve is about 32%, real assets are about 20.1% active, and value, growth and small cap together are 24.5%. The us_large_cap underweight of -59.8% is therefore largely re-expressed through other equity styles, as the proposal and the CRO both say."
+    ],
+    "weaknesses": [
+      "The premise is that CMA errors are unbiased noise whose size is captured by N(mu, Sigma). The CMAs are judgmental forward-looking views, not sample means from a history. The dispersion that drives the resampling, meaning the implied history length T and the 200 draws, is therefore a modelling choice and not a measured uncertainty. The proposal does not state T. That choice sets how hard weights get averaged toward diversification. Real CMA error is more likely to be systematic: overstated equity, REIT or term-premium returns, or an optimistic ordering. Resampling leaves exactly that error in place.",
+      "The risk level is imposed. The portfolio is a point on the frontier selected to reach the 8.00% floor. Its 7.11% return, 0.41 Sharpe and asset mix, including the shift into equities, REITs, gold and long duration, all follow from that dial setting. At the default gamma the method produced a 2.84% volatility portfolio that is essentially a different one. The 'method working as designed' defence applies only to the shape of the frontier, not to this chosen point.",
+      "The drawdown is the real constraint. A -24.27% maximum drawdown for an 8% volatility portfolio leaves 0.73pp to the -25% limit. The diversification is by weight and not by risk driver. Long Treasuries, REITs, HY, commodities and EM debt can all fall together in a rising-term-premium or stagflation episode. Resampled averaging of weights does nothing about shared factor exposure. The 1993 start probably flatters the duration and real-asset sleeves.",
+      "The 14.5% short and 14.1% long Treasuries barbell is an artifact of averaging optimisers, not a view. It relies on the CMA-implied stock-bond correlation staying favourable. In an expansion regime with a possible term-premium rise, the 14.1% in long duration is the most fragile holding. The proposal's own 'invalidated if' list names the stock-bond correlation as a risk.",
+      "The breadth claim is stated inconsistently. A Herfindahl of 0.087 corresponds to about 11.6 effective positions under the inverse-HHI definition, but the proposal reports 13.3. That figure is presumably entropy-based. The portfolio is still diversified, but the headline overstates it, and the definition should be stated.",
+      "The agreement between ex-ante and backtest volatility is weak evidence. The covariance is estimated over the same history the backtest replays. The gap between the ex-ante Sharpe of 0.41 and the backtest Sharpe of 0.63 shows the judged forward CMAs are less generous than the realised history. The backtest therefore does not validate the forecasts the portfolio depends on.",
+      "Tiny residual weights (0.1% intl_sovereigns, 0.2% us_large_cap, 0.4% cash) are noise from averaging. They add turnover and complexity without conviction. The method has no cardinality or minimum-position rule to clean them up.",
+      "The compliance is conditional. The IPS is a draft, and the portfolio is compliant at the volatility floor and close to the drawdown limit. A change to the 8-12% band or the drawdown limit could change its status. Any breach would be evidence about its ensemble contribution, not a disqualification."
+    ],
+    "technical_errors": [],
+    "score": 0.6,
+    "rationale": "I am reviewing this from outside the return-optimising framework, so I judge the premise and not how unlike my own approach it is. The premise is coherent but fragile. The method has to believe that the judged CMAs are centred on the truth with noise it can model, that the stock-bond correlation holds in expansion, and that real-asset and duration sleeves keep their hedge roles. Resampling reduces noise-driven concentration, and the portfolio's breadth reflects that, not a covariance defect. It cannot touch bias, and the real-asset and duration stance is a direct bet on the CMAs. The decisive weaknesses are that the risk level was set by tuning, not chosen by the method, and that the drawdown sits almost on the IPS limit with shared-factor exposure underneath the weight diversification. I found no outright computational error. The only inconsistency is the effective-number versus Herfindahl presentation. The IPS is a draft. I score it moderately above the midpoint: sound and honest, but sensitive to inputs it cannot validate."
+  }
+}

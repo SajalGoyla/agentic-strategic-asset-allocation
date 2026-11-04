@@ -18,7 +18,9 @@ def config():
 
 @pytest.fixture
 def tmp_config(config, tmp_path):
-    settings = config.settings.model_copy(update={"data_dir": tmp_path / "data"})
+    settings = config.settings.model_copy(
+        update={"data_dir": tmp_path / "data", "runs_dir": tmp_path / "runs"}
+    )
     return dataclasses.replace(config, settings=settings)
 
 

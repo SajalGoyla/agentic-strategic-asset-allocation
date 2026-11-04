@@ -1,0 +1,186 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-volatility-targeting",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.468820Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 960,
+        "output_tokens": 1246,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.0157674
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "volatility_targeting",
+    "method": "Volatility targeting",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.058823529411764705,
+      "us_small_cap": 0.058823529411764705,
+      "us_value": 0.058823529411764705,
+      "us_growth": 0.058823529411764705,
+      "intl_developed": 0.058823529411764705,
+      "emerging_markets": 0.058823529411764705,
+      "short_treasuries": 0.058823529411764705,
+      "intermediate_treasuries": 0.058823529411764705,
+      "long_treasuries": 0.058823529411764705,
+      "ig_corporates": 0.058823529411764705,
+      "hy_corporates": 0.058823529411764705,
+      "intl_sovereigns": 0.058823529411764705,
+      "intl_corporates": 0.058823529411764705,
+      "usd_em_debt": 0.058823529411764705,
+      "reits": 0.058823529411764705,
+      "gold": 0.058823529411764705,
+      "commodities": 0.058823529411764705
+    },
+    "expected_return_pct": 7.0188235294117645,
+    "expected_volatility_pct": 8.903390947349802,
+    "sharpe_ratio": 0.35928148593361864,
+    "effective_n": 17.0,
+    "ex_ante_tracking_error_pct": 4.398475548325132,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Volatility targeting is the one heuristic here aimed at the IPS risk band. It ignores expected returns and holds equal weight in every asset except cash, then scales that book so trailing 12-month realised volatility equals the 10% band midpoint, with the remainder in cash. The scaling is the method; the weights table is its output. Because the scaled book has no leverage, the target is not binding in the way it would be in a volatile market. Ex-ante volatility is 8.90%, inside the 8-12% band, and the portfolio passes the IPS. Most risk-based competitors concentrate in cash and land well below the floor, so this portfolio is among the few that can go to the CIO as a compliant candidate without a breach to explain.\n\nIn an expansion regime, Moreira and Muir's logic is that risk is volatility-managed more reliably than return is forecast. Realised volatility persists, while return forecasts are noisy and the CMAs carry their own estimation error. Equal weighting across 17 risky assets (17.0 effective of 18) avoids the corner solutions that near-singular covariance matrices produce in maximum Sharpe. It also uses no inverted covariance matrix, so correlation-estimation error does not flow into the weights. That is a real robustness advantage over the return-optimized family.\n\nThe cost is that it is only equal weight with a risk dial. Its Sharpe of 0.36 and 7.02% expected return are not impressive. Tracking error against the benchmark is 4.40%, and the table shows the main source: the portfolio is much less concentrated in US large cap and intermediate Treasuries than the benchmark. It makes no bet on which assets deserve more weight. Its contribution to an ensemble is a diversified, band-compliant core whose risk level has been deliberately set, which the CIO can tilt using the covariance-driven or return-driven proposals. Note that the IPS is still a draft, so the compliance result is provisional.",
+    "revision_of": null,
+    "notes": "Key assumption: Trailing 12-month realised volatility is a good enough guide to near-term volatility that scaling exposure to it holds the portfolio near the 10% target, and equal weight across assets is a sound risky-asset allocation because expected returns are too noisy to rank them. Main weakness: It treats a 5.9% weight in gold, commodities, long Treasuries, high-yield and emerging markets as equivalent to the same weight in intermediate Treasuries, though their risk contributions differ enormously. Equity-like assets dominate portfolio risk, so the volatility target controls the total while the risk is badly allocated within it. The 12-month window also lags: after a volatility spike or a correlation break, realised volatility understates forward risk, and the portfolio is most exposed when risk has just risen. Its 4.40% tracking error is also a cost for a method with no return view to justify it. Preferred when: When expected returns are poorly measured, the covariance structure is unstable or near-singular, and the dominant need is a diversified, IPS-compliant portfolio at a stated risk level. It is also preferred when a reviewer wants a robust baseline to test the optimised methods against. It is weaker than risk parity or maximum diversification if the priority is balancing risk across assets, and weaker than the return-optimized methods if the CMAs are reliable. Invalidated if: If forward volatility is materially above the trailing 12-month figure, as in a regime break or a correlation spike, the 8.90% ex-ante figure understates true risk and the band compliance is illusory. The portfolio is also the wrong choice if the CMAs prove to carry real, differentiated information, since equal weight discards it. Finally, if the IPS band or tracking-error limit changes from the draft values, the compliance case needs to be rerun.",
+    "tuning": null
+  }
+}

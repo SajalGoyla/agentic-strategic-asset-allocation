@@ -1,0 +1,31 @@
+# CMA — us_large_cap
+
+**Expected return:** 7.52% (3y, nominal, arithmetic)  
+**Volatility:** 14.76%  
+**Confidence:** medium  
+**Selection:** custom_blend — bl_equilibrium 20%, historical_erp 10%, implied_erp_cape 20%, inverse_gordon 20%, regime_adjusted 5%, survey_consensus 25%  
+**Candidate range:** 3.63% to 13.52% (wide); -0.83pp vs. the auto-blend  
+**Regime:** expansion
+
+## Candidates
+
+| method | estimate % | confidence | components | rationale |
+|---|---|---|---|---|
+| `historical_erp` | 12.67 | 0.50 | risk_free_pct +4.03, excess_return_pct +8.64, months +441.00 | +8.64% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield. |
+| `regime_adjusted` | 13.52 | 0.40 | risk_free_pct +4.03, regime_excess_return_pct +9.75, unconditional_excess_return_pct +8.70, regime_months +180.00, credibility_weight +0.75 | After the 180 past months labelled expansion, excess returns over the next 3 years averaged +9.75% a year (all months +8.70%); credibility weight 0.75, plus 4.03% T-bill. |
+| `bl_equilibrium` | 8.26 | 0.40 | risk_free_pct +4.03, implied_excess_return_pct +4.23, market_weight_pct +48.79, risk_aversion +2.50 | Equilibrium excess return +4.23% at a 48.8% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size. |
+| `inverse_gordon` | 3.63 | 0.60 | dividend_yield_pct +0.93, net_buyback_yield_pct +1.28, real_growth_pct +2.10, inflation_pct +2.30, valuation_change_pct -4.08, variance_addback_pct +1.09 | 0.93% dividends +1.28% net buybacks + 2.1% real growth + 2.3% inflation -4.08% valuation change + 1.09% variance add-back (net payout from WRDS 2025-12, rolled forward by SPY's price change; CAPE 40.0 reverting to 26.4 over 10y). |
+| `implied_erp_cape` | 5.89 | 0.50 | earnings_yield_pct +2.50, inflation_pct +2.30, variance_addback_pct +1.09 | 2.50% real earnings yield (1/CAPE, CAPE 40.0) + 2.3% expected inflation + 1.09% variance add-back. |
+| `survey_consensus` | 8.09 | 0.50 | survey_pct +7.00, variance_addback_pct +1.09 | SPF median STOCK10 7.00% a year over 10 years + 1.09% variance add-back. |
+| `yield_building_block` | – | – | – | unavailable: not applicable to equity |
+| `auto_blend` | 8.35 | 0.49 | weight:historical_erp +0.17, weight:regime_adjusted +0.14, weight:bl_equilibrium +0.14, weight:inverse_gordon +0.21, weight:implied_erp_cape +0.17, weight:survey_consensus +0.17 | Confidence-weighted average of 6 methods: historical_erp 17%, regime_adjusted 14%, bl_equilibrium 14%, inverse_gordon 21%, implied_erp_cape 17%, survey_consensus 17%. |
+
+## Judgment
+
+**Regime logic.** Stage 1 calls this an expansion, but only at 0.36 confidence. It describes stall-speed growth (+0.05), sticky inflation, restrictive real rates and a 20-30% recession probability, which reads as borderline late-cycle rather than a clean expansion. Exhibit 4 tilts late-cycle environments toward valuation methods and away from leaning on the expansion label. So regime_adjusted (13.5%) gets only 5%. Its conditioning on 180 'expansion' months assumes the label is right, and here it barely is. The 0.75 credibility weight already pulls it toward the unconditional premium, so most of its information duplicates historical_erp. historical_erp is cut to 10% because its 8.6% excess return reflects a 1990-2026 sample that began at much lower valuations. Equilibrium (BL, 20%) is kept as a neutral, regime-agnostic anchor.
+
+**Valuation context.** CAPE at 40 sits at an extreme even against the post-1990 median anchor of 26.4. Valuation is the main reason the candidates span nearly 10pp. Both valuation methods carry 20% each, giving them 40% combined. On the Gordon side, the 2.2% net payout yield plus 4.4% nominal growth is a reasonable income-and-growth base, but its -4.08% valuation drag assumes steady reversion over 10 years. Mean reversion is real but slow and erratic, and a 3-year horizon may see little or none of it. That is why the Gordon method is not weighted at its 0.60 confidence-implied share. Its payout input is also a 2025-12 WRDS figure rolled forward, which adds some staleness. The CAPE earnings-yield method (5.9%) assumes no repricing and is the cleaner valuation signal. The survey (8.1%, 25%) is fresh and forward-looking, and it sits between the backward-looking and valuation camps. It gets the largest single weight as a consensus check.
+
+**Signal alignment.** The composite of -0.27 is bearish, and it is driven by valuation (CAPE -0.78) and mean reversion after a 22.8% annualised 3-year run (-0.60). Short-horizon technicals remain mildly positive: trend +0.14, 12-1 momentum +0.17 and relative momentum +0.33. Macro alignment is near zero, with financial conditions the only meaningful support at +0.12. The signals therefore confirm a direction below the historical and regime candidates. However, positive momentum argues against moving to the bottom of the range over a 3-year horizon, which supports a modest downward adjustment from the auto-blend rather than adopting the valuation methods outright.
+
+**Rationale.** Dispersion is wide (3.63-13.52%), and it reflects a real disagreement between backward-looking premia earned from lower starting valuations and forward-looking valuation estimates at a CAPE of 40. It is not noise. A custom blend underweights the regime-conditioned and historical methods, because the expansion label is low-confidence and the 1990-2026 sample flatters returns. It gives 40% combined to the two valuation methods. It anchors on the fresh SPF survey (25%) and the BL equilibrium (20%). The Gordon method is held at 20% rather than its confidence-implied share, because its 10-year reversion assumption fits a 3-year horizon poorly. The result is 7.52%, about 0.8pp below the 8.35% auto-blend and well inside the permitted range. It implies roughly a 3.5% excess return over the 4.03% T-bill and a Sharpe near 0.24 at 14.76% volatility. That is a deliberately modest equity premium consistent with stretched valuations, without assuming a rapid de-rating. Confidence is medium given the wide spread and low regime confidence. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once the policy is finalised.

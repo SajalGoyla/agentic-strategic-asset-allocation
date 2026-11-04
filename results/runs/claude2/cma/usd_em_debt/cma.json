@@ -1,0 +1,83 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.049105Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/usd_em_debt/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/usd_em_debt/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/usd_em_debt/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2123,
+        "output_tokens": 2304,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.057265199999999995
+      }
+    ],
+    "report_path": "cma/usd_em_debt/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "usd_em_debt",
+    "horizon_years": 3,
+    "expected_return_pct": 7.02,
+    "volatility_pct": 13.9918,
+    "method_range": [
+      6.4489,
+      10.331
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.7
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.15
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 7.02,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "The regime is a stall-speed expansion with sticky inflation and restrictive real rates, sitting on the border of late-cycle, and it is classified at low confidence (0.36). Over a 3-year horizon near EMB's duration, a late-cycle tilt favours the starting-yield anchor over backward-looking premia. USD EM debt is a spread asset whose worst outcomes come from US recessions and dollar squeezes, and the recession probability is 20-30%. That argues against leaning on a regime label that is itself uncertain. The regime_adjusted candidate gets a minority 15% weight. Its premium (+5.98% excess after expansion months) sits below the unconditional +6.60%, so even the regime evidence points to a softer-than-average forward excess return. However, that premium is still measured on a sample dominated by the 1990s Brady-bond spread compression.",
+      "valuation_context": "Valuation for this asset is best read through its yield. The 6.47% starting yield is high against the post-2008 history, which supports a mid-6s to 7% return. The yield_building_block candidate has four weaknesses, all noted rather than double-counted. First, it uses the ICE EM corporate yield (BAMLEMCBPIEY) as a proxy, while EMB holds sovereigns, whose index yields typically sit at or modestly above EM IG corporates. This is part of the reason for a small uplift above 6.45. Second, the 1.00% expected credit loss is a reasonable netting of default risk already priced in the spread, and I do not subtract any further. Third, the variance add-back uses the full-history 14% volatility, while realised volatility has been 7-10% recently. The add-back may therefore be slightly generous, which offsets the sovereign-yield point. Fourth, both historical methods start in 1993, when spreads were far wider, and they embed a secular spread compression and US yield decline that cannot repeat from here. The 10-year realised return of 2.27% and 5-year return of 1.19% show how far the since-1993 mean overstates the current environment. Black-Litterman (6.55%) is close to the yield anchor and corroborates it, though its ETF-AUM market weight of 0.9% is only a crude size proxy.",
+      "signal_alignment": "The composite signal of +0.08 is essentially neutral and gives no case for moving far from the yield anchor. The +0.80 yield_level score supports the yield-based method, but it is measured on DGS10 rather than the EM yield itself, so it confirms the rate component only. The credit_spread signal (-0.21, measured on US IG BAMLC0A0CM) says spreads are tight relative to history, so the spread component pays less than usual. This argues against leaning toward the historical premia. Trend (-0.47) and mean reversion (-0.31) are negative after a strong 3-year run (8.81%), which is a mild hedge against upside. The macro alignment signals are all near zero. Overall the signals confirm the yield-anchored estimate and argue for keeping the uplift above it small.",
+      "rationale": "For a USD bond held over a horizon close to its duration, the starting yield net of expected credit loss is the strongest single predictor, so yield_building_block carries 70% of the weight. I add 15% Black-Litterman as an independent check, since it lands almost on the same number. I add 15% regime_adjusted to reflect two points: the yield proxy is an EM corporate index whose yields tend to run slightly below the sovereign holdings of EMB, and the recent expansion has supported carry. historical_erp gets zero weight. Its 1993-start sample is dominated by the Brady-era spread compression and the secular fall in US yields, and the last decade's realised 2.27% shows it is not a guide to forward returns. The result is 7.02%, inside the 6.45-10.33 range and below the 7.86% auto-blend. The auto-blend gives 37% combined weight to two backward-looking methods whose assumptions do not hold today. With 13.99% volatility, this implies an excess return of about 3pp over the 4.03% T-bill and a Sharpe ratio near 0.21, which is plausible for a spread asset with tight spreads. Confidence is medium because of the proxy yield and the low-confidence regime call. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once the policy is finalised."
+    }
+  }
+}

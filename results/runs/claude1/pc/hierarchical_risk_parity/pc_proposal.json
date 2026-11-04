@@ -1,0 +1,212 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-hierarchical-risk-parity",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.475021Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1058,
+        "output_tokens": 1260,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.0161034
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "hierarchical_risk_parity",
+    "method": "Hierarchical risk parity",
+    "category": "risk_structured",
+    "weights": {
+      "us_large_cap": 0.00017514587163227127,
+      "us_small_cap": 0.00021146964318338501,
+      "us_value": 0.00033154230191160834,
+      "us_growth": 0.00013355582878729925,
+      "intl_developed": 0.000313457634611913,
+      "emerging_markets": 0.00020209823532104754,
+      "short_treasuries": 0.06360271899565997,
+      "intermediate_treasuries": 0.0025306733262407096,
+      "long_treasuries": 0.0006830299350494168,
+      "ig_corporates": 0.0033932689691819435,
+      "hy_corporates": 0.0014914226604584551,
+      "intl_sovereigns": 0.003762088664531211,
+      "intl_corporates": 0.0020503099270191612,
+      "usd_em_debt": 0.0005055917638205668,
+      "reits": 0.00029480462294350827,
+      "gold": 0.0008414416639917993,
+      "commodities": 0.0009684822116576533,
+      "cash": 0.9185088977439981
+    },
+    "expected_return_pct": 3.9103743121035524,
+    "expected_volatility_pct": 0.645775158256502,
+    "sharpe_ratio": 0.1399470248244762,
+    "effective_n": 1.4425688596484056,
+    "ex_ante_tracking_error_pct": 9.273146842353231,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 1.51% is below the CPI + 3.0% target",
+          "observed": 1.5146290661425699,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 0.65% outside the 8.0-12.0% band",
+          "observed": 0.645775158256502,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 9.27% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 9.273146842353231,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "HRP uses no expected returns and never inverts the covariance matrix. It clusters assets on correlation distance and splits risk budgets between clusters in inverse proportion to their variance. That makes it a covariance-structure method with no exposure to CMA error, which is the family §4.3 found agents favoring when return forecasts are weak. In an expansion regime, with spreads tight and CMAs for risk assets resting on small differences, that is a defensible stance. But the concentration here is the method working as designed on this input, not a diversification success. Cash has about 0.6% volatility, and the 11 other assets sit in clusters whose variance is orders of magnitude larger. Because the recursion allocates inversely to cluster variance, cash takes almost the entire budget. The 1.4 effective assets and the Herfindahl of 0.848 reflect that. The method is not showing that cash is the right asset to hold. It is saying that on a variance-only criterion nothing else competes with it. The portfolio breaches the IPS on three counts: volatility of 0.65% against the 8-12% band, expected real return of 1.51% against CPI+3%, and tracking error of 9.27% against the 6% budget. These are consequences of the method and not something I can tune away, since HRP has no genuine parameter that moves volatility without turning it into another method. The IPS is still a draft, and the breach should be weighed with that in mind. What it contributes to a compliant ensemble is an anchor, a low-risk sleeve and a structural reference point. In a blend, a small weight in this portfolio lowers ensemble volatility and drawdown without relying on any return forecast. It also shows what a pure risk-minimising ordering of the 18 assets looks like. It could serve as the defensive leg when the CIO mixes it with return-seeking proposals to land inside the band. On its own it is not a candidate for recommendation: it earns 3.91% at a Sharpe of 0.14, well below what the return-optimised methods show, and it would almost certainly fail the CRO.",
+    "revision_of": null,
+    "notes": "Key assumption: Historical covariance, and the volatility ranking it implies, is a sufficient guide to allocation, and risk should be minimised with no regard to compensation. In effect, expected returns carry no usable information, so the cheapest asset in variance terms should dominate. Main weakness: The portfolio is effectively cash, about 92%, with a Sharpe of 0.14. The method has no way to separate low-risk assets that are worth holding from assets that are simply near-riskless, so it fails the IPS return target, the volatility floor and the tracking-error budget together. A reviewer will see the 1.4 effective assets as the single-asset portfolio that HRP's diversification claims were meant to avoid. The inverse-variance splits also make it very sensitive to the one asset with extreme low volatility. Preferred when: It should be preferred when expected returns are unreliable and the objective is capital preservation or drawdown control rather than a return target, and as the defensive component of an ensemble where the CIO supplies the return-seeking exposure separately. It also does better against methods that depend on inverting a near-singular covariance matrix, since HRP is stable there. It fits poorly when the mandate has a hard return target, as this IPS does. Invalidated if: It is the wrong choice if the IPS volatility band and CPI+3% return target bind on the standalone recommendation, since this portfolio fails them by construction. It is also wrong if cash yields fall enough that the 3.91% expected return no longer compensates for the risk-free drag, or if CMAs prove reliable enough that return-optimised methods clearly earn more per unit of risk. A regime shift in which cash loses value in real terms, such as a sustained inflation surprise, would remove the premise that the lowest-variance asset is the safe one.",
+    "tuning": null
+  }
+}

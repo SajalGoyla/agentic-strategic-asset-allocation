@@ -1,0 +1,91 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.013505Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_developed/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/intl_developed/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/intl_developed/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2225,
+        "output_tokens": 2378,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.059153199999999996
+      }
+    ],
+    "report_path": "cma/intl_developed/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intl_developed",
+    "horizon_years": 3,
+    "expected_return_pct": 8.22,
+    "volatility_pct": 15.9996,
+    "method_range": [
+      7.7897,
+      8.9449
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "historical_erp",
+          "weight": 0.2
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.25
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "inverse_gordon",
+          "weight": 0.15
+        },
+        {
+          "method": "implied_erp_cape",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 8.22,
+      "confidence": "medium",
+      "dispersion": "tight",
+      "regime_logic": "Stage 1 calls a stall-speed expansion with sticky inflation and restrictive real rates, bordering on late-cycle. Confidence in that call is low (0.36), and recession odds are 20-30%. Exhibit 4 tilts late-cycle environments toward regime-adjusted and valuation methods. Because the regime label is uncertain, I raise regime_adjusted only modestly, to 25% from its 21% auto-blend weight. Its forward-looking expansion premium (+3.48% excess, credibility 0.75) already sits below the unconditional +4.60%, which fits a late expansion where forward returns are weaker. I also raise bl_equilibrium to 25%. It is the most regime-neutral anchor, and for a 4.8%-weight developed-ex-US sleeve its +3.99% implied premium is a sensible centre when the macro signal is this weak. Intl developed returns have little sensitivity to the US-centric growth, inflation and policy scores (correlations of -0.06, +0.10 and +0.03). That is another reason not to let the regime call drive the estimate.",
+      "valuation_context": "International developed valuations are not stretched in absolute terms. EFA's trailing earnings yield of 5.37% (P/E about 18.6) and a 2.79% dividend yield are far from the US CAPE extremes. The valuation methods (Gordon 8.47%, CAPE-implied 8.94%) therefore sit above the backward-looking ones, rather than far below them as they do for US Large Cap. I trim implied_erp_cape to 15% for two reasons. First, it uses a trailing, not cyclically adjusted, earnings yield taken after a strong earnings period. Second, it is a proxy (ETF E/P) rather than a long CAPE history. I keep inverse_gordon at 15%: it omits buybacks entirely, which understates income now that Japanese and European buybacks are material. It also assumes zero valuation drift and applies US SPF growth to non-US economies. These biases partly offset, and its low confidence (0.29) argues against leaning on it. The 18.3% annualised 3-year run has lifted multiples somewhat, but the methods do not disagree in any way that would justify a big tilt.",
+      "signal_alignment": "The composite signal is mildly bullish (+0.14). The technical signals pull in opposite directions. Positive 12-1 momentum (+0.33) and a strong cross-asset momentum rank (+0.56) point up. The 36-month mean-reversion signal (-0.64) flags the stretched 18% annualised 3-year run, which is well above the 5.9% compound return since 1990. Trend is flat. Over a 3-year horizon, momentum persistence fades while mean reversion is more relevant, so I do not let the bullish composite push the estimate toward the CAPE end. Instead I settle slightly below the 8.28% auto-blend. The macro alignment signals are near zero, which confirms the regime view adds little directional information here. The estimate is in USD on an unhedged basis, and currency moves are not forecast by any candidate, which adds uncertainty but no directional tilt.",
+      "rationale": "Dispersion is tight (1.16pp), so the main decision is calibration, not choosing between methods. Every candidate agrees on an excess return of roughly 3.5-4.9% over a 4.03% T-bill. I use a custom blend: historical_erp 20%, regime_adjusted 25%, bl_equilibrium 25%, inverse_gordon 15% and implied_erp_cape 15%. This gives 8.22%, 6bp below the auto-blend. The shift moves weight toward the equilibrium and forward-looking regime estimates, given a low-confidence, possibly late-cycle regime and a stretched 3-year run. It also trims the proxy-based valuation methods, whose inputs are thin: a trailing ETF E/P, no buyback data, and US growth applied abroad. The implied excess return of about 4.2% at 16% volatility gives a Sharpe ratio near 0.26. That is consistent with the asset's long-run 0.27-0.40 and sits sensibly below US equity premia. The adjustment is deliberately small because return estimates are the least reliable input in the chain. Confidence is medium. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once it is finalised."
+    }
+  }
+}

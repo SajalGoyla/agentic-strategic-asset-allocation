@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.406862Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2198,
+        "output_tokens": 2041,
+        "cache_read_tokens": 4072,
+        "cost_usd": 0.0256204,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "max_sharpe",
+    "method": "Maximum Sharpe ratio",
+    "category": "return_optimized",
+    "ex_ante_volatility_pct": 8.000780558613013,
+    "backtest_volatility_pct": 7.898426701690633,
+    "var_95_pct": 3.1258169425147546,
+    "cvar_95_pct": 4.896017928434395,
+    "max_drawdown_pct": -24.74597459281396,
+    "backtest_sharpe": 0.6686847808058558,
+    "ex_ante_tracking_error_pct": 3.8747538236045833,
+    "backtest_months": 400,
+    "effective_n": 3.750493713223078,
+    "concentration_hhi": 0.31347854690167787,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.09676003508760578,
+      "active_fixed_income": 0.04053916198132623,
+      "active_real_assets": 0.05622087310627954,
+      "benchmark_beta": 0.7976417059462505
+    },
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": []
+    },
+    "risk_score": 0.46763945148176417,
+    "risk_score_components": {
+      "volatility": 0.0001951396532531291,
+      "concentration": 0.27309493201354124,
+      "drawdown": 0.9898389837125583,
+      "tail": 0.5485871884366857,
+      "tracking_error": 0.6457923039340973
+    },
+    "judgment": {
+      "key_risks": [
+        "US value at 46% is the single exposure that carries the result. The proposer's own notes say a small error in the value-versus-growth expected-return gap moves roughly 40 points of weight, so the portfolio is a bet on one judged CMA gap rather than on diversification.",
+        "Long Treasuries at 21.8% next to short Treasuries at 22.3% is a duration barbell. The long sleeve is the main diversifier against the value equity, and it only works if stock-bond correlation stays negative or low. The panel starts in 1993, a period of mostly falling yields, so that hedge is credited with more than it has earned in an inflation-driven selloff.",
+        "Drawdown is the binding limit: -24.75% against a -25% IPS limit, which is about 0.25 points of headroom. One more bad month, a slightly different rebalance date or a different window would breach it. The portfolio sits at the limit, not comfortably inside it.",
+        "Equity-bond joint stress. The two largest risk sleeves are value equity and long duration. A 2022-style regime where both fall together is covered by only about 22% short Treasuries and 5.6% gold.",
+        "Tracking error of 3.87% comes from an active equity underweight of -9.7% against the benchmark, with the gap filled by Treasuries and gold. Most of the active risk sits in the value-over-growth tilt inside equities, not in the equity total."
+      ],
+      "concentration_assessment": "The method is failing, or at least not protecting against concentration here. Maximum Sharpe is a return-driven optimiser and the 46% US value weight is driven by the judged CMA, not by anything in the covariance matrix about diversification. It is not the near-singular corner solution that usually produces a 60% single-asset weight: lowering gamma to 4.64 spread the portfolio to about 3.8 effective assets, and the diversifying sleeves (short and long Treasuries, gold) have distinct risk roles. Still, the concentration is a view, not a risk-budget outcome. The value-versus-growth split is the fragile part, because the optimiser treats two highly correlated assets as near substitutes and puts nearly everything in the one with the higher forecast. The Herfindahl of 0.313 understates the dependence on a single input.",
+      "tail_risk_assessment": "The tail is moderate for the volatility, but the backtest probably understates it. The 1993 start includes 2000-02, 2008 and 2020, so the equity tail is reasonably sampled, and that is what puts the drawdown near the limit. The tail of the bond sleeve is not well sampled. Long Treasuries at about 22% are exposed to a rate-shock or inflation regime like the 1970s or 2022-type moves, and the panel has little of the first and only one episode of the second. Gold at 5.6% is a small sleeve, but its worst episodes (the early 1980s collapse) predate the data, so its role as a hedge is under-tested. The gap between VaR of 3.13% and CVaR of 4.90% shows a fat left tail, with losses past the 95% cutoff averaging about 1.6 points worse, and that reflects equity crashes. I would treat the -24.75% as an optimistic estimate of the drawdown this mix could produce, particularly if a bond-and-equity sell-off hits together.",
+      "ips_assessment": "No hard violation is listed, so there is nothing to explain as a breach. The compliance result is thinner than it reads, for three reasons. First, the drawdown limit passes by about a quarter of a point on a single historical path, so the pass is statistical noise rather than margin, and a small change in the data would flip it. Second, the proposer says the portfolio is compliant on ex-ante limits and that the tuning to reach the volatility band, rather than a natural optimum, is what delivers that, so compliance is the result of a setting chosen to satisfy the policy. Third, the governing IPS is still a draft, so the limits themselves may move, and this portfolio has almost no slack against the drawdown limit if they tighten. Volatility sits at the band floor, with ex-ante 8.00% and backtest 7.90% (the latter marginally under 8%). That means a lower realised volatility would put it under the floor, but the floor is a compliance issue, not a risk, and it scores 0 on that component.",
+      "commentary": "The risk that binds is drawdown, not volatility. Volatility is at the floor of the band and scores zero, so the composite of 0.47 is the average of a safe-looking volatility number and a drawdown component of 0.99. The portfolio takes only enough volatility to reach the band but delivers a drawdown that uses essentially all of the IPS allowance. That combination points to equity-driven losses concentrated in value, not to a diffuse volatility problem, and the fixed score formula is correct to weight it that heavily. I would add that the score does not capture how much of the result rests on one CMA gap, which is the more important point for reviewers.\n\nEx-ante and backtest volatility agree closely, 8.00% against 7.90%, so the covariance estimate is not obviously wrong for this weight vector and either can be used for volatility. For tail and drawdown the backtest is the figure to read, but with the caveat above: it is one path, it contains little inflation-shock history, and the long-duration and gold sleeves are the least well sampled. The ex-ante number says nothing about the tail, so it can't substitute here. The beta of 0.80 against the benchmark is consistent with the -9.7% equity underweight, and the value tilt means the realised exposure behaves differently from a plain equity underweight in a growth-led rally or a value sell-off.\n\nFor the ensemble, the thing to keep in mind is that this is a compliant portfolio whose compliance is fragile. It is inside every limit, but a single judged return gap sets 46% of the weights, the drawdown headroom is about 0.25 points, and the most diversifying sleeve (long Treasuries) is the one the 1993-onward data most flatters. The proposer's own acknowledgement that the 7.54% return has little margin is consistent with what the risk metrics show. The IPS is a draft, so the drawdown limit should be re-checked when it is finalised."
+    }
+  }
+}

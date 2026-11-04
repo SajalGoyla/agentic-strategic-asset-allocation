@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.402245Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2370,
+        "output_tokens": 2935,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.04427,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "cvar_minimization",
+    "method": "CVaR minimisation",
+    "category": "non_traditional",
+    "ex_ante_volatility_pct": 8.000788118257944,
+    "backtest_volatility_pct": 7.906034918066357,
+    "var_95_pct": 3.2289061388754856,
+    "cvar_95_pct": 4.6601775912872245,
+    "max_drawdown_pct": -18.723463117327665,
+    "backtest_sharpe": 0.7365184333620317,
+    "ex_ante_tracking_error_pct": 3.5974405044844353,
+    "backtest_months": 400,
+    "effective_n": 2.936244077736521,
+    "concentration_hhi": 0.3710081255160655,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.14569850867294304,
+      "active_fixed_income": -0.013488767711849647,
+      "active_real_assets": 0.1591872763847927,
+      "benchmark_beta": 0.7841688771765948
+    },
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": []
+    },
+    "risk_score": 0.412332975777928,
+    "risk_score_components": {
+      "volatility": 0.0001970295644859732,
+      "concentration": 0.3340086034875988,
+      "drawdown": 0.7489385246931066,
+      "tail": 0.5666795506670321,
+      "tracking_error": 0.5995734174140726
+    },
+    "judgment": {
+      "key_risks": [
+        "Stock-bond correlation turning positive: 45.4% in us_large_cap and 37.3% in intermediate_treasuries together make up about 83% of the portfolio. The tail protection depends on the Treasury sleeve offsetting equity losses. If the two fall together, as in an inflation or rate shock, the cushion disappears and the drawdown moves toward the -25% limit.",
+        "Duration shock in intermediate_treasuries (37.3%). The panel starts in 1993, during a long period of falling yields, so the optimiser probably overstates how much this sleeve cushions equity drawdowns.",
+        "Gold at 15.9% is the whole real-assets tilt and the largest active bet (+15.9%). The gold hedge is estimated from a sample that excludes the 1980 collapse and the 1970s regime. A shift in gold's behaviour would affect both tracking error and tail protection.",
+        "us_large_cap at 45.4% carries most of the return and most of the loss in a standard equity bear market. The equity underweight (-14.6%) and benchmark beta of 0.78 reduce this but do not remove it.",
+        "Fragility of the tail estimate. The LP picks a 4-asset corner using in-sample scenarios, so the hedge weights are fitted to the specific bad months that occurred. A different crisis mix would give different weights."
+      ],
+      "concentration_assessment": "This is the method working, but its output is fragile. CVaR minimisation is a linear programme over return scenarios and does not use the covariance matrix, so the near-singular-covariance explanation does not apply. Vertex solutions, with a few assets holding all the weight, are what an LP produces. Holding 4 of 18 assets (2.9 effective names) is therefore expected. The 1.4% in short_treasuries is residual dust, not a deliberate sleeve. The real concern is that the corner is chosen to fit the sample, so the specific split between equity, intermediate Treasuries and gold is more precise than the data supports. The IPS sets no per-asset caps, so the concentration breaches nothing, but 37% in one duration bucket and 16% in gold are sizeable single-asset exposures.",
+      "tail_risk_assessment": "The backtest tail is moderate against the IPS limit. The drawdown of -18.72% uses about three quarters of the -25% limit, and the 4.66% monthly CVaR sits well beyond the 3.23% VaR, which points to a fat left tail. The panel contains 2000-02, 2008, 2020 and 2022, which makes it a reasonable test for equity crashes, and 2022 is the one episode where equity and Treasuries fell together. The backtest is probably too kind for two sleeves. Intermediate Treasuries mostly have a falling-yield history here and no 1970s-80s rising-rate regime. Gold's worst episodes, the 1980s collapse and the 1970s inflation-era swings, predate the data. Because the optimiser built the portfolio from the same scenarios the backtest replays, the drawdown and CVaR are partly in-sample by construction. I would treat -18.7% as a floor on a plausible bad outcome, not a central estimate of it.",
+      "ips_assessment": "There are no hard violations, so nothing to explain breach by breach. Two points matter. First, ex-ante volatility of 8.00% sits exactly on the volatility floor of the draft IPS band, with no margin. Small changes in covariance estimates or rebalancing drift could put the portfolio just below the floor. The backtest volatility of 7.91% is already marginally below it, though the ex-ante figure is the one the IPS tests. Second, the drawdown limit is checked on the backtest, and the portfolio clears it with about 6 points of headroom, which is a real but in-sample margin. The governing IPS is still a draft, so this compliance result is provisional.",
+      "commentary": "The binding risk is the joint bet on equity and intermediate Treasuries, with gold as the third leg. Volatility scores zero because the portfolio is at the floor, not the ceiling, so it is not what drives the 0.41 composite. Drawdown (0.75) and tracking error (0.60) carry the score, and both are driven by the same structure: a 14.6% equity underweight funded by a 15.9% gold position. The tail component (0.57) reflects the gap between VaR and CVaR. The portfolio looks moderate on volatility but uses a large part of its drawdown budget.\n\nEx-ante volatility (8.00%) and backtest volatility (7.91%) agree closely, so the shrunk covariance matrix is not misleading about ordinary volatility. The ex-ante figure is the one to trust for the volatility band. For the tail I would trust the backtest drawdown and CVaR more, since the method optimises tail scenarios directly rather than covariance. Even so, they are the figures most flattered by in-sample fitting. The backtest Sharpe of 0.74 should also be read with care, because the return target is the historical scenario mean and the weights were chosen against that same history.\n\nThe composite score is a fair summary of risk against the stated limits, but it may understate the portfolio's exposure to a regime the sample lacks. A persistent positive stock-bond correlation or a gold reversal would hit the two diversifiers at once, and neither the score nor the backtest sees that. The diversification here comes from gold and duration rather than from a broad spread of assets."
+    }
+  }
+}

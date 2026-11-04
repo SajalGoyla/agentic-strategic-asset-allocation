@@ -342,8 +342,8 @@ agreeing once the Phase 4 backtest estimates the matrix out of sample.
 ## Paid runs (2026-10-29 to 2026-11-03)
 
 Both as of 2026-10-01, Opus 5.5 for macro, CMA judge, researcher, revisions and CIO; Sonnet 5.5
-for the PC agents, CRO, reviews and ballots (decision 51). The run folders are in git-ignored
-`data/runs/`; they are shared outside git.
+for the PC agents, CRO, reviews and ballots (decision 51). Both run folders are committed under
+`results/runs/`, where every new run is now written (decision 54).
 
 - **`claude1`** (all six stages, about $5.00 recorded; an earlier CMA-judge attempt that failed
   on the schema bug of decision 52 cost a further $2-4, unrecorded). Its reviewers' findings

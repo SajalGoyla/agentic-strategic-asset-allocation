@@ -1,0 +1,182 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-maximum-diversification",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.202468Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/tail_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/tail_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3963,
+        "output_tokens": 2941,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.038008
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "maximum_diversification",
+    "reviewer_category": "risk_structured",
+    "reviewed_agent_id": "tail_risk_parity",
+    "reviewed_category": "non_traditional",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal states plainly what it is: a defensive, forecast-free building block. It does not dispute the three IPS breaches or pretend to be a standalone answer. Its stated invalidation conditions (a rate shock hitting the front end, inflation above cash yields, a tail missing from the sample) are the right ones.",
+      "Using downside semicovariance asks a different question from variance-based methods, namely where the bad months come from. Because it reads no CMAs, it adds a source of error that is largely independent of return-forecast-driven candidates, which has real ensemble value.",
+      "The concentration is explained by the method's mechanics. Cash has by far the smallest downside semideviation, so equal risk contribution requires a very large weight. The held positions in equity, REIT and commodity risk assets (about 1-1.5% each) are consistent with that logic.",
+      "Ex-ante volatility (2.47%) and backtest volatility (2.45%) agree, and the CRO reports small drawdown (-7.19%) and 95% VaR (0.88%). The portfolio behaves as described within the sample.",
+      "The breach analysis is honest. The 7.47% tracking error is mostly the benchmark's own volatility showing through at a beta of 0.22, not a risky active bet."
+    ],
+    "weaknesses": [
+      "The core premise is that history-measured downside shortfalls below each asset's own mean are a stable guide to future tail risk. That premise is weakest exactly where the portfolio is most exposed. Cash's semideviation is tiny and sits in the denominator of the weight, so a 53% cash weight is hypersensitive to a near-zero estimate. This is a weak input showing through, not diversification.",
+      "Shortfall below an asset's own mean treats cash and short Treasuries as having almost no tail risk. It cannot register purchasing-power loss, reinvestment risk after rate cuts, or a front-end repricing. The 70% core is therefore risk-free by construction, and the method is blind to exactly the inflation or rate-shock regime that would hurt it. The CRO's low drawdown and VaR scores come from the same 1993-onward history and share this blindness.",
+      "The regime does not support the premise. In an expansion, risk assets are rewarded and the portfolio holds only about 7% in equities and REITs. The proposal itself concedes it is strongest in late-cycle or stress-prone regimes. The cost shows up as an expected real return of 2.38% (about 0.6 points below CPI+3%) and a 7.47% tracking error from missing the benchmark's equity beta.",
+      "The claim that 6.0 effective assets out of 18 shows it is 'not a one-asset bet' is overstated. A single asset is 53% of the portfolio and two assets are about 70%. The remaining 16 positions are 1-4% each, which is close to noise, so breadth is nominal.",
+      "All three hard IPS breaches (return, volatility band, tracking error) are structural, and the proposal says no parameter fixes them. The usefulness case rests on the CIO blending it with return-seeking candidates, but that depends on candidates the reviewer cannot see. It is not demonstrated here. Scaling a cash-dominated portfolio up toward the band also implies leverage or a large reallocation that the method does not address.",
+      "The Sharpe of 0.39 in the proposal's own text conflicts with the backtest Sharpe of 0.58. Both are flattered by a cash-heavy mix measured against a cash risk-free rate. They say little about skill in forecast-free construction, and calling 0.39 'respectable' proves less than it appears to.",
+      "The equal-semicovariance weights also depend on 1993-onward monthly scenarios, which contain few distinct tail regimes. The pre-1993 high-inflation and high-rate periods that would stress the cash and short-Treasury core are absent, and gold, commodities and long Treasuries are held at small weights as offsets."
+    ],
+    "technical_errors": [],
+    "score": 0.45,
+    "rationale": "The method is coherent on its own terms and the proposal is unusually candid about its limits. The weight pattern follows from equal downside risk contribution, and the realised risk figures agree with the ex-ante ones, so I found no misapplied estimator. The premise is the problem. It requires that tail behaviour in the 1993-onward sample is stable, and that the assets rated safest (cash and short Treasuries, about 70%) will stay safe. Those are the assets most exposed to the inflation and rate-path risks that a nominal semicovariance cannot see. The current regime (expansion) also rewards the risk assets this portfolio nearly excludes. It breaches all three hard IPS limits, but the IPS is still a draft and the breaches bind only the CIO's final portfolio, so I treat them as describing a defensive sleeve rather than disqualifying it. As an ensemble ingredient it offers forecast-independent diversification and a low-drawdown anchor. As a standalone portfolio in this regime it has limited quality. The score reflects a sound but narrow candidate whose value depends on how the CIO blends it."
+  }
+}

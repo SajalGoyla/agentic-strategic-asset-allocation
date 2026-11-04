@@ -1,0 +1,79 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.030124Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/long_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/long_treasuries/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/long_treasuries/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2068,
+        "output_tokens": 1975,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.050465199999999995
+      }
+    ],
+    "report_path": "cma/long_treasuries/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "long_treasuries",
+    "horizon_years": 3,
+    "expected_return_pct": 6.09,
+    "volatility_pct": 12.4265,
+    "method_range": [
+      4.1864,
+      8.227
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.85
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 6.09,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "The stage-1 call is a stall-speed expansion with sticky inflation and restrictive real rates, bordering on late-cycle, at low confidence (0.36). For long Treasuries this regime cuts both ways. A 20-30% recession probability is an upside tail, because a growth scare would pull long yields down and produce sizeable price gains at roughly 16-17 years of duration. Sticky inflation (-0.27) is the main downside risk: it could keep term premia rising and push long yields higher. Given that two-sided balance and the weak regime confidence, I give no weight to regime_adjusted (8.23%). Its 'expansion' conditioning is fragile here. It is also inflated by the 1990-2026 secular bond rally, so its +4.41% forward excess return mostly reflects falling yields that cannot repeat from today's starting point in the same way.",
+      "valuation_context": "The starting yield of 5.66% (mean of 20y and 30y) is high against post-2008 history. The yield_level signal (+0.79) confirms long bonds are cheap relative to their own record. That favours anchoring on the yield, which already embeds the current term premium. The backward-looking historical_erp (6.98%) and regime_adjusted (8.23%) are distorted by three decades of falling yields that added capital gains on top of carry, so they overstate what carry plus a stable yield delivers. Here the valuation-based and historical methods agree on direction but not on cause: the yield is high because yields rose, and the historical methods are high because yields fell. Only the first is a guide forward. One tempering point: the 3-year horizon is well short of the roughly 16-17 year duration. Starting yield is therefore a less exact predictor than it would be at a horizon matched to duration, and price changes over three years can dominate either way.",
+      "signal_alignment": "The composite signal (+0.16) is mildly positive and supports a yield-anchored estimate rather than a haircut toward the minimum. Valuation (yield_level +0.79) and the 36-month mean-reversion signal (+0.23) point up. Technicals are clearly negative: trend -0.56, 12-1 momentum -0.28, and relative momentum -0.89, the weakest of the 18 classes. The 1y return of -8.98% and 5y return of -8.46% show selling pressure has not abated. Macro alignment signals are essentially zero, so the macro dimensions offer little directional information for this asset. I hedge the bearish momentum by placing modest weight on the low Black-Litterman equilibrium (4.19%) rather than adding the high historical methods, which would lean against the trend.",
+      "rationale": "For a long-duration Treasury with no credit risk, the yield building block (6.43%, confidence 0.80) is the strongest candidate and the anchor. I depart from it slightly, toward bl_equilibrium (4.19%), for three reasons: horizon mismatch, negative momentum, and inflation risk. First, the 3-year horizon is far shorter than duration, so the starting yield does not lock in the return. Second, momentum and trend are strongly negative. Third, sticky inflation leaves room for long yields and term premia to rise further, which a 0.77pp variance add-back on a single starting yield does not capture. BL's near-zero equilibrium premium reflects long Treasuries' hedging role against the equity-heavy ETF portfolio. That is a coherent counterweight, even though ETF sizes are a rough proxy for market size, which is why it gets only 15%. Historical_erp and regime_adjusted are excluded because 1990-2026 was a secular fall in yields that inflates their excess returns. The resulting 6.09% (0.85 x 6.43 + 0.15 x 4.19) is slightly below the auto-blend (6.27%), sits well inside the [4.19, 8.23] range, and implies roughly 2.1pp over the 4.03% T-bill, a Sharpe of about 0.16 at 12.43% volatility. That is consistent with a modest term premium. Confidence is medium rather than high because of the duration-horizon mismatch and two-sided macro risk. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once the policy is finalised."
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "revise-equal-weight",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:43:46.366311Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/equal_weight/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5235,
+        "output_tokens": 2627,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.084015
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "equal_weight",
+    "method": "Equal weight (1/N)",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.05555555555555555,
+      "us_small_cap": 0.05555555555555555,
+      "us_value": 0.05555555555555555,
+      "us_growth": 0.05555555555555555,
+      "intl_developed": 0.05555555555555555,
+      "emerging_markets": 0.05555555555555555,
+      "short_treasuries": 0.05555555555555555,
+      "intermediate_treasuries": 0.05555555555555555,
+      "long_treasuries": 0.05555555555555555,
+      "ig_corporates": 0.05555555555555555,
+      "hy_corporates": 0.05555555555555555,
+      "intl_sovereigns": 0.05555555555555555,
+      "intl_corporates": 0.05555555555555555,
+      "usd_em_debt": 0.05555555555555555,
+      "reits": 0.05555555555555555,
+      "gold": 0.05555555555555555,
+      "commodities": 0.05555555555555555,
+      "cash": 0.05555555555555555
+    },
+    "expected_return_pct": 6.841111111111112,
+    "expected_volatility_pct": 8.41003962711421,
+    "sharpe_ratio": 0.359226739119155,
+    "effective_n": 18.000000000000004,
+    "ex_ante_tracking_error_pct": 4.3577286836499916,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I keep the original 1/N portfolio unchanged, under the governing IPS, which is still a draft. I also restate the case honestly in light of the reviews. The portfolio's value to the CIO is as a model-free reference: its weights use no CMA or covariance estimates, so it cannot be distorted by them, and any tilt in the ensemble should be justified against it. I concede several points. Its neutrality is relative to the 18-sleeve taxonomy. Its ex-ante return and Sharpe do depend on the CMAs, and the ex-ante figures and the 0.56 backtest Sharpe should not be conflated. It is not a regime bet; with beta 0.81 and a 26.7-point equity underweight, it would lag an equity-led expansion. Its compliance holds only on the ex-ante screen: it breaches the -25% backtest drawdown limit at -26.65%, a lower bound given the missing inflation episodes. The available levers cannot repair that tail without leaving the method. Shrink-to-equal and any non-binding cap change nothing. Exclusions require the asset-level return and risk judgments 1/N exists to avoid, and they trade one problem for another: dropping cash deepens the drawdown, and dropping commodities or credit risks breaching the 8% volatility floor. A partial fix that turns the anchor into a disguised view would cost more than it fixes. The drawdown breach is best handled at the CIO stage, by blending this anchor with risk-based proposals that hold less growth-sensitive capital, rather than by distorting the reference point itself.",
+    "revision_of": "pc/equal_weight/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- inverse_variance: Thank you for checking the arithmetic; I accept all of the substantive points, and none calls for a lever. (1) Regime inconsistency: accepted. The case overstated the expansion argument. Equal weight is 26.7 points underweight equity against the benchmark, with beta 0.81, and would lag an equity-led rally. I withdraw the claim that the regime favours this portfolio; it is regime-agnostic by construction. (2) No-information prior: accepted. 1/N is neutral only relative to this 18-sleeve taxonomy. Four US equity sleeves and three Treasury sleeves plus cash each get about 22% because of how the universe is cut, not because of any information. I restate the claim as 'no estimated inputs', not 'no implicit view'. (3) Drawdown: accepted as the binding risk. The -26.65% backtest drawdown breaches the -25% limit and is a lower bound, since the sample omits the 1970s-82 inflation episodes. I considered excluding a growth-sensitive sleeve such as commodities or HY. That would pick assets using exactly the return and risk judgments this method exists to avoid. It would also risk taking volatility below the 8% floor, which sits only 0.41 points away. Excluding cash would cut the drag but deepen the drawdown. No lever fixes the tail without abandoning the method, so I leave the drawdown to the CIO's ensemble, where risk-based proposals can offset it. (4) Capital versus risk: accepted. Effective N of 18 describes capital, not risk contributions. (5) Compliance wording: accepted and corrected. The portfolio is compliant only on the ex-ante weight, volatility and tracking-error screen of the draft IPS; it breaches the backtest drawdown limit. (6) DeMiguel-Garlappi-Uppal: accepted. The argument bears mainly on methods driven by return forecasts and is weaker against covariance-only methods. resampled_efficient_frontier: I address both technical errors explicitly. (a) Compliance versus the CRO: you are right that the two statements need reconciling. The proposal-level IPS check screens ex-ante weights, volatility and tracking error. The -25% drawdown limit is assessed on the CRO's backtest, and on that measure the portfolio breaches by 1.65 points. My case should have said 'ex-ante compliant under the draft IPS; breaches the backtest drawdown limit'. I correct it here, and compliance is no longer offered as a selling point. (b) CMA error in the ex-ante figures: accepted. The weights use no forecasts, but the 6.84% expected return and 0.36 Sharpe are computed from the CMA return vector, so they carry CMA error. The gap to the 0.56 backtest Sharpe mainly reflects the difference between forward-looking CMAs and realised 1993-onward history, which had strong bond and equity returns from falling yields. The CIO should not read the backtest Sharpe as a forecast. On the substantive points: I accept that 1/N embeds an implicit equal-moments view and depends on the taxonomy. I accept that the DGU evidence targets sample mean-variance rather than shrunk or resampled estimates. I accept that the regime argument was strained, given the equity underweight. I also accept that compliance is coincidental and fragile near the volatility floor. I do not revise because each available lever either does nothing to a 1/N portfolio or requires the asset-by-asset judgments the method avoids. Shrink-to-equal is a no-op. A cap at or above 5.56% does not bind. Exclusions are views. Excluding cash raises the drawdown, and excluding commodities risks a volatility-floor breach.",
+    "tuning": null
+  }
+}

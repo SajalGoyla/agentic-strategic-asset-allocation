@@ -1,0 +1,212 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-tail-risk-parity",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.478821Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1271,
+        "output_tokens": 1357,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.017499400000000002
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "tail_risk_parity",
+    "method": "Tail-risk parity",
+    "category": "non_traditional",
+    "weights": {
+      "us_large_cap": 0.013599522430845497,
+      "us_small_cap": 0.010819251830831066,
+      "us_value": 0.013484752149498059,
+      "us_growth": 0.012718832035782265,
+      "intl_developed": 0.012298007073271992,
+      "emerging_markets": 0.009700356452571921,
+      "short_treasuries": 0.16904312688089743,
+      "intermediate_treasuries": 0.04052231946061615,
+      "long_treasuries": 0.021958876497957792,
+      "ig_corporates": 0.03170190018525849,
+      "hy_corporates": 0.02551168937952431,
+      "intl_sovereigns": 0.02650523423008502,
+      "intl_corporates": 0.02321034004264319,
+      "usd_em_debt": 0.015299129904826332,
+      "reits": 0.01115851161073205,
+      "gold": 0.016607427347082336,
+      "commodities": 0.014260722986214329,
+      "cash": 0.5315999995013617
+    },
+    "expected_return_pct": 4.791235388305175,
+    "expected_volatility_pct": 2.4664887738339547,
+    "sharpe_ratio": 0.39377247470519366,
+    "effective_n": 6.047039109858105,
+    "ex_ante_tracking_error_pct": 7.470946826090725,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 2.38% is below the CPI + 3.0% target",
+          "observed": 2.375181114014424,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 2.47% outside the 8.0-12.0% band",
+          "observed": 2.4664887738339547,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 7.47% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 7.470946826090725,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Tail-risk parity equalises each asset's contribution to downside semicovariance, built from the shortfalls below each asset's mean in the 1993-onward monthly scenarios. It reads no CMAs, so it inherits none of their estimation error. That matters in an expansion regime, where return forecasts tend to be crowded and cheap to get wrong. It is a covariance-structure method, the kind §4.3 found agents favouring when the environment turned late-cycle. It also asks a different question from variance-based risk parity: where do the bad months come from, rather than where does the symmetric variance come from.\n\nThe concentration is the method working as designed, not failing. Cash carries by far the smallest downside semideviation, so it needs a very large weight to contribute the same share of downside risk as the other 17 assets. Short Treasuries are the next-lowest-risk asset and take the next-largest weight. Equities, REITs and commodities each get about 1-1.5%, because their shortfalls are large and sit in the same episodes. The 6.0 effective assets versus 18 held shows this is a tilt toward low-tail assets, not a one-asset bet like a near-singular max-Sharpe solve.\n\nThe portfolio is outside the IPS, and I will not dispute it. Volatility of 2.47% is far below the 8-12% band, the expected real return of 2.38% misses the CPI+3% target, and the 7.47% tracking error exceeds the 6% budget. The method has no genuine parameter that moves it toward the band without becoming a different method, so it is proposed as is. The IPS is still a draft. These breaches are mostly a statement that the portfolio is a very low-risk anchor, and the IPS binds on the CIO's final recommendation, not on this candidate.\n\nWhat it offers a compliant ensemble is a defensive sleeve with a known risk profile. It is a low-volatility building block whose risk was budgeted by tail behaviour rather than variance. The CIO can combine it with higher-risk, return-seeking proposals to land inside the band, and the cash and short-duration ballast sets how much downside the blend takes on. Its Sharpe of 0.39 is respectable for a portfolio that bypasses the CMAs entirely, and it comes with no forecast-dependence risk, so it diversifies the ensemble's sources of error.",
+    "revision_of": null,
+    "notes": "Key assumption: The downside shortfalls in the 1993-onward monthly returns are a fair guide to where future tail losses will come from, so that assets with low historical downside semicovariance will stay low-tail and each asset's tail relationships will persist. Main weakness: The portfolio is about 70% cash and short Treasuries, so it sits at 2.5% volatility and cannot reach the IPS return target or volatility band on its own. In an expansion, where risk assets are rewarded, it gives up that return for tail protection it may not need. It also depends on the historical sample: a tail event absent from 1993 onward, or a cash-and-short-bond shock such as inflation or rate spikes, would be invisible to it, and the dominant cash position is treated as risk-free by construction. Preferred when: It should be preferred when return forecasts are judged unreliable, when the committee puts drawdown and tail protection ahead of return, and when the CIO needs a defensive component for a blended portfolio that will be scaled up to the IPS band. It is strongest in late-cycle or stress-prone regimes, where covariance-driven methods have been favoured, and as a counterweight to the return-optimised proposals in the ensemble. Invalidated if: The case fails if the next drawdown comes from an asset the history rated as safe, such as a rate shock that hits cash-like and short-duration holdings, or an inflation regime where cash earns far below CPI. It also fails if the sample misses a major tail regime, if the CMAs prove reliable enough that return-seeking portfolios dominate on a risk-adjusted basis, or if the CIO finds that no compliant blend keeps meaningful weight in this portfolio, since then it adds nothing to a compliant ensemble.",
+    "tuning": null
+  }
+}

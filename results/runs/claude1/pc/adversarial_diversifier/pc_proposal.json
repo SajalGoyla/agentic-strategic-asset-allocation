@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-adversarial-diversifier",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.480849Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 918,
+        "output_tokens": 2399,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.027213400000000002
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "adversarial_diversifier",
+    "method": "Adversarial diversifier",
+    "category": "non_traditional",
+    "weights": {
+      "short_treasuries": 1.0
+    },
+    "expected_return_pct": 4.7,
+    "expected_volatility_pct": 1.6910836996139367,
+    "sharpe_ratio": 0.5203763717909992,
+    "effective_n": 1.0,
+    "ex_ante_tracking_error_pct": 9.300290295505928,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 2.29% is below the CPI + 3.0% target",
+          "observed": 2.2860492379835673,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 1.69% outside the 8.0-12.0% band",
+          "observed": 1.6910836996139367,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 9.30% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 9.300290295505928,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "This portfolio is the optimiser's answer to one question: which long-only portfolio is furthest from the centroid of the other proposals while keeping at least 75% of the maximum Sharpe ratio? It is not a recommendation to hold it. It is a probe, and what it returns is informative. The Sharpe floor can be met by a portfolio that takes almost no risk, so a Sharpe-only screen does not by itself justify any of the risk-asset exposure the other proposals carry. Because the diversifier is a vertex, it is also the cleanest available measure of what the other methods pay, in return per unit of risk, to get closer to the IPS volatility band.\n\nFor the CIO's ensemble, the contribution is as a small, low-correlation sleeve and as a reference point. Blended in at a modest weight, it diversifies the common factor exposures (equity beta, term premium) that conventional methods cluster on. It also shows the cost side of compliance: the ensemble needs 8-12% volatility and a CPI+3% real return, and the gap between this vertex and the compliant ensemble is the Sharpe and tracking-error price of meeting the policy. The CIO can use it as the 'dry powder' leg when sizing how much risk the ensemble truly needs to take.\n\nIt breaches the draft IPS on three hard limits: return, volatility, and tracking error. Those breaches follow directly from what the method is, and the CRO and the vote should weigh them. The paper's CIO weighted breaching portfolios for what they added to an ensemble, and that is the right test here. The portfolio should be judged on whether a small slice improves a compliant blend, not on whether it complies alone.\n\nBecause the method uses the judged CMAs, it inherits their estimation error. The Sharpe floor is set from the maximum-Sharpe portfolio, which is the most CMA-sensitive of all the methods. The Sharpe of 0.52 here comes from a small excess return divided by a very small volatility, so a modest error in the CMA or the risk-free rate moves the ratio a lot.",
+    "revision_of": null,
+    "notes": "Tracking error to the centroid of the other 14 proposals: 5.01%. Key assumption: The judged CMAs and risk-free rate are accurate enough that the Sharpe floor, 75% of the unconstrained maximum, is a meaningful gate, and the centroid of the other proposals is a sensible 'conventional view' to move away from. Main weakness: The portfolio is a single-asset vertex (effective number of assets 1.0) that fails the IPS on return (real 2.29% against the CPI+3% target), volatility (1.69% against 8-12%), and tracking error (9.30% against the 6% budget). Its Sharpe of 0.52 is a ratio of a small excess return to a tiny volatility, so it is highly sensitive to CMA or risk-free-rate error, and it would collapse if the short-rate CMA were revised down. It hedges nothing against inflation or reinvestment risk, and the optimiser's local-optimum search means it is a maximum-distance point under a noisy constraint, not a considered allocation. Preferred when: It is most useful as a minority input to the CIO's ensemble, when the other proposals cluster on shared exposures such as equity beta or duration, when the regime makes risk assets' Sharpe ratios hard to distinguish from a low-risk alternative, and when the CIO wants to see how much return and Sharpe the IPS band costs. It should not be preferred as a standalone portfolio under any conditions, since the paper itself says it is not intended as one. Invalidated if: The diversifier's case fails if the CMAs are materially wrong, especially a lower short-rate or excess-return estimate that puts this vertex below the Sharpe floor. It also fails if the other proposals are themselves near this vertex, in which case it adds no diversification. And it fails if the final IPS keeps the 8-12% volatility band and the CIO's compliant ensemble can only absorb it at a weight too small to matter, or if it is finalised with return and tracking-error limits that this vertex cannot approach.",
+    "tuning": null
+  }
+}

@@ -155,7 +155,9 @@ def test_a_ballot_can_only_name_the_candidates_the_voter_may_rank():
 def voting_run(config, tmp_path_factory):
     """Fifteen proposals, their CRO reports and their reviews: ready to vote."""
     root = tmp_path_factory.mktemp("voting")
-    settings = config.settings.model_copy(update={"data_dir": root / "data"})
+    settings = config.settings.model_copy(
+        update={"data_dir": root / "data", "runs_dir": root / "runs"}
+    )
     cfg = dataclasses.replace(config, settings=settings)
     stage = rich_stage_inputs()
     labels = pd.Series(

@@ -45,7 +45,9 @@ def reviewed_run(config, tmp_path_factory):
     import dataclasses
 
     root = tmp_path_factory.mktemp("reviewed")
-    settings = config.settings.model_copy(update={"data_dir": root / "data"})
+    settings = config.settings.model_copy(
+        update={"data_dir": root / "data", "runs_dir": root / "runs"}
+    )
     tmp_config = dataclasses.replace(config, settings=settings)
     stage = rich_stage_inputs()
     labels = pd.Series(

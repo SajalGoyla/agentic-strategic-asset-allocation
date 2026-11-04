@@ -1,0 +1,212 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.408263Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2639,
+        "output_tokens": 4551,
+        "cache_read_tokens": 4072,
+        "cost_usd": 0.0516024,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "pc_researcher",
+    "method": "Maximum entropy with a Sharpe floor",
+    "category": "pc_researcher",
+    "ex_ante_volatility_pct": 3.8219468490138584,
+    "backtest_volatility_pct": 3.7899281472281485,
+    "var_95_pct": 1.4876399007016068,
+    "cvar_95_pct": 2.2735259175434237,
+    "max_drawdown_pct": -10.874561512530045,
+    "backtest_sharpe": 0.699749498128081,
+    "ex_ante_tracking_error_pct": 6.243168586923042,
+    "backtest_months": 400,
+    "effective_n": 7.2293108673157,
+    "concentration_hhi": 0.22677122878338185,
+    "factor_tilts": {
+      "active_cash": 0.12607071014939158,
+      "active_equity": -0.42226613674554514,
+      "active_fixed_income": 0.2469543567856467,
+      "active_real_assets": 0.04924106981050699,
+      "benchmark_beta": 0.36670181918660516
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 3.82% outside the 8.0-12.0% band",
+          "observed": 3.8219468490138584,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 6.24% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 6.243168586923042,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.32510126384128823,
+    "risk_score_components": {
+      "volatility": 0.0,
+      "concentration": 0.18128718341769845,
+      "drawdown": 0.4349824605012018,
+      "tail": 0.26108380802222,
+      "tracking_error": 1.0
+    },
+    "judgment": {
+      "key_risks": [
+        "Benchmark-relative equity shortfall: only about 17.8% is in equity (us_large_cap 0.2% against a 60% benchmark sleeve; active equity -42.2%, benchmark beta 0.37). In a sustained equity rally this portfolio would trail the 60/40 by a wide margin, and that gap is what the tracking-error breach measures.",
+        "About 55% of the book is in short_treasuries (42.8%) and cash (12.6%). The nominal path is calm, but the exposure is to real-return erosion in an inflation episode and to reinvestment risk if short rates fall. A nominal drawdown figure does not capture either.",
+        "The equity risk that remains is a style bet. us_value is 10.7% against us_growth 3.8% and us_large_cap 0.2%, so the equity sleeve is a value-over-growth tilt (value-oriented equity, which tends to carry cyclical and financials risk) rather than broad market exposure. Equity-like sleeves (us_value, hy_corporates 3.0%, us_small_cap 1.9%, emerging_markets 0.7%) probably supply most of the portfolio's variance despite being under a fifth of capital.",
+        "Duration risk in a rate shock: intermediate_treasuries (9.5%) and long_treasuries (4.5%) are about 14% of the book. Their weights are small, but they are the assets that fell together with equities in 2022-type episodes, so they do not diversify the equity risk in that scenario.",
+        "Dependence on the Sharpe floor and the CMA expected returns that set it. The allocation to near-zero-volatility assets is driven by the floor, not by an independent view, so a change in the CMAs or the floor would move the weights materially."
+      ],
+      "concentration_assessment": "The concentration is the method working as specified, but it is not the outcome the proposal described. The Herfindahl of 0.227 and effective N of 7.2 come mostly from short_treasuries (42.8%) plus cash (12.6%). Under a CMA-based Sharpe floor, the cheapest way to raise portfolio Sharpe is to hold assets with very low volatility in the denominator, and entropy maximisation spreads the remainder thinly across the other 16 assets. This is not a near-singular covariance artefact, because the remaining weights are small and spread widely. The rationale expected an allocation close to 1/N, and this is far from it. Effective N of 7.2 also measures capital weights, not risk contributions, which the proposal itself concedes. Risk concentration is higher than that figure suggests, because variance sits in the small equity-like and duration positions while the large positions contribute almost none. Capital is concentrated in assets that do almost no risk work, which is a different problem from one asset carrying the result.",
+      "tail_risk_assessment": "The measured tail is mild: a monthly 95% CVaR of 2.27% against a VaR of 1.49%, and a maximum drawdown of -10.87%, well inside the -25% limit. It is credible for the nominal path of this mix over 1993 onward. The panel includes 2000, 2008, 2020 and 2022, so equity, credit and duration shocks are represented, although the equity and HY weights are small enough that those episodes were diluted. It is less credible as a statement about inflation. The sample has no 1970s-style stagflation and sits inside a long decline in yields that flattered intermediate and long Treasuries. The 55% in short_treasuries and cash would show no nominal loss in an inflation shock but would lose purchasing power, and the 3.0% gold and 1.1% commodities are too small to offset that. The backtest tail therefore understates real-terms risk and rate-shock risk beyond what 1993-2026 produced.",
+      "ips_assessment": "Both breaches are hard under the draft IPS and both come from one fact: the portfolio holds much less risk than the 60/40 benchmark. (1) Volatility of 3.82% is well below the 8-12% band. This is a shortfall of risk, not an excess of it, which is why the volatility score component is 0. For an ensemble it means the portfolio would pull the blend's volatility and expected return down and would need to be balanced by higher-risk sleeves. The band is draft policy, so how far below it should matter is not settled. (2) Ex-ante tracking error of 6.24% exceeds the 6.0% budget by only 0.24 points. It is a marginal breach, driven by the 42-point equity underweight, and not a sign of a large active bet. The risk score caps this component at 1.00, which hides how small the overshoot is, so the composite of 0.33 reflects a small relative-risk overshoot on top of a low absolute-risk portfolio. Moving toward benchmark equity would reduce tracking error and raise volatility at the same time, so the two breaches are linked. Neither disqualifies the candidate, because the hard limits bind on the CIO's final portfolio.",
+      "commentary": "The binding risk is benchmark-relative: the portfolio is under-invested in equity, with a beta of 0.37 to a 60/40 that it differs from by more than the draft budget allows. It is not an absolute-loss risk. Volatility, VaR and drawdown are all low, and the real exposure is a shortfall against the benchmark plus real-return erosion in cash-like assets. The proposal expected a broadly diversified, near-1/N portfolio that would pass the draft IPS. What the Sharpe floor produced is a portfolio that is 55% near-cash and fails the volatility band and the tracking-error budget. A reviewer should treat the effective N of 7.2 as flattering, because the capital sits in positions with almost no risk and the variance sits in a few small equity-like and duration positions.\n\nThe ex-ante (3.82%) and backtest (3.79%) volatilities agree closely, so the shrunk covariance matrix describes this particular mix well and neither number is the unreliable one. The agreement is not independent evidence, though: both come from the same 1993 onward history, and both are dominated by low-volatility assets whose volatility has been stable inside that sample. I would trust the ex-ante figure for current risk and treat the backtest Sharpe of 0.70 with caution, because the period included a long decline in yields that helped the Treasury weights. The tail is credible for equity, credit and rate episodes in the panel but not for inflation or a rate shock beyond 2022.\n\nIn an ensemble this portfolio would act as ballast. It would lower volatility and drawdown, increase active cash and fixed-income weight, and lean on the value tilt for any equity return. Its value depends on whether the CIO's final portfolio needs that ballast, and its main model risk is that its weights depend on the Sharpe floor and the CMAs that set it. The policy limits are draft, so the size of the volatility shortfall and the tracking-error overshoot should be read against thresholds that may still change."
+    }
+  }
+}

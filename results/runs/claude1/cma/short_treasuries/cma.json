@@ -1,0 +1,79 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.022356Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/short_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/short_treasuries/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/short_treasuries/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2072,
+        "output_tokens": 2411,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.059201199999999995
+      }
+    ],
+    "report_path": "cma/short_treasuries/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "short_treasuries",
+    "horizon_years": 3,
+    "expected_return_pct": 4.7,
+    "volatility_pct": 1.6911,
+    "method_range": [
+      4.03,
+      4.8793
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.85
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 4.7,
+      "confidence": "medium_high",
+      "dispersion": "tight",
+      "regime_logic": "The stage-1 call is a low-confidence (0.36) stall-speed expansion that is borderline late-cycle, with sticky inflation and restrictive real rates. For a roughly 2-year-duration Treasury held over a 3-year horizon, regime matters mainly through the reinvestment path, not through the starting carry. If the 20-30% recession risk materialises, cuts give a capital gain on the existing ladder, which is roughly offset by rolling into lower yields. If sticky inflation forces further tightening, the reverse happens. Over a horizon about 1.5x duration these effects largely net out, so regime does not argue for departing materially from the starting yield. I give regime_adjusted no weight. It is essentially the historical premium shrunk toward itself (180 expansion months, credibility 0.75), and with a regime label this uncertain it adds no conditioning information beyond historical_erp.",
+      "valuation_context": "The starting yield is the valuation for this asset. The 1-3y yield averages 4.81%, high against its own post-2008 history (yield_level +0.73), and about 0.8pp above the 4.03% T-bill. That steep front-end slope means the market is pricing either some further tightening or a term premium. Either way, the yield building block already captures it, because holding to a horizon near duration earns the starting yield almost regardless of the rate path. historical_erp (4.88%) is backward-looking and draws its +0.85pp excess from 1990-2026, a secular decline in yields that delivered repeated duration gains. Its closeness to the yield candidate is coincidental rather than corroborating, so I give it no weight. bl_equilibrium (4.03%) sets a zero excess return because short Treasuries hedge the equity-heavy ETF market portfolio. That is a CAPM artefact rather than a valuation view, and it implicitly treats the 80bp front-end term spread as unearnable.",
+      "signal_alignment": "The signals split cleanly by horizon. Valuation (yield_level +0.73) supports the high starting-yield estimate and dominates the +0.16 composite. The technical signals are negative: mean_reversion -0.52 after a decent 3-year run, trend -0.38 and relative_momentum -0.33. Together they say yields have recently backed up or price momentum has faded. For a 2-year-duration bond these are short-horizon price effects worth tens of basis points at most, and a rate back-up actually raises forward carry. Macro alignment signals are all near zero, consistent with a low-beta asset. regime_fit -0.34 reflects weaker returns in past expansions, when cuts were absent. I take the technical and regime-fit softness as a reason to shade modestly below the pure yield figure, not to override it. That shading is the 15% weight on the equilibrium anchor.",
+      "rationale": "For short Treasuries the yield building block is the strongest single candidate. The horizon (3 years) sits close to duration (about 2 years), there is no credit loss, and the variance add-back is negligible at 1.7% volatility. It carries 85% of the weight. I depart from it slightly, giving 15% to bl_equilibrium (the T-bill rate), for one specific reason. The 4.81% yield sits 0.8pp above the 4.03% bill, and over a 3-year horizon part of the ladder rolls at whatever front-end rates prevail. If the pricing of further tightening proves too high, or the late-cycle risk brings cuts, reinvestment yields fall toward bill levels. The technical and regime-fit signals lean the same way. The result is 0.85 x 4.82 + 0.15 x 4.03 = 4.70%. That is inside the [4.03, 4.88] range and just above the 4.66% auto-blend. The auto-blend gives 54% combined weight to the two historical methods, which are biased by the 1990-2026 yield decline, and to the CAPM equilibrium, whose zero premium is an artefact. The implied excess over bills is about 0.67pp at 1.69% volatility, a Sharpe ratio near 0.4, plausible for the asset. The tight 0.85pp dispersion reflects genuine methodological differences (carry versus zero premium), not a data problem. The governing policy, config/ips.yaml, is still a draft, so this CMA should be revisited once the IPS is finalised."
+    }
+  }
+}

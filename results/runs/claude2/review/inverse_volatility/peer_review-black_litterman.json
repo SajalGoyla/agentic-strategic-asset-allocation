@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-volatility",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.495304Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/black_litterman/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3682,
+        "output_tokens": 5122,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.059256,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_volatility",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "black_litterman",
+    "reviewed_category": "return_optimized",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal is candid that it is a tuned point and not the method's own optimum. It discloses the default tangency portfolio (2.60% vol, Sharpe 0.58), the gamma change to 4.202, and the Sharpe cost of 0.58 to 0.41. This lets a reader judge the policy-driven part separately from the method.",
+      "The equilibrium anchor addresses a real failure of return-optimised portfolios. Blending CMAs with reverse-optimised returns gives 6.1 effective assets across 9 holdings, with no single-forecast bet. The result looks like the method behaving as designed, not a degenerate input.",
+      "Moving gamma while leaving the equilibrium delta alone keeps the portfolio on one posterior frontier. The change is therefore easy to interpret and audit.",
+      "The ex-ante (8.00%) and backtest (7.97%) volatilities nearly agree. The CRO's drawdown of -21.2% is inside the -25% limit, so the portfolio is IPS-compliant ex-ante and with the backtest, on a draft policy. Tracking error of 3.01% is moderate.",
+      "The proposal names its own circularities: expected return and Sharpe come from the same CMAs, and the market-cap proxy is built from ETF sizes. It also states what would invalidate it."
+    ],
+    "weaknesses": [
+      "The premise is that the CMAs carry signal and that ETF sizes proxy market weights. Both are asserted, not tested. The 7.06% expected return and 0.41 Sharpe inherit every error in the CMAs, so they are not independent evidence of quality. The 37% intermediate Treasury weight is the position most exposed to this, because the CMA drives the duration call.",
+      "Equilibrium returns are reverse-optimised from ETF market values, while the universe holds overlapping assets (us_large_cap, us_value, us_growth, us_small_cap). Their 'market weights' double-count the same stocks. The result is a near-collinear equity block, and the optimiser can split it on small CMA differences. Large cap is 41 points under benchmark while value, growth and small cap are 25 points over. That is a style bet, not an equity-beta decision, and it rests on the least reliable part of the equilibrium construction.",
+      "Omega = diag(tau*Sigma) ties view confidence to asset volatility, not to the quality of each CMA. A low-volatility asset such as an intermediate Treasury gets a tight view, so its CMA passes through almost unshrunk. That is where the portfolio is most concentrated (47% in Treasuries). The claim that noisy CMAs are pulled back to equilibrium holds only to the extent that volatility is a good proxy for CMA noise. Tau is also a free parameter, and the proposal does not report its value or its sensitivity.",
+      "The portfolio is tuned to sit at the IPS volatility floor. The backtest volatility of 7.97% is marginally below 8.00%. Any covariance re-estimate can push it under the floor, and the corner solution gives no margin. Its risk level is set by policy, so its exposures say little about what the method believes.",
+      "The regime fit is weak. An expansion regime with a 14% equity underweight and a 47% bond sleeve (+17.1% active fixed income) means the portfolio earns its 8% volatility from duration and style tilts, not from cyclical equity exposure. It depends on a stock-bond correlation that stays negative or near zero. A rate or inflation shock would hit the bond sleeve, REITs and gold together. The covariance estimate is only as stable as that correlation, and the CRO's 1993+ panel includes no sustained 1970s-style rate shock.",
+      "The drawdown of -21.2% against a -25% limit leaves little headroom, and the CRO flags it as probably understated. The backtest Sharpe (0.70) is well above the ex-ante Sharpe (0.41). That gap likely reflects the falling-rate sample favouring bonds, so it should not be read as validation.",
+      "The active weights shown sum to about +9.9 points, which implies a benchmark line of about 10% that is held at zero and not shown. A reader cannot tell whether that omission is a deliberate view or a by-product of the CMAs."
+    ],
+    "technical_errors": [],
+    "score": 0.62,
+    "rationale": "I am judging the premise. Black-Litterman needs three things to be true: the CMAs carry real information, market-cap proxies from ETF sizes approximate the equilibrium portfolio, and the covariance matrix is stable, especially the stock-bond correlation. Shrinkage toward equilibrium is a sensible response to estimation error, and it does produce a diversified portfolio (6.1 effective assets). The proposal is also unusually honest about its tuning and its circular statistics. I found no clear technical error. The vulnerabilities are structural. Equilibrium weights over overlapping style assets are ill-defined. View confidence is tied to volatility, not to CMA quality. The 8% volatility is reached by gamma tuning to the policy floor, not by the method's own preference. The result is a 47% bond sleeve with a drawdown close to the limit. An expansion regime does not contradict using CMAs, but it does not support a heavy duration and style-tilt portfolio either. The CRO's own warning that tail risk is understated applies here. The portfolio is compliant on a draft IPS and is a reasonable ensemble component, but its quality depends on inputs it cannot validate. I score it moderately above middle."
+  }
+}

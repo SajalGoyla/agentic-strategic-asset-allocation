@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "pc-black-litterman",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:25:21.375382Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1171,
+        "output_tokens": 1405,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.0177794,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "black_litterman",
+    "method": "Black-Litterman",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.18831915271603672,
+      "us_small_cap": 0.050467445487631664,
+      "us_value": 0.13616105734279788,
+      "us_growth": 0.06705746225632007,
+      "emerging_markets": 0.017889609762977515,
+      "intermediate_treasuries": 0.37398713834301206,
+      "long_treasuries": 0.09739221015832127,
+      "reits": 0.025069909501542354,
+      "gold": 0.04365601443136039
+    },
+    "expected_return_pct": 7.061555185477916,
+    "expected_volatility_pct": 8.000465083587136,
+    "sharpe_ratio": 0.4051708433960834,
+    "effective_n": 6.132397850935284,
+    "ex_ante_tracking_error_pct": 3.00630174606684,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "This is Black-Litterman at a tuned setting, not its default. The default is the long-only tangency portfolio of the posterior: 2.60% volatility and a Sharpe of 0.58, well under the IPS 8% floor. I lowered the mean-variance risk aversion gamma to 4.202, which reached 8.00% volatility. The equilibrium delta of 2.5 used to reverse-optimise the market is untouched. The change moves the portfolio along the same posterior efficient frontier toward more risk and return. Sharpe falls from 0.58 to 0.41 as a result. That lower Sharpe is the price of reaching the band, and it is not evidence the method found a better portfolio. Reviewers should read this as a point on the frontier chosen for the policy, not as the method's own optimum.\n\nThe method's appeal is how it handles estimation error. The posterior starts from market-implied equilibrium returns and shifts toward the judged CMAs only in proportion to how tightly each view can be held (Omega = diag(tau*Sigma)). A noisy CMA on a volatile asset gets pulled back toward equilibrium, so the optimiser is less likely to bet everything on one forecast. The result is 6.1 effective assets of 18, against the 1.6 to 4.5 typical of raw maximum Sharpe. The portfolio is a diversified core of intermediate Treasuries and US large-cap and value equity, with smaller positions in long Treasuries, gold and other assets. It sits 3.01% tracking error from the benchmark and passes the ex-ante return, volatility and tracking-error limits. The IPS is still a draft, so that compliance is against provisional policy. The drawdown limit is a backtest measure and is still for the CRO to check.\n\nIn an expansion regime the case for using return forecasts is reasonable, since the premise that CMAs carry signal is not obviously contradicted. The equilibrium anchor keeps that reliance moderate. The portfolio's expected return of 7.06% is still computed from the posterior-blended CMAs, so it inherits every error in them and the equilibrium inputs. Part of the equity tilt reflects market-cap proxies built from ETF sizes, which only roughly stand in for asset-class sizes.",
+    "revision_of": null,
+    "notes": "Key assumption: The judged CMAs contain real signal that is worth blending with market-implied equilibrium returns, and ETF market values are a reasonable proxy for the market portfolio that anchors the posterior. Main weakness: The portfolio depends on two noisy inputs: the CMAs and the equilibrium returns derived from ETF sizes, which are an imperfect proxy for asset-class market weights. The 8% volatility is also reached by turning gamma down, which cuts Sharpe from 0.58 to 0.41. The tuned portfolio is therefore less efficient than the method's own tangency portfolio, and the extra risk is held because the policy requires it, not because the method prefers it. The 37% intermediate Treasury position still depends on the CMA for duration and on a covariance matrix that may understate rate-driven correlation shifts. Expected return and Sharpe are computed from the same CMAs the method consumes, so they flatter the method in a way a covariance-only method's statistics do not. Preferred when: Prefer it when the CMAs are believed informative but not trustworthy enough for raw maximum Sharpe, when a diversified portfolio inside the IPS volatility band matters more than the highest ex-ante Sharpe, and when the regime is benign enough (expansion) that forecast-based methods are not obviously penalised. It is also a reasonable ensemble component, since it combines a market-weight anchor with return views. Invalidated if: It would be the wrong choice if the CMAs prove no better than noise, in which case the views add error and a heuristic or covariance-only method should win. It would also be wrong if the regime turns late-cycle or stressed so that correlations jump and the covariance matrix understates risk, if the ETF market-value proxy badly misstates asset-class market weights, or if the IPS band is revised so that the tangency portfolio (2.60% volatility, Sharpe 0.58) is acceptable and the tuning is unnecessary.",
+    "tuning": {
+      "parameter": "risk_aversion",
+      "value": 4.202174868503816,
+      "untuned_volatility_pct": 2.6008504616676738,
+      "reached_band": true,
+      "untuned_sharpe": 0.5830082176916049
+    }
+  }
+}

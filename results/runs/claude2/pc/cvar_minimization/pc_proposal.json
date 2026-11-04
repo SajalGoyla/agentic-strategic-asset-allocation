@@ -1,0 +1,180 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "pc-cvar-minimization",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:25:21.391906Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1076,
+        "output_tokens": 1403,
+        "cache_read_tokens": 6937,
+        "cost_usd": 0.017569400000000002,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "cvar_minimization",
+    "method": "CVaR minimisation",
+    "category": "non_traditional",
+    "weights": {
+      "us_large_cap": 0.45430149132705694,
+      "short_treasuries": 0.01355833571276643,
+      "intermediate_treasuries": 0.37295289657538394,
+      "gold": 0.1591872763847927
+    },
+    "expected_return_pct": 6.4606021974786625,
+    "expected_volatility_pct": 8.000788118257944,
+    "sharpe_ratio": 0.33004276059414206,
+    "effective_n": 2.936244077736521,
+    "ex_ante_tracking_error_pct": 3.5974405044844353,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "This is CVaR minimisation at a tuned setting, not the unconstrained version. The unconstrained minimum-CVaR point has 0.62% volatility and a Sharpe ratio of 0.04, which is effectively cash and far below the IPS 8-12% band. I raised the minimum expected return (annualised from the historical scenarios) to 8.219, which is Rockafellar and Uryasev's own mean-CVaR formulation, and it walks the frontier to 8.00% volatility, the band edge. This is a point further along the same mean-CVaR frontier. The setting changed the portfolio from a near-cash holding into a real risk-bearing one with a Sharpe of 0.33. It still reads no CMAs, because the return target comes from the scenario mean, not from the judged forecasts.\n\nWhat remains is the method's distinctive logic. It minimises 95% expected shortfall over the actual monthly return scenarios from 1993 on, so fat tails and asymmetry count, which a covariance-only method cannot see. Within the return budget, it pays for equity risk using assets whose historical losses have not coincided with equity losses: intermediate Treasuries and gold. The result is a barbell of equities, duration and a gold hedge, not a spread across all 18 assets. With an expansion regime, the equity sleeve is what earns the return target, and the other two sleeves are what the scenarios say cushions the bad months. That structure is a covariance-and-tail argument, not a return-forecast argument, which is the type of argument §4.3 found persuasive.\n\nOn compliance, the portfolio passes the ex-ante limits (return, volatility, tracking error) with no breaches. The drawdown limit is a backtest measure that the CRO checks afterwards, so this does not make it fully IPS-compliant. The governing IPS is a draft. The reported expected return and Sharpe use the judged CMAs even though the weights ignore them, so they measure how the CMAs view a portfolio chosen without them.\n\nConcentration is the method behaving as designed, though not costlessly. Only 4 of 18 assets are held, with 2.9 effective assets, and the IPS sets no per-asset caps. A linear programme over scenarios puts weight on the few assets that best trade off tail loss and return. That is a vertex-seeking property, so I read the concentration as the optimiser exploiting the sample, not as evidence the sleeves are uniquely good.",
+    "revision_of": null,
+    "notes": "Key assumption: The 1993-onward monthly scenarios are a representative sample of future tail behaviour, in particular that Treasuries and gold will keep offsetting equity losses at the rates they did in that history. Main weakness: Heavy in-sample dependence. The return target is the historical scenario mean, so it bakes in the past equity and bond returns, and the tails are the ones 1993 onward happened to contain. The LP picks a 4-asset corner that may owe much of its tail protection to episodes like the post-2000 and 2008 Treasury rallies, which a rising-rate regime would not repeat. With intermediate Treasuries at 37%, it is exposed to a duration shock. It also ignores the CMAs entirely, so any information in them is wasted. Preferred when: When return forecasts are noisy or distrusted, when the portfolio's main risk is a left-tail event rather than ordinary volatility, and when the history is long enough and varied enough that its crises plausibly span the ones ahead. It also earns a place in an ensemble as a tail-aware, CMA-free counterweight to the return-optimised methods, particularly if the CIO wants a sleeve whose diversification comes from gold and duration. Invalidated if: It would be the wrong choice if stock-bond correlation turns persistently positive, as in an inflation or rate shock, so that the Treasury sleeve stops hedging equities. It would also be wrong if gold's historical tail offset proves a sample artefact, if the scenario-mean return target overstates forward equity returns, or if the CRO's drawdown backtest shows a breach. A reviewer who finds the tail protection concentrated in one or two historical episodes would have grounds to prefer a more diversified method such as risk parity or the resampled frontier.",
+    "tuning": {
+      "parameter": "minimum_return_pct",
+      "value": 8.21930204086955,
+      "untuned_volatility_pct": 0.6226336348709235,
+      "reached_band": true,
+      "untuned_sharpe": 0.042495535522031946
+    }
+  }
+}

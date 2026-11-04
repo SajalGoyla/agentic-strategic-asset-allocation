@@ -1,0 +1,158 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "vote",
+    "agent": "vote-pc-researcher",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:42:31.957169Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 336,
+        "output_tokens": 946,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.043647
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "pc_researcher",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "cvar_minimization",
+      "tail_risk_parity",
+      "inverse_volatility"
+    ],
+    "bottom_flag": "hierarchical_risk_parity",
+    "rationale": "Governing IPS (config/ips.yaml) is still a draft, so I weight compliance as provisional but still informative. First choice is resampled_efficient_frontier. It has no hard IPS breaches, tracking error of 4.33%, and effective N of 13.3, the broadest of any compliant return-based method. Its main weakness is that the CMA bias passes through resampling (inter-category review), and the gamma-tuning wording is muddled. Neither is disqualifying, and the CIO can rely on the covariance structure and the resampling to damp estimation error. That fits the late-cycle preference for covariance-based reasoning in §4.3. Second is black_litterman, which is compliant with 3.01% TE and a 0.70 backtest Sharpe. Its reviewed flaws, the gamma inconsistency and the volatility floor margin, are fixable. Third is cvar_minimization, which is compliant and has the best backtest Sharpe among the compliant methods (0.74) and a moderate -18.7% drawdown. It is also a non-traditional method, which helps the family-span rule. Its concentration (eff. N 2.9) and the thin tail sample are real concerns. Fourth is tail_risk_parity: it breaches the draft IPS on return, volatility and TE, but it is the best-behaved of the defensive forecast-free methods. It has 6.0 effective N, a -7.2% drawdown, and a low CRO risk of 0.29. It adds a downside-aware sleeve that the return-optimised candidates lack. Fifth is inverse_volatility. It is the broadest of the risk-based heuristics (eff. N 7.6, -9% drawdown) and a sensible hedge against model risk, although its IPS breaches and the cash-volatility sensitivity noted in its review keep it low. I put the first choice above the fifth because resampled_efficient_frontier is IPS-compliant and has a 13.3 effective N with a 4.33% TE. Inverse_volatility fails three hard constraints and has TE of 6.90%, so the CIO would have to repair it before use. I left out max_sharpe because of its 46% single-style bet and the Sharpe labelling problem, and I left out market_cap_weight because of the -40.6% drawdown and the 0.80 CRO risk. I flag hierarchical_risk_parity. It holds 91.9% cash with 1.4 effective assets, a 0.65% volatility and a 0.14 Sharpe. It breaches three hard constraints, and its own proposal concedes that the cash weight is the method working mechanically, not diversification. The CIO should not lean on it."
+  }
+}

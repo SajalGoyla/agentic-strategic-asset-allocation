@@ -1,0 +1,3449 @@
+{
+  "header": {
+    "schema_version": "4.0.0",
+    "contract": "regime_history",
+    "agent": "macro",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T19:52:09.546330Z",
+    "produced_by": "script",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      }
+    },
+    "inputs": [],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "months": [
+      {
+        "date": "1995-01-31",
+        "regime": "expansion",
+        "confidence": 0.3619598217573899,
+        "growth": 0.2488548788529183,
+        "inflation": 0.48746240349916725,
+        "monetary_policy": -0.12567067982725363,
+        "financial_conditions": 0.4708139846338425
+      },
+      {
+        "date": "1995-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.3039875956737996,
+        "growth": -0.01779192115288433,
+        "inflation": 0.48943158137551673,
+        "monetary_policy": -0.13194016127108404,
+        "financial_conditions": 0.4402581304973907
+      },
+      {
+        "date": "1995-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.3631323716454728,
+        "growth": -0.016995650620482288,
+        "inflation": 0.4981527990763626,
+        "monetary_policy": -0.10932472804145353,
+        "financial_conditions": 0.4101569852943286
+      },
+      {
+        "date": "1995-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.33616712167058327,
+        "growth": -0.14010757075585423,
+        "inflation": 0.47237674350294745,
+        "monetary_policy": -0.08364473686166371,
+        "financial_conditions": 0.446924510245772
+      },
+      {
+        "date": "1995-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.40924364155539905,
+        "growth": -0.10285468445668747,
+        "inflation": 0.4823031411983705,
+        "monetary_policy": -0.10454137738584475,
+        "financial_conditions": 0.37636746575188257
+      },
+      {
+        "date": "1995-06-30",
+        "regime": "expansion",
+        "confidence": 0.3828833020395545,
+        "growth": 0.0575744377944429,
+        "inflation": 0.5003517454401439,
+        "monetary_policy": -0.07093109469143513,
+        "financial_conditions": 0.37617413476549916
+      },
+      {
+        "date": "1995-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.307394624110099,
+        "growth": -0.17048569797094082,
+        "inflation": 0.508321757754986,
+        "monetary_policy": -0.04421024458605017,
+        "financial_conditions": 0.3288596108804175
+      },
+      {
+        "date": "1995-08-31",
+        "regime": "expansion",
+        "confidence": 0.4226299151007246,
+        "growth": 0.08627834148778592,
+        "inflation": 0.5037534981729904,
+        "monetary_policy": -0.08596613972006525,
+        "financial_conditions": 0.37847224910923766
+      },
+      {
+        "date": "1995-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.3513322301795232,
+        "growth": -0.04620409601122794,
+        "inflation": 0.5063252607734622,
+        "monetary_policy": -0.10989160386272806,
+        "financial_conditions": 0.3505862225551406
+      },
+      {
+        "date": "1995-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.3724010436633773,
+        "growth": -0.18079024304837166,
+        "inflation": 0.4902454613770909,
+        "monetary_policy": -0.11333098283316266,
+        "financial_conditions": 0.32464388299452157
+      },
+      {
+        "date": "1995-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.30339553847964906,
+        "growth": -0.1501179242739081,
+        "inflation": 0.5050199168072609,
+        "monetary_policy": -0.16950390268430884,
+        "financial_conditions": 0.4205189128893959
+      },
+      {
+        "date": "1995-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.34326299259779,
+        "growth": -0.14710278909370675,
+        "inflation": 0.49974753515729,
+        "monetary_policy": -0.10564756070133469,
+        "financial_conditions": 0.1279010806504161
+      },
+      {
+        "date": "1996-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.3026209498848961,
+        "growth": -0.3417947934796584,
+        "inflation": 0.4971971174375626,
+        "monetary_policy": -0.06956304686495535,
+        "financial_conditions": 0.36266930452843016
+      },
+      {
+        "date": "1996-02-29",
+        "regime": "expansion",
+        "confidence": 0.33769804165319867,
+        "growth": 0.18759592322543625,
+        "inflation": 0.5009935071641486,
+        "monetary_policy": -0.04194832954381532,
+        "financial_conditions": 0.29929667144042127
+      },
+      {
+        "date": "1996-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.38530851309718034,
+        "growth": -0.05832648142837915,
+        "inflation": 0.49299493520380766,
+        "monetary_policy": -0.045555365579488034,
+        "financial_conditions": 0.00745051271657484
+      },
+      {
+        "date": "1996-04-30",
+        "regime": "expansion",
+        "confidence": 0.43917113066141505,
+        "growth": 0.08363304380949103,
+        "inflation": 0.4981160189237282,
+        "monetary_policy": -0.02440696453383325,
+        "financial_conditions": 0.18832917760435744
+      },
+      {
+        "date": "1996-05-31",
+        "regime": "expansion",
+        "confidence": 0.46100690232247155,
+        "growth": 0.15162152079164934,
+        "inflation": 0.48816143243914,
+        "monetary_policy": -0.03084490216820313,
+        "financial_conditions": 0.2921074915614126
+      },
+      {
+        "date": "1996-06-30",
+        "regime": "expansion",
+        "confidence": 0.4930103363682906,
+        "growth": 0.06985471966314195,
+        "inflation": 0.48847805147912354,
+        "monetary_policy": -0.03615185469692797,
+        "financial_conditions": 0.17393040811307744
+      },
+      {
+        "date": "1996-07-31",
+        "regime": "expansion",
+        "confidence": 0.4637906121144839,
+        "growth": 0.061910786976316926,
+        "inflation": 0.4818406309221254,
+        "monetary_policy": -0.12307467236805544,
+        "financial_conditions": 0.06555509637759639
+      },
+      {
+        "date": "1996-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.3551251764067093,
+        "growth": 0.029856582556717255,
+        "inflation": 0.49165130041289884,
+        "monetary_policy": -0.021754527326359085,
+        "financial_conditions": 0.31329101771859125
+      },
+      {
+        "date": "1996-09-30",
+        "regime": "expansion",
+        "confidence": 0.4308096719300854,
+        "growth": 0.07388159985049816,
+        "inflation": 0.46600906149551674,
+        "monetary_policy": -0.024117879967576625,
+        "financial_conditions": 0.11843434261943166
+      },
+      {
+        "date": "1996-10-31",
+        "regime": "expansion",
+        "confidence": 0.5155536408839694,
+        "growth": 0.121760567418433,
+        "inflation": 0.4698085167631681,
+        "monetary_policy": -0.033413096431119844,
+        "financial_conditions": 0.16127158894326957
+      },
+      {
+        "date": "1996-11-30",
+        "regime": "expansion",
+        "confidence": 0.4560828182844139,
+        "growth": 0.15786959978091195,
+        "inflation": 0.4537060959945335,
+        "monetary_policy": -0.05470267863472388,
+        "financial_conditions": 0.22622861436731517
+      },
+      {
+        "date": "1996-12-31",
+        "regime": "expansion",
+        "confidence": 0.4316840940111484,
+        "growth": 0.03407560757477331,
+        "inflation": 0.454437676018731,
+        "monetary_policy": -0.055022845390867416,
+        "financial_conditions": 0.028466496489671585
+      },
+      {
+        "date": "1997-01-31",
+        "regime": "expansion",
+        "confidence": 0.49083148394145226,
+        "growth": 0.142209738735758,
+        "inflation": 0.4651487870877629,
+        "monetary_policy": 0.004492525482429538,
+        "financial_conditions": 0.1752433082271655
+      },
+      {
+        "date": "1997-02-28",
+        "regime": "expansion",
+        "confidence": 0.48031567499128236,
+        "growth": 0.2526246179104062,
+        "inflation": 0.4580090957798822,
+        "monetary_policy": -0.022356760069936015,
+        "financial_conditions": 0.25120891806875634
+      },
+      {
+        "date": "1997-03-31",
+        "regime": "expansion",
+        "confidence": 0.4084889657244941,
+        "growth": 0.21781306091880076,
+        "inflation": 0.47080382980900354,
+        "monetary_policy": -0.07187640739985016,
+        "financial_conditions": 0.2412978352903657
+      },
+      {
+        "date": "1997-04-30",
+        "regime": "expansion",
+        "confidence": 0.49445650587683354,
+        "growth": 0.07066696274882343,
+        "inflation": 0.46629561575490347,
+        "monetary_policy": -0.06755955092067054,
+        "financial_conditions": 0.14316479981337288
+      },
+      {
+        "date": "1997-05-31",
+        "regime": "expansion",
+        "confidence": 0.5363586725541685,
+        "growth": 0.09255679757488508,
+        "inflation": 0.482876812291843,
+        "monetary_policy": -0.021118682064425357,
+        "financial_conditions": 0.15409562707186347
+      },
+      {
+        "date": "1997-06-30",
+        "regime": "expansion",
+        "confidence": 0.4945510460214614,
+        "growth": 0.12087255088842255,
+        "inflation": 0.4799948431987088,
+        "monetary_policy": -0.10656081818710615,
+        "financial_conditions": 0.020307734711878703
+      },
+      {
+        "date": "1997-07-31",
+        "regime": "expansion",
+        "confidence": 0.39383093089833077,
+        "growth": 0.2204630613871073,
+        "inflation": 0.4906805704649742,
+        "monetary_policy": -0.13719952958541312,
+        "financial_conditions": 0.16712265386664274
+      },
+      {
+        "date": "1997-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.3148027630116846,
+        "growth": 0.005125680980850642,
+        "inflation": 0.49659262037798235,
+        "monetary_policy": -0.07400733324238588,
+        "financial_conditions": 0.09320843445698702
+      },
+      {
+        "date": "1997-09-30",
+        "regime": "expansion",
+        "confidence": 0.4499320389027872,
+        "growth": 0.3036881980979633,
+        "inflation": 0.5018030279518289,
+        "monetary_policy": -0.062004610674488925,
+        "financial_conditions": 0.004497752115394885
+      },
+      {
+        "date": "1997-10-31",
+        "regime": "expansion",
+        "confidence": 0.3316936172673502,
+        "growth": 0.19442227323187594,
+        "inflation": 0.5075550949807177,
+        "monetary_policy": -0.12132889226520145,
+        "financial_conditions": -0.20808558508867714
+      },
+      {
+        "date": "1997-11-30",
+        "regime": "expansion",
+        "confidence": 0.36110855636445854,
+        "growth": 0.2121129506352872,
+        "inflation": 0.5209169559431207,
+        "monetary_policy": -0.14374454738916878,
+        "financial_conditions": -0.017918702858127182
+      },
+      {
+        "date": "1997-12-31",
+        "regime": "expansion",
+        "confidence": 0.391752759029636,
+        "growth": 0.16347859406969273,
+        "inflation": 0.5222023239252735,
+        "monetary_policy": -0.18264354786361572,
+        "financial_conditions": -0.06489880443057224
+      },
+      {
+        "date": "1998-01-31",
+        "regime": "expansion",
+        "confidence": 0.4398381320510013,
+        "growth": 0.14345756082286695,
+        "inflation": 0.5258849077214042,
+        "monetary_policy": -0.16074518300212357,
+        "financial_conditions": 0.0952463649488471
+      },
+      {
+        "date": "1998-02-28",
+        "regime": "expansion",
+        "confidence": 0.468229996142045,
+        "growth": 0.08041636544137953,
+        "inflation": 0.5364986329600853,
+        "monetary_policy": -0.18367781826264257,
+        "financial_conditions": 0.2724605105555149
+      },
+      {
+        "date": "1998-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.3080338838947008,
+        "growth": -0.01880429172416052,
+        "inflation": 0.5400893428109531,
+        "monetary_policy": -0.1847318732911727,
+        "financial_conditions": 0.10990576791199448
+      },
+      {
+        "date": "1998-04-30",
+        "regime": "expansion",
+        "confidence": 0.30175791756967923,
+        "growth": 0.20866627940484184,
+        "inflation": 0.541265181648626,
+        "monetary_policy": -0.16418579287193547,
+        "financial_conditions": 0.09355428765902744
+      },
+      {
+        "date": "1998-05-31",
+        "regime": "expansion",
+        "confidence": 0.4232633182862061,
+        "growth": 0.25053568387093544,
+        "inflation": 0.5226110764037564,
+        "monetary_policy": -0.1770239444532466,
+        "financial_conditions": 0.06689391509536327
+      },
+      {
+        "date": "1998-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.27403274101234043,
+        "growth": 0.0006080297869778214,
+        "inflation": 0.5332119849219227,
+        "monetary_policy": -0.2534870255061369,
+        "financial_conditions": 0.09925685855215727
+      },
+      {
+        "date": "1998-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.43336716489927946,
+        "growth": -0.08410729563286333,
+        "inflation": 0.5157836987330746,
+        "monetary_policy": -0.21661812135233524,
+        "financial_conditions": -0.0438353082473383
+      },
+      {
+        "date": "1998-08-31",
+        "regime": "expansion",
+        "confidence": 0.24252735958260144,
+        "growth": 0.20100665007797822,
+        "inflation": 0.497032798080234,
+        "monetary_policy": -0.1859506107886603,
+        "financial_conditions": -0.3930679478467861
+      },
+      {
+        "date": "1998-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.25636514378322894,
+        "growth": -0.023796025166669166,
+        "inflation": 0.5220555173911395,
+        "monetary_policy": -0.15697599936185141,
+        "financial_conditions": -0.5329843034963461
+      },
+      {
+        "date": "1998-10-31",
+        "regime": "expansion",
+        "confidence": 0.36591070053973385,
+        "growth": 0.09501311028272193,
+        "inflation": 0.5208155622498074,
+        "monetary_policy": -0.05329012646996299,
+        "financial_conditions": -0.4927460245389487
+      },
+      {
+        "date": "1998-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.3754121598504097,
+        "growth": 0.07850113294607824,
+        "inflation": 0.5138706935933758,
+        "monetary_policy": -0.1291147352068047,
+        "financial_conditions": -0.28717905405904653
+      },
+      {
+        "date": "1998-12-31",
+        "regime": "expansion",
+        "confidence": 0.3069821573916017,
+        "growth": 0.16593534743356933,
+        "inflation": 0.494066586723174,
+        "monetary_policy": -0.11637422562134862,
+        "financial_conditions": -0.3351991431721933
+      },
+      {
+        "date": "1999-01-31",
+        "regime": "expansion",
+        "confidence": 0.4155018881744595,
+        "growth": 0.06745900514961992,
+        "inflation": 0.4897133827844014,
+        "monetary_policy": -0.14087690997104224,
+        "financial_conditions": -0.35846430140445257
+      },
+      {
+        "date": "1999-02-28",
+        "regime": "expansion",
+        "confidence": 0.4680368021747537,
+        "growth": 0.29719818231821943,
+        "inflation": 0.5008114740005639,
+        "monetary_policy": -0.1566516016018437,
+        "financial_conditions": -0.23873575491249324
+      },
+      {
+        "date": "1999-03-31",
+        "regime": "expansion",
+        "confidence": 0.4472986166007399,
+        "growth": 0.07472008309262489,
+        "inflation": 0.49830230606851733,
+        "monetary_policy": -0.1612938809333142,
+        "financial_conditions": -0.2168117263104559
+      },
+      {
+        "date": "1999-04-30",
+        "regime": "expansion",
+        "confidence": 0.38510338081935175,
+        "growth": 0.17130351786145065,
+        "inflation": 0.4633235171225615,
+        "monetary_policy": -0.16982843804085987,
+        "financial_conditions": -0.14333540812324358
+      },
+      {
+        "date": "1999-05-31",
+        "regime": "expansion",
+        "confidence": 0.3275990394210633,
+        "growth": 0.19669880040141716,
+        "inflation": 0.46991154305164784,
+        "monetary_policy": -0.14006365850918154,
+        "financial_conditions": -0.24575674398236305
+      },
+      {
+        "date": "1999-06-30",
+        "regime": "expansion",
+        "confidence": 0.4452524914727895,
+        "growth": 0.13940302402002558,
+        "inflation": 0.46655259719403436,
+        "monetary_policy": -0.14557350657602267,
+        "financial_conditions": -0.12331349869955635
+      },
+      {
+        "date": "1999-07-31",
+        "regime": "expansion",
+        "confidence": 0.4460085342315549,
+        "growth": 0.27606401524051727,
+        "inflation": 0.45513519640115535,
+        "monetary_policy": -0.1267353333031951,
+        "financial_conditions": -0.24951659335097232
+      },
+      {
+        "date": "1999-08-31",
+        "regime": "expansion",
+        "confidence": 0.3463092931639645,
+        "growth": 0.18807105378831934,
+        "inflation": 0.4599860910493259,
+        "monetary_policy": -0.1456254606910004,
+        "financial_conditions": -0.23320745866715487
+      },
+      {
+        "date": "1999-09-30",
+        "regime": "expansion",
+        "confidence": 0.4815527410584243,
+        "growth": 0.10533160709457703,
+        "inflation": 0.41749200776144324,
+        "monetary_policy": -0.14180437247368996,
+        "financial_conditions": -0.33009432000322525
+      },
+      {
+        "date": "1999-10-31",
+        "regime": "expansion",
+        "confidence": 0.5611484642275855,
+        "growth": 0.34638929779861316,
+        "inflation": 0.4136137044211568,
+        "monetary_policy": -0.16300129984257758,
+        "financial_conditions": -0.23143563516032647
+      },
+      {
+        "date": "1999-11-30",
+        "regime": "expansion",
+        "confidence": 0.4235508495259019,
+        "growth": 0.24734533534461367,
+        "inflation": 0.4058752287496931,
+        "monetary_policy": -0.17907689496572993,
+        "financial_conditions": -0.12677850280739195
+      },
+      {
+        "date": "1999-12-31",
+        "regime": "expansion",
+        "confidence": 0.5906369451725013,
+        "growth": 0.34607483976981074,
+        "inflation": 0.405627950559352,
+        "monetary_policy": -0.10354454214747197,
+        "financial_conditions": -0.11258684972393315
+      },
+      {
+        "date": "2000-01-31",
+        "regime": "expansion",
+        "confidence": 0.3644571656198252,
+        "growth": 0.20559843454755203,
+        "inflation": 0.38099776755585635,
+        "monetary_policy": -0.22108264778584247,
+        "financial_conditions": -0.042715637229384526
+      },
+      {
+        "date": "2000-02-29",
+        "regime": "expansion",
+        "confidence": 0.436080367315441,
+        "growth": 0.04932390955280274,
+        "inflation": 0.34257078398845164,
+        "monetary_policy": -0.2733783845026636,
+        "financial_conditions": -0.14641385015426817
+      },
+      {
+        "date": "2000-03-31",
+        "regime": "expansion",
+        "confidence": 0.5420774275142723,
+        "growth": 0.34822810911005,
+        "inflation": 0.28345497384395557,
+        "monetary_policy": -0.38129978530991554,
+        "financial_conditions": -0.2787998240539888
+      },
+      {
+        "date": "2000-04-30",
+        "regime": "expansion",
+        "confidence": 0.3236623748015813,
+        "growth": 0.2139319817769739,
+        "inflation": 0.34876517568103754,
+        "monetary_policy": -0.34976235951282775,
+        "financial_conditions": -0.3417861510977598
+      },
+      {
+        "date": "2000-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.2821319186669984,
+        "growth": 0.01008947746403312,
+        "inflation": 0.3383606005146895,
+        "monetary_policy": -0.32843912119474533,
+        "financial_conditions": -0.3984936128497891
+      },
+      {
+        "date": "2000-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.4230615381501224,
+        "growth": -0.047096433739963445,
+        "inflation": 0.2945336285238185,
+        "monetary_policy": -0.3428765733838333,
+        "financial_conditions": -0.26455829506423484
+      },
+      {
+        "date": "2000-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.4231007887000271,
+        "growth": -0.04148190302135845,
+        "inflation": 0.30227237070008006,
+        "monetary_policy": -0.32520110683129777,
+        "financial_conditions": -0.17654704365154428
+      },
+      {
+        "date": "2000-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.4344775802928994,
+        "growth": -0.2431946209228662,
+        "inflation": 0.31244164766930793,
+        "monetary_policy": -0.361758019420267,
+        "financial_conditions": -0.11430398894176137
+      },
+      {
+        "date": "2000-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.3690246604695961,
+        "growth": 0.011608949234516658,
+        "inflation": 0.30681607588268833,
+        "monetary_policy": -0.3104112499903048,
+        "financial_conditions": -0.2216346155153482
+      },
+      {
+        "date": "2000-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.377690867330879,
+        "growth": -0.1728081101109627,
+        "inflation": 0.3036138426006554,
+        "monetary_policy": -0.30578938646971354,
+        "financial_conditions": -0.3276031638841694
+      },
+      {
+        "date": "2000-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.4289563580479191,
+        "growth": -0.21401166449270692,
+        "inflation": 0.29607171452167413,
+        "monetary_policy": -0.2885095919273562,
+        "financial_conditions": -0.4632751092426794
+      },
+      {
+        "date": "2000-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.3241515603350836,
+        "growth": -0.3054425767163644,
+        "inflation": 0.30817569767527675,
+        "monetary_policy": -0.2181857251379049,
+        "financial_conditions": -0.480287064107576
+      },
+      {
+        "date": "2001-01-31",
+        "regime": "recession",
+        "confidence": 0.31559052444261865,
+        "growth": -0.3665174849317133,
+        "inflation": 0.2766629935279398,
+        "monetary_policy": -0.05214427071411265,
+        "financial_conditions": -0.2777275252180577
+      },
+      {
+        "date": "2001-02-28",
+        "regime": "recession",
+        "confidence": 0.3657898362697037,
+        "growth": -0.43333036670008496,
+        "inflation": 0.2784803768485233,
+        "monetary_policy": -0.06486209890026008,
+        "financial_conditions": -0.45694198089289867
+      },
+      {
+        "date": "2001-03-31",
+        "regime": "recession",
+        "confidence": 0.5181624701889336,
+        "growth": -0.5491574133594277,
+        "inflation": 0.3444634692258833,
+        "monetary_policy": 0.04479195774400792,
+        "financial_conditions": -0.45801594754215075
+      },
+      {
+        "date": "2001-04-30",
+        "regime": "recession",
+        "confidence": 0.5067380762278255,
+        "growth": -0.5426899332210028,
+        "inflation": 0.30001083643697957,
+        "monetary_policy": 0.20960372928142795,
+        "financial_conditions": -0.3965627656892165
+      },
+      {
+        "date": "2001-05-31",
+        "regime": "recession",
+        "confidence": 0.4502075362110432,
+        "growth": -0.5001243544851571,
+        "inflation": 0.2791891485369806,
+        "monetary_policy": 0.29232929478053815,
+        "financial_conditions": -0.26495456239100934
+      },
+      {
+        "date": "2001-06-30",
+        "regime": "recession",
+        "confidence": 0.6159523273502726,
+        "growth": -0.607817081918249,
+        "inflation": 0.2887980886425423,
+        "monetary_policy": 0.2563063367224115,
+        "financial_conditions": -0.18098647534736884
+      },
+      {
+        "date": "2001-07-31",
+        "regime": "recession",
+        "confidence": 0.47399486462732143,
+        "growth": -0.5165364648892115,
+        "inflation": 0.340997467663165,
+        "monetary_policy": 0.23795943317136445,
+        "financial_conditions": -0.24172102575365356
+      },
+      {
+        "date": "2001-08-31",
+        "regime": "recession",
+        "confidence": 0.5324382428830327,
+        "growth": -0.5628404079497871,
+        "inflation": 0.3532618589706667,
+        "monetary_policy": 0.22094594927320146,
+        "financial_conditions": -0.3361249416155408
+      },
+      {
+        "date": "2001-09-30",
+        "regime": "recession",
+        "confidence": 0.6514213856642195,
+        "growth": -0.75999601468001,
+        "inflation": 0.4542128539494179,
+        "monetary_policy": 0.4608067790123909,
+        "financial_conditions": -0.5134993557691222
+      },
+      {
+        "date": "2001-10-31",
+        "regime": "recovery",
+        "confidence": 0.3005789474464149,
+        "growth": -0.5005244534128259,
+        "inflation": 0.4730014913249667,
+        "monetary_policy": 0.5120836055908156,
+        "financial_conditions": -0.5093545684881922
+      },
+      {
+        "date": "2001-11-30",
+        "regime": "recession",
+        "confidence": 0.5483275786834716,
+        "growth": -0.6961844065156958,
+        "inflation": 0.49087119280338587,
+        "monetary_policy": 0.5986561944679732,
+        "financial_conditions": -0.3789865665866325
+      },
+      {
+        "date": "2001-12-31",
+        "regime": "recovery",
+        "confidence": 0.42405020453713527,
+        "growth": -0.5990011772078722,
+        "inflation": 0.5067642469110194,
+        "monetary_policy": 0.6318418988838725,
+        "financial_conditions": -0.3381925105271389
+      },
+      {
+        "date": "2002-01-31",
+        "regime": "recovery",
+        "confidence": 0.36772456520017754,
+        "growth": -0.5015760747385741,
+        "inflation": 0.5758639384405495,
+        "monetary_policy": 0.5733412528666256,
+        "financial_conditions": -0.2266263457778555
+      },
+      {
+        "date": "2002-02-28",
+        "regime": "recovery",
+        "confidence": 0.3581149892036708,
+        "growth": -0.49624913846638413,
+        "inflation": 0.5817998549503683,
+        "monetary_policy": 0.5379612858463795,
+        "financial_conditions": -0.28050927209217835
+      },
+      {
+        "date": "2002-03-31",
+        "regime": "recovery",
+        "confidence": 0.3037261429957293,
+        "growth": -0.4394671365524296,
+        "inflation": 0.5564989704498308,
+        "monetary_policy": 0.46963897422686185,
+        "financial_conditions": -0.1415961010885205
+      },
+      {
+        "date": "2002-04-30",
+        "regime": "recovery",
+        "confidence": 0.2495851342326043,
+        "growth": -0.4023941118177142,
+        "inflation": 0.5128488341402541,
+        "monetary_policy": 0.46299597824665256,
+        "financial_conditions": -0.2159789341109895
+      },
+      {
+        "date": "2002-05-31",
+        "regime": "recovery",
+        "confidence": 0.2849771376358384,
+        "growth": -0.3774622462574468,
+        "inflation": 0.5348917668514491,
+        "monetary_policy": 0.48907688446659736,
+        "financial_conditions": -0.1781488327331031
+      },
+      {
+        "date": "2002-06-30",
+        "regime": "recovery",
+        "confidence": 0.2511360036995117,
+        "growth": -0.2814444050949114,
+        "inflation": 0.5790828895262462,
+        "monetary_policy": 0.5219671803335506,
+        "financial_conditions": -0.38805612691760644
+      },
+      {
+        "date": "2002-07-31",
+        "regime": "recovery",
+        "confidence": 0.19279226787710266,
+        "growth": -0.4097966127011429,
+        "inflation": 0.5688092274163341,
+        "monetary_policy": 0.5620652563428609,
+        "financial_conditions": -0.511210030240961
+      },
+      {
+        "date": "2002-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.20863674768336024,
+        "growth": -0.321592109535517,
+        "inflation": 0.520696844708796,
+        "monetary_policy": 0.4946629181051201,
+        "financial_conditions": -0.49366373327366575
+      },
+      {
+        "date": "2002-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.22965097513516844,
+        "growth": -0.3160837765619299,
+        "inflation": 0.44467939056468786,
+        "monetary_policy": 0.4980674263719777,
+        "financial_conditions": -0.5889819849610863
+      },
+      {
+        "date": "2002-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.20724174045321106,
+        "growth": -0.34410762763252484,
+        "inflation": 0.4947916071567894,
+        "monetary_policy": 0.5636120257385315,
+        "financial_conditions": -0.5051536990430063
+      },
+      {
+        "date": "2002-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.331761528406161,
+        "growth": -0.21103751558036013,
+        "inflation": 0.4949225765871291,
+        "monetary_policy": 0.6026764725093291,
+        "financial_conditions": -0.38345394342822103
+      },
+      {
+        "date": "2002-12-31",
+        "regime": "recession",
+        "confidence": 0.18856349213465237,
+        "growth": -0.3920237227682989,
+        "inflation": 0.4555764935439423,
+        "monetary_policy": 0.5745427029219375,
+        "financial_conditions": -0.42264601467342033
+      },
+      {
+        "date": "2003-01-31",
+        "regime": "recovery",
+        "confidence": 0.22510885759013796,
+        "growth": -0.1440748619377848,
+        "inflation": 0.41738172406390545,
+        "monetary_policy": 0.539245310233733,
+        "financial_conditions": -0.403511548129749
+      },
+      {
+        "date": "2003-02-28",
+        "regime": "recession",
+        "confidence": 0.22188435221806055,
+        "growth": -0.412710217479547,
+        "inflation": 0.3752894718677115,
+        "monetary_policy": 0.4994881412019754,
+        "financial_conditions": -0.3550215760838724
+      },
+      {
+        "date": "2003-03-31",
+        "regime": "recession",
+        "confidence": 0.26369165242190284,
+        "growth": -0.35314907989426203,
+        "inflation": 0.3677041059375827,
+        "monetary_policy": 0.4937622368357784,
+        "financial_conditions": -0.3094731158223394
+      },
+      {
+        "date": "2003-04-30",
+        "regime": "recession",
+        "confidence": 0.3347554333304158,
+        "growth": -0.45632679967611056,
+        "inflation": 0.5358587712569282,
+        "monetary_policy": 0.5012418192404554,
+        "financial_conditions": -0.049419771572429654
+      },
+      {
+        "date": "2003-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.26159548006346206,
+        "growth": -0.2824653431925802,
+        "inflation": 0.5665731722371384,
+        "monetary_policy": 0.4578346184708132,
+        "financial_conditions": -0.055329882568573074
+      },
+      {
+        "date": "2003-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.29601745761689624,
+        "growth": -0.2866710980500615,
+        "inflation": 0.5735756099537446,
+        "monetary_policy": 0.4770341304281878,
+        "financial_conditions": -0.05694465817037524
+      },
+      {
+        "date": "2003-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.28156202104877304,
+        "growth": -0.2934903093170992,
+        "inflation": 0.5587554813256388,
+        "monetary_policy": 0.5721667104894934,
+        "financial_conditions": 0.05028934443056144
+      },
+      {
+        "date": "2003-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.307325201774977,
+        "growth": -0.31742212793631286,
+        "inflation": 0.5334172855028709,
+        "monetary_policy": 0.5238865793100626,
+        "financial_conditions": 0.08563823812277667
+      },
+      {
+        "date": "2003-09-30",
+        "regime": "recovery",
+        "confidence": 0.38560740634407803,
+        "growth": -0.07421044319071321,
+        "inflation": 0.5012201280573894,
+        "monetary_policy": 0.5065652132181874,
+        "financial_conditions": 0.007198572030916051
+      },
+      {
+        "date": "2003-10-31",
+        "regime": "recovery",
+        "confidence": 0.4134025817897239,
+        "growth": -0.10413288173411497,
+        "inflation": 0.5332215036317473,
+        "monetary_policy": 0.5136641158483444,
+        "financial_conditions": 0.2258921920714664
+      },
+      {
+        "date": "2003-11-30",
+        "regime": "recovery",
+        "confidence": 0.38404643488103074,
+        "growth": -0.011340880084666577,
+        "inflation": 0.536320727342189,
+        "monetary_policy": 0.46996532539483665,
+        "financial_conditions": 0.2491841792825596
+      },
+      {
+        "date": "2003-12-31",
+        "regime": "recovery",
+        "confidence": 0.3795989734663532,
+        "growth": -0.009947058557482368,
+        "inflation": 0.5173964227134277,
+        "monetary_policy": 0.4865461141335916,
+        "financial_conditions": 0.19268656415664412
+      },
+      {
+        "date": "2004-01-31",
+        "regime": "recovery",
+        "confidence": 0.45181732960323817,
+        "growth": -0.05611104494556322,
+        "inflation": 0.4818575613936225,
+        "monetary_policy": 0.5080369695009306,
+        "financial_conditions": 0.2991733990307992
+      },
+      {
+        "date": "2004-02-29",
+        "regime": "expansion",
+        "confidence": 0.4618105731048748,
+        "growth": 0.11222922781795643,
+        "inflation": 0.5098494049415278,
+        "monetary_policy": 0.5139146779339406,
+        "financial_conditions": 0.3488636181250727
+      },
+      {
+        "date": "2004-03-31",
+        "regime": "expansion",
+        "confidence": 0.5938761727708641,
+        "growth": 0.29257272962486014,
+        "inflation": 0.47731537125804907,
+        "monetary_policy": 0.45622549760098857,
+        "financial_conditions": 0.2607142191619976
+      },
+      {
+        "date": "2004-04-30",
+        "regime": "expansion",
+        "confidence": 0.5468573922864792,
+        "growth": 0.12258570518944294,
+        "inflation": 0.36490766455022894,
+        "monetary_policy": 0.4843369412955257,
+        "financial_conditions": 0.3049163647609475
+      },
+      {
+        "date": "2004-05-31",
+        "regime": "expansion",
+        "confidence": 0.6657846160163821,
+        "growth": 0.32690207780689634,
+        "inflation": 0.2774751568410698,
+        "monetary_policy": 0.4743565606379415,
+        "financial_conditions": 0.34599249617679695
+      },
+      {
+        "date": "2004-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.38015789120111565,
+        "growth": -0.02940411585889855,
+        "inflation": 0.2108827531507523,
+        "monetary_policy": 0.3884677386516654,
+        "financial_conditions": 0.33909924398491437
+      },
+      {
+        "date": "2004-07-31",
+        "regime": "expansion",
+        "confidence": 0.49257466889048396,
+        "growth": 0.08703836282129727,
+        "inflation": 0.28382766898569695,
+        "monetary_policy": 0.35369969215309477,
+        "financial_conditions": 0.32477582105874403
+      },
+      {
+        "date": "2004-08-31",
+        "regime": "expansion",
+        "confidence": 0.5478633960486969,
+        "growth": 0.07049160650587052,
+        "inflation": 0.35881700645133974,
+        "monetary_policy": 0.2780221894623703,
+        "financial_conditions": 0.3152603141941002
+      },
+      {
+        "date": "2004-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.4641741839862088,
+        "growth": 0.13759339548622013,
+        "inflation": 0.3386013795896216,
+        "monetary_policy": 0.20609363101925232,
+        "financial_conditions": 0.35917769199229993
+      },
+      {
+        "date": "2004-10-31",
+        "regime": "expansion",
+        "confidence": 0.5019214663065903,
+        "growth": 0.2692476154662939,
+        "inflation": 0.22748553011567982,
+        "monetary_policy": 0.22803195182795935,
+        "financial_conditions": 0.3242591479822916
+      },
+      {
+        "date": "2004-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.38925475159138684,
+        "growth": 0.028184761715145782,
+        "inflation": 0.15418356440884762,
+        "monetary_policy": 0.1796434670939359,
+        "financial_conditions": 0.41941342539385607
+      },
+      {
+        "date": "2004-12-31",
+        "regime": "expansion",
+        "confidence": 0.432060796748307,
+        "growth": 0.25743761399603504,
+        "inflation": 0.03924958349607385,
+        "monetary_policy": 0.22599755112216732,
+        "financial_conditions": 0.4308854052580597
+      },
+      {
+        "date": "2005-01-31",
+        "regime": "expansion",
+        "confidence": 0.5642928473306963,
+        "growth": 0.10522190364642496,
+        "inflation": 0.10517871356791146,
+        "monetary_policy": 0.12450201607594345,
+        "financial_conditions": 0.4549763202922213
+      },
+      {
+        "date": "2005-02-28",
+        "regime": "expansion",
+        "confidence": 0.4493868676100378,
+        "growth": 0.241074723329118,
+        "inflation": 0.04094563384927981,
+        "monetary_policy": 0.058747763833525576,
+        "financial_conditions": 0.5114625785823694
+      },
+      {
+        "date": "2005-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.32564338091791617,
+        "growth": -0.0015264559960584448,
+        "inflation": -0.01427670696384159,
+        "monetary_policy": 0.012355848853705123,
+        "financial_conditions": 0.4367018310775833
+      },
+      {
+        "date": "2005-04-30",
+        "regime": "expansion",
+        "confidence": 0.465623067060067,
+        "growth": 0.2873806689561777,
+        "inflation": 0.025866159300242636,
+        "monetary_policy": 0.023335464050909048,
+        "financial_conditions": 0.3721840639413266
+      },
+      {
+        "date": "2005-05-31",
+        "regime": "expansion",
+        "confidence": 0.453423995921769,
+        "growth": 0.027576310937872685,
+        "inflation": 0.14897190363031862,
+        "monetary_policy": -0.006647141232897533,
+        "financial_conditions": 0.36894152301149896
+      },
+      {
+        "date": "2005-06-30",
+        "regime": "expansion",
+        "confidence": 0.6459257794816627,
+        "growth": 0.3537729481507335,
+        "inflation": 0.23332403679759262,
+        "monetary_policy": -0.06324865204806125,
+        "financial_conditions": 0.3777628947875672
+      },
+      {
+        "date": "2005-07-31",
+        "regime": "expansion",
+        "confidence": 0.3925916093858049,
+        "growth": 0.22177394498506856,
+        "inflation": 0.1302342891241364,
+        "monetary_policy": -0.18218487119026433,
+        "financial_conditions": 0.4548253091147627
+      },
+      {
+        "date": "2005-08-31",
+        "regime": "expansion",
+        "confidence": 0.39855269213846023,
+        "growth": 0.20568908574304462,
+        "inflation": 0.07137382009915771,
+        "monetary_policy": -0.07757644824527664,
+        "financial_conditions": 0.4015310237200598
+      },
+      {
+        "date": "2005-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.3592765254114003,
+        "growth": -0.1909202362997002,
+        "inflation": -0.09196519561638204,
+        "monetary_policy": -0.12904675148638392,
+        "financial_conditions": 0.39056200589844864
+      },
+      {
+        "date": "2005-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.46356931929552025,
+        "growth": 0.06530509111343154,
+        "inflation": -0.10765247993334717,
+        "monetary_policy": -0.280555453814339,
+        "financial_conditions": 0.34468188252213283
+      },
+      {
+        "date": "2005-11-30",
+        "regime": "expansion",
+        "confidence": 0.4097180290157078,
+        "growth": 0.30099534932545746,
+        "inflation": 0.05982261796742333,
+        "monetary_policy": -0.3902750701719529,
+        "financial_conditions": 0.3635039802765386
+      },
+      {
+        "date": "2005-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.38519953279337277,
+        "growth": 0.0639482048237766,
+        "inflation": 0.08625415110693321,
+        "monetary_policy": -0.32848422043116904,
+        "financial_conditions": 0.35523501481753283
+      },
+      {
+        "date": "2006-01-31",
+        "regime": "expansion",
+        "confidence": 0.3715780126716525,
+        "growth": 0.27668374384050765,
+        "inflation": -0.021490920711930768,
+        "monetary_policy": -0.38346802811194153,
+        "financial_conditions": 0.40255143689648726
+      },
+      {
+        "date": "2006-02-28",
+        "regime": "expansion",
+        "confidence": 0.39489091562072254,
+        "growth": 0.15306889387590172,
+        "inflation": 0.030247486882556854,
+        "monetary_policy": -0.3580789808337377,
+        "financial_conditions": 0.45455061988847817
+      },
+      {
+        "date": "2006-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.2561500047495839,
+        "growth": 0.20829358731042247,
+        "inflation": 0.04118481403114465,
+        "monetary_policy": -0.47174102016295305,
+        "financial_conditions": 0.4487362829770094
+      },
+      {
+        "date": "2006-04-30",
+        "regime": "expansion",
+        "confidence": 0.31076247800759005,
+        "growth": 0.033807976325363615,
+        "inflation": -0.10368020868647754,
+        "monetary_policy": -0.3941626724667238,
+        "financial_conditions": 0.44772031594414885
+      },
+      {
+        "date": "2006-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.33062059587146925,
+        "growth": -0.0315038714740416,
+        "inflation": -0.153985548953312,
+        "monetary_policy": -0.385253580428839,
+        "financial_conditions": 0.3334789783920515
+      },
+      {
+        "date": "2006-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.40022750843624966,
+        "growth": -0.09781438789427745,
+        "inflation": -0.18689380538176883,
+        "monetary_policy": -0.45424086606829717,
+        "financial_conditions": 0.368595730225651
+      },
+      {
+        "date": "2006-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.36430837413847666,
+        "growth": -0.11982730528866056,
+        "inflation": -0.1713808731754819,
+        "monetary_policy": -0.4695560907697489,
+        "financial_conditions": 0.35547177201604224
+      },
+      {
+        "date": "2006-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.32554306492694385,
+        "growth": 0.00816103074907339,
+        "inflation": -0.1737989312239345,
+        "monetary_policy": -0.41748697071745805,
+        "financial_conditions": 0.401323973961403
+      },
+      {
+        "date": "2006-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.390953932390126,
+        "growth": 0.04210728439220832,
+        "inflation": 0.0800236336995509,
+        "monetary_policy": -0.41075317414172446,
+        "financial_conditions": 0.3874643040743958
+      },
+      {
+        "date": "2006-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.3309838452710937,
+        "growth": -0.13194044514371356,
+        "inflation": 0.19155702201560498,
+        "monetary_policy": -0.3916686036917873,
+        "financial_conditions": 0.44293403485728144
+      },
+      {
+        "date": "2006-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.39522662289723315,
+        "growth": -0.052323061962337616,
+        "inflation": 0.20550606503014732,
+        "monetary_policy": -0.3856915860461431,
+        "financial_conditions": 0.43463071492833205
+      },
+      {
+        "date": "2006-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.44623556298448763,
+        "growth": 0.11466429778198205,
+        "inflation": 0.1578521921835132,
+        "monetary_policy": -0.428203882188661,
+        "financial_conditions": 0.4308789742947761
+      },
+      {
+        "date": "2007-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.3693894982981213,
+        "growth": -0.1946308222789033,
+        "inflation": 0.1064856521212832,
+        "monetary_policy": -0.37220567989644027,
+        "financial_conditions": 0.48687973116887223
+      },
+      {
+        "date": "2007-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.43194841472698803,
+        "growth": -0.08970375706409704,
+        "inflation": 0.09962473933477987,
+        "monetary_policy": -0.33033342946076966,
+        "financial_conditions": 0.4020259312079855
+      },
+      {
+        "date": "2007-03-31",
+        "regime": "expansion",
+        "confidence": 0.3193967495939565,
+        "growth": 0.013147214848127621,
+        "inflation": 0.07842222181668367,
+        "monetary_policy": -0.3089392662602916,
+        "financial_conditions": 0.3435932478417933
+      },
+      {
+        "date": "2007-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.3134279927480125,
+        "growth": -0.16919306914252122,
+        "inflation": 0.11563722977742127,
+        "monetary_policy": -0.31136499604442913,
+        "financial_conditions": 0.3610458197121068
+      },
+      {
+        "date": "2007-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.341978511245871,
+        "growth": -0.01852857312820059,
+        "inflation": 0.15711341695891975,
+        "monetary_policy": -0.44188635516739244,
+        "financial_conditions": 0.3763268010440874
+      },
+      {
+        "date": "2007-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.34346173684424663,
+        "growth": -0.15936143064387265,
+        "inflation": 0.156475809143375,
+        "monetary_policy": -0.4341551960047345,
+        "financial_conditions": 0.2621195731041659
+      },
+      {
+        "date": "2007-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.41178110602682516,
+        "growth": -0.2727396924484329,
+        "inflation": 0.1815591291791405,
+        "monetary_policy": -0.3767428722837716,
+        "financial_conditions": -0.08113747956426355
+      },
+      {
+        "date": "2007-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.42547083805355157,
+        "growth": -0.24107767977175887,
+        "inflation": 0.29299087761207104,
+        "monetary_policy": -0.2687732178124112,
+        "financial_conditions": -0.439198300432277
+      },
+      {
+        "date": "2007-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.4345466764403473,
+        "growth": -0.16790563619105692,
+        "inflation": 0.13672523036306725,
+        "monetary_policy": -0.09330094667054073,
+        "financial_conditions": -0.27626721466217563
+      },
+      {
+        "date": "2007-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.540397659299166,
+        "growth": -0.2211362823976275,
+        "inflation": 0.05246515180772848,
+        "monetary_policy": -0.13087536417989304,
+        "financial_conditions": -0.27443989926808243
+      },
+      {
+        "date": "2007-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.4013759671831783,
+        "growth": -0.10702753772164769,
+        "inflation": -0.06486126346005489,
+        "monetary_policy": 0.09326240105259226,
+        "financial_conditions": -0.6268425026946525
+      },
+      {
+        "date": "2007-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.3602578741978409,
+        "growth": -0.3210375117643103,
+        "inflation": -0.03346503485227888,
+        "monetary_policy": 0.11023808183349484,
+        "financial_conditions": -0.6134856364988764
+      },
+      {
+        "date": "2008-01-31",
+        "regime": "recession",
+        "confidence": 0.21456458525777017,
+        "growth": -0.35577557876163535,
+        "inflation": -0.0657074342439195,
+        "monetary_policy": 0.38693384504687184,
+        "financial_conditions": -0.7309796083259454
+      },
+      {
+        "date": "2008-02-29",
+        "regime": "recession",
+        "confidence": 0.40252919865793424,
+        "growth": -0.5060392518150889,
+        "inflation": -0.0578313661677846,
+        "monetary_policy": 0.35534660816104546,
+        "financial_conditions": -0.7892790168522282
+      },
+      {
+        "date": "2008-03-31",
+        "regime": "recession",
+        "confidence": 0.5011557000369576,
+        "growth": -0.5814004603081122,
+        "inflation": -0.038162634725398326,
+        "monetary_policy": 0.4224908922889886,
+        "financial_conditions": -0.8064585641966757
+      },
+      {
+        "date": "2008-04-30",
+        "regime": "recession",
+        "confidence": 0.5730282077901656,
+        "growth": -0.6031039403107857,
+        "inflation": 0.04458518873386963,
+        "monetary_policy": 0.31391360305725713,
+        "financial_conditions": -0.6791436320697755
+      },
+      {
+        "date": "2008-05-31",
+        "regime": "recession",
+        "confidence": 0.7197747176930512,
+        "growth": -0.6737997016485059,
+        "inflation": -0.10888147453635298,
+        "monetary_policy": 0.2743166027055444,
+        "financial_conditions": -0.553285904104913
+      },
+      {
+        "date": "2008-06-30",
+        "regime": "recession",
+        "confidence": 0.6761668022276608,
+        "growth": -0.6589550793087754,
+        "inflation": -0.16014346695241005,
+        "monetary_policy": 0.27400844375913047,
+        "financial_conditions": -0.7274045519725677
+      },
+      {
+        "date": "2008-07-31",
+        "regime": "recession",
+        "confidence": 0.7231846435987523,
+        "growth": -0.7220872737600781,
+        "inflation": -0.1761842229465768,
+        "monetary_policy": 0.3511402716743117,
+        "financial_conditions": -0.6966141752182912
+      },
+      {
+        "date": "2008-08-31",
+        "regime": "recession",
+        "confidence": 0.7318106509859336,
+        "growth": -0.8099872578077335,
+        "inflation": -0.08901272375407396,
+        "monetary_policy": 0.2253487304854223,
+        "financial_conditions": -0.6911342165677504
+      },
+      {
+        "date": "2008-09-30",
+        "regime": "recession",
+        "confidence": 0.6428525020236617,
+        "growth": -0.8990825577336221,
+        "inflation": 0.07543599572679925,
+        "monetary_policy": 0.30938444408252336,
+        "financial_conditions": -0.960770131640208
+      },
+      {
+        "date": "2008-10-31",
+        "regime": "recession",
+        "confidence": 0.6175889032680268,
+        "growth": -0.865058283731248,
+        "inflation": 0.15232029375085906,
+        "monetary_policy": 0.3877937327377702,
+        "financial_conditions": -0.9960006525738184
+      },
+      {
+        "date": "2008-11-30",
+        "regime": "recession",
+        "confidence": 0.5610706331490909,
+        "growth": -0.9443156102094298,
+        "inflation": 0.4412775888515702,
+        "monetary_policy": 0.4096941907337124,
+        "financial_conditions": -0.9940082117809634
+      },
+      {
+        "date": "2008-12-31",
+        "regime": "recession",
+        "confidence": 0.5148337429568612,
+        "growth": -0.943268250610437,
+        "inflation": 0.7451503296603045,
+        "monetary_policy": 0.4183730626510591,
+        "financial_conditions": -0.9428863929310076
+      },
+      {
+        "date": "2009-01-31",
+        "regime": "recession",
+        "confidence": 0.5,
+        "growth": -0.945393319879257,
+        "inflation": 0.7133269535664927,
+        "monetary_policy": 0.5698664945228549,
+        "financial_conditions": -0.9437323575749688
+      },
+      {
+        "date": "2009-02-28",
+        "regime": "recession",
+        "confidence": 0.512804292253784,
+        "growth": -0.9156442326792836,
+        "inflation": 0.7304422509425528,
+        "monetary_policy": 0.48837776884507317,
+        "financial_conditions": -0.943700766380556
+      },
+      {
+        "date": "2009-03-31",
+        "regime": "recession",
+        "confidence": 0.5008431027398061,
+        "growth": -0.9523352381102774,
+        "inflation": 0.7105066364828582,
+        "monetary_policy": 0.5923888605613087,
+        "financial_conditions": -0.9133305928673638
+      },
+      {
+        "date": "2009-04-30",
+        "regime": "recession",
+        "confidence": 0.5403833117036516,
+        "growth": -0.8949330792670895,
+        "inflation": 0.6228139411253618,
+        "monetary_policy": 0.5642247302597905,
+        "financial_conditions": -0.837795330420018
+      },
+      {
+        "date": "2009-05-31",
+        "regime": "recovery",
+        "confidence": 0.49850736890204533,
+        "growth": -0.8224339010033523,
+        "inflation": 0.5929918989298228,
+        "monetary_policy": 0.5568721711110611,
+        "financial_conditions": -0.6440754637550581
+      },
+      {
+        "date": "2009-06-30",
+        "regime": "recovery",
+        "confidence": 0.6047803756108763,
+        "growth": -0.7989729314327793,
+        "inflation": 0.6148794052517166,
+        "monetary_policy": 0.490909412804687,
+        "financial_conditions": -0.5831024376534343
+      },
+      {
+        "date": "2009-07-31",
+        "regime": "recovery",
+        "confidence": 0.5712273113459703,
+        "growth": -0.6523316769278364,
+        "inflation": 0.6213444117758962,
+        "monetary_policy": 0.5084597014176037,
+        "financial_conditions": -0.40525975730053915
+      },
+      {
+        "date": "2009-08-31",
+        "regime": "recovery",
+        "confidence": 0.4638203026396608,
+        "growth": -0.5788671496889445,
+        "inflation": 0.6572306196782721,
+        "monetary_policy": 0.5095357557707766,
+        "financial_conditions": -0.3428720749798552
+      },
+      {
+        "date": "2009-09-30",
+        "regime": "recovery",
+        "confidence": 0.46598648161649275,
+        "growth": -0.5712937486794978,
+        "inflation": 0.6517345603333214,
+        "monetary_policy": 0.4930804886349386,
+        "financial_conditions": -0.2513906453770078
+      },
+      {
+        "date": "2009-10-31",
+        "regime": "recovery",
+        "confidence": 0.4963240482336726,
+        "growth": -0.5692661620266567,
+        "inflation": 0.4752541196153203,
+        "monetary_policy": 0.45863440483537543,
+        "financial_conditions": -0.2602717722239902
+      },
+      {
+        "date": "2009-11-30",
+        "regime": "recovery",
+        "confidence": 0.29841308666357386,
+        "growth": -0.29683657320833434,
+        "inflation": 0.32995829555454564,
+        "monetary_policy": 0.4867017668288946,
+        "financial_conditions": -0.1704312364582915
+      },
+      {
+        "date": "2009-12-31",
+        "regime": "recovery",
+        "confidence": 0.3312455831637092,
+        "growth": -0.3612501660786996,
+        "inflation": 0.16510565076963385,
+        "monetary_policy": 0.45486687116816876,
+        "financial_conditions": -0.04496290269645062
+      },
+      {
+        "date": "2010-01-31",
+        "regime": "recovery",
+        "confidence": 0.399337421210007,
+        "growth": -0.19198536159815466,
+        "inflation": 0.14820337060388294,
+        "monetary_policy": 0.5158660131442399,
+        "financial_conditions": -0.08367006816037656
+      },
+      {
+        "date": "2010-02-28",
+        "regime": "recovery",
+        "confidence": 0.39524633439398915,
+        "growth": -0.1804432327759444,
+        "inflation": 0.2611182654120829,
+        "monetary_policy": 0.4726668763452589,
+        "financial_conditions": 0.01233097565628848
+      },
+      {
+        "date": "2010-03-31",
+        "regime": "expansion",
+        "confidence": 0.3739176010345641,
+        "growth": 0.2094504137486241,
+        "inflation": 0.1995171990731984,
+        "monetary_policy": 0.4310165773761611,
+        "financial_conditions": 0.10159196898957025
+      },
+      {
+        "date": "2010-04-30",
+        "regime": "expansion",
+        "confidence": 0.4635366007116261,
+        "growth": 0.16040821263017563,
+        "inflation": 0.20096984418549582,
+        "monetary_policy": 0.46818102728066646,
+        "financial_conditions": 0.017971352467137647
+      },
+      {
+        "date": "2010-05-31",
+        "regime": "expansion",
+        "confidence": 0.6628196826439318,
+        "growth": 0.41835615617568156,
+        "inflation": 0.31640695908765737,
+        "monetary_policy": 0.42696448754863686,
+        "financial_conditions": -0.34407156991726634
+      },
+      {
+        "date": "2010-06-30",
+        "regime": "expansion",
+        "confidence": 0.37280555001716636,
+        "growth": 0.04964187560219526,
+        "inflation": 0.4611923656954819,
+        "monetary_policy": 0.4587779759151994,
+        "financial_conditions": -0.3431993277800312
+      },
+      {
+        "date": "2010-07-31",
+        "regime": "expansion",
+        "confidence": 0.3393010475104878,
+        "growth": 0.0036752434691746253,
+        "inflation": 0.4570589918109552,
+        "monetary_policy": 0.43902784396048183,
+        "financial_conditions": -0.14641999545918502
+      },
+      {
+        "date": "2010-08-31",
+        "regime": "expansion",
+        "confidence": 0.45564704455956917,
+        "growth": 0.08244918513831949,
+        "inflation": 0.5422477103515713,
+        "monetary_policy": 0.3877111103528887,
+        "financial_conditions": -0.20947988671099124
+      },
+      {
+        "date": "2010-09-30",
+        "regime": "expansion",
+        "confidence": 0.46084371820151354,
+        "growth": 0.07502051713827436,
+        "inflation": 0.5123944106376066,
+        "monetary_policy": 0.4218435351440275,
+        "financial_conditions": -0.13378028307789855
+      },
+      {
+        "date": "2010-10-31",
+        "regime": "expansion",
+        "confidence": 0.458343086051193,
+        "growth": 0.14474283554396886,
+        "inflation": 0.4274945702870503,
+        "monetary_policy": 0.4515547716360182,
+        "financial_conditions": -0.06296450559053882
+      },
+      {
+        "date": "2010-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.35978363832386245,
+        "growth": 0.1600250688889701,
+        "inflation": 0.44124486194881485,
+        "monetary_policy": 0.4283885219292923,
+        "financial_conditions": -0.11463406440000863
+      },
+      {
+        "date": "2010-12-31",
+        "regime": "expansion",
+        "confidence": 0.36240695903192166,
+        "growth": 0.21244328016444874,
+        "inflation": 0.37352612117490813,
+        "monetary_policy": 0.44272712949895693,
+        "financial_conditions": 0.05518988523705201
+      },
+      {
+        "date": "2011-01-31",
+        "regime": "expansion",
+        "confidence": 0.4379390259371441,
+        "growth": 0.02791256118379771,
+        "inflation": 0.31186440633793544,
+        "monetary_policy": 0.4409071301189431,
+        "financial_conditions": 0.06071565166667043
+      },
+      {
+        "date": "2011-02-28",
+        "regime": "expansion",
+        "confidence": 0.45512967149776357,
+        "growth": 0.2205122710298309,
+        "inflation": 0.2524079162771385,
+        "monetary_policy": 0.42840881871785674,
+        "financial_conditions": 0.0751014368790586
+      },
+      {
+        "date": "2011-03-31",
+        "regime": "expansion",
+        "confidence": 0.6029052260845293,
+        "growth": 0.3113608676073142,
+        "inflation": 0.1530636779892513,
+        "monetary_policy": 0.42833131364424293,
+        "financial_conditions": 0.09450110030311408
+      },
+      {
+        "date": "2011-04-30",
+        "regime": "expansion",
+        "confidence": 0.45230261873405636,
+        "growth": 0.033800340648150864,
+        "inflation": 0.060151978628219666,
+        "monetary_policy": 0.45107043549972037,
+        "financial_conditions": 0.16751537140538558
+      },
+      {
+        "date": "2011-05-31",
+        "regime": "expansion",
+        "confidence": 0.5202582411376855,
+        "growth": 0.07096684980651412,
+        "inflation": 0.06091863964823738,
+        "monetary_policy": 0.44271940290216216,
+        "financial_conditions": 0.13502947016060068
+      },
+      {
+        "date": "2011-06-30",
+        "regime": "expansion",
+        "confidence": 0.38754076089402756,
+        "growth": 0.19765323069071022,
+        "inflation": -0.01843741580724741,
+        "monetary_policy": 0.4790078600588623,
+        "financial_conditions": 0.09080478427428347
+      },
+      {
+        "date": "2011-07-31",
+        "regime": "expansion",
+        "confidence": 0.4086485024338721,
+        "growth": 0.0254810383949205,
+        "inflation": -0.06444970461701538,
+        "monetary_policy": 0.4552396565273566,
+        "financial_conditions": -0.049810464866995835
+      },
+      {
+        "date": "2011-08-31",
+        "regime": "expansion",
+        "confidence": 0.44532500077228865,
+        "growth": 0.1345026429306518,
+        "inflation": -0.02438966268973838,
+        "monetary_policy": 0.4120727016445342,
+        "financial_conditions": -0.30710591582590485
+      },
+      {
+        "date": "2011-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.3312798380550278,
+        "growth": 0.15220211173238454,
+        "inflation": 0.055444989783394495,
+        "monetary_policy": 0.3607268242136304,
+        "financial_conditions": -0.4594416968651715
+      },
+      {
+        "date": "2011-10-31",
+        "regime": "expansion",
+        "confidence": 0.4105524343272682,
+        "growth": 0.12070839684433216,
+        "inflation": 0.011060607895637165,
+        "monetary_policy": 0.3880573499659996,
+        "financial_conditions": -0.2733104842700601
+      },
+      {
+        "date": "2011-11-30",
+        "regime": "expansion",
+        "confidence": 0.49482674915997293,
+        "growth": 0.107650394260799,
+        "inflation": -0.007655814414737418,
+        "monetary_policy": 0.35456102390384864,
+        "financial_conditions": -0.348159500510806
+      },
+      {
+        "date": "2011-12-31",
+        "regime": "expansion",
+        "confidence": 0.3918563390304373,
+        "growth": 0.22052821250904348,
+        "inflation": -0.01250900215247627,
+        "monetary_policy": 0.3264716317044355,
+        "financial_conditions": -0.26097709540273323
+      },
+      {
+        "date": "2012-01-31",
+        "regime": "expansion",
+        "confidence": 0.4698099673160627,
+        "growth": 0.2549356817014981,
+        "inflation": -0.06235045644591884,
+        "monetary_policy": 0.3108743653998547,
+        "financial_conditions": -0.1349459826690413
+      },
+      {
+        "date": "2012-02-29",
+        "regime": "expansion",
+        "confidence": 0.43537614229167615,
+        "growth": 0.22501789926558727,
+        "inflation": -0.07341909303941072,
+        "monetary_policy": 0.3017257159048594,
+        "financial_conditions": -0.06695538338584352
+      },
+      {
+        "date": "2012-03-31",
+        "regime": "expansion",
+        "confidence": 0.4729879386414062,
+        "growth": 0.15393728744279025,
+        "inflation": -0.0970011107202573,
+        "monetary_policy": 0.3252794740298428,
+        "financial_conditions": -0.030167171966187324
+      },
+      {
+        "date": "2012-04-30",
+        "regime": "expansion",
+        "confidence": 0.5745835306412239,
+        "growth": 0.09725156748705092,
+        "inflation": -0.005021567438443272,
+        "monetary_policy": 0.2842499598975993,
+        "financial_conditions": -0.08846480266203405
+      },
+      {
+        "date": "2012-05-31",
+        "regime": "expansion",
+        "confidence": 0.5319188917476733,
+        "growth": 0.11113115816516979,
+        "inflation": 0.12403859243446722,
+        "monetary_policy": 0.22327860053281792,
+        "financial_conditions": -0.26174972772697563
+      },
+      {
+        "date": "2012-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.40373642527238085,
+        "growth": 0.035696965206024195,
+        "inflation": 0.12222384233824922,
+        "monetary_policy": 0.22078879861625722,
+        "financial_conditions": -0.14460318784400183
+      },
+      {
+        "date": "2012-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.451254129837934,
+        "growth": 0.020527040750834474,
+        "inflation": 0.15361755034216446,
+        "monetary_policy": 0.20745855634377303,
+        "financial_conditions": -0.13362395779196273
+      },
+      {
+        "date": "2012-08-31",
+        "regime": "expansion",
+        "confidence": 0.49071612971354406,
+        "growth": 0.08699949647873353,
+        "inflation": 0.1681914955023598,
+        "monetary_policy": 0.2243773851778949,
+        "financial_conditions": -0.0615138448647509
+      },
+      {
+        "date": "2012-09-30",
+        "regime": "expansion",
+        "confidence": 0.5671497723971743,
+        "growth": 0.13197833992185906,
+        "inflation": 0.07829906166659656,
+        "monetary_policy": 0.2399092488504462,
+        "financial_conditions": 0.04654453479989657
+      },
+      {
+        "date": "2012-10-31",
+        "regime": "expansion",
+        "confidence": 0.4656676584423091,
+        "growth": 0.015933912792575423,
+        "inflation": -0.01449719434624265,
+        "monetary_policy": 0.23406530050968594,
+        "financial_conditions": 0.04796256373531209
+      },
+      {
+        "date": "2012-11-30",
+        "regime": "expansion",
+        "confidence": 0.5232849270828954,
+        "growth": 0.16193496900648752,
+        "inflation": 0.07450935897909378,
+        "monetary_policy": 0.22986515621714643,
+        "financial_conditions": 0.08092850811407332
+      },
+      {
+        "date": "2012-12-31",
+        "regime": "expansion",
+        "confidence": 0.5395256836118398,
+        "growth": 0.15001643620155056,
+        "inflation": 0.10145015918348373,
+        "monetary_policy": 0.2589016488631008,
+        "financial_conditions": 0.0779920297456934
+      },
+      {
+        "date": "2013-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.4244179165775637,
+        "growth": -0.044105746835817604,
+        "inflation": 0.10817909805463499,
+        "monetary_policy": 0.2872801648353057,
+        "financial_conditions": 0.14532355531916683
+      },
+      {
+        "date": "2013-02-28",
+        "regime": "expansion",
+        "confidence": 0.4066936000439379,
+        "growth": 0.18482225190150603,
+        "inflation": 0.07749772266695515,
+        "monetary_policy": 0.26891115896510515,
+        "financial_conditions": 0.10633101166269106
+      },
+      {
+        "date": "2013-03-31",
+        "regime": "expansion",
+        "confidence": 0.45544782497709824,
+        "growth": 0.009646347621876123,
+        "inflation": 0.17513373859479262,
+        "monetary_policy": 0.27892762327060344,
+        "financial_conditions": 0.13617123313618779
+      },
+      {
+        "date": "2013-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.39048274145202805,
+        "growth": -0.023171248772677375,
+        "inflation": 0.30031168651723844,
+        "monetary_policy": 0.2663473549445071,
+        "financial_conditions": 0.16395653278725017
+      },
+      {
+        "date": "2013-05-31",
+        "regime": "expansion",
+        "confidence": 0.4624480749284202,
+        "growth": 0.14028522296209087,
+        "inflation": 0.3144213126231852,
+        "monetary_policy": 0.30780801714228023,
+        "financial_conditions": 0.1297398365937268
+      },
+      {
+        "date": "2013-06-30",
+        "regime": "expansion",
+        "confidence": 0.5796001900705727,
+        "growth": 0.10397553414476565,
+        "inflation": 0.3458500138628777,
+        "monetary_policy": 0.318146548817139,
+        "financial_conditions": 0.054866540335263225
+      },
+      {
+        "date": "2013-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.4012725962640002,
+        "growth": -0.03659038497348868,
+        "inflation": 0.2255697457171995,
+        "monetary_policy": 0.3551715117805275,
+        "financial_conditions": 0.16545540903901376
+      },
+      {
+        "date": "2013-08-31",
+        "regime": "expansion",
+        "confidence": 0.39983199675563574,
+        "growth": 0.21568599630033314,
+        "inflation": 0.27120928860546173,
+        "monetary_policy": 0.349931402107499,
+        "financial_conditions": 0.1064748273707716
+      },
+      {
+        "date": "2013-09-30",
+        "regime": "expansion",
+        "confidence": 0.570098531380367,
+        "growth": 0.11790430644788666,
+        "inflation": 0.25861863938576257,
+        "monetary_policy": 0.36349135074397265,
+        "financial_conditions": 0.10704488328473456
+      },
+      {
+        "date": "2013-10-31",
+        "regime": "expansion",
+        "confidence": 0.5010696041213218,
+        "growth": 0.04720476552937833,
+        "inflation": 0.3230075593821751,
+        "monetary_policy": 0.3592657638945785,
+        "financial_conditions": 0.18426114383061593
+      },
+      {
+        "date": "2013-11-30",
+        "regime": "expansion",
+        "confidence": 0.4535514507950876,
+        "growth": 0.19989054042333199,
+        "inflation": 0.2764842914848177,
+        "monetary_policy": 0.37707444259490364,
+        "financial_conditions": 0.1937139646483916
+      },
+      {
+        "date": "2013-12-31",
+        "regime": "expansion",
+        "confidence": 0.49275176680626853,
+        "growth": 0.04199104786792868,
+        "inflation": 0.20406964591681226,
+        "monetary_policy": 0.3870469330404874,
+        "financial_conditions": 0.2409303306318027
+      },
+      {
+        "date": "2014-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.4003355076442221,
+        "growth": -0.04035395529534428,
+        "inflation": 0.279794315698008,
+        "monetary_policy": 0.3629425817748849,
+        "financial_conditions": 0.13784755820351982
+      },
+      {
+        "date": "2014-02-28",
+        "regime": "expansion",
+        "confidence": 0.46720608640986644,
+        "growth": 0.13649337371230896,
+        "inflation": 0.3333482020712886,
+        "monetary_policy": 0.3653159464184989,
+        "financial_conditions": 0.2385031055399333
+      },
+      {
+        "date": "2014-03-31",
+        "regime": "expansion",
+        "confidence": 0.5489605230478529,
+        "growth": 0.24383162124614488,
+        "inflation": 0.2683104409426244,
+        "monetary_policy": 0.3403256337951752,
+        "financial_conditions": 0.2508296064845175
+      },
+      {
+        "date": "2014-04-30",
+        "regime": "expansion",
+        "confidence": 0.49635311736233306,
+        "growth": 0.17638359150385696,
+        "inflation": 0.17393557384232441,
+        "monetary_policy": 0.3370056623180612,
+        "financial_conditions": 0.26951518394994173
+      },
+      {
+        "date": "2014-05-31",
+        "regime": "expansion",
+        "confidence": 0.4655200029916941,
+        "growth": 0.21380085027585635,
+        "inflation": 0.09513864898339533,
+        "monetary_policy": 0.32608571663519365,
+        "financial_conditions": 0.3062778829461788
+      },
+      {
+        "date": "2014-06-30",
+        "regime": "expansion",
+        "confidence": 0.599018046294836,
+        "growth": 0.2896800338039282,
+        "inflation": 0.1270692680004871,
+        "monetary_policy": 0.3203408284572922,
+        "financial_conditions": 0.3199808912045606
+      },
+      {
+        "date": "2014-07-31",
+        "regime": "expansion",
+        "confidence": 0.4608903279002695,
+        "growth": 0.19629010120308735,
+        "inflation": 0.10937546276015431,
+        "monetary_policy": 0.30944337678182354,
+        "financial_conditions": 0.2333446837320752
+      },
+      {
+        "date": "2014-08-31",
+        "regime": "expansion",
+        "confidence": 0.5311814323368022,
+        "growth": 0.16308025542172536,
+        "inflation": 0.22098252738856947,
+        "monetary_policy": 0.2786018644849213,
+        "financial_conditions": 0.2801729184406326
+      },
+      {
+        "date": "2014-09-30",
+        "regime": "expansion",
+        "confidence": 0.5560262260093717,
+        "growth": 0.2502542122340328,
+        "inflation": 0.261349168796696,
+        "monetary_policy": 0.26940283932795384,
+        "financial_conditions": 0.15976592544338525
+      },
+      {
+        "date": "2014-10-31",
+        "regime": "expansion",
+        "confidence": 0.4816032189766003,
+        "growth": 0.19128315496158577,
+        "inflation": 0.3007131856322642,
+        "monetary_policy": 0.2574349111397537,
+        "financial_conditions": 0.1691516438759062
+      },
+      {
+        "date": "2014-11-30",
+        "regime": "expansion",
+        "confidence": 0.5980782140698611,
+        "growth": 0.2942063379988172,
+        "inflation": 0.4034135042573797,
+        "monetary_policy": 0.2255982647055809,
+        "financial_conditions": 0.14853190274004563
+      },
+      {
+        "date": "2014-12-31",
+        "regime": "expansion",
+        "confidence": 0.47415743529425863,
+        "growth": 0.24451890953613736,
+        "inflation": 0.49600668924174235,
+        "monetary_policy": 0.1838683501731412,
+        "financial_conditions": 0.059548275978029856
+      },
+      {
+        "date": "2015-01-31",
+        "regime": "expansion",
+        "confidence": 0.5061153612363144,
+        "growth": 0.10817648540565072,
+        "inflation": 0.5917091427874728,
+        "monetary_policy": 0.16699593297036588,
+        "financial_conditions": -0.03541152768906182
+      },
+      {
+        "date": "2015-02-28",
+        "regime": "expansion",
+        "confidence": 0.5544418893331652,
+        "growth": 0.09738790380068245,
+        "inflation": 0.5118827443945233,
+        "monetary_policy": 0.17819393928726512,
+        "financial_conditions": 0.09507626916272788
+      },
+      {
+        "date": "2015-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.4554937115741012,
+        "growth": 0.08907239720916381,
+        "inflation": 0.5094341337658783,
+        "monetary_policy": 0.1805967068388346,
+        "financial_conditions": 0.05860378585419797
+      },
+      {
+        "date": "2015-04-30",
+        "regime": "expansion",
+        "confidence": 0.47468419673947615,
+        "growth": 0.09369247799435569,
+        "inflation": 0.4686566872689831,
+        "monetary_policy": 0.19146676640884464,
+        "financial_conditions": 0.08476609681238334
+      },
+      {
+        "date": "2015-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.4467695338828469,
+        "growth": 0.08289699669929947,
+        "inflation": 0.5050132686532434,
+        "monetary_policy": 0.17740119306440782,
+        "financial_conditions": 0.05558551361893736
+      },
+      {
+        "date": "2015-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.40347033060441156,
+        "growth": 0.014154516243410839,
+        "inflation": 0.471377831115717,
+        "monetary_policy": 0.213248120269809,
+        "financial_conditions": -7.406159356774037e-6
+      },
+      {
+        "date": "2015-07-31",
+        "regime": "expansion",
+        "confidence": 0.4082858324880762,
+        "growth": 0.1471828380708301,
+        "inflation": 0.48634139741121846,
+        "monetary_policy": 0.1580437727936996,
+        "financial_conditions": 0.024738385438608724
+      },
+      {
+        "date": "2015-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.3099701973394376,
+        "growth": -0.02434377485883565,
+        "inflation": 0.4972657223980984,
+        "monetary_policy": 0.14933095938960658,
+        "financial_conditions": -0.2708545679387454
+      },
+      {
+        "date": "2015-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.3337238744998624,
+        "growth": -0.003228515290756578,
+        "inflation": 0.5307206102537385,
+        "monetary_policy": 0.13248185749124033,
+        "financial_conditions": -0.21774658115379686
+      },
+      {
+        "date": "2015-10-31",
+        "regime": "expansion",
+        "confidence": 0.31081311267361017,
+        "growth": 0.0017738952865611886,
+        "inflation": 0.5166416683216635,
+        "monetary_policy": 0.1257906278643966,
+        "financial_conditions": -0.03308244541149292
+      },
+      {
+        "date": "2015-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.3607827571600223,
+        "growth": -0.03341440903068159,
+        "inflation": 0.46566001417850167,
+        "monetary_policy": 0.0916445364671383,
+        "financial_conditions": -0.05392338585870828
+      },
+      {
+        "date": "2015-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.36952108484088764,
+        "growth": -0.013328272601613546,
+        "inflation": 0.4487325599297002,
+        "monetary_policy": -0.16009545577875314,
+        "financial_conditions": -0.12017173035207049
+      },
+      {
+        "date": "2016-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.4154436572487871,
+        "growth": -0.03169861469636486,
+        "inflation": 0.3544367632164945,
+        "monetary_policy": -0.1666540820891187,
+        "financial_conditions": -0.19141260482265496
+      },
+      {
+        "date": "2016-02-29",
+        "regime": "late_cycle",
+        "confidence": 0.36693061297873303,
+        "growth": -0.0022246143830617826,
+        "inflation": 0.3491045255452479,
+        "monetary_policy": -0.17597687577814747,
+        "financial_conditions": -0.19049681005065233
+      },
+      {
+        "date": "2016-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.45775876247825364,
+        "growth": -0.04181674470496702,
+        "inflation": 0.3293965408353897,
+        "monetary_policy": -0.14857226399158052,
+        "financial_conditions": 0.015230513862799062
+      },
+      {
+        "date": "2016-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.5232459486918168,
+        "growth": -0.07126385756280047,
+        "inflation": 0.2633958120350588,
+        "monetary_policy": -0.1362907422428013,
+        "financial_conditions": 0.035695538511237496
+      },
+      {
+        "date": "2016-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.4462475875402525,
+        "growth": -0.11847366498572877,
+        "inflation": 0.27450406388862036,
+        "monetary_policy": -0.15257173246532663,
+        "financial_conditions": 0.04602693192991845
+      },
+      {
+        "date": "2016-06-30",
+        "regime": "expansion",
+        "confidence": 0.4460447933351746,
+        "growth": 0.07269012174739514,
+        "inflation": 0.28760957149877675,
+        "monetary_policy": -0.13416013752253286,
+        "financial_conditions": -0.005706626922518848
+      },
+      {
+        "date": "2016-07-31",
+        "regime": "expansion",
+        "confidence": 0.45121925126681045,
+        "growth": 0.03169017776735778,
+        "inflation": 0.2917863592838586,
+        "monetary_policy": -0.1620192342169261,
+        "financial_conditions": 0.08206009656314682
+      },
+      {
+        "date": "2016-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.444958941201958,
+        "growth": -0.07862809431275816,
+        "inflation": 0.22474984473988538,
+        "monetary_policy": -0.1701676071037899,
+        "financial_conditions": 0.08611252351485321
+      },
+      {
+        "date": "2016-09-30",
+        "regime": "expansion",
+        "confidence": 0.4318959519731954,
+        "growth": 0.05003223522298741,
+        "inflation": 0.1738146313292426,
+        "monetary_policy": -0.15517798867304494,
+        "financial_conditions": 0.0749478057879074
+      },
+      {
+        "date": "2016-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.46088280790705477,
+        "growth": -0.08544843400546073,
+        "inflation": 0.11845974635301579,
+        "monetary_policy": -0.13920761833019682,
+        "financial_conditions": 0.055724362759126546
+      },
+      {
+        "date": "2016-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.4995271641950238,
+        "growth": -0.03913836080580871,
+        "inflation": 0.09706676301026637,
+        "monetary_policy": -0.11939799383122941,
+        "financial_conditions": 0.14146314616631536
+      },
+      {
+        "date": "2016-12-31",
+        "regime": "expansion",
+        "confidence": 0.4259249195618875,
+        "growth": 0.1520878668359938,
+        "inflation": 0.03657870809144931,
+        "monetary_policy": -0.14704692241315936,
+        "financial_conditions": 0.16520426486773904
+      },
+      {
+        "date": "2017-01-31",
+        "regime": "expansion",
+        "confidence": 0.4735209449457738,
+        "growth": 0.03766317649693836,
+        "inflation": -0.08432629267773023,
+        "monetary_policy": -0.13217883408057324,
+        "financial_conditions": 0.2351239910231506
+      },
+      {
+        "date": "2017-02-28",
+        "regime": "expansion",
+        "confidence": 0.5499032443236014,
+        "growth": 0.08575283403676061,
+        "inflation": -0.10736163277314356,
+        "monetary_policy": -0.13523812106921448,
+        "financial_conditions": 0.2269098993968918
+      },
+      {
+        "date": "2017-03-31",
+        "regime": "expansion",
+        "confidence": 0.5446091739523089,
+        "growth": 0.0848632990573261,
+        "inflation": 0.03876821546157076,
+        "monetary_policy": -0.20670560795657214,
+        "financial_conditions": 0.21891405980667294
+      },
+      {
+        "date": "2017-04-30",
+        "regime": "expansion",
+        "confidence": 0.4453777286393354,
+        "growth": 0.16668509063671233,
+        "inflation": 0.1302571475616306,
+        "monetary_policy": -0.21470577060755588,
+        "financial_conditions": 0.24032819784395473
+      },
+      {
+        "date": "2017-05-31",
+        "regime": "expansion",
+        "confidence": 0.5234844768978961,
+        "growth": 0.10950883560827851,
+        "inflation": 0.2457077845068011,
+        "monetary_policy": -0.22272912837966582,
+        "financial_conditions": 0.2963974578014479
+      },
+      {
+        "date": "2017-06-30",
+        "regime": "expansion",
+        "confidence": 0.45528091816822835,
+        "growth": 0.14255253640530138,
+        "inflation": 0.28074407533560136,
+        "monetary_policy": -0.24790683087338508,
+        "financial_conditions": 0.31414176310593594
+      },
+      {
+        "date": "2017-07-31",
+        "regime": "expansion",
+        "confidence": 0.4275034764373565,
+        "growth": 0.0429362676380699,
+        "inflation": 0.2715456252640345,
+        "monetary_policy": -0.23882159594757466,
+        "financial_conditions": 0.3497511750281244
+      },
+      {
+        "date": "2017-08-31",
+        "regime": "expansion",
+        "confidence": 0.5003016098977519,
+        "growth": 0.08503619736245506,
+        "inflation": 0.2883687912424978,
+        "monetary_policy": -0.2447985149200399,
+        "financial_conditions": 0.3192893173707964
+      },
+      {
+        "date": "2017-09-30",
+        "regime": "expansion",
+        "confidence": 0.5217448981649933,
+        "growth": 0.09861901878893453,
+        "inflation": 0.25541940209195874,
+        "monetary_policy": -0.2409843771359165,
+        "financial_conditions": 0.35759794694597985
+      },
+      {
+        "date": "2017-10-31",
+        "regime": "expansion",
+        "confidence": 0.3578574934746344,
+        "growth": 0.2030488852459828,
+        "inflation": 0.20587139561484868,
+        "monetary_policy": -0.25509815256950086,
+        "financial_conditions": 0.374219137559016
+      },
+      {
+        "date": "2017-11-30",
+        "regime": "expansion",
+        "confidence": 0.3907317660896605,
+        "growth": 0.23008048310582577,
+        "inflation": 0.19203596907171921,
+        "monetary_policy": -0.2826229563476265,
+        "financial_conditions": 0.39967200124773994
+      },
+      {
+        "date": "2017-12-31",
+        "regime": "expansion",
+        "confidence": 0.41347877442853265,
+        "growth": 0.15719583685787342,
+        "inflation": 0.1482044166474527,
+        "monetary_policy": -0.29640074787288395,
+        "financial_conditions": 0.39849459815166055
+      },
+      {
+        "date": "2018-01-31",
+        "regime": "expansion",
+        "confidence": 0.4114834172910043,
+        "growth": 0.041718470047266074,
+        "inflation": 0.06175900277803541,
+        "monetary_policy": -0.30121237617785823,
+        "financial_conditions": 0.40900088357572645
+      },
+      {
+        "date": "2018-02-28",
+        "regime": "expansion",
+        "confidence": 0.5458092387985485,
+        "growth": 0.32328361934416044,
+        "inflation": 0.049679759981477556,
+        "monetary_policy": -0.31753166027590635,
+        "financial_conditions": 0.27876602935810835
+      },
+      {
+        "date": "2018-03-31",
+        "regime": "expansion",
+        "confidence": 0.3613870238823881,
+        "growth": 0.19932294540040993,
+        "inflation": -0.07912831457390918,
+        "monetary_policy": -0.337802775057404,
+        "financial_conditions": 0.19330955230525954
+      },
+      {
+        "date": "2018-04-30",
+        "regime": "expansion",
+        "confidence": 0.3837380902794538,
+        "growth": 0.17723516582822416,
+        "inflation": -0.11387645772370861,
+        "monetary_policy": -0.34342327316425464,
+        "financial_conditions": 0.27921048541931653
+      },
+      {
+        "date": "2018-05-31",
+        "regime": "expansion",
+        "confidence": 0.40777190802144314,
+        "growth": 0.2444273157340029,
+        "inflation": -0.17126593042644797,
+        "monetary_policy": -0.3417717569058724,
+        "financial_conditions": 0.2710770165441708
+      },
+      {
+        "date": "2018-06-30",
+        "regime": "expansion",
+        "confidence": 0.3804727598957922,
+        "growth": 0.22194406027606323,
+        "inflation": -0.17184086708872942,
+        "monetary_policy": -0.3497377543126497,
+        "financial_conditions": 0.21645356749368452
+      },
+      {
+        "date": "2018-07-31",
+        "regime": "expansion",
+        "confidence": 0.44257523819346495,
+        "growth": 0.1360142475075769,
+        "inflation": -0.20478074443066022,
+        "monetary_policy": -0.3524659005771556,
+        "financial_conditions": 0.3015254906400022
+      },
+      {
+        "date": "2018-08-31",
+        "regime": "expansion",
+        "confidence": 0.5054889199883985,
+        "growth": 0.3092649749582996,
+        "inflation": -0.11570498909226987,
+        "monetary_policy": -0.3521234959084379,
+        "financial_conditions": 0.29465054247421446
+      },
+      {
+        "date": "2018-09-30",
+        "regime": "expansion",
+        "confidence": 0.4126862379072792,
+        "growth": 0.14901904015907524,
+        "inflation": -0.1295469803898476,
+        "monetary_policy": -0.398057635814307,
+        "financial_conditions": 0.32140216040385483
+      },
+      {
+        "date": "2018-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.3920786996001752,
+        "growth": 0.05458321477291367,
+        "inflation": -0.08662826371377247,
+        "monetary_policy": -0.40533647222414043,
+        "financial_conditions": 0.13462802840714827
+      },
+      {
+        "date": "2018-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.5296842655680137,
+        "growth": 0.09739931360242346,
+        "inflation": -0.0941253865439462,
+        "monetary_policy": -0.4141615660428334,
+        "financial_conditions": 0.10579521780309462
+      },
+      {
+        "date": "2018-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.5094231071267645,
+        "growth": 0.07379854829285978,
+        "inflation": -0.023239656861149687,
+        "monetary_policy": -0.40680194351928856,
+        "financial_conditions": -0.07921641867722301
+      },
+      {
+        "date": "2019-01-31",
+        "regime": "expansion",
+        "confidence": 0.3355469046924371,
+        "growth": 0.010361403419041418,
+        "inflation": 0.07102623087910725,
+        "monetary_policy": -0.377996168938994,
+        "financial_conditions": 0.1107231349285081
+      },
+      {
+        "date": "2019-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.35280257201140897,
+        "growth": -0.11660895853398322,
+        "inflation": 0.08847451028641745,
+        "monetary_policy": -0.3808364370325459,
+        "financial_conditions": 0.20818902715577783
+      },
+      {
+        "date": "2019-03-31",
+        "regime": "expansion",
+        "confidence": 0.43758743177039106,
+        "growth": 0.08465230790988328,
+        "inflation": 0.14546027588463262,
+        "monetary_policy": -0.3138974906512194,
+        "financial_conditions": 0.19302975980847634
+      },
+      {
+        "date": "2019-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.38146415084410296,
+        "growth": -0.04676222881758865,
+        "inflation": 0.10447939769646605,
+        "monetary_policy": -0.3042318964436629,
+        "financial_conditions": 0.2508079579010441
+      },
+      {
+        "date": "2019-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.43429380118420924,
+        "growth": -0.03168186255923493,
+        "inflation": 0.20524469292918598,
+        "monetary_policy": -0.2909747989482758,
+        "financial_conditions": 0.1188323050288931
+      },
+      {
+        "date": "2019-06-30",
+        "regime": "expansion",
+        "confidence": 0.4322958579896715,
+        "growth": 0.07009356676298154,
+        "inflation": 0.18537803275849457,
+        "monetary_policy": -0.22633449530083974,
+        "financial_conditions": 0.20349038830278895
+      },
+      {
+        "date": "2019-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.3989771022816901,
+        "growth": -0.09951677238373784,
+        "inflation": 0.14134185498781257,
+        "monetary_policy": -0.2363038636508314,
+        "financial_conditions": 0.2179009113673658
+      },
+      {
+        "date": "2019-08-31",
+        "regime": "expansion",
+        "confidence": 0.4844283689761397,
+        "growth": 0.08015270004164321,
+        "inflation": 0.1238097109659223,
+        "monetary_policy": -0.12566040281876437,
+        "financial_conditions": 0.11147079709170739
+      },
+      {
+        "date": "2019-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.45580571729784575,
+        "growth": -0.056277379239050004,
+        "inflation": 0.16815773074641552,
+        "monetary_policy": 0.008704961416416801,
+        "financial_conditions": 0.13540183419644897
+      },
+      {
+        "date": "2019-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.41808205929750675,
+        "growth": -0.15665033269114517,
+        "inflation": 0.1736539435354557,
+        "monetary_policy": 0.092700750835385,
+        "financial_conditions": 0.2302099833327136
+      },
+      {
+        "date": "2019-11-30",
+        "regime": "expansion",
+        "confidence": 0.4580615160683748,
+        "growth": 0.05334793258386039,
+        "inflation": 0.16502691842482495,
+        "monetary_policy": 0.06792974066071894,
+        "financial_conditions": 0.24996015186375597
+      },
+      {
+        "date": "2019-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.42506172467830616,
+        "growth": -0.03940236830110249,
+        "inflation": 0.11318797127571997,
+        "monetary_policy": 0.10168984245307537,
+        "financial_conditions": 0.25526858359825233
+      },
+      {
+        "date": "2020-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.5340458628681183,
+        "growth": -0.050717368613172664,
+        "inflation": 0.09314897143555118,
+        "monetary_policy": 0.11434322690373212,
+        "financial_conditions": 0.16552416411404697
+      },
+      {
+        "date": "2020-02-29",
+        "regime": "expansion",
+        "confidence": 0.4552037111749051,
+        "growth": 0.1263749948651915,
+        "inflation": 0.10941404025388025,
+        "monetary_policy": 0.12671448808952332,
+        "financial_conditions": -0.19873725324308744
+      },
+      {
+        "date": "2020-03-31",
+        "regime": "recession",
+        "confidence": 0.5616870327169154,
+        "growth": -0.7753352934580832,
+        "inflation": 0.3548691615533711,
+        "monetary_policy": 0.32755645603176614,
+        "financial_conditions": -0.6953714618997446
+      },
+      {
+        "date": "2020-04-30",
+        "regime": "recession",
+        "confidence": 0.5842809959578168,
+        "growth": -0.9656285318917225,
+        "inflation": 0.6810118452751147,
+        "monetary_policy": 0.3732350006434653,
+        "financial_conditions": -0.5039125889708892
+      },
+      {
+        "date": "2020-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.3413911316811786,
+        "growth": -0.07787146622187556,
+        "inflation": 0.6695021248316518,
+        "monetary_policy": 0.3872128042857075,
+        "financial_conditions": -0.18741760754253345
+      },
+      {
+        "date": "2020-06-30",
+        "regime": "expansion",
+        "confidence": 0.3306890362563663,
+        "growth": 0.05211348159108821,
+        "inflation": 0.6281365159902471,
+        "monetary_policy": 0.3887792369741638,
+        "financial_conditions": -0.1949073843167257
+      },
+      {
+        "date": "2020-07-31",
+        "regime": "expansion",
+        "confidence": 0.4066930743645121,
+        "growth": 0.0230392277814327,
+        "inflation": 0.47194820214558153,
+        "monetary_policy": 0.38056912577166874,
+        "financial_conditions": 0.002679667971641687
+      },
+      {
+        "date": "2020-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.371414742965708,
+        "growth": -0.027977235897821317,
+        "inflation": 0.3165101826190625,
+        "monetary_policy": 0.36575159059812085,
+        "financial_conditions": 0.01978137091157056
+      },
+      {
+        "date": "2020-09-30",
+        "regime": "recovery",
+        "confidence": 0.429464729079346,
+        "growth": -0.0746054047070083,
+        "inflation": 0.33432393573510727,
+        "monetary_policy": 0.3039458992540726,
+        "financial_conditions": -0.0415862553978192
+      },
+      {
+        "date": "2020-10-31",
+        "regime": "recovery",
+        "confidence": 0.4877763254435626,
+        "growth": -0.07444498423912045,
+        "inflation": 0.3646698887546241,
+        "monetary_policy": 0.30172376617722596,
+        "financial_conditions": -0.11882158108738325
+      },
+      {
+        "date": "2020-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.34861556334756477,
+        "growth": -0.17037385036681502,
+        "inflation": 0.3284648582779775,
+        "monetary_policy": 0.29154695313815815,
+        "financial_conditions": 0.17288168317759717
+      },
+      {
+        "date": "2020-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.43010709503254696,
+        "growth": -0.18018049000643355,
+        "inflation": 0.2640719617654357,
+        "monetary_policy": 0.30505789657420135,
+        "financial_conditions": 0.1687535796938208
+      },
+      {
+        "date": "2021-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.47891228332526115,
+        "growth": -0.041298056059102375,
+        "inflation": 0.23277588702822932,
+        "monetary_policy": 0.3276458409600685,
+        "financial_conditions": 0.06792467207930405
+      },
+      {
+        "date": "2021-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.4729827662236521,
+        "growth": -0.21283567339426976,
+        "inflation": 0.19442591927956118,
+        "monetary_policy": 0.36251481230324245,
+        "financial_conditions": 0.1357926711499955
+      },
+      {
+        "date": "2021-03-31",
+        "regime": "expansion",
+        "confidence": 0.5563457045425348,
+        "growth": 0.3681433043774528,
+        "inflation": -0.16056613610041426,
+        "monetary_policy": 0.19123979787756445,
+        "financial_conditions": 0.27356563836241904
+      },
+      {
+        "date": "2021-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.5045583003104478,
+        "growth": 0.41097797698049016,
+        "inflation": -0.6308615449833582,
+        "monetary_policy": 0.14325534001263185,
+        "financial_conditions": 0.3156844182376887
+      },
+      {
+        "date": "2021-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.6977584412022368,
+        "growth": 0.5415395375224366,
+        "inflation": -0.7217262900979651,
+        "monetary_policy": 0.13128879193395618,
+        "financial_conditions": 0.33484590399005887
+      },
+      {
+        "date": "2021-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.7026776962724472,
+        "growth": 0.5236847980264032,
+        "inflation": -0.7111231126538315,
+        "monetary_policy": 0.09432272959890495,
+        "financial_conditions": 0.34723706767798307
+      },
+      {
+        "date": "2021-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.5135605508501909,
+        "growth": 0.373031246894785,
+        "inflation": -0.7327477158635936,
+        "monetary_policy": 0.08600256786757042,
+        "financial_conditions": 0.282403152339742
+      },
+      {
+        "date": "2021-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.5058291144488252,
+        "growth": 0.3642694551990315,
+        "inflation": -0.7073466019447253,
+        "monetary_policy": 0.09377025593683445,
+        "financial_conditions": 0.29000401113501795
+      },
+      {
+        "date": "2021-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.4242924072521911,
+        "growth": 0.30913443639346905,
+        "inflation": -0.7231615644386392,
+        "monetary_policy": 0.11010653074415681,
+        "financial_conditions": 0.20563634125172267
+      },
+      {
+        "date": "2021-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.46291061336481987,
+        "growth": 0.34560032177788935,
+        "inflation": -0.7534003773886058,
+        "monetary_policy": 0.08903804857281156,
+        "financial_conditions": 0.3096432726088989
+      },
+      {
+        "date": "2021-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.5655002479976086,
+        "growth": 0.40486369810811196,
+        "inflation": -0.7749555691397146,
+        "monetary_policy": 0.06944488226522703,
+        "financial_conditions": 0.10057871999442239
+      },
+      {
+        "date": "2021-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.44597283081750727,
+        "growth": 0.33406211364110355,
+        "inflation": -0.7887511568977192,
+        "monetary_policy": 0.058387380251041926,
+        "financial_conditions": 0.22031182690003942
+      },
+      {
+        "date": "2022-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.3676029970210034,
+        "growth": 0.14177196640268114,
+        "inflation": -0.756523451034112,
+        "monetary_policy": 0.014493955679803227,
+        "financial_conditions": 0.08140077902985624
+      },
+      {
+        "date": "2022-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.5742331001963928,
+        "growth": 0.4071824108205308,
+        "inflation": -0.7899023984186949,
+        "monetary_policy": -0.010745978193502304,
+        "financial_conditions": -0.05596960832642759
+      },
+      {
+        "date": "2022-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.3348233837547928,
+        "growth": 0.2616026494018872,
+        "inflation": -0.8373970600305874,
+        "monetary_policy": -0.08048036397598501,
+        "financial_conditions": 0.1321632511242173
+      },
+      {
+        "date": "2022-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.4273498632495044,
+        "growth": 0.10495639705292768,
+        "inflation": -0.857032606718856,
+        "monetary_policy": -0.08735241992992882,
+        "financial_conditions": -0.11171419034954588
+      },
+      {
+        "date": "2022-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.3798481633105175,
+        "growth": 0.13826524362750997,
+        "inflation": -0.821642260668524,
+        "monetary_policy": -0.2133856835565935,
+        "financial_conditions": -0.0955852760958984
+      },
+      {
+        "date": "2022-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.3848293043616453,
+        "growth": 0.14519932426485413,
+        "inflation": -0.7562452549615065,
+        "monetary_policy": -0.39147216472079566,
+        "financial_conditions": -0.1721608101453959
+      },
+      {
+        "date": "2022-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.4041399053585035,
+        "growth": 0.1215425334573593,
+        "inflation": -0.7963070430607985,
+        "monetary_policy": -0.4841440324150481,
+        "financial_conditions": -0.052885106173156955
+      },
+      {
+        "date": "2022-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.4271264081015683,
+        "growth": 0.10973503472445949,
+        "inflation": -0.7856733825111679,
+        "monetary_policy": -0.5329960234895519,
+        "financial_conditions": -0.0811358563971179
+      },
+      {
+        "date": "2022-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.4479763613669844,
+        "growth": 0.10704864307525767,
+        "inflation": -0.7191390394217103,
+        "monetary_policy": -0.6243874866937197,
+        "financial_conditions": -0.23370271882225144
+      },
+      {
+        "date": "2022-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.33636742064911,
+        "growth": 0.031394057749839985,
+        "inflation": -0.7889801524945903,
+        "monetary_policy": -0.6484637494160185,
+        "financial_conditions": -0.12953146356671597
+      },
+      {
+        "date": "2022-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.3225567915141778,
+        "growth": -0.024604124216304722,
+        "inflation": -0.7353988946987879,
+        "monetary_policy": -0.688795862179801,
+        "financial_conditions": -0.012443237730112374
+      },
+      {
+        "date": "2022-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.4045145226516837,
+        "growth": -0.06744198328106923,
+        "inflation": -0.6878447951650919,
+        "monetary_policy": -0.6972566376167524,
+        "financial_conditions": 0.0004548953437423379
+      },
+      {
+        "date": "2023-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.3595351659629536,
+        "growth": 0.059181142501074195,
+        "inflation": -0.6565986077211415,
+        "monetary_policy": -0.6925840715244672,
+        "financial_conditions": 0.10923703433001208
+      },
+      {
+        "date": "2023-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.3299254818533827,
+        "growth": -0.030612656982955514,
+        "inflation": -0.6728189197481131,
+        "monetary_policy": -0.7113312019937714,
+        "financial_conditions": 0.046774640504189065
+      },
+      {
+        "date": "2023-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.39025995802042757,
+        "growth": -0.10815004267007296,
+        "inflation": -0.6057959361934824,
+        "monetary_policy": -0.5991288649557616,
+        "financial_conditions": 0.02795965745316454
+      },
+      {
+        "date": "2023-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.3656435202384604,
+        "growth": 0.04471669378762513,
+        "inflation": -0.5839732900738047,
+        "monetary_policy": -0.5910760559453934,
+        "financial_conditions": 0.10542137133748619
+      },
+      {
+        "date": "2023-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.43616958142549445,
+        "growth": -0.07482689293856708,
+        "inflation": -0.5498528643846704,
+        "monetary_policy": -0.6438895968580809,
+        "financial_conditions": 0.057555557101857974
+      },
+      {
+        "date": "2023-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.38768329795469164,
+        "growth": -0.09264446684292142,
+        "inflation": -0.4279760874368695,
+        "monetary_policy": -0.6691108666296298,
+        "financial_conditions": 0.20248442539719533
+      },
+      {
+        "date": "2023-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.2733047493937126,
+        "growth": -0.0016831760848040472,
+        "inflation": -0.4814501222944533,
+        "monetary_policy": -0.6664932306651749,
+        "financial_conditions": 0.24582255170932327
+      },
+      {
+        "date": "2023-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.3796784751549788,
+        "growth": -0.05538509592412193,
+        "inflation": -0.4343799209151612,
+        "monetary_policy": -0.6322136756265763,
+        "financial_conditions": 0.2424667064995716
+      },
+      {
+        "date": "2023-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.3912966526778672,
+        "growth": -0.05905618379922624,
+        "inflation": -0.441428735398809,
+        "monetary_policy": -0.6534212026685777,
+        "financial_conditions": 0.19507924438723714
+      },
+      {
+        "date": "2023-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.4224565128061182,
+        "growth": -0.08033076706421587,
+        "inflation": -0.42951844267660844,
+        "monetary_policy": -0.6448710372268668,
+        "financial_conditions": 0.15253029173441054
+      },
+      {
+        "date": "2023-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.39208444423573435,
+        "growth": -0.053808910807247035,
+        "inflation": -0.36838255692223787,
+        "monetary_policy": -0.5595261454983227,
+        "financial_conditions": 0.2661946981125128
+      },
+      {
+        "date": "2023-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.39572064010164926,
+        "growth": -0.03909279966529511,
+        "inflation": -0.29322974270885177,
+        "monetary_policy": -0.4440594451829514,
+        "financial_conditions": 0.26568551160992404
+      },
+      {
+        "date": "2024-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.37892513910046227,
+        "growth": -0.12508907641412334,
+        "inflation": -0.2917840089087505,
+        "monetary_policy": -0.4395295440008502,
+        "financial_conditions": 0.2532206335029878
+      },
+      {
+        "date": "2024-02-29",
+        "regime": "late_cycle",
+        "confidence": 0.4090515404097323,
+        "growth": -0.04909055328102636,
+        "inflation": -0.2960276920812908,
+        "monetary_policy": -0.44864024335881286,
+        "financial_conditions": 0.27739244280137226
+      },
+      {
+        "date": "2024-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.4223933056782989,
+        "growth": -0.05628181773352649,
+        "inflation": -0.3110505653125083,
+        "monetary_policy": -0.4143656970223908,
+        "financial_conditions": 0.2919510286330709
+      },
+      {
+        "date": "2024-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.4133781244238909,
+        "growth": -0.10383243729417843,
+        "inflation": -0.3179917661392417,
+        "monetary_policy": -0.44136619320882375,
+        "financial_conditions": 0.2439456448638842
+      },
+      {
+        "date": "2024-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.4288868527284395,
+        "growth": -0.05881965194069425,
+        "inflation": -0.2665565999240459,
+        "monetary_policy": -0.43073474809402845,
+        "financial_conditions": 0.2891030119326254
+      },
+      {
+        "date": "2024-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.4392216277485912,
+        "growth": -0.09081432164233301,
+        "inflation": -0.21267437064653874,
+        "monetary_policy": -0.4504526520889161,
+        "financial_conditions": 0.2518821576654758
+      },
+      {
+        "date": "2024-07-31",
+        "regime": "late_cycle",
+        "confidence": 0.43533586724433776,
+        "growth": -0.11359746994680842,
+        "inflation": -0.2057025354070456,
+        "monetary_policy": -0.38203546980470127,
+        "financial_conditions": 0.1687513505792745
+      },
+      {
+        "date": "2024-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.4358720434629929,
+        "growth": -0.11470999742389025,
+        "inflation": -0.1676625347728251,
+        "monetary_policy": -0.31803629438348713,
+        "financial_conditions": 0.21697271999074613
+      },
+      {
+        "date": "2024-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.45471332376943724,
+        "growth": -0.11470695205271189,
+        "inflation": -0.14944515673712383,
+        "monetary_policy": -0.22669692615968873,
+        "financial_conditions": 0.2068772840835367
+      },
+      {
+        "date": "2024-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.4743781817529008,
+        "growth": -0.11015928110985598,
+        "inflation": -0.19085390579901546,
+        "monetary_policy": -0.22447321476491588,
+        "financial_conditions": 0.14870293614586408
+      },
+      {
+        "date": "2024-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.4943414694894844,
+        "growth": -0.0654037740332561,
+        "inflation": -0.17972758720688797,
+        "monetary_policy": -0.20878415337251388,
+        "financial_conditions": 0.25096685931766527
+      },
+      {
+        "date": "2024-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.4020834857897923,
+        "growth": -0.0013928880407690705,
+        "inflation": -0.21706447206813193,
+        "monetary_policy": -0.1697707618147059,
+        "financial_conditions": 0.1885604971001124
+      },
+      {
+        "date": "2025-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.45179137954058923,
+        "growth": -0.10989262956427269,
+        "inflation": -0.24675065071124538,
+        "monetary_policy": -0.18530679030194747,
+        "financial_conditions": 0.2265586186467542
+      },
+      {
+        "date": "2025-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.4554871779493397,
+        "growth": -0.03145462766856522,
+        "inflation": -0.2297327221545487,
+        "monetary_policy": -0.20519731979441946,
+        "financial_conditions": 0.1534833159489017
+      },
+      {
+        "date": "2025-03-31",
+        "regime": "late_cycle",
+        "confidence": 0.47996326252224625,
+        "growth": -0.033426517893590704,
+        "inflation": -0.15069709527598424,
+        "monetary_policy": -0.2093143492883885,
+        "financial_conditions": 0.10531832861002481
+      },
+      {
+        "date": "2025-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.5150601478997621,
+        "growth": -0.04206076297957694,
+        "inflation": -0.14530296187675906,
+        "monetary_policy": -0.15072982075959152,
+        "financial_conditions": 0.06285291240900125
+      },
+      {
+        "date": "2025-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.5036262353157275,
+        "growth": -0.09072116315952376,
+        "inflation": -0.1908417677378988,
+        "monetary_policy": -0.16898278174673984,
+        "financial_conditions": 0.18841030737937506
+      },
+      {
+        "date": "2025-06-30",
+        "regime": "late_cycle",
+        "confidence": 0.4381774531498068,
+        "growth": -0.032250463481916125,
+        "inflation": -0.20649014777665337,
+        "monetary_policy": -0.1554431697073696,
+        "financial_conditions": 0.26680836831085597
+      },
+      {
+        "date": "2025-07-31",
+        "regime": "expansion",
+        "confidence": 0.3344485987886037,
+        "growth": 0.010476608017558526,
+        "inflation": -0.23632826175837368,
+        "monetary_policy": -0.17076462826339406,
+        "financial_conditions": 0.2722112431575787
+      },
+      {
+        "date": "2025-08-31",
+        "regime": "late_cycle",
+        "confidence": 0.39353603373941726,
+        "growth": -0.05113738094043629,
+        "inflation": -0.2606573705752287,
+        "monetary_policy": -0.13942773190317315,
+        "financial_conditions": 0.2641203424065326
+      },
+      {
+        "date": "2025-09-30",
+        "regime": "late_cycle",
+        "confidence": 0.4055986127520632,
+        "growth": -0.02260597887142748,
+        "inflation": -0.24248233573124786,
+        "monetary_policy": -0.1546569593460883,
+        "financial_conditions": 0.3099367584861418
+      },
+      {
+        "date": "2025-10-31",
+        "regime": "late_cycle",
+        "confidence": 0.4910686936570831,
+        "growth": -0.06646275791945294,
+        "inflation": -0.2255179037985131,
+        "monetary_policy": -0.1491598336034948,
+        "financial_conditions": 0.27268703388527393
+      },
+      {
+        "date": "2025-11-30",
+        "regime": "late_cycle",
+        "confidence": 0.48517366564324926,
+        "growth": -0.0587391859860053,
+        "inflation": -0.1815491275099777,
+        "monetary_policy": -0.14070737981025144,
+        "financial_conditions": 0.27396285912395923
+      },
+      {
+        "date": "2025-12-31",
+        "regime": "late_cycle",
+        "confidence": 0.4693196302636666,
+        "growth": -0.060423548343245925,
+        "inflation": -0.20023769455409918,
+        "monetary_policy": -0.12016146768938346,
+        "financial_conditions": 0.3415165598870996
+      },
+      {
+        "date": "2026-01-31",
+        "regime": "late_cycle",
+        "confidence": 0.43879433215610963,
+        "growth": -0.04174633682606914,
+        "inflation": -0.21490736182394882,
+        "monetary_policy": -0.10119773821325893,
+        "financial_conditions": 0.33875655643745295
+      },
+      {
+        "date": "2026-02-28",
+        "regime": "late_cycle",
+        "confidence": 0.47490428681847946,
+        "growth": -0.039680126580864554,
+        "inflation": -0.15474913616843533,
+        "monetary_policy": -0.1316154119067393,
+        "financial_conditions": 0.21109006912259107
+      },
+      {
+        "date": "2026-03-31",
+        "regime": "expansion",
+        "confidence": 0.3693271925159464,
+        "growth": 0.006234846019643372,
+        "inflation": -0.2118309199851462,
+        "monetary_policy": -0.16105512369686587,
+        "financial_conditions": 0.08484373549501546
+      },
+      {
+        "date": "2026-04-30",
+        "regime": "late_cycle",
+        "confidence": 0.3268939010990566,
+        "growth": 0.018109697215765688,
+        "inflation": -0.33392843181164295,
+        "monetary_policy": -0.15497196561107962,
+        "financial_conditions": 0.2936232232656677
+      },
+      {
+        "date": "2026-05-31",
+        "regime": "late_cycle",
+        "confidence": 0.39540064778347495,
+        "growth": 0.03412874668468331,
+        "inflation": -0.3452928678462677,
+        "monetary_policy": -0.17676433803167665,
+        "financial_conditions": 0.34228286522385293
+      },
+      {
+        "date": "2026-06-30",
+        "regime": "expansion",
+        "confidence": 0.33678614367692933,
+        "growth": 0.02280163867525835,
+        "inflation": -0.26527969573970395,
+        "monetary_policy": -0.21519139326386474,
+        "financial_conditions": 0.30315165688811374
+      },
+      {
+        "date": "2026-07-31",
+        "regime": "expansion",
+        "confidence": 0.4036249419526825,
+        "growth": 0.024104901389798445,
+        "inflation": -0.258081734765888,
+        "monetary_policy": -0.19958181988129314,
+        "financial_conditions": 0.2937344771847344
+      },
+      {
+        "date": "2026-08-31",
+        "regime": "expansion",
+        "confidence": 0.4332334678150148,
+        "growth": 0.05271435126645529,
+        "inflation": -0.27027491033424594,
+        "monetary_policy": -0.2171181648208459,
+        "financial_conditions": 0.34718353744402247
+      }
+    ],
+    "point_in_time": false,
+    "lookback_years": 20
+  }
+}

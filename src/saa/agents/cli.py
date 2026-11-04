@@ -21,7 +21,7 @@ from saa.data.store import DataStore
 def _add_macro(sub) -> None:
     macro = sub.add_parser("macro", help="classify the current macro regime (stage 1)")
     macro.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
-    macro.add_argument("--out", help="output directory (default: data/runs/<run_id>/macro)")
+    macro.add_argument("--out", help="output directory (default: results/runs/<run_id>/macro)")
     macro.add_argument("--run-id", help="pipeline run id to record in every header")
     macro.add_argument(
         "--history-start", default="1995-01-31", help="first month to score (default: 1995-01-31)"
