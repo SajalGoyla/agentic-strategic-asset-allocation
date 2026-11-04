@@ -1,0 +1,212 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "pc-inverse-variance",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.466787Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1235,
+        "output_tokens": 1204,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0318525
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "inverse_variance",
+    "method": "Inverse variance",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.001492264875438445,
+      "us_small_cap": 0.0008572044537989358,
+      "us_value": 0.0014776387621615312,
+      "us_growth": 0.0011379124746245832,
+      "intl_developed": 0.0012706186874945392,
+      "emerging_markets": 0.0006641282490699484,
+      "short_treasuries": 0.11373807375661227,
+      "intermediate_treasuries": 0.007804259841418787,
+      "long_treasuries": 0.0021063734450908035,
+      "ig_corporates": 0.006388331755739814,
+      "hy_corporates": 0.0045623186180373775,
+      "intl_sovereigns": 0.004550510303881379,
+      "intl_corporates": 0.003860012316984939,
+      "usd_em_debt": 0.0016614582127198337,
+      "reits": 0.0009018185492268262,
+      "gold": 0.001017782754087987,
+      "commodities": 0.0008916251884937591,
+      "cash": 0.8456176677551183
+    },
+    "expected_return_pct": 4.016423868487758,
+    "expected_volatility_pct": 0.7250909481605537,
+    "sharpe_ratio": 0.2708954910912287,
+    "effective_n": 1.8578839983143467,
+    "ex_ante_tracking_error_pct": 9.120402640478193,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 1.62% is below the CPI + 3.0% target",
+          "observed": 1.6182335565530837,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 0.73% outside the 8.0-12.0% band",
+          "observed": 0.7250909481605537,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 9.12% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 9.120402640478193,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Inverse variance never touches the CMAs, so none of their estimation error reaches it. That is the argument for it. In an expansion regime, with return forecasts for 18 assets that are noisy and probably leaning on trailing data, a method that needs only the covariance diagonal avoids the largest source of optimiser error. It is the method working as designed. Weighting by 1/σ² tilts very hard toward the lowest-variance asset, and here cash is about a thousand times less variable than equities. That produces 1.9 effective assets and a Herfindahl of 0.73. This concentration reflects the variance dispersion in the universe; it is not a sign of a near-singular matrix, because the method inverts no matrix.\n\nThe portfolio is outside the IPS, and I will say so directly. Volatility is 0.73% against the 8-12% band, tracking error is 9.12% against a 6% budget, and expected real return of 1.62% misses CPI + 3%. All three are hard breaches, and the IPS is still a draft. The method has no genuine parameter that could move it toward the band. The only lever is the exponent k in σ^-k, and bringing volatility to 8% would need k near 0.1, which is roughly equal weight and no longer inverse variance. I have not tuned anything, and the portfolio is what the definition produces.\n\nIt should not be read as a standalone recommendation. Its value to a compliant ensemble is as a low-risk anchor and a clean covariance-only reference. An ensemble optimiser can blend a small slice of it with higher-volatility, return-seeking proposals to control drawdown and dilute CMA error without being bound to the cash-heavy mix. Its 0.27 Sharpe sits below the return-optimised methods, a reasonable price for using no forecasts. If the vote prefers covariance-structure methods, this is the most extreme version of that stance, and the other covariance-driven proposals show how much of that preference is really a preference for cash.",
+    "revision_of": null,
+    "notes": "Key assumption: Expected returns are too noisy to improve on a risk-only allocation, and an asset's variance, taken alone, is a good enough guide to how much of it to hold, so low-variance assets deserve proportionally more capital with no compensation for risk needed. Main weakness: It is not a diversified portfolio in any useful sense. About 85% sits in cash and 11% in short Treasuries, so it earns 4.02% at 0.73% volatility, fails the return target, and has a 9.12% tracking error to the 60/40 benchmark. Squaring the volatility ratio makes the tilt to the least risky asset extreme, and the portfolio would fail a client who needs growth. Its Sharpe of 0.27 comes almost entirely from the cash yield; the method makes no allocation to risk premia at all. Preferred when: It deserves weight when return forecasts are unreliable, such as after a regime break or when the CMA judge disagrees with its own sources, and when capital preservation matters more than the return target. It also suits the CIO as a defensive building block inside a blended ensemble that itself meets the IPS, or as a benchmark for how much the return-aware methods add over a covariance-only rule. Invalidated if: It is the wrong choice if the CMAs prove informative, so that the risk premia it skips are real and the return-optimised portfolios earn them out of sample. It is also wrong if the binding objective is the IPS return and volatility target, since it misses both and cannot be tuned to meet them. And if cash yields fall toward zero, the 4.02% expected return and the Sharpe that depends on it collapse, because the portfolio holds no other source of return.",
+    "tuning": null
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "revise-black-litterman",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:35:23.781521Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5678,
+        "output_tokens": 2733,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.087912,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "black_litterman",
+    "method": "Black-Litterman",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.21057619575467432,
+      "us_small_cap": 0.056432086311828944,
+      "us_value": 0.15225364521693066,
+      "us_growth": 0.07498284213391143,
+      "emerging_markets": 0.02000394496837967,
+      "intermediate_treasuries": 0.30000000000000004,
+      "long_treasuries": 0.10890278984104942,
+      "reits": 0.028032869172415285,
+      "gold": 0.048815626600810375
+    },
+    "expected_return_pct": 7.274477189009468,
+    "expected_volatility_pct": 8.656494513931461,
+    "sharpe_ratio": 0.3990619047294436,
+    "effective_n": 6.683374445521489,
+    "ex_ante_tracking_error_pct": 2.491408597335434,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "The revised proposal is the same Black-Litterman portfolio: delta = 2.5 equilibrium, the near-uniform posterior blend of equilibrium and CMAs, and gamma = 4.202. The only change is a 30% single-asset cap. The cap binds only on intermediate Treasuries (37.4%) and answers the two concerns both reviewers and the CRO share. First, the original sat exactly on the 8.00% volatility floor, with backtest volatility at 7.97%. Redistributing about 7 points to the remaining, mostly equity, holdings should move it into the interior of the band. Second, the 47% duration sleeve is the main exposure to a positive stock-bond correlation shock, and reducing it lowers the risk the CRO calls understated. The equity underweight shrinks, which also fits the expansion regime better. I correct my earlier claim that Omega = diag(tau*Sigma) shrinks volatile-asset views harder. It does not: the blend is roughly uniform, and the diversification comes from the equilibrium prior and the long-only constraint. I did not exclude the overlapping style assets, though their ETF-size weights double-count the market. Doing so would push volatility below the floor and increase duration. The large-cap versus value and growth split should be read as a weak, contaminated signal. I did not shrink toward equal weight, because it would reintroduce volatility-floor risk without addressing a specific critique. Expected return and Sharpe still come from the CMAs and are not independent validation. The drawdown should be rechecked by the CRO, since added equity may move it modestly toward the -25% limit. All compliance is measured against config/ips.yaml, which is still a draft.",
+    "revision_of": "pc/black_litterman/pc_proposal.json",
+    "notes": "Revision: capped every weight at 30%; one-way turnover 7.4%. Responses to reviews -- inverse_volatility: Accepted in part. (1) Knife-edge volatility and the 47% bond sleeve: I accept both. I am capping any single asset at 30%. The only binding position is intermediate Treasuries at 37.4%. The released weight goes to the other holdings, which are mostly equity, so volatility should move off the 8.00% floor (backtest 7.97%) into the band. Duration concentration also falls, and equity exposure rises modestly, which fits the expansion regime better than a 14-point equity underweight. (2) Omega tied to volatility, not CMA quality: correct. As the other reviewer shows, with this specification the blend is near-uniform rather than volatility-adaptive, so the Treasury CMA is not passed through unshrunk relative to other assets. It is shrunk about as much as any other. I withdraw the adaptive-shrinkage claim. Tau was a free parameter I did not report, and that is a disclosure gap. With P = I and Omega proportional to tau*Sigma, the near-50/50 blend is largely insensitive to tau, which limits the damage. (3) Overlapping style ETFs in the equilibrium: a real flaw that I cannot fix with the levers available. Excluding value or growth would reallocate around 20% partly to Treasuries, push volatility under the floor and enlarge the duration bet the CRO flags. I therefore leave the equity block in place and flag the large-cap versus style split as the least reliable part of the portfolio. The CIO should treat it as a weak signal, not a conviction. (4) Gap between backtest Sharpe 0.70 and ex-ante Sharpe 0.41: agreed that this reflects the falling-rate sample and is not validation. (5) Zero-held benchmark line: it is a by-product of the long-only optimiser and the CMAs, not a deliberate view. resampled_efficient_frontier: Technical error accepted. With views on every asset (P = I) and Omega = diag(tau*Sigma), view uncertainty scales with variance exactly as the prior uncertainty tau*Sigma does. The posterior is therefore roughly an equal blend of equilibrium and CMA for every asset, and only off-diagonal covariance creates differences. My statement that noisy CMAs on volatile assets are pulled back harder was wrong. The weights themselves were computed correctly, so this is an error in description, not in computation. The diversification comes from the equilibrium prior and the long-only constraint, and I restate the case that way. On the knife-edge: accepted. The 30% single-asset cap trims intermediate Treasuries and redistributes toward the higher-volatility holdings, which should lift volatility off the floor, reduce the 47% duration sleeve and narrow the rate-shock exposure the CRO highlights. Drawdown may worsen slightly with more equity. I judge that acceptable against the 4-point headroom, given that the bond sleeve's tail is understated in the 1993+ sample. On the overlapping ETF-size proxies: accepted as a genuine contamination of the equity anchor. I leave it unaddressed by the levers because exclusion would worsen the volatility-floor and duration problems, and I flag it to the CIO. On narrow diversification: the nine zero-weight assets result from the long-only constraint binding on posterior returns. I did not add shrink-to-equal, because spreading into cash and short Treasuries would pull volatility back toward the floor I am moving away from.",
+    "tuning": null
+  }
+}

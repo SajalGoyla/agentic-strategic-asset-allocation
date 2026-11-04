@@ -1,0 +1,167 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_research",
+    "agent": "pc-researcher",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:35:07.460092Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 1351,
+        "output_tokens": 2780,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.068794
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "method_name": "Maximum entropy with a Sharpe floor",
+    "objective": "Maximise the Shannon entropy of the long-only weights, -Σ w_i ln w_i (the most spread-out portfolio), subject to the portfolio's CMA-implied Sharpe ratio meeting a floor, full investment, and the IPS constraints including the volatility cap.",
+    "reference": "Bera and Park (2008)",
+    "not_spanned_by": [
+      "max_sharpe",
+      "black_litterman",
+      "resampled_efficient_frontier",
+      "inverse_volatility",
+      "inverse_variance",
+      "risk_parity",
+      "hierarchical_risk_parity",
+      "maximum_diversification",
+      "cvar_minimization",
+      "tail_risk_parity",
+      "market_cap_weight",
+      "volatility_targeting"
+    ],
+    "implementation_notes": "Inputs: CMA expected excess returns and covariance (the same as max_sharpe and black_litterman), the IPS asset bounds and the volatility cap. Optimise the entropy objective with constraints Σw=1, w≥0, the IPS bounds, portfolio vol ≤ cap (the return optimisers all sit at 8.00%, which suggests an 8% binding cap; apply the same one), and μ'w / sqrt(w'Σw) ≥ floor. The Sharpe constraint is non-convex. Implement it as μ'w ≥ floor·sqrt(w'Σw), which is a convex second-order-cone constraint when floor>0, and solve with a conic or SLSQP solver. Warm-start from equal weight. Floor choice is critical. Equal weight already achieves 0.36, so any floor ≤ 0.36 is non-binding and the method returns equal weight exactly; in that case it IS spanned by equal_weight, which is why equal_weight is not listed above. The floor must therefore lie strictly between 0.36 and the max_sharpe ceiling of 0.46. A floor of about 0.41–0.42, matching black_litterman and resampled_efficient_frontier, is a natural default, because it lets reviewers compare breadth at equal Sharpe directly against resampled_efficient_frontier's 13.3. Reviewers should check four things: (1) the floor binds (reported Sharpe ≈ floor); (2) effective N exceeds 13.3 at that floor, since otherwise resampled_efficient_frontier already dominates; (3) IPS compliance, including the vol cap; (4) sensitivity of weights to ±10% perturbations in μ near the floor. Governing policy is config/ips.yaml, which is still a DRAFT; compliance results are provisional until it is ratified.",
+    "rationale": "The gap is material now. In an expansion regime, CMA return estimates carry real information; max_sharpe's 0.46 against equal weight's 0.36 is a meaningful spread. Still, acting fully on them yields a 3.8-asset portfolio that is highly exposed to estimation error in μ. Meanwhile, the registry's risk-based alternatives to return-chasing are unusable this run, with six of them failing the IPS by concentrating in low-volatility assets. Maximum entropy with a Sharpe floor offers a principled middle path: it uses the CMAs only as far as needed to clear a stated efficiency bar, then spends all remaining freedom on breadth. Breadth limits the damage when the CMAs are wrong. It is also the method the PC-researcher proposed in the paper's March 2026 run, so it has precedent in this pipeline. It is not claimed to be unconditionally better. At the same floor it will by construction give up Sharpe relative to max_sharpe, and its value depends on the CMAs being informative but noisy. global_minimum_variance was rejected because it would most likely reproduce the inverse_variance/hierarchical_risk_parity concentration that is already failing the IPS. mean_downside_risk was rejected because it is a return-optimiser that would likely concentrate much like max_sharpe and cvar_minimization."
+  }
+}

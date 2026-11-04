@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "vote",
+    "agent": "vote-inverse-variance",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:34:01.330191Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 324,
+        "output_tokens": 849,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0392855,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "inverse_variance",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "pc_researcher",
+      "risk_parity",
+      "max_sharpe"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "The governing IPS (config/ips.yaml) is still a draft, so I weighted IPS compliance as provisional but still informative. I am inverse_variance and my own proposal breaches return, volatility and tracking error, so I looked for portfolios the CIO can actually build from. First is resampled_efficient_frontier: no hard IPS breach, 13.3 effective assets, and its main weakness is thin drawdown headroom (-24.3% vs -25%). The max_sharpe reviewer's note on the gamma description is a documentation inconsistency, not a portfolio flaw. Second is black_litterman: no breach, a candid tuning disclosure, and its reviewer verified the numbers. The technical error found in it concerns the mechanism description and not the weights. Third is pc_researcher: the best Sharpe among the compliant-ish candidates (0.51), backtest Sharpe 0.70, CRO risk 0.33, and only two soft breaches (volatility, tracking error). Reviewers flagged that the rationale does not match the delivered portfolio, but the portfolio itself is diversified (7.2 effective assets) and shallow in drawdown (-10.9%). Fourth is risk_parity: the late-cycle regime favours covariance-structure methods over return forecasts (§4.3), and it supplies the risk-structured family with a low CRO risk of 0.28 and a -5.4% drawdown. Its breaches are structural, driven by cash. Reviewers found only stale-statement errors in it. Fifth is max_sharpe: no breach and the best backtest Sharpe in the return-optimised family after BL, but its 46% single-style concentration (us_value) is fragile. This is why it sits last. Why first beats fifth: resampled_efficient_frontier gets similar return and Sharpe with 13.3 effective assets vs 3.8, so it does not depend on one judged value-vs-growth CMA gap as max_sharpe does. The flag goes to market_cap_weight: -40.6% backtest drawdown, CRO risk of 0.80, a max_drawdown breach, and two reviewers found the ETF-AUM proxy is not a valid capitalisation weight (double-counting overlapping style sleeves). I did not flag adversarial_diversifier, since it is a single-asset vertex, which is by design orthogonal and honest about that."
+  }
+}

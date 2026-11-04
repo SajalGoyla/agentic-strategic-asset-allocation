@@ -1,0 +1,91 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:48.996585Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_small_cap/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/us_small_cap/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/us_small_cap/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2234,
+        "output_tokens": 2364,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.089881
+      }
+    ],
+    "report_path": "cma/us_small_cap/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "us_small_cap",
+    "horizon_years": 3,
+    "expected_return_pct": 9.57,
+    "volatility_pct": 19.4794,
+    "method_range": [
+      6.654,
+      12.383
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "historical_erp",
+          "weight": 0.2
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.1
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "inverse_gordon",
+          "weight": 0.25
+        },
+        {
+          "method": "implied_erp_cape",
+          "weight": 0.2
+        }
+      ],
+      "expected_return_pct": 9.57,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "Stage 1 calls a stall-speed expansion bordering on late-cycle, at low confidence (0.36). Sticky inflation and restrictive real rates matter more for small caps than for large caps. Russell 2000 firms carry more floating-rate and short-dated debt and have thinner margins, so restrictive policy weighs on them first. A 20-30% recession probability is not trivial for an asset whose drawdowns reached -52% since 1990. The regime_adjusted candidate gives no independent support for a high number. It is the historical premium conditioned on a broad 'expansion' label (8.20% against 8.59% unconditional) and shrunk 25% toward the unconditional figure. The regime label is itself low-confidence and leans late-cycle. I therefore give regime_adjusted only a modest weight and do not let it double the weight of the historical sample. The late-cycle lean supports tilting toward the valuation and equilibrium methods, as Exhibit 4 step 2 suggests.",
+      "valuation_context": "The two cash-flow methods disagree, and each has a known bias. inverse_gordon (6.65%) is low because small caps are net issuers: dilution of -0.86% offsets most of the 1.21% dividend yield. That is a real cost to holders, and pairing a net payout yield with aggregate GDP growth is internally consistent, so I treat this candidate as a valid floor rather than an outlier. implied_erp_cape (9.98%) uses IWM's vendor trailing P/E. Per the methods skill, that P/E excludes loss-making firms, which make up a large share of the Russell 2000. The 5.78% earnings yield therefore overstates the index's true aggregate earnings yield, and the candidate is biased upward. No CAPE-style valuation history exists for small caps, so neither method applies a reversion term. Small-cap valuations relative to large caps are not stretched, which argues against cutting deeper toward the Gordon figure. Taken together, the valuation evidence centres around 8-9%, below the backward-looking 12.4%.",
+      "signal_alignment": "The composite signal is only mildly positive (+0.10) and internally split. Twelve-month and relative momentum are strong (+0.33, +0.67), reflecting a 16% one-year gain. The 36-month mean-reversion signal is clearly negative (-0.51) after a 17.6% annualised three-year run, and price sits just below its 10-month average (trend -0.08). The macro alignment signals are all near zero. Momentum argues against cutting toward the bottom of the range. Mean reversion and the flat trend argue against the historical figure, which assumes the full 1990-2026 premium on top of today's higher 4.03% T-bill. The signals therefore support a mid-range estimate a little below the auto-blend, not a directional bet.",
+      "rationale": "I use a custom blend rather than the auto-blend for one structural reason. historical_erp and regime_adjusted draw on the same 1990-2026 sample and are almost identical (12.38% vs 12.33%). Confidence-weighting gives them 43% combined, which counts one piece of evidence twice. I cap them at 30% combined (20% historical, 10% regime). I raise inverse_gordon and bl_equilibrium to 25% each: the first is a coherent net-payout estimate that captures small-cap dilution, and the second is an equilibrium anchor, though with an ETF-AUM proxy for weights. I hold implied_erp_cape at 20% because the loss-maker exclusion biases its earnings yield upward. The result is 9.57%, about 0.5pp below the auto-blend and well within the [6.65, 12.38] range. It implies an excess return of roughly 5.5% over T-bills and a Sharpe ratio near 0.28 at 19.48% volatility. That is plausible for small caps and modestly above what the equilibrium view gives large caps. The adjustment is deliberately small, because return forecasts are the least reliable input. Confidence is medium: dispersion is moderate, but the regime call is low-confidence and every valuation input is a proxy. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once the policy is finalised."
+    }
+  }
+}

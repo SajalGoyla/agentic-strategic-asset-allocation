@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "vote",
+    "agent": "vote-adversarial-diversifier",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:34:01.321934Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 328,
+        "output_tokens": 861,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0394435,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "adversarial_diversifier",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "pc_researcher",
+      "cvar_minimization",
+      "max_sharpe"
+    ],
+    "bottom_flag": "hierarchical_risk_parity",
+    "rationale": "The governing IPS is a draft, so I weight compliance as provisional but still prefer portfolios the CIO can build from. First choice is resampled_efficient_frontier. It has no hard IPS breaches, and its 13.3 effective N spreads the CMA risk. Its backtest Sharpe is 0.63 and its drawdown is -24.3%. Its reviewers praised internal consistency and candour about the gamma tuning. Its weaknesses are thin drawdown headroom and an unbiased-CMA assumption, which the CIO can manage. Second is black_litterman. It is clean on the IPS, has 6.1 effective N, a 0.70 backtest Sharpe, and a verified execution. The reviews flagged only a boundary-tuned volatility and a mechanism claim. Third is pc_researcher. It has the best ex-ante Sharpe among the diversified options (0.51), a backtest Sharpe of 0.70, a -10.9% drawdown, and only two soft breaches, volatility and tracking error. Reviewers noted a mismatch between its narrative and its delivered output, so it ranks below the two compliant return-optimised portfolios. Fourth is cvar_minimization. It is compliant, uses actual tail scenarios, and has the best backtest Sharpe (0.74). Its weaknesses are fitting to a few crises and 2.9 effective N. Fifth is max_sharpe. It is compliant with the highest compliant ex-ante Sharpe (0.46). It ranks last of my five because 46% in us_value rests on one judged CMA gap, and its drawdown is -24.7%. My first choice beats my fifth because it is more diffuse (13.3 vs 3.8 effective N), so it does not depend on one return gap. That favours covariance-robust construction over forecast-concentrated bets. As an adversarial diversifier I know a corner portfolio is only useful as an ensemble component. For that reason I flag hierarchical_risk_parity. It is 92% cash with 1.4 effective N and three hard breaches. The intra-category reviewer found a technical error (capital split vs risk budget). The inter-category reviewer attacked the premise that low realised volatility means low risk. The CIO should not lean on it. I did not flag my peers' other near-cash portfolios, because they carry similar structural weaknesses but at least have some diversification."
+  }
+}

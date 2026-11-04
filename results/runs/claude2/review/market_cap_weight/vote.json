@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "vote",
+    "agent": "vote-market-cap-weight",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:34:01.333521Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 325,
+        "output_tokens": 824,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0390475,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "market_cap_weight",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "pc_researcher",
+      "cvar_minimization",
+      "max_sharpe"
+    ],
+    "bottom_flag": "hierarchical_risk_parity",
+    "rationale": "Governing IPS is still a draft, so I weight IPS breaches as evidence rather than as hard disqualifiers. I favour candidates that pass every hard limit and hold up under peer review. Resampled efficient frontier is first: it passes all IPS tests, is the most diversified of the compliant return-optimised group (effective N 13.3), and its reviews found no errors in the numbers. The one technical error flagged is a wording inconsistency about gamma, and the main weakness, thin drawdown headroom of -24.3% against the -25% limit, is a known risk. Black-Litterman is second: it is IPS-clean, its numbers reconcile (the intra-category reviewer recomputed effective N), and it is candid about being a tuned point. Its technical error concerns the mechanism description, not the weights. pc_researcher is third: it has the best ex-ante Sharpe among diversified candidates (0.51), a modest backtest drawdown (-10.9%), and a CRO risk of 0.33. Its breaches are volatility and tracking error only, and the reviews show its rationale was not reconciled with the solved result, so I rank it below the two compliant methods. CVaR minimisation is fourth: it passes the IPS, has the best backtest Sharpe among the compliant candidates (0.74), and covers tail risk with a non-covariance approach, so the ensemble gains a different view. Its weakness is fitting to a handful of crises and sitting at the volatility edge. Max Sharpe is fifth: it is IPS-clean, but 46% in us_value rests on one judged CMA gap, as its reviewers noted. Resampled efficient frontier beats max_sharpe because it spreads that estimation risk across draws instead of concentrating in a single style bet. Bottom flag is hierarchical risk parity: roughly 92% in cash and short Treasuries, breaching return, volatility and tracking error together, with a technical error in how its recursion was described and a design choice to treat cash as a risk node. It is the portfolio I would least want the CIO to lean on. I did not flag the adversarial diversifier, since its orthogonality is valuable in an ensemble. I also acknowledge I am a market-cap heuristic with my own drawdown breach, and I voted on merit regardless."
+  }
+}

@@ -827,3 +827,21 @@ moves 55% of a portfolio (the researcher's) is still its method; whether Black-L
 should carry the CMA judge's per-asset confidence; and the regime call itself. Claude read
 expansion at 0.36, Gemini late-cycle at 0.42, and the paper late-cycle in March 2026.
 
+
+### 54. Pipeline runs are tracked in git, under `results/runs/` — settled, 2026-11-04
+Runs used to sit in the git-ignored `data/runs/`, so a teammate picking up the analysis had to
+be sent them outside git or pay to rerun them. The owner wants every run in the repository.
+
+Before moving them, all 446 files of `claude1` and `claude2` were scanned. They hold no firm-,
+bond- or fund-level rows, no CRSP identifiers (PERMNO, CUSIP, GVKEY) and no return series; the
+only long series is the 380-month regime history, built from public FRED data. WRDS appears
+only as aggregates quoted in rationales (index payout yields, CAPE) and as the market-cap
+*weights* of the 18 asset classes; headers name dataset versions by hash. No local paths, keys
+or emails. That is research output, which the owner's 2026-10-01 ruling allows publishing.
+
+So `settings.runs_dir` (default `results/runs`, `SAA_RUNS_DIR` to override) is now where
+`RunContext` and the macro agent write, outside `data/`; the curated WRDS datasets stay in the
+ignored lake. Rejected: un-ignoring `data/runs/`, which puts tracked and licensed files in one
+tree and makes an accidental commit of the latter one `git add` away. Test fixtures redirect
+`runs_dir` with `data_dir`, so a test never writes a tracked run. The development runs
+(`dry1`, `dry2`, `tune_check`, dated `--no-llm` runs) were not copied; only the two paid runs.

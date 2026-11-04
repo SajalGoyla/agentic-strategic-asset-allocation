@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-resampled-efficient-frontier",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.481503Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/equal_weight/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/equal_weight/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4226,
+        "output_tokens": 3520,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.044324,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "resampled_efficient_frontier",
+    "reviewer_category": "return_optimized",
+    "reviewed_agent_id": "equal_weight",
+    "reviewed_category": "heuristic",
+    "kind": "inter_category",
+    "strengths": [
+      "The method has a clear and honest premise: it declines to forecast. Weights cannot be corrupted by noisy CMAs or an ill-conditioned covariance matrix, and the CRO confirms this part of the argument is valid. The ex-ante and backtest volatilities agree at 8.41%, and the weights do not depend on that matrix.",
+      "It is fully diversified by weight (18.0 effective assets of 18, Herfindahl 0.056), with no single-name concentration risk and trivially low turnover. The weights are transparent and reproducible.",
+      "Ex-ante it sits inside the draft IPS limits on volatility (8.41% in an 8-12% band), return and tracking error (4.36% against a 6% budget). That compliance came without tuning, so it is not an artefact of forcing.",
+      "The proposal is candid about its own weaknesses: unequal risk contributions, the dead weight in cash and short Treasuries, and the tracking-error gap. It names its invalidation conditions.",
+      "In an ensemble it can serve as a CMA-independent anchor against which the value of any forecast-driven or covariance-driven tilt can be judged. That is a legitimate, if modest, contribution."
+    ],
+    "weaknesses": [
+      "The claim that equal weight 'needs the fewest things to be true' is overstated. 1/N is mean-variance optimal only if all assets have the same expected return, volatility and correlation. Here volatilities range from cash at under 1% to EM equity and commodities at 15-20% or more, so the implicit premise is visibly false. It is a hidden view, not an absence of one.",
+      "The allocation is an artefact of how the 18-asset menu was sliced. The universe has 8 fixed-income lines (44%), 6 equity lines (33%), 3 real assets (17%) and cash (5.6%). Large cap, value and growth overlap heavily, so '18.0 effective assets' overstates economic diversification. A different partition of the same markets would give a different portfolio, and the method has no way to say which partition is right.",
+      "The realised drawdown of -26.65% breaches the draft -25% limit, and the proposal's own 'invalidated if' list includes a backtest drawdown breach. That condition has already been triggered. The case rests on estimation-error avoidance, which does not protect against drawdown because drawdown depends on realised co-movement among the held assets, which the method ignores.",
+      "Equal capital is not equal risk. Roughly 55-60% of capital sits in growth-sensitive and spread assets that fall together in credit or liquidity crises. Meanwhile 11% sits in cash and short Treasuries, which dilute return without offsetting much. The same rigidity that avoids estimation error also forgoes the use of well-measured covariance structure, so the drawdown is largely unmanaged.",
+      "The benchmark gap of 4.36% tracking error comes from structure, not intent: -54.4% in US large cap and -24.4% in intermediate Treasuries, with no mechanism to control it. If the IPS is ratified with a tighter tracking budget, this portfolio would not be adjustable except by abandoning the method.",
+      "The DeMiguel et al. (2009) result is about 1/N versus sample-based mean-variance optimisers out of sample, in terms of Sharpe. It does not establish that 1/N beats shrinkage, risk-based, or resampled methods, and it says nothing about drawdown constraints. It supports the argument less than the proposal implies.",
+      "The regime argument is weak and cuts both ways. Expansion does not demand a defensive tilt, but it also does not make a 1/N portfolio with 17% real assets and 11% cash and short Treasuries a positive fit. The backtest Sharpe of 0.56 against the ex-ante 0.36 suggests either conservative CMAs or a history flattered by a long bond bull market. The CRO notes the sample omits 1970s-style inflation, so even the 0.56 may not hold in a regime where bonds and equities fall together."
+    ],
+    "technical_errors": [],
+    "score": 0.5,
+    "rationale": "I assessed the premise, not the distance from my own method. Equal weight is internally coherent: it correctly describes itself as immune to CMA and covariance estimation error, its arithmetic checks out (equal weights of 5.56%, benchmark gaps consistent with a 60/30/10 benchmark, equity 33%, real assets 17%), and I found no technical errors. The 'fewest assumptions' framing is too generous, though. 1/N implicitly assumes identical risk, return and correlation across assets whose volatilities differ by an order of magnitude, and it inherits an arbitrary view from how the universe is cut. Its stated advantage, immunity to estimation error, does not address the binding problem in the CRO's report, which is a drawdown past the draft IPS limit driven by correlated crisis losses. That breach is evidence about this candidate's contribution rather than a disqualification, because the hard limits bind only on the CIO's final portfolio. It is also the proposal's own stated invalidation trigger. The 4.36% tracking error comes from structural benchmark gaps and is uncontrolled. Taken together, this is a reasonable neutral anchor and a useful baseline, but not a portfolio argued to be good on its own terms. I score it in the middle, around 0.5. Readers should weigh the proposal's unaddressed drawdown and implicit equal-risk and equal-return assumption against its robustness to input error, and note the IPS is still a draft."
+  }
+}

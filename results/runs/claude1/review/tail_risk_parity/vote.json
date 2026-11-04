@@ -1,0 +1,158 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "vote",
+    "agent": "vote-tail-risk-parity",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:42:31.959549Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 327,
+        "output_tokens": 891,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.043099
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "tail_risk_parity",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "cvar_minimization",
+      "pc_researcher",
+      "risk_parity"
+    ],
+    "bottom_flag": "hierarchical_risk_parity",
+    "rationale": "Governing IPS is still a draft, so I weight compliance as provisional but still informative. First choice, resampled_efficient_frontier, is IPS-compliant with no hard breaches, has the highest effective N among the compliant return-optimized methods (13.3), and its tracking error is moderate at 4.33%. Its reviewers' complaints are about tuning and the unbiased-noise premise, not a fatal error. It beats my fifth, risk_parity, because it can stand as a CIO candidate without repair. Risk_parity sits at 1.97% volatility, breaches return, volatility and tracking error, and gives cash an equal risk budget, a design flaw its reviewers flagged. It earns fifth place only as the best covariance-only anchor and the defensive diversifier for a late-cycle regime. Second, black_litterman: compliant, with the lowest tracking error in the field at 3.01% and an effective N of 6.1. Its blend with equilibrium is more robust than raw mean-variance. The reviewers found a gamma-labelling inconsistency, which is a disclosure fix rather than a structural fault. Third, cvar_minimization: compliant, a 0.74 backtest Sharpe that is the best in the field, and a sound Rockafellar-Uryasev formulation per the intra-category reviewer. Its weaknesses are the unauditable Sharpe floor and the noisy tail estimate. Its concentration (effective N 2.9) keeps it below the diversified methods. Fourth, pc_researcher: it has the highest ex-ante Sharpe among the realistic candidates at 0.51, a 0.70 backtest Sharpe, and a -10.9% drawdown. It breaches volatility and tracking error, and reviewers noted its Sharpe exceeding max_sharpe's 0.46, which needs reconciling. That makes it a useful mid-risk blend input but not a lead. I excluded max_sharpe because its 46% weight in us_value rests on a modest CMA spread, and I excluded the equity-heavy market_cap_weight because of its -40.6% drawdown and 0.80 CRO risk. I flag hierarchical_risk_parity because 91.9% of the portfolio is in cash, which reviewers called a mandate failure. Its effective N is 1.4, it breaches three hard limits, and the CIO should not lean on it. I do not flag adversarial_diversifier, whose orthogonality is valuable to an ensemble."
+  }
+}

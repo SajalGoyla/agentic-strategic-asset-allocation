@@ -1,0 +1,184 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-risk-parity",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.159186Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/maximum_diversification/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/maximum_diversification/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3625,
+        "output_tokens": 4618,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.054102
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "risk_parity",
+    "reviewer_category": "risk_structured",
+    "reviewed_agent_id": "maximum_diversification",
+    "reviewed_category": "risk_structured",
+    "kind": "intra_category",
+    "strengths": [
+      "Forecast-free by construction: the objective uses only the covariance matrix, so CMA estimation error does not enter the weights. That is a coherent stance in an expansion regime where return forecasts are likely to be crowded.",
+      "Unusually candid about the cash result. It says the 1.23% volatility is not a low-risk achievement, that effective N is 2.1, that it breaches three hard IPS limits, and that the case rests on an ensemble role, not on stand-alone merit.",
+      "Treats the IPS breaches correctly. The band binds on the CIO's final portfolio, the IPS is a draft, and the proposal does not tune the method into a different one to chase compliance.",
+      "The risk sleeve has useful content once cash is stripped out. Renormalised, the 17.4% non-cash portion is about 32% short Treasuries, 26% long Treasuries, 14% commodities, 10% gold and 8% each in small cap and growth. That is a plausible low-correlation mix a CIO could scale.",
+      "Ex-ante volatility of 1.23% and backtest volatility of 1.20% are consistent, and the ex-ante Sharpe of 0.34 is internally coherent as excess return over a cash rate of about 3.8%. The 0.61 backtest Sharpe is a different measure, not a conflict.",
+      "Names its failure conditions precisely: a Treasury-equity correlation break as in 2022, and inflation running above the cash rate."
+    ],
+    "weaknesses": [
+      "Cash is a degenerate input for this objective. With near-zero volatility and near-zero covariance, cash adds almost nothing to the diversification ratio, so the 82.6% weight is set by tiny residual terms and solver tolerance, not by diversification. A small change in the cash volatility estimate or the risk-free proxy could move it a lot. The weights are not a stable output of the method.",
+      "No cash-excluded run, or fixed-sleeve run, is offered. Cash is allowed to absorb most of the budget, so the stand-alone portfolio fails the mandate on return (1.83% real vs CPI+3%), on volatility (1.23% vs 8-12%) and on tracking error (8.66% vs 6%). The IPS-relevant output, the structure of the risk assets, is hidden inside a mostly-cash vector.",
+      "The claim that small cap and growth are the 'equity exposures with the least overlap' rests on 1.4% and 1.3% weights. At that size, estimation noise could easily reorder the equity sleeves, and there is no robustness evidence such as shrinkage, resampling or a covariance-window sensitivity check. Large cap, international and credit sleeves are zeroed out without explanation.",
+      "The diversifying core, short and long Treasuries at 10% combined, depends on bonds hedging equities. That fails in an inflation or rate shock, as in 2022, and the 1993-onward panel has no pre-1993 episodes such as the 1970s or the 1980-81 bond rout. The covariance is also barely tested on the 17% sleeve, because cash dominates both volatility measures.",
+      "In real terms the portfolio is exposed to cash returns. If the cash rate falls or inflation exceeds it, 82.6% of the portfolio loses purchasing power, which nominal volatility, VaR and drawdown do not capture."
+    ],
+    "technical_errors": [
+      "The case says cash lets the maximiser pull portfolio volatility far below the weighted-average volatility, making the ratio look good. That is not how the objective works. If cash volatility and covariances are about zero, adding cash scales the numerator (weighted-average volatility) and the denominator (portfolio volatility) by the same factor, so the ratio is essentially invariant to the cash weight. To first order cash gives only a marginal gain, from its small residual volatility. The 82.6% cash is therefore an artifact of an under-determined direction, not 'the method behaving as designed'.",
+      "Effective N of 2.1 is described as concentration 'in the Herfindahl sense'. The inverse Herfindahl of the stated weights is about 1.45 (sum of squared weights is about 0.689). The 2.1 figure matches exp(entropy), so the label is wrong, and the concentration is understated by the Herfindahl standard."
+    ],
+    "score": 0.3,
+    "rationale": "I audited the execution of the diversification-ratio maximisation on this 18-asset universe. The risk-asset sleeve looks like a sensible output of the method: Treasuries, gold and commodities as low-correlation sleeves, with no return forecast. The headline portfolio, however, is not the method working as designed. The ratio is essentially indifferent to cash when cash has near-zero volatility and covariance, so 82.6% cash points to a degenerate input or solver artifact, not to a diversification result. The case's mechanical explanation of cash (that it makes the ratio look good) is also wrong, and effective N is mislabelled. The IPS breaches are real, but they matter less than the instability of the weights. The proposal is honest about its limits and has some value as a diversifier-structure input once cash is stripped out. It would be far more useful if rerun with cash excluded or with a constrained cash weight, and checked for robustness. As submitted, the stand-alone proposal is weak and its sleeve weights are noisy, so I score it low-to-middling. The IPS is still a draft."
+  }
+}

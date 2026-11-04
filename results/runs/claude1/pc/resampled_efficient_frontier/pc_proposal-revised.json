@@ -1,0 +1,197 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "pc_proposal",
+    "agent": "revise-resampled-efficient-frontier",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:43:46.358828Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/resampled_efficient_frontier/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5360,
+        "output_tokens": 3125,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.09446
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "resampled_efficient_frontier",
+    "method": "Resampled efficient frontier",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.0021547297728096155,
+      "us_small_cap": 0.053192019660555895,
+      "us_value": 0.09808904318575852,
+      "us_growth": 0.09408597132521491,
+      "intl_developed": 0.03389013749515044,
+      "emerging_markets": 0.039207550741223306,
+      "short_treasuries": 0.1452403164732212,
+      "intermediate_treasuries": 0.05408443167169127,
+      "long_treasuries": 0.14128414271607123,
+      "ig_corporates": 0.04298935056643536,
+      "hy_corporates": 0.03433222620459289,
+      "intl_sovereigns": 0.0007464389721282727,
+      "intl_corporates": 0.018521368372219675,
+      "usd_em_debt": 0.03689647283511635,
+      "reits": 0.08272512981698346,
+      "gold": 0.06413209632203125,
+      "commodities": 0.05438388902967487,
+      "cash": 0.0040446848391214475
+    },
+    "expected_return_pct": 7.109868383729862,
+    "expected_volatility_pct": 8.000379670656306,
+    "sharpe_ratio": 0.4112140322285454,
+    "effective_n": 13.337728357395397,
+    "ex_ante_tracking_error_pct": 4.325304962309168,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I am not revising. The reviews found no technical error. Their main points are CMA bias, the tuned risk level, and a drawdown close to the limit with shared-factor exposure. All are fair. The original case disclosed the first two, and the CRO flagged the third. The lever-based fixes do not address them. Exclusion, capping and shrinkage cannot remove bias from mu. They redistribute weight around the same inputs. The two concentration-style remedies, a cap near 12% or a shrink toward equal weight, both mainly cut long_treasuries and short_treasuries and push weight toward equities, REITs, HY and EM. That would likely worsen the -24.27% drawdown, which sits 0.73pp inside the -25% limit, and could create a hard breach the original avoids. Excluding the dust positions (intl_sovereigns 0.1%, us_large_cap 0.2%, cash 0.4%) is immaterial, and the CIO can do it at construction. One correction to the record: the 13.3 effective assets is entropy-based. The inverse-HHI equivalent is about 11.5, and both indicate genuine breadth. The portfolio's contribution to the ensemble is unchanged. It is a return-aware, broadly spread, IPS-compliant anchor at the 8% volatility floor. Its binding risk is drawdown in a stagflation or term-premium regime, where the long-duration hedge fails. Its forecasts depend on judged CMAs that resampling makes robust to noise but not to bias. Compliance is assessed against config/ips.yaml, which is still a draft, so the pass, particularly on the thin drawdown margin, is provisional.",
+    "revision_of": "pc/resampled_efficient_frontier/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- market_cap_weight: I accept most of the substance and change no lever, for the reasons below. (1) Effective-number inconsistency: you are right, and I correct it here. The 13.3 is the entropy-based effective number, exp of the Shannon entropy of the weights. The inverse-HHI figure is 1/0.087, about 11.5. The portfolio is still broad, but the headline should read 'about 11.5 by inverse HHI, 13.3 by entropy', with the definition stated. (2) Resampling dispersion: agreed. The implied history length behind N(mu, Sigma) is a modelling choice, not measured CMA uncertainty, and I did not state it in the case. It sets how hard the weights are averaged toward breadth. (3) Systematic bias: agreed. Resampling leaves systematic CMA bias in place, which the original case already said. None of exclude, cap or shrink can correct a biased mu. They only reweight around it. (4) Tuned risk level: agreed, and already disclosed. 'Working as designed' defends the shape of the frontier, not the chosen point. (5) Drawdown, the barbell and shared factors: this is the binding concern, and it is why I do not revise. A cap near 12% would trim the long_treasuries position that cushioned the 2008-style drawdown and spread the excess pro rata into equities, REITs and HY. Shrinking toward equal weight would also cut long duration and raise HY and EM toward 5.6%. Either change risks moving the -24.27% drawdown past the -25% limit, a hard breach the original does not have, in exchange for a hedge against a term-premium regime that is not the base case. (6) Dust positions: accepted as noise. Together they total 0.7%, so excluding them changes no risk figure. The CIO's construction step can drop them at no cost, and re-running the method to do it adds nothing. (7) In-sample backtest: agreed. It is weak evidence and does not validate the forward CMAs. volatility_targeting: No technical error was found, and I accept the premise-level critiques: CMA bias passes straight through, the 8.00% volatility is tuned, and the backtest is largely in-sample, so its 0.63 Sharpe is not evidence for the 0.41 forward figure. On the long-Treasury hedge failing in a 2022-style inflation shock while REITs, commodities and HY fall: I accept this as the portfolio's main regime risk. But the levers available would trade it for a worse problem. Capping or shrinking cuts long_treasuries, the position that helped most in the deflationary episode that produced the -24.27% drawdown. It also pushes weight into equity-like sleeves. That would likely erode or erase the 0.73pp drawdown margin. Excluding long_treasuries outright would remove the method's main diversifier and raise drawdown risk further. The real-assets tilt is a CMA bet, and I have said so. Shrinking would reduce REITs but raise HY and EM, so it does not clearly reduce shared-factor exposure. The dust positions are immaterial at 0.7% combined, and the CIO can drop them. The 0.2% us_large_cap is the method's honest result that the CMAs favour other equity styles over the cap-weighted core: about 24.5% sits in value, growth and small cap. I keep the portfolio as filed and ask the CIO to treat the drawdown margin, not volatility, as its binding risk.",
+    "tuning": null
+  }
+}

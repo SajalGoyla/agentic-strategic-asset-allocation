@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.401459Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2469,
+        "output_tokens": 1891,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.034028,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "black_litterman",
+    "method": "Black-Litterman",
+    "category": "return_optimized",
+    "ex_ante_volatility_pct": 8.000465083587136,
+    "backtest_volatility_pct": 7.966048373303071,
+    "var_95_pct": 3.3329037871067904,
+    "cvar_95_pct": 4.896666212487454,
+    "max_drawdown_pct": -21.22834804121053,
+    "backtest_sharpe": 0.6956125787847258,
+    "ex_ante_tracking_error_pct": 3.00630174606684,
+    "backtest_months": 400,
+    "effective_n": 6.132397850935284,
+    "concentration_hhi": 0.21325361145613567,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.1401052724342361,
+      "active_fixed_income": 0.07137934850133332,
+      "active_real_assets": 0.06872592393290275,
+      "benchmark_beta": 0.820286923248365
+    },
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": []
+    },
+    "risk_score": 0.40026176935771407,
+    "risk_score_components": {
+      "volatility": 0.00011627089678389879,
+      "concentration": 0.166974412130026,
+      "drawdown": 0.8491339216484213,
+      "tail": 0.5849313480359913,
+      "tracking_error": 0.50105029101114
+    },
+    "judgment": {
+      "key_risks": [
+        "Rate/duration exposure: 37.4% intermediate Treasuries plus 9.7% long Treasuries (+17.1% active fixed income vs benchmark on those two lines) is a 47% bond sleeve whose worst episode, the 1970s-80s inflation and rate shock, is outside the 1993+ panel. A stock-bond correlation turning positive (as in 2022) would hit both sleeves at once and is the main route to a drawdown worse than the backtest shows.",
+        "Equity style tilt: US large cap is 41 points under benchmark, while value (+13.6%), growth (+6.7%) and small cap (+5.0%) are all overweight. Equity is 14% underweight in aggregate, but the composition is a real style and size bet on top of it. Tracking error is mostly this plus the duration overweight.",
+        "Input risk: the weights come from CMAs blended with equilibrium returns built on ETF-size market-cap proxies. The 37% Treasury position and the value/large-cap split are only as good as those inputs. The proposer admits expected return and Sharpe are computed from the same CMAs, so they are not independent evidence.",
+        "Real-asset diversifiers: gold (4.4%) and REITs (2.5%) give +6.9% active real assets. Gold's drawdown history before 1993 (1980-2000) is mostly absent, and REITs are rate-sensitive, so they add to rather than offset the duration risk in a rate shock.",
+        "Tuned-setting risk: the portfolio is the tangency point moved along the frontier by lowering gamma to reach the volatility floor. It holds more risk than the method would choose on its own, so its exposures are policy-driven and not the method's own optimum."
+      ],
+      "concentration_assessment": "This is the method working, not failing. Effective N of 6.1 over 9 holdings and a Herfindahl of 0.213 come from a diversified core, not from a near-singular covariance matrix pushing weight into one asset. The Black-Litterman equilibrium anchor shrinks the CMA views on noisy assets, which is why no single risky asset dominates. The 37.4% in intermediate Treasuries is the one large line, and it reflects the low volatility of the asset and the 8% volatility target, not an extreme view. The concentration that matters is by risk factor, not by weight: bonds, rate duration and value-tilted equity sit close together as exposures, and 9 of 18 assets being held means nine asset classes carry no weight at all.",
+      "tail_risk_assessment": "Monthly 95% CVaR is about 1.5x the VaR, which is a moderate tail and not a fat-tailed profile. The -21.2% maximum drawdown is inside the -25% limit with roughly 4 points of headroom, and is the component that scores highest (0.85). The 400-month backtest does cover 2000-02, 2008 and 2020, which are the equity-driven episodes relevant here. It is less credible for the bond and gold sleeves. The panel starts in 1993, after the 1970s-80s inflation shock, so the 47% in intermediate and long Treasuries has only ever been tested in a long bond bull market with falling yields. The 2022 stock-bond drawdown is only one episode. A regime where bonds lose alongside equities is under-represented, so the drawdown and CVaR are likely understated. Gold's pre-1993 history is also missing. Treat the -21.2% as a floor on plausible loss, not a central estimate for a rate-driven selloff.",
+      "ips_assessment": "There are no IPS violations to address; the portfolio passes every evaluated hard limit. That compliance is against a draft IPS, so it is provisional. The volatility component is 0.00 because 8.00% sits at the floor of the band, so the portfolio has no margin below it and any small drop in realised volatility would put it under. The drawdown limit passes but uses most of its budget (component 0.85), and the tracking-error budget is half used (0.50), so these are the limits closest to binding. A tighter drawdown limit or a revision of the volatility band in the final IPS would change this assessment. The proposer reached the floor by tuning gamma, so compliance depends on that tuning and not on the method's natural output.",
+      "commentary": "The risk that binds is drawdown, driven by the 47% bond sleeve and the equity style tilts, not volatility or concentration. Volatility sits right on the IPS floor and concentration is modest. The drawdown component is high because -21.2% is close to the -25% limit, and the backtest history flatters the bond holdings.\n\nThe ex-ante (8.00%) and backtest (7.97%) volatilities almost agree, so the shrunk covariance matrix reproduces the realised path well over the sample. That agreement is reassuring about the covariance estimate for this period, but it is not independent evidence for the tail. Both figures come from the same 1993+ regime of falling rates and mostly negative stock-bond correlation. For volatility I would trust either number. For the tail and drawdown I would trust neither as an upper bound, and I would read them as understated for a scenario where inflation or rates rise and the bond sleeve loses alongside equities.\n\nThe benchmark beta of 0.82 and the 14% equity underweight show the portfolio gets its 8% volatility from duration and style tilts more than from equity market exposure. In a rate shock the portfolio would be less defensive than its equity underweight suggests, since the diversifier sleeves of Treasuries, REITs and gold are all sensitive to real rates. The score of 0.40 is a fair summary only if the 1993+ correlation structure holds. I would flag it as understated for that reason, even though the score is computed and I leave it unchanged."
+    }
+  }
+}

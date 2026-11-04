@@ -1,0 +1,182 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-equal-weight",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.196227Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/adversarial_diversifier/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/adversarial_diversifier/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3554,
+        "output_tokens": 3054,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.03832
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "equal_weight",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "adversarial_diversifier",
+    "reviewed_category": "non_traditional",
+    "kind": "inter_category",
+    "strengths": [
+      "It states plainly that it is a probe and not a recommendation, and it names the three hard IPS breaches (return, volatility, tracking error) itself instead of hiding them.",
+      "The method is transparent. It is one optimisation, distance from the centroid of the other proposals subject to a Sharpe floor of 75% of the maximum. The single-asset result follows directly from that objective, so there is no hidden degeneracy.",
+      "The ex-ante and backtest volatility agree at 1.69%. For one short-duration asset the risk estimate is therefore credible and needs no discounting, as the CRO notes.",
+      "It is candid that the Sharpe of 0.52 is a thin excess return over a tiny volatility. It also lists what would invalidate it: a lower short-rate CMA, other proposals sitting near the vertex, or a final IPS that can only absorb the vertex at a trivial weight.",
+      "It correctly says the portfolio should be judged on whether a small slice improves a compliant blend, not on standalone compliance."
+    ],
+    "weaknesses": [
+      "Premise: the method has to believe two things. First, that the judged CMAs and risk-free rate are accurate enough for a 75%-of-max-Sharpe gate to mean something. Second, that the centroid of the other proposals is a sensible 'conventional view' to move away from. The centroid depends on which 14 methods ran, so the vertex moves with the roster and not with any economic view. Nothing in the proposal tests either belief.",
+      "The Sharpe gate does not discriminate when the risk-free rate is high or the equity risk premium is thin. A near-cash asset clears 75% of the maximum Sharpe, and the filter then admits a portfolio that earns about 0.9% over the risk-free rate. In an expansion regime, where risk assets are normally compensated, this means the CMAs imply a weak premium for risk. The proposal does not examine that implication, and it is the real finding behind this portfolio.",
+      "Sharpe is scale-invariant, but the IPS objective is a real return level (CPI+3%) inside an 8-12% volatility band. Using Sharpe as the only quality gate is therefore a mismatch with the mandate. The result is a portfolio that is high-Sharpe-adjacent and still fails the mandate on return, volatility and tracking error together.",
+      "The proposal calls itself 'furthest from the centroid', but its notes admit a local-optimum search on a non-convex distance objective. The result is a maximum-distance point under a noisy constraint, not a verified global vertex. The claim that the vertex is 'the cleanest available measure of what the other methods pay' for moving toward the volatility band is therefore overstated. It depends on the distance metric, the starting point and the Sharpe floor.",
+      "The ensemble value is overstated. A cash-like sleeve has low correlation to risk assets almost by definition, but blending it in is mathematically a de-risking, equivalent to holding less of the other proposals. It does not diversify equity beta or term premium. It removes them. The CIO can scale risk without this proposal, so the 'dry powder' contribution adds little information.",
+      "Real-return exposure is unhedged. It holds 100% short Treasuries, so inflation outrunning the short rate or a fall in policy rates (reinvestment risk) hits the whole portfolio, with effective N of 1.0 and no offset. The 1993-start backtest excludes high-inflation regimes, so the low drawdown of -5.36% and VaR of 0.49% understate purchasing-power risk.",
+      "Tracking error is the binding risk. The 9.30% against the 6% budget comes from a -60% active equity weight, so the portfolio would lag badly in an equity-led expansion. The 0.37 composite risk score blends very low market risk with maximum concentration and tracking-error risk, so the total is not informative."
+    ],
+    "technical_errors": [],
+    "score": 0.35,
+    "rationale": "The proposal is honest and internally consistent about what it is, and the optimisation logic, volatility estimate and breach disclosures hold up. As a probe it is informative: it shows that, under these CMAs, a Sharpe-only screen is satisfied by a near-cash portfolio. That tells the CIO the CMAs imply a thin premium for risk, and it shows the cost of the IPS band. The premise, however, is weak. It rests on accurate CMAs, on a roster-dependent centroid being the right thing to move away from, and on a scale-invariant Sharpe gate that does not match the mandate's return and volatility objectives. The ensemble case is overstated, because a cash-like sleeve is a de-risking lever and not a source of diversification. The distance result also rests on a local-optimum search. The IPS is a draft, so the three breaches should be revisited if the limits change, but with the current band, target and tracking-error budget the portfolio misses all three by wide margins. It is reasonable as a reference input at a small weight and unsuitable as a standalone allocation, which the proposal itself says."
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-volatility-targeting",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.436041Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/inverse_volatility/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/inverse_volatility/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4152,
+        "output_tokens": 4099,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.057694,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "volatility_targeting",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "inverse_volatility",
+    "reviewed_category": "heuristic",
+    "kind": "intra_category",
+    "strengths": [
+      "The weights follow the stated method. Cash at 45.9% and short Treasuries at 16.8% are consistent with 1/sigma sizing, and the equity lines at about 1.3-1.9% each fit equity vol roughly 25-30x cash vol. The 7.6 effective assets reproduces from the weights (exp of entropy is about 7.6), and the CRO's 85% Herfindahl share for cash also checks out.",
+      "Ex-ante volatility of 3.11% against realised 3.10% means the covariance estimate is not in dispute, so the portfolio's risk numbers are reliable even though the portfolio itself is not on-mandate.",
+      "It reads no return forecast, so it is a clean forecast-free reference point and a diversifier of error sources. The proposal is honest that it is not holdable alone, and it does not tune parameters to approach the IPS band.",
+      "All 18 assets are held and there are no corner solutions. The proposal discloses the IPS breaches and the IPS draft status rather than hiding them, and it states clear conditions under which it is preferred and invalidated."
+    ],
+    "weaknesses": [
+      "The method puts a risk-free asset in a 1/sigma rule. Cash's tiny sigma sets the whole weight vector, so about 46% of the portfolio, and roughly 85% of HHI, rests on one near-zero volatility estimate. A small revision, or a volatility floor, would move a very large share of the portfolio. This is a degenerate-input effect, not simply the method working. A standard heuristic practice would be to floor sigma, cap weights, or treat cash as the residual or funding leg rather than a risk asset to be sized.",
+      "The proposal calls itself 'far less brittle than max Sharpe' and says there is 'no near-singular covariance to exploit'. Its own cash weight is the same fragility moved onto the diagonal, so the brittleness claim is overstated.",
+      "Describing 7.6 effective assets as a 'real spread across the other 16' is misleading. The CRO is right that risk is effectively a single bet on cash and short rates. About 63% of the portfolio is cash and short Treasuries and equity is about 10%, so the diversification count flatters it.",
+      "Benchmark beta is 0.29 and tracking error is 6.90%, so it will badly lag the 60/40 benchmark in an equity-led expansion. This is the real mandate failure, not loss risk. Expected real return of 2.60% sits below the CPI+3.0% target, and 63% rests on short rates staying above inflation, which no volatility metric captures.",
+      "Redundant overlapping U.S. equity styles (large, value, growth, small) each get a full low-vol weight. The equity sleeve is too small to help the return gap, and hy_corporates, reits and usd_em_debt add correlated stress beta.",
+      "A -9.01% maximum drawdown against 3.1% volatility is about 3 annual sigmas. This points to duration and credit exposure in the roughly 17% bond sleeve and in correlation breakdowns (e.g., a 2022-type rate shock). It undercuts the 'low-risk anchor' framing and is not discussed in the proposal.",
+      "As an ensemble component, its usefulness depends on the CIO blending it with return-aware proposals. Its standalone value is low, and it adds little if the draft IPS volatility band and return target are ratified as written."
+    ],
+    "technical_errors": [
+      "The proposal says the 0.39 Sharpe 'comes from the volatility ranking alone, not from forecasts'. This contradicts the preceding sentence, which says the Sharpe is computed from the CMAs. The weights do not depend on forecasts, but the Sharpe numerator is entirely CMA-based. The accurate claim is that the weights are not optimised against the CMAs, not that the Sharpe is free of them.",
+      "The proposal says there is 'no near-singular covariance to exploit' as a point of robustness. Inverse volatility uses only the diagonal, so correlation singularity is irrelevant to it. The relevant near-degeneracy is the tiny cash sigma in the denominator, which the proposal does not acknowledge."
+    ],
+    "score": 0.4,
+    "rationale": "As an execution audit, the arithmetic is sound. The weights are consistent with 1/sigma sizing, the effective-N and concentration figures reproduce, and ex-ante and backtest volatility agree. The IPS breaches are disclosed, and as a forecast-free anchor it has some ensemble value, which is why the score is not lower. The execution problem is that cash is treated as an ordinary asset in a 1/sigma rule with no volatility floor or cap, so one near-zero estimate drives nearly half the portfolio. The proposal then presents that as robustness and as a real spread across assets, and the CRO shows the spread is overstated. The Sharpe explanation also confuses weights independent of CMAs with a statistic independent of CMAs. Standalone, it misses all three ex-ante IPS limits, runs at 0.29 beta against the benchmark, and relies on a favourable short-rate and disinflation regime. These breaches are evidence of limited contribution rather than a verdict: it is useful only as a small low-volatility, forecast-free component alongside return-aware proposals. This is a draft IPS, so the verdict on the breaches would soften if the final policy lowers the return target and volatility band."
+  }
+}

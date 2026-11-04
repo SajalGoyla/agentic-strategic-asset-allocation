@@ -1,0 +1,194 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:37:21.574261Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2247,
+        "output_tokens": 3052,
+        "cache_read_tokens": 4072,
+        "cost_usd": 0.0358284
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "max_sharpe",
+    "method": "Maximum Sharpe ratio",
+    "category": "return_optimized",
+    "ex_ante_volatility_pct": 8.000780558613013,
+    "backtest_volatility_pct": 7.898426701690633,
+    "var_95_pct": 3.1258169425147546,
+    "cvar_95_pct": 4.896017928434395,
+    "max_drawdown_pct": -24.74597459281396,
+    "backtest_sharpe": 0.6686847808058558,
+    "ex_ante_tracking_error_pct": 3.8747538236045833,
+    "backtest_months": 400,
+    "effective_n": 3.750493713223078,
+    "concentration_hhi": 0.31347854690167787,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.09676003508760578,
+      "active_fixed_income": 0.04053916198132623,
+      "active_real_assets": 0.05622087310627954,
+      "benchmark_beta": 0.7976417059462505
+    },
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": []
+    },
+    "risk_score": 0.46763945148176417,
+    "risk_score_components": {
+      "volatility": 0.0001951396532531291,
+      "concentration": 0.27309493201354124,
+      "drawdown": 0.9898389837125583,
+      "tail": 0.5485871884366857,
+      "tracking_error": 0.6457923039340973
+    },
+    "judgment": {
+      "key_risks": [
+        "Drawdown limit: the backtest worst case is -24.75% against the -25% IPS limit. The drawdown component is 0.99 and there is effectively no margin. A slightly different sample, rebalance date or covariance would put this portfolio past the limit.",
+        "us_value at 46%: almost half the portfolio rests on one equity style. In a 2000-2002 or 2008-type equity drawdown, this position drives the drawdown figure. The CMA spread of value over growth is the only justification for the size.",
+        "Duration and the stock-bond hedge: short_treasuries and long_treasuries together hold about 44%, and long_treasuries at 21.8% carries most of the rate sensitivity. The hedge works only while stock-bond correlation stays negative. An inflation shock that sells off equities and long bonds together would hit the 46% value position and the 21.8% long-duration sleeve at once.",
+        "Active bet on the CMAs: 3.87% tracking error (component 0.65) is an expression of the forecast, not diversification. A revision to the value-versus-growth or term-premium CMAs would move large weights.",
+        "Knife-edge on the volatility floor: ex-ante volatility was tuned to exactly 8.00% by lowering risk aversion, so it sits on the floor. Backtest volatility is slightly below it at 7.90%. Small estimation error flips the portfolio below the band."
+      ],
+      "concentration_assessment": "This is the method working as designed, not a failure of the covariance matrix. Mean-variance with a strong return view produces a corner solution: it buys the assets with the highest CMA-implied reward per unit of marginal risk and funds the risk with low-correlation Treasuries. The five holdings span equity, rates and gold in sensible proportions, and ex-ante and backtest volatility agree, so the matrix is not near-singular. The concentration is still fragile in a different way. It depends on the CMA inputs, not on the covariance structure. Effective N of 3.8 is the exposure to forecast error, and the 46% in us_value rests on a modest expected-return spread over neighbouring styles. Also, gamma was lowered to reach the band, so the portfolio is not the method's own optimum but a point moved along the frontier to buy risk budget.",
+      "tail_risk_assessment": "The tail is moderate for the volatility. Monthly CVaR is well above VaR, which indicates some skew into bad months, but nothing unusual for a 50% equity portfolio. The drawdown is the more informative tail number, and it is bounded by the 1993 start. The sample contains 2000-02, 2008 and 2020, and it also contains the 2022 rate shock, which tests the long_treasuries sleeve. It does not contain the 1970s or early-1980s inflation regime. Stock-bond correlation was positive in much of that era, and the sample is dominated by decades when Treasuries hedged equities. So the backtest likely understates the joint loss from equities and long duration. Gold at 5.6% is small enough that its pre-1993 history matters little. The biggest weakness in the tail is long_treasuries together with us_value in an inflationary stress. Because the drawdown is already at the limit, any understatement from missing regimes leads to a breach in practice, not just a worse number.",
+      "ips_assessment": "There are no hard violations, so there is nothing to explain. The compliance is thin in two places. First, drawdown sits 0.25 points inside the -25% limit, so the pass is a statement about this particular realised path, not a comfortable margin. Second, volatility is tuned to the band floor, so the pass depends on the shrunk covariance estimate holding; the backtest figure is marginally under the floor. The IPS is a draft. If it is finalised with per-asset caps, 46% in us_value could breach, and a tighter tracking-error limit than 6% would also bind. For the ensemble, this candidate would add risk-budget usage and an active value tilt, with little slack on drawdown.",
+      "commentary": "The risk that binds is the drawdown, not volatility. Volatility is at the floor and scores zero as a component, but the portfolio has used essentially all of the IPS drawdown allowance (component 0.99). The source is the 46% in a single equity style, which is exposed to a deep equity decline, and the 21.8% in long Treasuries, which has worked as a hedge for most of the sample. The tracking error of 3.87% is the second-largest component and reflects an active bet on the CMAs. The 4.1% overweight in fixed income and the 9.7% equity underweight against the benchmark make this look defensive, but the equity that remains is concentrated in a single style, so the benchmark beta of 0.80 understates how idiosyncratic the equity exposure is.\n\nEx-ante and backtest volatility agree closely (8.00% vs 7.90%), so the covariance estimate is not obviously misleading on volatility, and neither number is clearly the better one here. I would trust the ex-ante figure for volatility and the backtest for the drawdown, with a caveat on the latter. The agreement on volatility says nothing about the correlation regime. Both figures come from the same post-1993 world in which Treasuries diversified equities, so the shared assumption is the stock-bond hedge. If that hedge fails, both numbers are understated.\n\nThe proposer's case is that the concentration reflects strong CMA signals in an expansion regime. That is plausible as a description of how the method behaves, but it moves the risk, not removes it: the portfolio's outcome depends on the value-over-growth CMA and on the covariance matrix keeping the bond-equity hedge. Given that the drawdown has almost no room, a reader should treat this candidate as one whose compliance is a function of a single historical path, and weigh what it would contribute to a blend accordingly."
+    }
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "peer_review",
+    "agent": "review-risk-parity",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:32:09.485201Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/max_sharpe/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/max_sharpe/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3440,
+        "output_tokens": 3584,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.043392,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 240187010
+  },
+  "body": {
+    "reviewer_agent_id": "risk_parity",
+    "reviewer_category": "risk_structured",
+    "reviewed_agent_id": "max_sharpe",
+    "reviewed_category": "return_optimized",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal is unusually candid. It says the 0.46 Sharpe comes from lowering gamma to 4.64 to reach the 8% band edge, not from the method's efficient point (tangency Sharpe 0.67 at 1.89% volatility). It also names the weakness itself: one value-versus-growth CMA gap moves roughly 40 points of weight. A reader can price the portfolio correctly from its own text.",
+      "The tuning is coherent. Moving along the same long-only frontier by changing risk aversion is a legitimate way to reach the mandate's volatility band. The reported figures are internally consistent: 3.8 effective assets matches the weights, and the equity underweight of about 9.7% is consistent with a 3.87% tracking error and a beta of 0.80.",
+      "Ex-ante volatility of 8.00% against 7.90% in the CRO backtest shows the covariance matrix is not obviously misestimated for this weight vector. The portfolio is compliant on return, volatility, tracking error and the backtest drawdown, so it can stand as a candidate in its own right.",
+      "It adds a distinct signal to the ensemble: a direct, policy-compliant expression of the judged return views. A reader can see what the CMAs contribute beyond covariance structure, which is useful information whichever way the vote goes.",
+      "The structure is reasonable. It combines a return-seeking equity core with short and long Treasuries and a small gold sleeve, and it is not a near-singular corner solution."
+    ],
+    "weaknesses": [
+      "The premise is fragile. For 46% in one style sleeve to be right, the judged value-over-growth return gap must be correct to within a small error, and that gap must be stable relative to a covariance matrix estimated from 1993-onward history. Mean-variance weights respond roughly linearly to the inverse covariance times the return vector, and value and growth are highly correlated. A small CMA error therefore becomes a large weight swing. No shrinkage, resampling or robustness step is applied, so estimation error goes straight into the allocation.",
+      "The regime argument is thin. The claim that return forecasts are more informative in an expansion is asserted, not shown. Judged CMAs are not conditioned on the regime, and an expansion is also when value spreads and equity valuations are most likely to be mean-reverting. An expansion label does not reduce the risk that the CMAs are wrong. It only reduces the chance that the regime shifts within the horizon.",
+      "The tangency portfolio sits in a near-cash corner with 1.89% volatility. That implies the CMAs and covariance assign very little excess return per unit of risk to equities and long duration relative to low-volatility assets. The method is therefore being pushed to 8% volatility by changing the risk-aversion parameter, not because the inputs favour that risk level. The 7.54% return is therefore the result of a setting chosen to hit the band, and it carries little margin.",
+      "The drawdown is -24.75% against a -25% limit, so there is about 0.25 points of headroom. A drawdown that is 3.1 times the 8% volatility indicates fat-tailed equity losses that ex-ante volatility does not show. Compliance is nominal. A different window, rebalance date or a draft-IPS revision would breach it.",
+      "The 'diversified' description is generous. With 46% in US value and 3.8 effective assets of 18, risk is probably dominated by value equity, and the Treasury sleeves hedge it only if the stock-bond correlation stays low or negative. The 1993-onward sample is mostly falling yields, which flatters long Treasuries. In a joint equity-bond sell-off like 2022, only about 22% short Treasuries and 5.6% gold are left as ballast.",
+      "The ex-ante Sharpe is 0.46 but the CRO backtest Sharpe is 0.67 at nearly the same volatility. Neither document explains the gap. It may reflect a higher realised return or a different risk-free rate. Either way, the backtest flatters the ex-ante view, and the 0.67 should not be read as confirming the CMAs.",
+      "The proposal says the unresolved fragility could be tested by comparing resampled-frontier or Black-Litterman weights built from the same CMAs, but it offers no evidence of that. There is no sensitivity or robustness check inside the proposal itself."
+    ],
+    "technical_errors": [],
+    "score": 0.55,
+    "rationale": "As an inter-category reviewer I test the premise, not the distance from a diversification-based portfolio. The method must believe that the judged CMAs rank expected returns well enough, and that the value-over-growth gap is accurate and stable, for a 46% single-sleeve position to add more than estimation error removes. Nothing in the proposal or the CRO report supports that belief beyond a generic claim that an expansion makes forecasts more informative. The implementation is sound. The gamma tuning is a legitimate way to hit the band, the numbers are internally consistent, the covariance estimate looks adequate for this weight vector, and the proposer is honest about the Sharpe cost and the fragility. The IPS status is positive on ex-ante limits and on the backtest. It is compliant by the thinnest margin, with 0.25 points of drawdown headroom. The IPS is a draft, so that drawdown limit needs re-checking if it changes. The ensemble value is real but conditional: it shows what the CMA signal adds, and it is the concentration of loss in one judged CMA gap that I would want the CIO to see before it is blended into a final portfolio. I find no technical error, so the score reflects a well-executed but premise-dependent proposal with limited margin, around the middle of the scale."
+  }
+}

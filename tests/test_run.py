@@ -75,3 +75,14 @@ def test_write_validates_and_round_trips(run):
 def test_input_ref_is_relative_to_the_run(run):
     ref = run.input_ref("macro_view", run.path("macro_view"), sha256="deadbeef")
     assert ref.path == "macro/macro-view.json" and ref.sha256 == "deadbeef"
+
+
+def test_runs_are_tracked_outside_the_data_lake(config, tmp_config):
+    # Runs are committed (decision 54); the licensed lake is not, so the two never nest.
+    from saa.config import PROJECT_ROOT
+
+    assert config.settings.runs_dir == PROJECT_ROOT / "results" / "runs"
+    assert not config.settings.runs_dir.is_relative_to(config.settings.data_dir)
+    assert RunContext.create(config, run_id="x").root == PROJECT_ROOT / "results" / "runs" / "x"
+    # A test's run lands in its temporary directory, never in the tracked folder.
+    assert not RunContext.create(tmp_config, run_id="x").root.is_relative_to(PROJECT_ROOT)

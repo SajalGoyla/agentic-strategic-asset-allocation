@@ -1,0 +1,91 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.017947Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/emerging_markets/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/emerging_markets/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/emerging_markets/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2227,
+        "output_tokens": 2478,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.0611612
+      }
+    ],
+    "report_path": "cma/emerging_markets/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "emerging_markets",
+    "horizon_years": 3,
+    "expected_return_pct": 9.73,
+    "volatility_pct": 22.1305,
+    "method_range": [
+      8.0294,
+      11.7628
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "historical_erp",
+          "weight": 0.15
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.2
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "inverse_gordon",
+          "weight": 0.2
+        },
+        {
+          "method": "implied_erp_cape",
+          "weight": 0.2
+        }
+      ],
+      "expected_return_pct": 9.73,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "The stage-1 label is expansion, but only at 0.36 confidence. Growth is near zero, inflation is sticky, real rates are restrictive, and the read is described as borderline late-cycle with a 20-30% recession probability. That argues against treating expansion as settled, so I do not simply accept the auto-blend. Exhibit 4's late-cycle rule tilts toward the regime-adjusted and valuation methods. I keep regime_adjusted at a meaningful 20% weight. Its forward-looking figure (+3.04% excess in the 3 years after past expansion months) reflects that EM has historically done poorly once expansions mature, often alongside dollar strength and tight US policy. I do not raise it further. Its input is a low-confidence label, and it is already shrunk at 0.75 credibility. EM is also the asset most exposed to the restrictive-real-rate and dollar channel if the stall becomes a downturn. Easy financial conditions (+0.35) are the main offset and justify not leaning further toward the low end.",
+      "valuation_context": "The valuation methods disagree, and the reasons matter. implied_erp_cape (11.76) rests on EEM's trailing 7.0% earnings yield, which is a single-period proxy rather than a cyclically adjusted one. It also treats earnings as fully accruing to shareholders. In EM, persistent net share issuance and dilution historically erode a material part of that yield, so the figure likely overstates the return to existing holders. inverse_gordon (8.98) uses dividends only and sets buybacks to zero, which in EM is if anything generous given net dilution. It also borrows US SPF growth, and its confidence is the lowest of the set. EM multiples near 14x trailing are cheaper than US equity but no longer cheap against EM's own history after a 27.5% one-year gain. With a 3-year horizon, there is little room to count on re-rating either way. I give the two valuation methods equal weight, so that the dilution bias in one and the conservative inputs of the other roughly offset. historical_erp (11.45) is down-weighted for two reasons. It embeds the strong 1990s-2000s EM run. It also adds today's 4.03% T-bill to a premium earned when bills averaged far less; the realised arithmetic return since 1990 is only about 10.4%.",
+      "signal_alignment": "The composite is mildly bullish (+0.21), but it is driven almost entirely by technicals. Relative momentum (+0.89) and 12-1 momentum (+0.43) reflect the recent rally. The 36-month mean-reversion signal (-0.64) points the other way after a 23.6% annualised three-year run. Macro alignment signals are near zero apart from financial conditions (+0.10). Momentum is a shorter-horizon effect than this 3-year CMA, and mean reversion operates closer to the horizon. I therefore read the signals as roughly balanced at a 3-year horizon, not as support for the upper candidates. The result is a mid-range estimate slightly below the auto-blend, rather than a tilt toward the historical or earnings-yield figures.",
+      "rationale": "I chose a custom blend: bl_equilibrium 25%, regime_adjusted 20%, inverse_gordon 20%, implied_erp_cape 20% and historical_erp 15%. The weighted estimate is 9.73%, within the 8.03-11.76% range and about 0.2pp below the 9.93% auto-blend. The changes from confidence weighting are small and deliberate. historical_erp is cut because its backward-looking premium plus today's elevated T-bill overstates the forward return. bl_equilibrium is raised as the most neutral anchor, at 9.02% with an implied excess return of 4.99%. The other three weights stay near their confidence shares. The two valuation methods carry offsetting biases, and the regime method reflects real but weakly identified late-cycle risk. At 22.13% volatility, the estimate implies a Sharpe ratio of about 0.26. That is modestly below EM's long-run realised 0.34, which is consistent with a stretched recent run and a fragile regime. Confidence is medium. Dispersion is moderate and the estimate sits near the centre, but EM inputs are thin: the earnings yield is a proxy, the yield measure is dividends only, and growth is US growth. The governing IPS (config/ips.yaml) is still a draft, so this assumption should be revisited once the policy is finalised."
+    }
+  }
+}

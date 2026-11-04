@@ -1,0 +1,197 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "revise-cvar-minimization",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:35:23.785316Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/cvar_minimization/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5060,
+        "output_tokens": 3298,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.096725,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "cvar_minimization",
+    "method": "CVaR minimisation",
+    "category": "non_traditional",
+    "weights": {
+      "us_large_cap": 0.36011517600994514,
+      "us_small_cap": 0.014705882352941178,
+      "us_value": 0.014705882352941178,
+      "us_growth": 0.014705882352941178,
+      "intl_developed": 0.014705882352941178,
+      "emerging_markets": 0.014705882352941178,
+      "intermediate_treasuries": 0.2982651464820061,
+      "long_treasuries": 0.014705882352941178,
+      "ig_corporates": 0.014705882352941178,
+      "hy_corporates": 0.014705882352941178,
+      "intl_sovereigns": 0.014705882352941178,
+      "intl_corporates": 0.014705882352941178,
+      "usd_em_debt": 0.014705882352941178,
+      "reits": 0.014705882352941178,
+      "gold": 0.13573732456687249,
+      "commodities": 0.014705882352941178,
+      "cash": 0.014705882352941178
+    },
+    "expected_return_pct": 6.605365553671065,
+    "expected_volatility_pct": 8.143332748759892,
+    "sharpe_ratio": 0.34204245848792497,
+    "effective_n": 6.478079303700113,
+    "ex_ante_tracking_error_pct": 3.420003375359152,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "The revised portfolio is still CVaR minimisation. It keeps the same mean-CVaR LP over monthly scenarios from 1993 on, the same 95% expected-shortfall objective and the same scenario-mean return floor of 8.219%. The barbell of equity, duration and gold remains the backbone, at about 75% of the weight.\n\nBoth reviewers made the same substantive point, and the CRO's note on regimes the sample lacks agrees with it. The tail protection is estimated from about 20 months in a falling-yield, gold-bull sample, and an LP vertex exploits that sample. That is estimation error in the weights, so the matching lever is shrink_to_equal. I use 0.25, half the allowed maximum, which keeps the method dominant. I also exclude short Treasuries, a 1.4% residual with no diversification value. Keeping it would have the shrink add yet another near-cash sleeve that pulls volatility under the floor.\n\nExpected effects, on my estimates:\n- Equity plus intermediate Treasuries falls from about 83% to about 64%.\n- Gold falls from 15.9% to about 13%.\n- Effective assets rise from 2.9 to well above that.\n- Small sleeves in commodities, REITs, international bonds and credit add some resilience to a persistent positive stock-bond correlation or a gold reversal.\n- Tracking error should fall, because the shrink pulls weights toward a broad spread.\n\nI rejected a max-weight cap because it would likely move weight into duration and gold and lower volatility below the 8% floor.\n\nThe main risk of the revision is the volatility floor. The original sat at exactly 8.00% ex-ante. The added assets are mostly higher-volatility and part of the Treasury sleeve is removed, so I expect volatility near or slightly above 8%, but I will check the revised figures if flagged. The original had no hard breach: the CRO confirmed drawdown of -18.72% against the -25% limit, which corrects my earlier wording.\n\nThe reported return and Sharpe still use the judged CMAs, while the weights ignore them. The backtest Sharpe remains in-sample and optimistic.\n\nThe governing IPS (config/ips.yaml) is a draft, so all compliance statements are against draft limits.",
+    "revision_of": "pc/cvar_minimization/pc_proposal.json",
+    "notes": "Revision: excluded short_treasuries; shrunk 25% of the way toward equal weight; one-way turnover 20.6%. Responses to reviews -- adversarial_diversifier: Accepted in part, and I have revised. You found no technical errors, so there is nothing to correct on that front. On your main concerns:\n\n(1) Tail estimate. The weights rest on about 20 tail months from a falling-yield sample, and the 4-asset vertex is fitted to them. I accept this, and it is the reason for the change. I apply shrink_to_equal of 0.25, the remedy for weights that are sensitive to estimation error. It blends a quarter of equal weight across the remaining 17 assets into the mean-CVaR solution.\n\n(2) Joint failure of equity and duration. On my estimate, the shrink cuts the equity-plus-intermediate-Treasury block from about 83% to roughly 64%. It also adds small sleeves in commodities, REITs, TIPS-like real exposure via commodities, international bonds and credit. These do not depend solely on a negative stock-bond correlation.\n\n(3) Gold. Gold falls from 15.9% to about 13% on my estimate, which reduces the single largest active bet. I keep it material because the tail logic for it is the method's own.\n\n(4) Short Treasuries. I exclude the 1.4% short Treasury residual. It adds no diversification, and excluding it keeps the shrink from adding another near-cash sleeve.\n\n(5) Band-edge fragility. I accept that 8.00% ex-ante has no margin. The shrink adds mostly higher-volatility assets and removes some intermediate Treasury weight, so I expect volatility to stay near or slightly above 8%. If the revised figures show a breach of the floor, I will reconsider.\n\n(6) The 8.219% scenario-mean floor versus the 6.46% CMA return. The method is CMA-free by design, and I disclosed the mismatch rather than hiding it. I agree the 0.74 backtest Sharpe is largely in-sample and should not be read as independent evidence.\n\n(7) Stale compliance wording. You are right. The CRO has confirmed the backtest drawdown of -18.72% against the -25% limit, so the original had no hard breach under the draft IPS. inverse_variance: Mostly accepted. There were no technical errors to correct.\n\nYour central point is that the hedge weights are fitted to a handful of crises (2000-02, 2008, 2020, 2022) and would change under a different crisis mix. That is an estimation-error critique, and I respond with shrink_to_equal of 0.25 rather than discarding the method.\n\nOn your specific points:\n- On my estimate, intermediate Treasuries fall from 37.3% to about 29%, gold from 15.9% to about 13%, and US large cap from 45.4% to about 35%.\n- The equity-plus-duration exposure you flag as failing in a rate shock drops to roughly 64%.\n- Small positions in commodities, REITs and credit give some protection in the inflation regime the sample under-represents.\n- Effective assets rise well above 2.9.\n- I exclude short Treasuries, accepting that the 1.4% residual is noise.\n\nI do not add a per-asset cap. How a cap redistributes weight would likely push more into intermediate Treasuries and gold, which deepens the very bets you criticise and lowers volatility below the floor. Shrinking addresses concentration more evenly.\n\nOn volatility, compliance is assessed ex-ante under the draft IPS. Backtest volatility of 7.91% is not the binding test, though I accept there is no margin. The shrink tilts toward higher-volatility diversifiers, which should help.\n\nOn the scenario-mean return floor versus the CMA return, this is a deliberate, disclosed property of a forecast-free method. I keep it, and I agree the backtest Sharpe overstates what to expect.",
+    "tuning": null
+  }
+}

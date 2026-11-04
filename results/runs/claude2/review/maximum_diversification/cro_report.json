@@ -1,0 +1,220 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.407585Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2433,
+        "output_tokens": 3885,
+        "cache_read_tokens": 4072,
+        "cost_usd": 0.044530400000000005,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "maximum_diversification",
+    "method": "Maximum diversification",
+    "category": "risk_structured",
+    "ex_ante_volatility_pct": 1.2310878350637147,
+    "backtest_volatility_pct": 1.1986550884716252,
+    "var_95_pct": 0.2844965772433835,
+    "cvar_95_pct": 0.5209996425203526,
+    "max_drawdown_pct": -2.029597289434215,
+    "backtest_sharpe": 0.6058100989782178,
+    "ex_ante_tracking_error_pct": 8.656468994379834,
+    "backtest_months": 400,
+    "effective_n": 2.1429146828763783,
+    "concentration_hhi": 0.6892297832540095,
+    "factor_tilts": {
+      "active_cash": 0.826401833187435,
+      "active_equity": -0.5720387094296666,
+      "active_fixed_income": -0.3002761503523096,
+      "active_real_assets": 0.045913026594541315,
+      "benchmark_beta": 0.08034254894325446
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 1.83% is below the CPI + 3.0% target",
+          "observed": 1.8327904466458822,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 1.23% outside the 8.0-12.0% band",
+          "observed": 1.2310878350637147,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 8.66% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 8.656468994379834,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.2784278088450272,
+    "risk_score_components": {
+      "volatility": 0.0,
+      "concentration": 0.6709491822689513,
+      "drawdown": 0.0811838915773686,
+      "tail": 0.0499297240689492,
+      "tracking_error": 1.0
+    },
+    "judgment": {
+      "key_risks": [
+        "Cash at 82.6% is the whole portfolio. Its risk is inflation and real-return erosion, not volatility. Expected real return is 1.83%, and the 1993-onward panel contains no episode where cash lost badly in real terms.",
+        "Benchmark-relative risk is the binding measure: 8.66% ex-ante tracking error, the only score component at its maximum (1.00). It comes from the -57.2% active equity and -30.0% active fixed income against the 60/40 benchmark. An equity rally leaves this portfolio far behind, and a stock-bond selloff leaves it far ahead.",
+        "Dependence on cash's covariance entries. The optimiser's output is driven by how a near-zero-volatility asset is estimated. A change in the cash volatility or correlation estimate, for example from rate-regime sampling, would reshuffle the weights of the whole portfolio.",
+        "The 17.4% non-cash sleeve is spread over seven assets with very different tail histories: long_treasuries 4.5%, short_treasuries 5.5%, commodities 2.4%, gold 1.7%, us_small_cap 1.4%, us_growth 1.3% and reits 0.5%. The sleeve is too small to matter for drawdown, but its internal ordering rests on correlations that are unstable across inflation regimes.",
+        "Return-target shortfall. The 1.83% expected real return is built from judged CMAs that the method itself ignored. The portfolio carries risk of missing its objective while looking very safe on every volatility-based metric."
+      ],
+      "concentration_assessment": "This is the method behaving as designed, but the output is degenerate rather than informative. The covariance matrix is not near-singular. Instead, one asset has near-zero volatility and near-zero correlation to everything, so the diversification ratio rewards it mechanically. That is the mechanism the proposer describes and I agree it is not a numerical artefact. The HHI of 0.689 and effective N of 2.1 say the portfolio is one asset plus a small remainder. The concentration score of 0.67 is the second-highest component. The diversification the method claims lies in the 17.4% sleeve, not in the 82.6% cash holding. The concentration is therefore a finding about what the method does when a cash-like asset is in the universe, and it should not be read as evidence that cash is the best diversifier in an economic sense.",
+      "tail_risk_assessment": "On the measured path the tail is shallow: monthly 95% VaR 0.28%, CVaR 0.52% and a maximum drawdown of -2.03% over 400 months. The panel includes 2000, 2008, 2020 and the 2022 rate shock, and at this cash weight none of them dented the portfolio much. Those figures are nominal, and the tail that matters for this portfolio is purchasing power. The panel excludes 1970s-style inflation, when cash and short bills earned negative real returns for years. The sample also contains a long near-zero-rate period, which makes cash look stable. The small long_treasuries, gold and commodities positions are the assets whose worst episodes predate or sit at the edge of the data, but at 4.5%, 1.7% and 2.4% their understated tails barely move the total. The backtest tail is credible as a statement about nominal monthly losses in the sampled history. It understates real-value and regime-change risk for cash. The score components for drawdown (0.08) and tail (0.05) measure only the first of these.",
+      "ips_assessment": "All three hard breaches share one cause, the 82.6% cash position, and should be read together. (1) Return: expected real return of 1.83% against the CPI+3.0% target leaves a gap of roughly 1.2 points before any inflation surprise. Because the method ignores CMAs, this shortfall comes from the judged cash and bond return assumptions, so it reflects the portfolio's composition and not the optimisation. (2) Volatility: 1.23% is far below the 8.0-12.0% band. This is non-compliance but not riskiness, and the score correctly gives it 0.00. For an ensemble the meaning is that this candidate would dilute rather than supply risk budget, and anything blended with it moves toward the floor. (3) Tracking error: 8.66% against the 6.0% budget is a real active bet. It is a bet against the benchmark's equity and duration exposure, taken by default through cash rather than by conviction. It is consistent with the realised benchmark beta of 0.08, which shows the portfolio has almost no co-movement with the 60/40 reference. None of these disqualifies the candidate, since the hard limits bind on the CIO's final portfolio (decision 32). The IPS is a draft, so the band, the CPI+3% target and the 6% tracking-error budget may still change, but the volatility and tracking-error gaps are too wide for any plausible revision to close.",
+      "commentary": "The risk that binds is benchmark-relative, not absolute. In volatility terms this is among the quietest portfolios one could hold, and the composite of 0.28 reflects that. It understates the risk as I read it. The score is built from volatility, drawdown and VaR against IPS limits, and an 82.6% cash holding passes all of those almost by construction. What it cannot see is the shortfall against a CPI+3% objective and the 8.66% tracking error to a 60/40 benchmark. Anyone relying on the composite alone would underweight these two exposures. The score stays fixed as published. This is why I flag it here.\n\nEx-ante volatility (1.23%) and backtest volatility (1.20%) agree closely, but I would not read that as validation of the covariance estimate for the risky assets. The agreement mostly reflects cash being stable and dominating the weights, so the sleeve that carries the interesting covariance structure is only 17.4% of the portfolio. Both volatility figures are credible as nominal measures. The number to trust for decision-making is the ex-ante tracking error, which has no backtest counterpart and is consistent with the low realised beta of 0.08. The proposer's narrative cites a Sharpe of 0.34, while the computed table shows 0.61. I use the computed figure, but with this much cash a Sharpe ratio on excess returns divides a very small numerator by a very small denominator and says little about the economic merit of the portfolio.\n\nFor reviewers and the CIO, the useful reading is as follows. The portfolio's tail is benign in nominal terms and unmeasured in real terms. Its concentration is the method working, but the result carries little information beyond the fact that cash is quiet. What it offers an ensemble is the relative ordering of the non-cash assets, and that ordering depends on correlations that have been unstable when inflation regimes shifted. The portfolio on its own would hold the IPS objectives hostage to cash returning enough in real terms, which is the one outcome the 1993-onward panel cannot test."
+    }
+  }
+}

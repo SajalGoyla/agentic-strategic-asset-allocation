@@ -1,0 +1,157 @@
+{
+  "header": {
+    "schema_version": "4.0.0",
+    "contract": "cma_methods",
+    "agent": "intl-corporates",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T19:55:18.537130Z",
+    "produced_by": "script",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      },
+      "wrds/corporate_bond_yields": {
+        "run_id": "20261001T204124Z",
+        "sha256": "c27ac13d1f976ae8ad317dd37f849df18a5d086ff0e38e7ed0029b7f23239d23"
+      },
+      "market/prices_daily": {
+        "run_id": "20261019T212802Z",
+        "sha256": "043f911a31c92ff7f5c2402afacd007b9c8b2bc9aaab418c213739bc57825924"
+      },
+      "valuation/shiller_us_equity": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4837f563600fc27752a60a0ff6b6abad4057da52370bf06020bc2d3b0407bb49"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "surveys/spf_median": {
+        "run_id": "20261019T212802Z",
+        "sha256": "c9843584be9cf7f30f95c575ac8c4e358cbceb6b0b194446099cd42998680ee5"
+      },
+      "wrds/equity_valuation": {
+        "run_id": "20261001T204124Z",
+        "sha256": "08c4f77545b0975f4bf28378b22681344ac3cc87a2f18690ed696f6dddf3cfb5"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [],
+    "report_path": "reports/cma_methods.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intl_corporates",
+    "horizon_years": 3,
+    "volatility_pct": 9.1796,
+    "methods": [
+      {
+        "method": "historical_erp",
+        "expected_return_pct": 6.1379,
+        "confidence": 0.3,
+        "components": {
+          "risk_free_pct": 4.03,
+          "excess_return_pct": 2.1079,
+          "months": 441.0
+        },
+        "rationale": "+2.11% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield.",
+        "unavailable_reason": null
+      },
+      {
+        "method": "regime_adjusted",
+        "expected_return_pct": 4.9906,
+        "confidence": 0.25,
+        "components": {
+          "risk_free_pct": 4.03,
+          "regime_excess_return_pct": 0.5918,
+          "unconditional_excess_return_pct": 2.067,
+          "regime_months": 180.0,
+          "credibility_weight": 0.75
+        },
+        "rationale": "After the 180 past months labelled expansion, excess returns over the next 3 years averaged +0.59% a year (all months +2.07%); credibility weight 0.75, plus 4.03% T-bill.",
+        "unavailable_reason": null
+      },
+      {
+        "method": "bl_equilibrium",
+        "expected_return_pct": 5.454,
+        "confidence": 0.4,
+        "components": {
+          "risk_free_pct": 4.03,
+          "implied_excess_return_pct": 1.424,
+          "market_weight_pct": 0.0214,
+          "risk_aversion": 2.5
+        },
+        "rationale": "Equilibrium excess return +1.42% at a 0.0% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size.",
+        "unavailable_reason": null
+      },
+      {
+        "method": "inverse_gordon",
+        "expected_return_pct": null,
+        "confidence": 0.0,
+        "components": {},
+        "rationale": "Unavailable: not applicable to fixed_income",
+        "unavailable_reason": "not applicable to fixed_income"
+      },
+      {
+        "method": "implied_erp_cape",
+        "expected_return_pct": null,
+        "confidence": 0.0,
+        "components": {},
+        "rationale": "Unavailable: not applicable to fixed_income",
+        "unavailable_reason": "not applicable to fixed_income"
+      },
+      {
+        "method": "survey_consensus",
+        "expected_return_pct": null,
+        "confidence": 0.0,
+        "components": {},
+        "rationale": "Unavailable: no public consensus forecast for this asset; the judge may use the macro agent's view instead (the paper's alternative)",
+        "unavailable_reason": "no public consensus forecast for this asset; the judge may use the macro agent's view instead (the paper's alternative)"
+      },
+      {
+        "method": "yield_building_block",
+        "expected_return_pct": 5.1624,
+        "confidence": 0.48,
+        "components": {
+          "yield_pct": 4.0011,
+          "credit_loss_pct": -0.1,
+          "variance_addback_pct": 0.4213,
+          "spread_pct": 0.84
+        },
+        "rationale": "4.00% starting yield + 0.84% spread - 0.10% expected credit loss + 0.42% variance add-back (mean of IRLTLT01DEM156N, IRLTLT01GBM156N; + BAMLC0A0CM spread; local-currency yield on an unhedged USD holding).",
+        "unavailable_reason": null
+      },
+      {
+        "method": "auto_blend",
+        "expected_return_pct": 5.4186,
+        "confidence": 0.3797,
+        "components": {
+          "weight:historical_erp": 0.2098,
+          "weight:regime_adjusted": 0.1748,
+          "weight:bl_equilibrium": 0.2797,
+          "weight:yield_building_block": 0.3357
+        },
+        "rationale": "Confidence-weighted average of 4 methods: historical_erp 21%, regime_adjusted 17%, bl_equilibrium 28%, yield_building_block 34%.",
+        "unavailable_reason": null
+      }
+    ]
+  }
+}

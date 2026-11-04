@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-volatility",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:41:36.173968Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/inverse_variance/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/inverse_variance/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3710,
+        "output_tokens": 3176,
+        "cache_read_tokens": 3360,
+        "cost_usd": 0.039852
+      }
+    ],
+    "report_path": null,
+    "seed": 386410625
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_volatility",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "inverse_variance",
+    "reviewed_category": "heuristic",
+    "kind": "intra_category",
+    "strengths": [
+      "The weights follow the stated rule, w ∝ 1/σ². The cash-to-short-Treasury ratio of about 7.4 implies a sensible volatility ratio of about 2.7. The equity weights of 0.1% fit a very large variance gap. The result looks like the method working, not like a degenerate input.",
+      "The concentration is correctly attributed to variance dispersion, not to a near-singular covariance matrix. No matrix is inverted, and it needs only the covariance diagonal, so it is robust to covariance-estimation error and uses no CMAs.",
+      "The three hard IPS breaches (return, volatility, tracking error) are stated plainly, with no tuning to hide them. The proposal also says what it is useful for: a low-risk anchor or a covariance-only reference inside a blended ensemble.",
+      "The weaknesses and invalidation conditions are candid: real-return shortfall, falling cash yields, and the dust positions that only look like diversification."
+    ],
+    "weaknesses": [
+      "It is effectively a cash-plus-short-Treasury portfolio. About 96% sits in two assets, and expected volatility is 0.73% against an 8-12% band. It cannot meet the return target or the volatility band, and its 9.12% tracking error comes from avoiding the benchmark's equities. Its stand-alone value is close to nil. It is only useful as a small blend component.",
+      "The allocation hinges on one input, the cash variance estimate. 85% of the book follows from how post-2008 near-zero-rate years are weighted. Ex-ante and backtest volatility agree, but that is weak validation because the cash-dominated matrix is easy to estimate. Neither says anything about the equity and credit covariances.",
+      "Sixteen of the eighteen positions sit at 0.1-0.8%. '18 of 18 held' is an artefact of the formula, not diversification. These positions add no risk-premium exposure and only complicate implementation and rebalancing.",
+      "The claim that volatility of 8% needs k≈0.1 is unsupported and doubtful. Equal weight (k=0) over this universe includes five cash and Treasury lines and would probably land below 8%, so reaching the band may need k<0 (favouring high-variance assets). That would make the 'no parameter can move it into the band' point stronger. The figure should be checked or dropped.",
+      "The real-terms tail is untested. Cash earns roughly inflation, and the 1993 backtest cannot show a prolonged negative real-rate or inflation-shock episode, which is where this portfolio is most exposed. The CRO composite score of 0.27 contains no shortfall component and understates the distance from the IPS."
+    ],
+    "technical_errors": [
+      "The narrative says the 0.27 Sharpe 'comes almost entirely from the cash yield' and that the Sharpe collapses if cash yields fall. Sharpe is measured as excess return over cash, so cash carry contributes almost nothing to it. A 4.02% return with a 0.27 Sharpe at 0.73% volatility implies a risk-free rate of about 3.8% and only about 0.2% of excess return. A cash-yield decline lowers the expected return, but it does not mechanically collapse the Sharpe.",
+      "'Cash is about a thousand times less variable than equities' conflates variance with volatility. A weight ratio of roughly 850:1 corresponds to a variance ratio of that size, which is a volatility ratio of about 30. The wording overstates the gap in volatility terms. The weights themselves are consistent with the 1/σ² rule.",
+      "Effective N of 1.9 and a Herfindahl of 0.73 are presented together as one fact. They come from different measures: 1/HHI would be about 1.4, while 1.9 matches the exponential of the entropy. The numbers are not wrong, but the definition should be named. The proposal's own narrative Sharpe also differs from the computed one, as the CRO notes."
+    ],
+    "score": 0.4,
+    "rationale": "As an execution of inverse variance, this is sound. The weights follow 1/σ², the concentration is a genuine variance-dispersion effect, and no degenerate input is evident. The proposal is also honest about its limits. As a candidate portfolio its quality is low. It breaches all three hard IPS limits (the IPS is still a draft), it holds essentially no risk premia, and it depends on one near-zero-variance estimate. The IPS breaches are evidence that it can only be a small defensive or reference component in an ensemble, not a solution. The rationale has several loose statements, notably the Sharpe-from-cash claim and the variance-versus-volatility wording, plus an unsupported k≈0.1 figure. None of these changes the weights, but they weaken the written case. I score it as a competent but narrow proposal."
+  }
+}

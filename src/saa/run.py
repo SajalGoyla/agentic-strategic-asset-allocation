@@ -7,7 +7,7 @@ together, and records which dataset versions each of them read.
 
 Layout (docs/contracts.md)::
 
-    runs/<pipeline_run_id>/
+    results/runs/<pipeline_run_id>/
       macro/macro-view.json
       cma/<asset_id>/{cma_methods,cma,signals,historical_stats,scenarios,correlation_row}.json
       pc/{covariance.json, pc_research.json, <agent_id>/pc_proposal.json}
@@ -16,7 +16,9 @@ Layout (docs/contracts.md)::
       cio/cio_decision.json
       reports/*.md
 
-Runs live under the git-ignored data directory: they are derived from licensed WRDS data.
+Runs live in ``settings.runs_dir`` (``results/runs``), which is tracked in git: a run holds
+results computed from licensed WRDS data -- estimates, portfolios, model-written text -- but
+never the data itself, which stays in the git-ignored ``data/`` lake.
 """
 
 from __future__ import annotations
@@ -38,8 +40,6 @@ from saa.contracts.base import (
 from saa.contracts.registry import spec
 from saa.contracts.registry import write as write_contract
 from saa.data.lake import new_run_id
-
-RUNS_DIRNAME = "runs"
 
 # Contracts filed under one agent's own directory; every other contract sits at the top of its
 # stage directory. Per-asset contracts are identified by their stage ("cma") instead.
@@ -73,7 +73,7 @@ class RunContext:
             as_of = date.fromisoformat(as_of)
         run_id = run_id or new_run_id()
         if root is None:
-            root = Path(config.settings.data_dir) / RUNS_DIRNAME / run_id
+            root = Path(config.settings.runs_dir) / run_id
         return cls(
             run_id=run_id,
             as_of=as_of,

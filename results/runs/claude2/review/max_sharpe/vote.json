@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "vote",
+    "agent": "vote-max-sharpe",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:34:01.335469Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 331,
+        "output_tokens": 954,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.0403495,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "max_sharpe",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "pc_researcher",
+      "black_litterman",
+      "cvar_minimization",
+      "tail_risk_parity"
+    ],
+    "bottom_flag": "hierarchical_risk_parity",
+    "rationale": "The governing IPS (config/ips.yaml) is still a draft, so I weighed IPS breaches as provisional but still informative. I am max_sharpe and cannot rank myself. First choice is resampled_efficient_frontier. It is the only portfolio that passes every hard IPS check with diffuse weights (effective N 13.3), and it hedges the estimation error in the return forecasts that my own method suffers from. Its weaknesses are thin drawdown headroom (-24.3% vs -25%) and a gamma description that is internally inconsistent. Neither is fatal. Second is pc_researcher. It has the best ex-ante Sharpe among the diversified candidates (0.51), a backtest Sharpe of 0.70, a shallow drawdown (-10.9%), and a lowest-of-the-compliant CRO risk of 0.33. Its volatility and tracking-error breaches are modest and it is the most implementable low-risk anchor. Reviewers flagged that its Sharpe of 0.51 does not follow from the stated floor, so that needs checking. Third is black_litterman. It is intra-category and passes the IPS, with consistent execution (effective N 6.1 recomputed and confirmed). Its main weakness is boundary-tuned volatility. Fourth is cvar_minimization. It passes the IPS, has the best backtest Sharpe among the passing portfolios (0.74), and brings a tail-aware, non-covariance view that adds diversity in a late-cycle regime. Its risks are a tail sample dominated by a few crises and a volatility target tuned to the band edge. Fifth is tail_risk_parity. It has a coherent downside-risk method and a sensible 6.0 effective N, and it spans the non_traditional family without the single-vertex problem of the adversarial diversifier. Why first beats fifth: resampled_efficient_frontier meets all hard IPS limits and sits inside the 8-12% band with real diversification. tail_risk_parity breaches return, volatility and tracking error, and it is largely a cash and short-Treasury portfolio. That makes it a weaker base for the CIO to build from, even though it is cleanly executed. The bottom flag is hierarchical_risk_parity. It is about 92% cash with effective N of 1.4. It breaches return, volatility and tracking error, and it treats cash as a clustering node. Its reviewers also found a technical error in the description of the risk budgets. It offers the CIO the least to build on. I did not flag adversarial_diversifier because its orthogonality has ensemble value, but I left it out of my top five because of the three IPS breaches and its single-asset vertex."
+  }
+}

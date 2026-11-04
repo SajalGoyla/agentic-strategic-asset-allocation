@@ -1,0 +1,83 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:31:49.045412Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/intl_corporates/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/intl_corporates/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2185,
+        "output_tokens": 2027,
+        "cache_read_tokens": 6733,
+        "cost_usd": 0.0519732
+      }
+    ],
+    "report_path": "cma/intl_corporates/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intl_corporates",
+    "horizon_years": 3,
+    "expected_return_pct": 5.21,
+    "volatility_pct": 9.1796,
+    "method_range": [
+      4.9906,
+      6.1379
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.6
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 5.21,
+      "confidence": "medium",
+      "dispersion": "tight",
+      "regime_logic": "Stage 1 calls a stall-speed expansion bordering on late cycle, with sticky inflation and restrictive real rates, but only at low confidence (0.36). For an investment-grade bond sleeve, that mix argues for anchoring on carry rather than on regime-conditioned history. Restrictive policy with 20-30% recession odds means spreads are more likely to widen than tighten from here, which points toward the lower end of the range. That is why regime_adjusted (4.99%) gets a modest weight. Its expansion-conditioned forward excess return of +0.59% reflects how poorly this asset did in the three years after past expansion months. Given how weak the regime classification is, I do not let it dominate. Historical_erp gets no weight: its +2.1% excess return was earned during the 1990-2026 secular fall in European and UK yields, a tailwind that cannot repeat from a roughly 4% starting yield. The 10-year realised return of 0.25% shows how unreliable that average is once the tailwind reverses.",
+      "valuation_context": "The yield-level signal (+0.45) says starting yields are high against their own history, and for bonds that is the dominant predictor of return over a horizon near duration. That supports making yield_building_block the anchor. The candidate's inputs are proxies, though, so I trim its weight below what a clean local index yield would earn. The base yield is the mean of the German and UK 10-year government yields, and the 0.84% spread is the US IG OAS (BAMLC0A0CM), not a spread on the international corporate index itself. The 0.10% expected credit loss is already netted from the spread, so I make no further default deduction. The credit-spread signal (-0.21) says spreads are tight against history, so there is little room for spread compression and some risk of widening. PICB is unhedged, so the USD return also carries currency moves that none of the candidates forecast. Most of the 9.18% volatility is that FX component rather than credit.",
+      "signal_alignment": "The composite signal is near neutral (-0.05) but split. Valuation is supportive through the yield level and mildly negative through tight spreads. Macro alignment is negligible: every macro loading is small and the regime-fit signal is zero. Technicals are clearly negative: trend -0.48, relative momentum -0.44, mean reversion -0.33, and a 1-year return of -3.47%. That points to near-term weakness, probably partly dollar-driven. Technical signals are weak predictors over a 3-year horizon for a carry asset, so I hedge against them only modestly. I tilt slightly below the auto-blend (5.42%) by dropping historical_erp and keeping a regime_adjusted weight, rather than moving toward the bottom of the range.",
+      "rationale": "Dispersion is tight (1.15pp), so the choice matters at the margin rather than in direction. Weights are 60% yield_building_block (5.16%), the strongest single candidate for an IG bond at a horizon near duration. 25% goes to bl_equilibrium (5.45%), a risk-based cross-check independent of the yield proxy and computed on the same covariance matrix the PC stage uses. 15% goes to regime_adjusted (4.99%), reflecting late-cycle spread risk. Historical_erp gets zero, because its premium was earned over a secular yield decline that cannot recur from today's levels. The result is 5.21%: about 1.2pp over the 4.03% T-bill, a Sharpe of roughly 0.13 at 9.18% volatility. That is plausible for unhedged international IG credit whose risk is mostly currency. Confidence is medium rather than high: the yield input is a German/UK government-yield proxy plus a US IG spread, and the currency exposure is not forecast. Governing policy is config/ips.yaml, which is still a draft; this CMA should be revisited once the IPS is finalised."
+    }
+  }
+}

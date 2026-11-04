@@ -70,7 +70,8 @@ src/saa/
               revision/ · cio/
               (each AGENT.md + agent.py)
 schemas/      generated JSON Schemas — never edit by hand
-data/         git-ignored: raw payloads, curated parquet, runs/, reports/
+results/runs/ tracked: one folder per pipeline run (agent outputs, reports, board memo)
+data/         git-ignored: raw payloads, curated parquet, ingestion logs
 ```
 
 ## Rules
@@ -89,6 +90,10 @@ data/         git-ignored: raw payloads, curated parquet, runs/, reports/
   ruling, 2026-10-01).
 - Every WRDS-backed history link has a public fallback, so the pipeline still runs without
   credentials. Keep it that way.
+- Pipeline runs are written to the tracked `results/runs/<run_id>/` and committed with the
+  work that produced them. A contract may quote an aggregate (a payout yield, a CAPE) but never
+  carry licensed rows or a return series; check before committing a run from a new stage.
+  Throwaway runs go elsewhere with `--run-dir` or `SAA_RUNS_DIR`.
 
 **Contracts**
 - Change a contract model → `uv run saa-contracts` → `uv run pytest` → bump `SCHEMA_VERSION`

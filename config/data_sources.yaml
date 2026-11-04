@@ -2,6 +2,7 @@
 # Secrets (FRED_API_KEY) belong in .env, never in this file.
 
 data_dir: data          # relative to the repo root; override with SAA_DATA_DIR
+runs_dir: results/runs  # pipeline runs, tracked in git; override with SAA_RUNS_DIR
 keep_raw: true          # archive exact source payloads under data/raw/<source>/<run_id>/
 
 http:

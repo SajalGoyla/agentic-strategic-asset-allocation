@@ -1,0 +1,204 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:28:02.406222Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2537,
+        "output_tokens": 2136,
+        "cache_read_tokens": 4072,
+        "cost_usd": 0.027248400000000002,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "market_cap_weight",
+    "method": "Market-cap weight",
+    "category": "heuristic",
+    "ex_ante_volatility_pct": 11.784933856556693,
+    "backtest_volatility_pct": 11.825930476240512,
+    "var_95_pct": 5.365345502522236,
+    "cvar_95_pct": 7.541599943784319,
+    "max_drawdown_pct": -40.59983981184646,
+    "backtest_sharpe": 0.6335105251103668,
+    "ex_ante_tracking_error_pct": 3.684831029859688,
+    "backtest_months": 400,
+    "effective_n": 7.044511558655856,
+    "concentration_hhi": 0.26447142205345686,
+    "factor_tilts": {
+      "active_cash": 0.028092664974848258,
+      "active_equity": 0.12850358240679405,
+      "active_fixed_income": -0.2920830142498377,
+      "active_real_assets": 0.1354867668681954,
+      "benchmark_beta": 1.2277746949095278
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.max_drawdown",
+          "severity": "hard",
+          "message": "maximum drawdown -40.60% breaches the -25.0% limit",
+          "observed": -40.59983981184646,
+          "limit": -25.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.8004159165344602,
+    "risk_score_components": {
+      "volatility": 0.9462334641391732,
+      "concentration": 0.22120503511542491,
+      "drawdown": 1.0,
+      "tail": 0.9416289751926817,
+      "tracking_error": 0.6141385049766147
+    },
+    "judgment": {
+      "key_risks": [
+        "US large cap at 48.8% with US growth 7.5%, US value 5.0% and US small cap 4.8% means roughly 66% sits in US equity, and benchmark beta of 1.23 makes the portfolio a leveraged-looking read on one equity factor. The -40.6% drawdown is the 2000-02 and 2008-09 US equity bear markets passing through almost undiluted.",
+        "Almost no ballast: short, intermediate and long Treasuries sum to about 6.9% (intermediate Treasuries are -27.5% vs benchmark), and active fixed income is -29.2%. In an equity sell-off nothing sizeable offsets, and the stock-bond hedge is not there unless the sell-off is deflationary and the 6.9% rallies.",
+        "Gold at 9.2% and REITs at 4.3% (active real assets +13.5%) are the only diversifiers. Gold is a thin hedge against equity drawdowns and was not a reliable one in 2008 or 2022. REITs are highly correlated with equities in crashes, so they add to the drawdown rather than offset it.",
+        "Volatility sits near the IPS ceiling with little room: a 11.8% ex-ante and realised level against a 12% cap means a modest rise in equity volatility pushes the portfolio over the limit.",
+        "The weights are a proxy artefact. They reflect ETF fund size, not asset-class capitalisation, so the 48.8% US large cap and tiny 0.1% positions in intl sovereigns and commodities and 1.9% in EM equities are accidents of fund AUM. Global equity ex-US and global bonds are far under-represented relative to true market caps."
+      ],
+      "concentration_assessment": "The method is working as defined, not failing: market-cap weighting loads the largest ETF by construction, and nothing here suggests a singular covariance matrix or an optimiser artefact. But 'working as designed' is not the same as benign. The concentration is a risk-concentration problem: Herfindahl 0.264 and 7.0 effective assets understate how one-sided the risk is, since the equity and equity-like sleeves (US equity, intl developed, EM, REITs, HY) are driven by one common factor, so effective bets are fewer than 7. The concentration is also distorted by the ETF-size proxy, which overstates US large cap and understates bonds and non-US assets compared with true asset-class market values. It is a size-weighted bet on US equity, not a deliberate risk position.",
+      "tail_risk_assessment": "The tail is dominated by equity drawdown. The backtest drawdown of -40.6% is credible and is probably close to the floor of the loss rather than an exaggeration, since the 1993-onward panel includes the dot-com bust and 2008, the two worst modern US equity bear markets. Monthly CVaR of 7.5% against a VaR of 5.4% shows a fat left tail beyond the 95% cut-off. The panel's blind spots work in both directions. It has no 1970s stagflation, when stocks and bonds fell together, so a portfolio with this little duration and a 9.2% gold position is not tested against its worst regime. Gold's and long Treasuries' sample histories also postdate their worst episodes, so their diversification is likely flattered by the post-1993 falling-rate era. On the other hand there are only about 6.9% in Treasuries, so the rates tail is small, and the main understated tail is a combined equity and inflation shock. 1929-style or 1973-74 equity drawdowns could exceed -40.6%.",
+      "ips_assessment": "The single hard breach is maximum drawdown of -40.6% against the -25% limit, a miss of about 15.6 points, so it is not marginal. For this candidate it means the portfolio cannot stand alone as a final allocation: it would take a loss, in a 2000 or 2008-type event, far beyond what the IPS tolerates, and the drawdown component of the score saturates at 1.00 accordingly. The proposer anticipated the breach but treated it as a later CRO check, and the figure confirms it: the volatility and tracking error limits are satisfied, so the ex-ante tests do not detect the issue and only the realised path does. This matters because the breach is structural, driven by 66% US equity and 6.9% Treasuries, and not a quirk of a single episode. It would not be cured by minor tuning, only by moving materially out of equity into duration or other diversifiers. Hard limits bind on the CIO's final portfolio, not on this proposal, so the breach is a finding about the contribution it would make to an ensemble: it brings a heavy equity-drawdown load that other components would have to offset. The IPS is still a draft, and the -25% limit and 8-12% volatility band could change if ratified differently.",
+      "commentary": "The binding risk is equity drawdown from the US large-cap and wider US equity concentration, not volatility or tracking error in isolation. The ex-ante volatility and the backtest volatility agree closely (11.78% vs 11.83%), so the covariance estimate looks consistent with the realised path for this mix, and either figure can be trusted for volatility. For tail risk the backtest is the number to trust over the ex-ante: volatility sits just under the ceiling and looks acceptable, while the realised -40.6% drawdown shows what that volatility means in a crisis. Ex-ante volatility is a symmetric measure and does not show that the losses cluster in two or three long bear markets.\n\nThe composite score of 0.80 is driven by volatility (0.95), drawdown (1.00) and tail (0.94). I do not dispute it, and if anything the formula does not penalise the stagflation exposure that the 1993-onward panel cannot show: low Treasury duration and a gold position that has mostly been tested in falling-rate conditions. The concentration component (0.22) looks low next to the others, because the Herfindahl measure treats US large cap, small cap, value and growth as separate assets when they share a single equity factor. The score is therefore understating how correlated the holdings are.\n\nThe low-estimation-error nature of the weights is real, but it does not reduce the exposure to a US equity bear market. A reader should take the proposal as an equity-beta position of 1.23 against the benchmark with about 12.9 points of active equity and 29.2 points of active fixed-income underweight. The IPS is in draft, so the -25% drawdown limit and volatility band are provisional; with the current draft the breach stands."
+    }
+  }
+}

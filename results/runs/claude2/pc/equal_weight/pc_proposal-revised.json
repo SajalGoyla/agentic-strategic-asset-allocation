@@ -1,0 +1,198 @@
+{
+  "header": {
+    "schema_version": "5.1.0",
+    "contract": "pc_proposal",
+    "agent": "revise-equal-weight",
+    "pipeline_run_id": "claude2",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-30T20:35:23.786867Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/equal_weight/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5561,
+        "output_tokens": 2659,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.085964,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "equal_weight",
+    "method": "Equal weight (1/N)",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.05555555555555555,
+      "us_small_cap": 0.05555555555555555,
+      "us_value": 0.05555555555555555,
+      "us_growth": 0.05555555555555555,
+      "intl_developed": 0.05555555555555555,
+      "emerging_markets": 0.05555555555555555,
+      "short_treasuries": 0.05555555555555555,
+      "intermediate_treasuries": 0.05555555555555555,
+      "long_treasuries": 0.05555555555555555,
+      "ig_corporates": 0.05555555555555555,
+      "hy_corporates": 0.05555555555555555,
+      "intl_sovereigns": 0.05555555555555555,
+      "intl_corporates": 0.05555555555555555,
+      "usd_em_debt": 0.05555555555555555,
+      "reits": 0.05555555555555555,
+      "gold": 0.05555555555555555,
+      "commodities": 0.05555555555555555,
+      "cash": 0.05555555555555555
+    },
+    "expected_return_pct": 6.841111111111112,
+    "expected_volatility_pct": 8.41003962711421,
+    "sharpe_ratio": 0.359226739119155,
+    "effective_n": 18.000000000000004,
+    "ex_ante_tracking_error_pct": 4.3577286836499916,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I am not revising. For 1/N, shrink_to_equal has no effect, and any cap of 5.56% or more does not bind. The only effective lever is excluding assets. Picking exclusions to clear the -25% drawdown limit would mean selecting on the same 1993-onward backtest that measured the breach. That embeds a fitted view in the one candidate whose purpose is to have none. Excluding the volatile crisis sleeves (commodities, REITs, EM, HY) would also cut volatility below the 8% floor, where it now has only 0.41pp of margin. That would create a new hard breach to fix an existing one. Both reviews found no technical errors, and both judged this a usable neutral anchor. The CRO confirms that estimation error cannot reach these weights, and that ex-ante and backtest volatility agree at 8.41%. I concede the points the reviews made. The portfolio breaches the draft drawdown limit as a standalone and has fired its own invalidation trigger. Equal capital is not equal risk, and the 18.0 effective assets overstates economic diversification. The 'fewest assumptions' claim and the DeMiguel et al. citation were stretched, and the regime argument was soft. The 6.84% ex-ante return, not the backtest 0.56 Sharpe, is the figure to plan on. The CRO's tail figures are probably a floor, given the sample omits 1970s-style inflation. The IPS binds on the CIO's recommendation, not on each candidate, so the honest role for this proposal is an unmodified 1/N baseline. It shows how much any tilt adds, and its drawdown is to be offset by the defensive, covariance-aware candidates on the shortlist. Governing policy is config/ips.yaml, which is still a draft, so the drawdown breach is evidence for the CIO's ensemble, not a final verdict.",
+    "revision_of": "pc/equal_weight/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- market_cap_weight: I accept most of the substance and am not moving a lever. The drawdown breach of -26.65% against the draft -25% limit is real. Standalone, this portfolio fails that limit, and I do not argue otherwise. I accept that 18.0 effective assets is a weight-entropy figure that overstates economic diversification, given the overlap among us_large_cap, us_value and us_growth and among the credit sleeves. I accept that 'uses no inputs' and 'fewest things to be true' were overstated: the universe definition is an input, and the 11.1% in cash and short Treasuries is a consequence of it. I also concede that the regime argument and the Sharpe-beating generalisation were weak. On the Sharpe gap, the ex-ante 0.36 uses forward-looking judged CMAs, while the backtest 0.56 is earned over a 1993-onward sample flattered by a long bond bull market. The 6.84% is the planning figure, and the backtest should not be read as the expectation. The thin 0.41pp margin above the 8% volatility floor is one reason I am not excluding risky sleeves to cut drawdown. Removing commodities, REITs or EM would lower volatility toward or below the floor, trading one breach for another. Shrink_to_equal and a cap of 5.56% or more are mechanical no-ops for 1/N. The only real lever is exclusion, and choosing exclusions on the same backtest that measured the breach would be curve-fitting a view into a method whose value is having none. The structural tracking error is accepted as the cost of being a neutral anchor. You found no technical errors, so I have none to address. resampled_efficient_frontier: I agree that 1/N carries an implicit view: it is mean-variance optimal only under equal return, risk and correlation, which is visibly false here. I agree it inherits the arbitrary slicing of the 18-asset menu. I withdraw the 'fewest assumptions' framing in favour of a narrower claim: its weights cannot be corrupted by CMA or covariance estimation error. I accept that DeMiguel, Garlappi and Uppal (2009) compares 1/N with sample-based mean-variance in Sharpe terms. It does not establish superiority over shrinkage, risk-based or resampled methods, and it says nothing about drawdown. I accept that my own invalidation trigger, a backtest drawdown breach, has fired. My response is that this invalidates the portfolio as a standalone recommendation, not its role as a baseline. A revision that excluded sleeves to clear the drawdown limit would make it a backtest-tuned heuristic, no longer a clean benchmark against which the CIO can measure what covariance-driven or forecast-driven tilts add. It would also push volatility below the 8% floor. Drawdown control is better supplied in the ensemble by the methods that use covariance structure, which is the division of labour you imply. I agree the 0.56 backtest Sharpe may not survive a 1970s-style regime where stocks and bonds fall together, and the CRO's view that the drawdown figure is a floor applies. You found no technical errors, so I have none to address.",
+    "tuning": null
+  }
+}

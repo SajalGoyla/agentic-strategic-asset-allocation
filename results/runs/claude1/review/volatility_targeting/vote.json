@@ -1,0 +1,158 @@
+{
+  "header": {
+    "schema_version": "5.0.0",
+    "contract": "vote",
+    "agent": "vote-volatility-targeting",
+    "pipeline_run_id": "claude1",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-10-28T20:42:31.960339Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261019T212802Z",
+        "sha256": "4d62b0b6c468425ff016651af3c1907128642c29c06fe7eb244e05c54cee5068"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261001T204124Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261019T212802Z",
+        "sha256": "6e09debe0c791c7a9c5ec21481d4f2ed124439ea6747e8f5701114923d2186ef"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261019T212802Z",
+        "sha256": "b04dc3ec53fb7306592f5b4ceebf77402c84df8d8fdc3332b26d0edeabec6f13"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "draft",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 325,
+        "output_tokens": 896,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.043135
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "volatility_targeting",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "black_litterman",
+      "cvar_minimization",
+      "pc_researcher",
+      "tail_risk_parity"
+    ],
+    "bottom_flag": "hierarchical_risk_parity",
+    "rationale": "Governing IPS is still a draft, so compliance is provisional. I am volatility_targeting (heuristic) and ranked only others. First: resampled_efficient_frontier. It has no hard IPS breaches, effective N of 13.3, and a moderate 4.33% tracking error. Its reviewers flagged the gamma-tuning wording and the CMA-bias premise, but those are disclosure issues, not a broken portfolio. It leans on covariance structure and diversifies against CMA noise, which suits a late-cycle regime. Second: black_litterman. It is compliant with 3.01% TE and a 0.70 backtest Sharpe. The gamma-direction inconsistency noted in review is a documentation error and the volatility sits at the band floor. Third: cvar_minimization. It is compliant, has the best backtest Sharpe in the field (0.74), and brings a tail-aware non-traditional view, which helps family spread. Its weakness is thin tail data (about 20 months in the worst 5%) and a return-target tuned to the band. Fourth: pc_researcher. It has a high Sharpe (0.51) and effective N of 7.2, with only two IPS breaches (volatility and tracking error). The reviewer-spotted Sharpe above max_sharpe suggests the constraints were not applied as described, which holds it back. Fifth: tail_risk_parity. It is a covariance-based, forecast-free risk-structured-style building block with a -7.2% drawdown and modest tracking error vs other defensive options, adding family breadth. Its reviewers' concern that cash weight rests on a near-zero downside denominator is real, but it is less severe than for HRP. Why first beats fifth: resampled_efficient_frontier meets the IPS return, volatility and tracking-error bands with no breach and is diversified across 13 effective assets. tail_risk_parity fails all three hard bands (return, volatility, tracking error) and would need repair before the CIO could use it. Flag: hierarchical_risk_parity. It holds 91.9% cash with 1.4 effective assets, 0.65% volatility, and breaches return, volatility and tracking error. The reviews describe cash dominance as the method working on a variance-only criterion, not diversification, so it gives the CIO little to build from. I left the adversarial diversifier unflagged and unranked: its orthogonality is valuable in an ensemble, but with 1.0 effective N and three breaches it is not a base to lean on."
+  }
+}
