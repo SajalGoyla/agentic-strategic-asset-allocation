@@ -113,7 +113,9 @@ _SPECS = [
         filename=ac.SCENARIOS_FILENAME,
         body=ac.ScenariosBody,
         stage="cma",
-        produced_by=Producer.HYBRID,
+        # Script, not hybrid: the bounds are the extreme candidates and the base is the judge's
+        # own estimate, so there is no judgment model and no model call (decision 57).
+        produced_by=Producer.SCRIPT,
         description="Bull/base/bear scenarios derived from the method range",
     ),
     Spec(

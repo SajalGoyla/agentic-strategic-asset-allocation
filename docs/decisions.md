@@ -833,7 +833,7 @@ Runs used to sit in the git-ignored `data/runs/`, so a teammate picking up the a
 be sent them outside git or pay to rerun them. The owner wants every run in the repository.
 
 Before moving them, all 446 files of `claude1` and `claude2` were scanned. They hold no firm-,
-bond- or fund-level rows, no CRSP identifiers (PERMNO, CUSIP, GVKEY) and no return series; the
+bond- or fund-level rows and no return series; the
 only long series is the 380-month regime history, built from public FRED data. WRDS appears
 only as aggregates quoted in rationales (index payout yields, CAPE) and as the market-cap
 *weights* of the 18 asset classes; headers name dataset versions by hash. No local paths, keys
@@ -845,6 +845,15 @@ ignored lake. Rejected: un-ignoring `data/runs/`, which puts tracked and license
 tree and makes an accidental commit of the latter one `git add` away. Test fixtures redirect
 `runs_dir` with `data_dir`, so a test never writes a tracked run. The development runs
 (`dry1`, `dry2`, `tune_check`, dated `--no-llm` runs) were not copied; only the two paid runs.
+
+**Corrected 2026-11-09.** This entry originally claimed the runs hold "no CRSP identifiers
+(PERMNO, CUSIP, GVKEY)". They do: `crsp:CEF(69251)` appears in 20 tracked files, in the
+`sources` list of `historical_stats.json` and the reports built from it. The audit's conclusion
+stands and nothing needs removing -- that PERMNO is already committed in `config/universe.yaml`
+as `permno: 69251`, where `crsp_permno` is a documented config field, so it is an identifier we
+publish by design rather than an extract. What was wrong was the sweeping claim. A source label
+plus a date range is provenance; it carries no licensed rows and no return series, which is the
+line the owner's 2026-10-01 ruling actually draws.
 
 ### 55. The deflator is the Cleveland Fed's 3-year expected inflation — settled, 2026-11-09
 Decision 38 established that the real-return test has to deflate by *expected* inflation over
@@ -914,3 +923,66 @@ changed and `SCHEMA_VERSION` did not move.
 Rejected: flipping straight to `ratified` with the project owner as signatory. The field records
 who ratified, the document's own rule reserves that for faculty, and a governance record that
 overstates its approval is worth less than one that is accurate about what is outstanding.
+
+### 57. Eighteen asset-class description files, scenarios, and the 13-section case — settled, 2026-11-09
+Three Exhibit 3 components that were missing, built together because they depend on each other.
+
+**Eighteen description files, not one shared prompt.** §3.3: "Each agent has its own description
+file with appropriate asset class-specific instructions", read "at runtime", and Exhibit 3 makes
+"Key considerations" a named component. We had one shared `cma_judge/AGENT.md` for all 18, which
+bought a cached prefix -- 71% of stage-2 prompt volume read from cache on `claude2`, at a tenth
+of price -- and cost every asset its own guidance. Nothing told the Large Cap judge about index
+concentration or buyback yield, or the gold judge that no discounted-cash-flow method applies.
+
+Both are now available: `assets/<asset_id>.md` carries the per-asset description and
+`build_prompt` prepends it to that asset's own message, while `system_prompt()` stays
+asset-agnostic and therefore stays one cached prefix. A test asserts no asset's guidance leaks
+into the shared prefix, and `asset_description` raises on a missing file rather than falling
+through to generic instructions -- a judge that never saw its asset's considerations is not
+Exhibit 3's agent, and the difference would be invisible in the output.
+
+Each file follows Exhibit 3's shape: role, slug, index, category, ETF, history, macro
+sensitivities, valuation lens, required skills, the eight-step workflow, numbered key
+considerations and the output contract. Sensitivity signs are documented as the direction of the
+*asset's return*, not of its earnings, because Exhibit 3's own US Large Cap row pairs "Dollar
+(+)" with a bullet saying a strong dollar hurts earnings; without the convention stated the two
+read as a contradiction. The scored values still come from the measured `dimension_alignment`
+signal, never from these files.
+
+**`scenarios.json` now has a producer.** The contract was written on 2026-09-15 with every other
+contract and no skill ever filled it, so all 18 asset folders held six files instead of seven.
+It went unnoticed because it is the only one of Exhibit 3's outputs with no downstream
+consumer -- nothing reads it, in our pipeline or the paper's, so nothing ever failed. Exhibit 3
+step 8 specifies "bull/bear from method range" and that is what it computes: bear is the lowest
+available candidate, bull the highest, base the judge's estimate, so the bounds are the same
+interval Exhibit 4 confines the judge to. `probability` stays unset because the paper assigns
+none and a method's `confidence` says how much to trust it, not how likely its number is.
+Measured on `claude2`: US Large Cap spans 9.89pp against short Treasuries' 0.85pp, which is the
+honest error bar on the pipeline's least reliable input and was previously invisible.
+
+Its registry `Producer` moves from `HYBRID` to `SCRIPT`. It never had a judgment model, so
+`HYBRID` described an intention rather than the contract.
+
+**The 13-section investment case.** Exhibit 3's headline deliverable -- "Produces 13-section
+investment case" -- with `asset-class-report` among the required skills. **The paper never
+publishes the thirteen sections**: it names the report twice and nowhere enumerates it, so the
+count is the paper's and the contents are reconstructed from Exhibit 3's own workflow. Every
+report says so in its own subtitle rather than implying a fidelity we cannot claim, and
+`skills/asset_class_report/SKILL.md` maps each section to the workflow step and contract behind
+it. If the authors' list surfaces, that table is what changes.
+
+The skill writes no prose of its own: every judgement is quoted from the judge's
+`regime_logic`, `valuation_context`, `signal_alignment` and `rationale`, and section 12 is the
+asset's own key considerations. That keeps decision 8's split intact and makes the failure mode
+visible -- a thin rationale produces a thin section 10, fixed by improving the agent rather than
+by padding the report. It supersedes the two-heading `analysis.md` the historical-analysis skill
+writes, which is why it runs last in stage 2; nothing is lost, as section 4 carries the return
+history and section 13 the sources.
+
+Exhibit 3 step 5 gets no section. Sentiment, flows and positioning come from a runtime web
+search the pipeline does not do (decision 26), and section 13 says so rather than leaving the
+omission to be noticed.
+
+Two bugs the tests found: `Signal.value` is nullable and the renderer assumed a float, and
+`CmaJudgment` has no `notes` field (that is on the PC proposal). Both fixed before the skill ran
+on anything.

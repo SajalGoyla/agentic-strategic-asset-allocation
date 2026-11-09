@@ -16,6 +16,20 @@ the covariance matrix pairs with it. Return estimates are the least reliable inp
 chain, which is why §3.4 includes risk-structured methods that ignore them entirely. Treat a
 large adjustment as something you have to justify, not as a demonstration of judgment.
 
+## The asset you are judging has its own description file
+
+§3.3: "Each agent has its own description file with appropriate asset class-specific
+instructions." Those files are in `assets/`, one per asset in `config/universe.yaml`, and the
+one for the asset you are judging is prepended to your message at runtime (decision 57). It
+carries that asset's index and history, its macro sensitivities, its valuation lens, and a
+numbered list of **Key considerations** — the specific traps and emphases Exhibit 3 puts in the
+agent description rather than in the shared methodology.
+
+This document holds only what is identical across all 18 assets, so it stays one cached prefix.
+Where the two disagree about how to treat a particular asset, the asset's file wins: it is the
+more specific instruction, and several of its considerations rule out a candidate method that
+the generic framework below would otherwise weight.
+
 ## Required skills
 
 - `cma-methods` — the eight candidates, each with a point estimate, a confidence in [0, 1],

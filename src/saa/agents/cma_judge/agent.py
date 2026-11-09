@@ -10,8 +10,10 @@ that breaks it, and ``LlmClient.judge`` feeds a rejection back for another attem
 drifts outside the candidate range is not expressing a view, it is inventing a number.
 
 The 18 assets are independent, so they run concurrently against one shared system prompt, which
-is cached: the agent description and the skill methodology are identical for every asset, and
-only the per-asset evidence changes.
+is cached: the shared agent description and the skill methodology are identical for every asset.
+What varies per asset goes in that asset's own message -- its evidence, and its description file
+from ``assets/`` (Exhibit 3's asset-class-specific instructions, decision 57). Splitting it this
+way keeps one cached prefix for all 18 while still giving each judge its own instructions.
 """
 
 from __future__ import annotations
@@ -46,6 +48,9 @@ log = logging.getLogger(__name__)
 AGENT = "cma-judge"
 AGENT_DIR = Path(__file__).parent
 SKILL_PATH = PROJECT_ROOT / "src" / "saa" / "skills" / "cma_methods" / "SKILL.md"
+# Exhibit 3: "Each agent has its own description file with appropriate asset class-specific
+# instructions", read "at runtime". One per asset in config/universe.yaml (decision 57).
+ASSETS_DIR = AGENT_DIR / "assets"
 REPORT = "cma.md"
 DEFAULT_WORKERS = 4
 
@@ -92,11 +97,33 @@ class CmaJudgeResult:
 
 # ------------------------------------------------------------------------------- prompting
 def system_prompt() -> str:
-    """The agent description plus the skill methodology, per §3.2."""
+    """The shared agent description plus the skill methodology, per §3.2.
+
+    Deliberately asset-agnostic so it stays one cached prefix across all 18 assets: the
+    per-asset description is appended to each asset's own message by `build_prompt` instead.
+    """
     parts = [(AGENT_DIR / "AGENT.md").read_text(encoding="utf-8")]
     if SKILL_PATH.exists():
         parts.append("\n\n---\n\n" + SKILL_PATH.read_text(encoding="utf-8"))
     return "".join(parts)
+
+
+def asset_description(asset_id: str) -> str:
+    """This asset's own description file (§3.3, Exhibit 3), read at runtime.
+
+    Exhibit 3 makes asset-class-specific guidance a component of the agent, with its own
+    examples: US Small Cap compares against large cap and corporate debt, investment-grade
+    corporates emphasise credit-spread duration. Missing is a hard error rather than a silent
+    fall-through to generic guidance -- a judge that never saw its asset's instructions is not
+    the agent Exhibit 3 describes, and the difference would be invisible in the output.
+    """
+    path = ASSETS_DIR / f"{asset_id}.md"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"no asset description for {asset_id!r}: expected {path}. "
+            "Every asset in config/universe.yaml needs one (Exhibit 3)."
+        )
+    return path.read_text(encoding="utf-8")
 
 
 def _methods_table(methods: CmaMethodsBody) -> str:
@@ -185,6 +212,10 @@ def build_prompt(
 
     return f"""Select the final capital market assumption for **{evidence.asset_id}**.
 
+{asset_description(evidence.asset_id)}
+
+---
+
 As-of date: {as_of}
 Horizon: {methods.horizon_years} years, nominal, arithmetic annual return in percent
 Volatility (from the covariance matrix): {methods.volatility_pct:.2f}%
@@ -220,6 +251,11 @@ Hard constraints:
 
 Fill `regime_logic`, `valuation_context` and `signal_alignment` with reasoning specific to this
 asset — not restatements of the tables above — and give an overall `rationale` for the choice.
+
+Address the **Key considerations** above where they bear on the estimate. Several of them say a
+candidate method is structurally inapplicable to this asset or that a headline number
+overstates its return; if one of those applies, say what you did about it rather than weighting
+the method anyway without comment.
 """
 
 
