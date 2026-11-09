@@ -74,7 +74,9 @@ cannot do:
 - `single_method` means exactly one method carries weight.
 - Do not re-derive any candidate's number. They are computed; you weigh them.
 - Every one of the four judgment fields must be filled with reasoning specific to this asset.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so in the narrative.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  in the narrative (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off
+  outstanding).
 
 ## Output
 

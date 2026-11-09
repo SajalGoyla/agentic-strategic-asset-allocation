@@ -44,6 +44,8 @@ series:
   - {id: T10YIE, name: 10-year breakeven inflation, dimension: inflation, frequency: d, release_lag_days: 1}
   - {id: T5YIFR, name: 5-year 5-year forward inflation expectation, dimension: inflation, frequency: d, release_lag_days: 1}
   - {id: MICH, name: University of Michigan 1-year inflation expectations, dimension: inflation, frequency: m, release_lag_days: 30}
+  # EXPINF3YR is also the IPS deflator (decision 55): its horizon matches `cma_horizon_years`.
+  - {id: EXPINF3YR, name: Cleveland Fed 3-year expected inflation, dimension: inflation, frequency: m, release_lag_days: 15}
   - {id: EXPINF10YR, name: Cleveland Fed 10-year expected inflation, dimension: inflation, frequency: m, release_lag_days: 15}
 
   # ------------------------------------------------------------------ monetary policy

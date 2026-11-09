@@ -845,3 +845,72 @@ ignored lake. Rejected: un-ignoring `data/runs/`, which puts tracked and license
 tree and makes an accidental commit of the latter one `git add` away. Test fixtures redirect
 `runs_dir` with `data_dir`, so a test never writes a tracked run. The development runs
 (`dry1`, `dry2`, `tune_check`, dated `--no-llm` runs) were not copied; only the two paid runs.
+
+### 55. The deflator is the Cleveland Fed's 3-year expected inflation — settled, 2026-11-09
+Decision 38 established that the real-return test has to deflate by *expected* inflation over
+the CMA horizon, not trailing realised CPI, and named `T5YIE` for it. The reasoning stands; the
+instrument was the nearest thing to hand rather than the right one. `EXPINF3YR` replaces it
+(project owner, 2026-11-09).
+
+Three reasons, all structural rather than numerical. **The horizon matches.** The CMAs are
+3-year forecasts (Exhibit 8) and `T5YIE` is a 5-year rate; FRED publishes no 3-year breakeven,
+but the Cleveland Fed's model does publish a 3-year expectation. **A breakeven is not an
+expectation.** It is an expectation plus an inflation-risk premium minus a TIPS liquidity
+premium, and the two wedges need not cancel. **The fallback stops mattering.** `T5YIE` begins
+in 2003, so every backtest before then silently switched to trailing CPI; `EXPINF3YR` begins in
+1982, which covers every date the asset histories reach. `T5YIE` stays in `macro_series.yaml`
+as the cross-check.
+
+Measured effect on `claude2`'s sixteen portfolios: **none.** Read point-in-time at that run's
+as_of of 2026-10-01 the deflator moves from 2.36% to 2.49%, so the nominal hurdle to clear
+CPI + 3% rises from 5.43% to 5.56% and no candidate changes verdict. The CIO's recommendation
+goes from 4.48% to 4.35% real. This is a correctness change with no effect on any current
+result, which is the cheapest kind to make.
+
+Worth recording why that gap is so small, because the published series differ by more. The
+spot readings on 2026-10-01 were `T5YIE` 2.37% and `EXPINF3YR` 2.82%, a 0.45pp gap that opened
+during September. `EXPINF3YR` is monthly with a 15-day release lag, so a run with an as_of of
+2026-10-01 correctly sees August's 2.49% rather than October's 2.82%. Comparing spot values
+across series of different frequency and lag overstates what a point-in-time run actually
+reads; the `available_from` machinery of decision 4 is what keeps that honest. The gap that
+does matter is against the *fallback*: trailing CPI at 3.71% is 1.22pp away, which would raise
+the hurdle to 6.82% and fail two candidates (CVaR minimisation and maximum entropy).
+
+Also fixed here: `load_config()` validated `inflation_series` against the macro catalog but not
+`expected_inflation_series`, so a typo in the deflator raised nothing — `expected_inflation_pct`
+logs a warning and falls back to trailing CPI, which is the one quantity the docstring says must
+never be used silently. It now fails at load.
+
+What this does *not* settle is that the paper specifies no deflator at all. §4 states "a target
+real return of CPI +3.0-4.0%", §4.1 reports a trailing CPI of 2.4% and an expectation of
+re-acceleration "toward 3%", and §4.4 reports 6.87% nominal without ever converting it. So the
+paper mandates a test (§3.5, §5.2: the CRO "explicitly checks IPS compliance for every candidate
+portfolio") that it never performs, and the choice of deflator is unavoidably ours. Deflating
+the paper's own 6.87% by its own trailing 2.4% gives 4.37% real, which would have breached the
+paper's own CPI + 4% ceiling -- further support for decision 41. Flagged for faculty as
+reasoning rather than as a number: the plausible deflator range (2.41-3.71% on this run, 1.3pp)
+is wider than the paper's entire 1pp objective band.
+
+### 56. The IPS has an owner-approved state between draft and ratified — settled, 2026-11-09
+`status` was `draft | ratified`, and the gap between them had become the whole story. Every
+figure in `config/ips.yaml` is now settled -- by the paper, by a faculty answer of 2026-09-25,
+or by an owner ruling -- and decision 55 closed the last `[proposed]` one. But Prof. Glasserman
+has never been asked to sign the document off as a whole, and answering each question
+individually is not ratification. Calling that state "draft" understated it; calling it
+"ratified" would have been a false record of a sign-off nobody gave.
+
+So `status` is now `draft | owner_approved | ratified`, and the two approvals sit on separate
+fields: `approved_by`/`approved_on` for the owner step, `ratified_by`/`ratified_on` for faculty.
+Ratifying therefore records who signed without overwriting who approved, and a ratified policy
+carries both. The same validator rule applies to each: a status cannot be set without its
+signatory and date.
+
+Agents now key the narrative caveat off `IPS.needs_faculty_signoff` (`status != "ratified"`)
+rather than `IPS.is_draft`, because an owner-approved policy is not a draft but still needs the
+qualification. `IPS.standing` supplies the clause they use, which also removes the hand-rolled
+version in `cio/agent.py`. `header.ips_status` was already a free-form `str`, so no contract
+changed and `SCHEMA_VERSION` did not move.
+
+Rejected: flipping straight to `ratified` with the project owner as signatory. The field records
+who ratified, the document's own rule reserves that for faculty, and a governance record that
+overstates its approval is worth less than one that is accurate about what is outstanding.

@@ -339,6 +339,16 @@ def _cross_validate_ips(ips: IPS, universe: Universe, macro: MacroCatalog) -> No
             "declared in macro_series.yaml"
         )
 
+    # A deflator that is not in the catalog never raises at run time: `expected_inflation_pct`
+    # logs a warning and falls back to trailing CPI, which is a different quantity and worth
+    # 0.89pp on the one test the return objective states (decision 55). Fail at load instead.
+    expected = ips.objectives.return_.expected_inflation_series
+    if expected is not None and expected not in set(macro.ids):
+        raise ValueError(
+            f"ips.yaml expected_inflation_series {expected!r} is not declared in "
+            "macro_series.yaml; it would silently fall back to trailing CPI"
+        )
+
     # The benchmark is a measuring stick, not a candidate allocation: a 60/40 index is
     # concentrated by construction and is deliberately *not* held to the portfolio's
     # diversification bounds. Only well-formedness is checked (the Benchmark model already

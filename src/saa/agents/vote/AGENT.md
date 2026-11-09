@@ -44,7 +44,8 @@ judgment the metric cannot make.
   schema only offers the candidates you may name.
 - The bottom flag, if you use one, must not also be in your top five.
 - Your rationale must say why your first choice beats your fifth.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off outstanding).
 
 ## Output
 

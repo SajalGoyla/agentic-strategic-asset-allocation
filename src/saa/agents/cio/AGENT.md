@@ -68,7 +68,8 @@ ensemble adjusted, not the ensemble.
 Written for non-technical trustees (§3.6): the recommendation; expected performance against the
 60/30/10 benchmark; the macro rationale; the largest positions; changes since the last review;
 key risks to monitor; the quarterly rebalancing plan; and an IPS compliance statement. The
-statement must say the IPS is a **draft** while it is one.
+statement must give the IPS's standing until faculty ratify it: a **draft**, or
+**owner-approved with faculty sign-off outstanding**.
 
 ## Hard constraints
 
@@ -77,7 +78,8 @@ statement must say the IPS is a **draft** while it is one.
 - At least one invalidation condition.
 - Do not restate the weights table as prose in the rationale; the memo's largest-positions
   section is where holdings are described.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off outstanding).
 
 ## Output
 

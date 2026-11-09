@@ -139,28 +139,29 @@ class StageInputs:
 
 
 def expected_inflation_pct(store: DataStore, config: Config, as_of: pd.Timestamp) -> float | None:
-    """Inflation over the CMA horizon, for the IPS real-return test (decision 38).
+    """Inflation over the CMA horizon, for the IPS real-return test (decisions 38 and 55).
 
     The CMAs are nominal forecasts over `objectives.cma_horizon_years`, so the deflator has to
-    be *expected* inflation over that horizon -- which is what the field in `PortfolioMetrics`
-    has always been called. A market breakeven rate is the direct observation of it;
-    `expected_inflation_series` in the IPS names which one. Trailing realised CPI is the
-    fallback, and only the fallback: it is a different quantity, it was 1.3pp away from the
-    breakeven on 2026-10-06, and the gap decides compliance.
+    be *expected* inflation over that same horizon -- which is what the field in
+    `PortfolioMetrics` has always been called. `expected_inflation_series` in the IPS names
+    which observation of it: EXPINF3YR, whose horizon matches. Trailing realised CPI is the
+    fallback, and only the fallback: it is a different quantity, it was 1.22pp away from the
+    deflator at an as_of of 2026-10-01, and the gap decides compliance.
     """
     objective = config.ips.objectives.return_
     series = objective.expected_inflation_series
     if series:
-        breakeven = store.macro(series, as_of=as_of).dropna()
-        if len(breakeven):
-            return float(breakeven.iloc[-1, 0])
+        expected = store.macro(series, as_of=as_of).dropna()
+        if len(expected):
+            return float(expected.iloc[-1, 0])
         log.warning(
             "%s has no observation on %s; falling back to trailing %s",
             series,
             as_of.date(),
             objective.inflation_series,
         )
-    # Before TIPS breakevens exist (they start in 2003) a backtest has only realised CPI.
+    # Only where the expected-inflation series has no observation at all. EXPINF3YR starts in
+    # 1982, so this is now unreachable for any date the asset histories cover.
     cpi = store.macro(objective.inflation_series, as_of=as_of).dropna()
     if len(cpi) > 12:
         return float(cpi.iloc[-1, 0] / cpi.iloc[-13, 0] - 1) * 100

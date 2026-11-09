@@ -74,21 +74,48 @@ def test_ips_loads_and_matches_the_paper(ips):
     assert ips.objectives.cma_horizon_years == 3
 
 
-def test_the_policy_is_still_a_draft(ips):
-    """Faculty answered the open questions on 2026-09-25 but did not sign the document off.
+def test_the_policy_is_owner_approved_and_not_yet_ratified(ips):
+    """Decision 56. Every figure is settled -- by the paper, a faculty answer or an owner
+    ruling -- and the project owner has approved the document, so it is no longer a draft.
 
-    Answering individual questions is not ratification, so agents keep recording that they ran
-    against a draft until someone explicitly ratifies it.
+    Faculty answered each open question on 2026-09-25 but have not signed the document off,
+    and answering individual questions is not ratification. So agents keep stating the
+    policy's standing, and the two approvals stay on separate fields.
     """
-    assert ips.status == "draft"
+    assert ips.status == "owner_approved"
+    assert ips.approved_by and ips.approved_on
     assert ips.ratified_by is None and ips.ratified_on is None
-    assert ips.is_draft is True
+    assert ips.is_draft is False
+    assert ips.needs_faculty_signoff is True
+    assert "faculty sign-off still outstanding" in ips.standing
 
 
 def test_ratifying_requires_a_signatory_and_a_date(ips):
     payload = ips.model_dump(by_alias=True)
+    payload["ratified_by"] = payload["ratified_on"] = None
     with pytest.raises(ValidationError, match="needs both ratified_by and ratified_on"):
         type(ips).model_validate({**payload, "status": "ratified"})
+
+
+def test_owner_approval_requires_a_signatory_and_a_date(ips):
+    """The same rule on the owner step, so a status bump cannot land without a record of it."""
+    payload = ips.model_dump(by_alias=True)
+    payload["approved_by"] = payload["approved_on"] = None
+    with pytest.raises(ValidationError, match="needs both approved_by and approved_on"):
+        type(ips).model_validate({**payload, "status": "owner_approved"})
+
+
+def test_only_ratification_clears_the_caveat(ips):
+    """`needs_faculty_signoff` is what agents key off, not `is_draft`: an owner-approved policy
+    is not a draft but still carries the caveat."""
+    payload = ips.model_dump(by_alias=True)
+    ratified = type(ips).model_validate(
+        {**payload, "status": "ratified", "ratified_by": "Faculty", "ratified_on": "2026-11-09"}
+    )
+    assert ratified.needs_faculty_signoff is False
+    assert ratified.is_draft is False
+    assert ratified.standing == "ratified"
+    assert ratified.approved_by == ips.approved_by, "ratifying keeps the owner approval"
 
 
 def test_benchmark_matches_the_split_faculty_chose(ips):

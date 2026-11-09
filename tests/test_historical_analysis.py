@@ -187,7 +187,7 @@ def test_outputs_are_valid_contracts_in_the_run_layout(store, run):
     assert stats.header.pipeline_run_id == "20260915T120000Z"
     assert stats.header.agent == "us-large-cap"
     assert stats.header.as_of.isoformat() == "2026-09-15"
-    assert stats.header.ips_status in {"draft", "ratified"}
+    assert stats.header.ips_status in {"draft", "owner_approved", "ratified"}
     assert stats.header.report_path == "cma/us_large_cap/analysis.md"
     assert stats.header.provenance["market/asset_returns_monthly"].run_id == "r1"
 

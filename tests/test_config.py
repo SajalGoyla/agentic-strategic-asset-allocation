@@ -1,5 +1,6 @@
 from collections import Counter
 
+import pytest
 import yaml
 
 from saa.data.datasets import DATASETS
@@ -24,3 +25,24 @@ def test_cma_inputs_reference_known_datasets(config):
     for method in spec["methods"].values():
         for input_name in method["inputs"]:
             assert input_name in spec["inputs"]
+
+
+def test_ips_deflator_is_a_declared_macro_series(config):
+    """The deflator is the one IPS figure whose absence fails silently: `expected_inflation_pct`
+    logs a warning and falls back to trailing CPI, a different quantity worth 1.22pp on the
+    return test (decision 55). `load_config` must reject it instead."""
+    from saa.config import _cross_validate_ips
+
+    assert config.ips.objectives.return_.expected_inflation_series in set(config.macro.ids)
+
+    broken = config.ips.model_copy(deep=True)
+    broken.objectives.return_.expected_inflation_series = "NOT_A_FRED_SERIES"
+    with pytest.raises(ValueError, match="expected_inflation_series"):
+        _cross_validate_ips(broken, config.universe, config.macro)
+
+
+def test_ips_deflator_horizon_matches_the_cma_horizon(config):
+    """EXPINF3YR is a 3-year expectation and the CMAs are 3-year forecasts (Exhibit 8). If the
+    CMA horizon ever moves, the deflator has to move with it."""
+    assert config.ips.objectives.cma_horizon_years == 3
+    assert config.ips.objectives.return_.expected_inflation_series == "EXPINF3YR"

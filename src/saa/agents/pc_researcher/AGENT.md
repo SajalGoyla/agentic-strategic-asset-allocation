@@ -39,7 +39,8 @@ diversifier counts it in the centroid it moves away from.
 - Choose exactly one method from the list. A method the pipeline cannot run cannot be reviewed.
 - Name at least one concrete weakness.
 - Do not claim the method is unconditionally better than the registry.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off outstanding).
 
 ## Output
 

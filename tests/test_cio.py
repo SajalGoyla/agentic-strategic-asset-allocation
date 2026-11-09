@@ -212,7 +212,11 @@ def test_the_free_cio_recommends_a_compliant_allocation_and_writes_the_memo(full
     assert len(body.method_scores) == len(pc_agent.ROSTER)
     assert body.invalidation_conditions
     memo = (run.root / "reports" / "board_memo.md").read_text(encoding="utf-8")
-    assert "draft, not yet ratified" in memo
+    # The memo must give trustees the policy's actual standing, whatever it currently is
+    # (decision 56), so this tracks the config rather than pinning one wording.
+    assert cfg.ips.standing in memo
+    assert cfg.ips.needs_faculty_signoff, "update this test when faculty ratify the IPS"
+    assert "outstanding" in memo
     assert decision.header.report_path == "reports/board_memo.md"
     assert (run.root / "reports" / "cio_ensembles.md").exists()
 

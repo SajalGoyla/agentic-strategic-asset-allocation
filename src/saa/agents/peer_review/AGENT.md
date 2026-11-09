@@ -55,7 +55,8 @@ against the field is the vote's job.
 - Do not argue for your own method, and do not rank this proposal against others.
 - `score` is your assessment of this proposal's quality, 0 to 1. It is not a vote.
 - Reviews are simultaneous: write what you would stand behind if it were read aloud.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off outstanding).
 
 ## Output
 

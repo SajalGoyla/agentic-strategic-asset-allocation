@@ -8,11 +8,14 @@
 # Provenance of every number below:
 #   [paper]     stated in Ang et al. §4 (or Exhibit 8 for the CMA horizon)
 #   [faculty]   answered by Prof. Glasserman, 2026-09-25 -- the paper does not publish it
-#   [proposed]  still ours, not yet put to faculty
+#   [owner]     ruled by the project owner, with the reasoning in docs/decisions.md
+#   [proposed]  still ours, not yet put to faculty -- none remain as of 2026-11-09
 #
-# `status` stays `draft` until faculty explicitly ratify the document as a whole. Answering
-# individual questions is not the same as signing it off, and every agent records which
-# version and status it ran under.
+# `status` has three states (decision 56). `draft` while any figure is open; `owner_approved`
+# once every figure is settled by the paper, a faculty answer or an owner ruling and the project
+# owner has approved the document; `ratified` only once faculty sign the document off. Answering
+# individual questions is not the same as signing it off, so the two approvals are recorded
+# separately and every agent records which version and status it ran under.
 #
 # Severities: `hard` violations disqualify the portfolio the CIO recommends (§3.6: IPS
 # compliance is non-negotiable for the CIO). Candidate portfolios from the PC agents are not
@@ -22,7 +25,13 @@
 # weights summing to 1) are always hard and carry no severity field.
 
 version: 0.2
-status: draft # draft | ratified
+status: owner_approved # draft | owner_approved | ratified
+# Every figure below is settled: tagged [paper], [faculty] or [owner], with no [proposed] left.
+approved_by: Shambhawi Bhure (project owner)
+approved_on: 2026-11-09
+# Outstanding: Prof. Glasserman answered every open question on 2026-09-25 but has not been
+# asked for a document-level sign-off. That is the only thing between here and `ratified`, and
+# it reopens none of the figures below.
 ratified_by: null
 ratified_on: null
 
@@ -59,12 +68,15 @@ objectives:
     min_pct: 3.0
     # The index the objective is stated against.
     inflation_series: CPIAUCSL
-    # [proposed] What the CMAs are actually deflated by. They are nominal 3-year forecasts, so
-    # the deflator is expected inflation over that horizon, not trailing realised CPI --
-    # 2.41% against 3.71% on 2026-10-06, and the gap decides compliance (decision 38). T5YIE is
-    # the closest market breakeven to the 3-year horizon. Falls back to trailing
-    # `inflation_series` where no breakeven exists, which a backtest before 2003 needs.
-    expected_inflation_series: T5YIE
+    # [owner, 2026-11-09] What the CMAs are actually deflated by. They are nominal forecasts over
+    # `cma_horizon_years`, so the deflator is expected inflation over that same horizon, not
+    # trailing realised CPI -- 2.49% against 3.71% at an as_of of 2026-10-01, and the gap decides
+    # compliance (decisions 38 and 55). EXPINF3YR is the Cleveland Fed's 3-year expectation: it
+    # matches the CMA horizon exactly, it models out the inflation-risk and TIPS-liquidity premia
+    # a market breakeven embeds, and it starts in 1982, so no backtest we can run falls back.
+    # T5YIE, the 5-year breakeven used until decision 55, stays ingested as the cross-check.
+    # Falls back to trailing `inflation_series` only where this series has no observation.
+    expected_inflation_series: EXPINF3YR
     # [faculty] hard: earning less than CPI + 3% is a breach of policy.
     severity: hard
 
