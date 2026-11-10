@@ -25,15 +25,17 @@
 # weights summing to 1) are always hard and carry no severity field.
 
 version: 0.2
-status: owner_approved # draft | owner_approved | ratified
+status: ratified # draft | owner_approved | ratified
 # Every figure below is settled: tagged [paper], [faculty] or [owner], with no [proposed] left.
 approved_by: Shambhawi Bhure (project owner)
 approved_on: 2026-11-09
-# Outstanding: Prof. Glasserman answered every open question on 2026-09-25 but has not been
-# asked for a document-level sign-off. That is the only thing between here and `ratified`, and
-# it reopens none of the figures below.
-ratified_by: null
-ratified_on: null
+# Ratified on the basis of Prof. Glasserman's emailed answers of 2026-09-25, which settled every
+# question put to him -- permitted instruments, weight limits, drift triggers, the severity of
+# each limit, the benchmark split and the return ceiling. The two [owner] figures (the floor-only
+# return objective, decision 41, and the EXPINF3YR deflator, decision 55) postdate those answers
+# and are recorded as FYIs to him rather than as open questions.
+ratified_by: Prof. Paul Glasserman (emailed answers, 2026-09-25), recorded by Shambhawi Bhure
+ratified_on: 2026-11-09
 
 # --------------------------------------------------------------------- layer 1: universe
 universe:

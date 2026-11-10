@@ -74,20 +74,19 @@ def test_ips_loads_and_matches_the_paper(ips):
     assert ips.objectives.cma_horizon_years == 3
 
 
-def test_the_policy_is_owner_approved_and_not_yet_ratified(ips):
-    """Decision 56. Every figure is settled -- by the paper, a faculty answer or an owner
-    ruling -- and the project owner has approved the document, so it is no longer a draft.
+def test_the_policy_is_ratified_and_both_approvals_are_recorded(ips):
+    """Decision 59. Ratified on 2026-11-09 on the basis of Prof. Glasserman's emailed answers
+    of 2026-09-25, which settled every question put to him.
 
-    Faculty answered each open question on 2026-09-25 but have not signed the document off,
-    and answering individual questions is not ratification. So agents keep stating the
-    policy's standing, and the two approvals stay on separate fields.
+    The owner approval is kept alongside it rather than overwritten (decision 56), so the
+    record shows both who approved the document and on what faculty basis it was ratified.
     """
-    assert ips.status == "owner_approved"
-    assert ips.approved_by and ips.approved_on
-    assert ips.ratified_by is None and ips.ratified_on is None
+    assert ips.status == "ratified"
+    assert ips.ratified_by and ips.ratified_on
+    assert ips.approved_by and ips.approved_on, "ratifying must not erase the owner approval"
     assert ips.is_draft is False
-    assert ips.needs_faculty_signoff is True
-    assert "faculty sign-off still outstanding" in ips.standing
+    assert ips.needs_faculty_signoff is False
+    assert ips.standing == "ratified"
 
 
 def test_ratifying_requires_a_signatory_and_a_date(ips):

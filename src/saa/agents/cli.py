@@ -366,6 +366,11 @@ def _run_pc(args, config) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="saa-agent", description="Agentic SAA pipeline agents")
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
+    parser.add_argument(
+        "--allow-stale",
+        action="store_true",
+        help="run even though the lake does not reach the as-of date (warns instead of refusing)",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     _add_macro(sub)
     _add_cma_judge(sub)
@@ -378,6 +383,22 @@ def main(argv: list[str] | None = None) -> int:
         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
     )
     config = load_config()
+
+    # The as-of date is an information cutoff, and nothing else checks the lake reaches it
+    # (decision 60). A paid run is the worst place to find that out, so it is checked before
+    # any agent starts. `llm-check` makes no data claim, so it is exempt.
+    if args.command != "llm-check":
+        from datetime import date
+
+        from saa.data.store import DataStore
+        from saa.data.validation import StaleLakeError, check_asof_coverage
+
+        as_of = date.fromisoformat(args.as_of) if getattr(args, "as_of", None) else date.today()
+        try:
+            check_asof_coverage(DataStore(config), as_of, allow_stale=args.allow_stale)
+        except StaleLakeError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
 
     if args.command == "macro":
         return _run_macro(args, config)

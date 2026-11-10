@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import asdict, dataclass, field
 from datetime import date
 
@@ -13,6 +14,8 @@ from saa.data.datasets import DATASETS
 from saa.data.history import last_complete_month_end, monthly_from_daily
 from saa.data.lake import DataLake
 from saa.data.sources.fred import period_end
+
+log = logging.getLogger(__name__)
 
 PASS, WARN, FAIL = "PASS", "WARN", "FAIL"
 
@@ -415,3 +418,97 @@ def _check_spf(config: Config, df: pd.DataFrame, report: ValidationReport, today
             f"latest survey {dates.iloc[-1].date()} ({age}d ago)",
             var,
         )
+
+
+# --------------------------------------------------------------- as-of coverage (decision 60)
+# The `as_of` date is an information cutoff, not a timestamp: every DataStore query filters on
+# `available_from`, so it decides what the agents are allowed to know. Nothing checked that the
+# lake actually *reaches* that date, so a run with `as_of` set to today against a lake two months
+# behind silently produced September numbers in a run header asserting November -- no error, and
+# every narrative discussing "current" conditions out of date. A paid run is the worst place to
+# discover that, so it is checked before one starts.
+class StaleLakeError(RuntimeError):
+    """The data lake does not reach the run's as-of date."""
+
+
+# A month-end release lag: the panel may legitimately lack the month that just ended for a few
+# days while sources publish. Beyond that, a missing month is missing data, not a release lag.
+MONTH_END_GRACE_DAYS = 7
+
+
+@dataclass(frozen=True)
+class AsOfCoverage:
+    """How far the lake's usable data reaches against a run's information cutoff."""
+
+    as_of: date
+    latest_month: date | None
+    expected_month: date
+    months_missing: int
+    stale: bool
+    detail: str
+
+
+def asof_coverage(returns_last_month: date | None, as_of: date) -> AsOfCoverage:
+    """Compare the spliced return panel's last month against the last month `as_of` implies.
+
+    The test is not a day count but "does the panel reach the last complete month end before
+    `as_of`" -- the exact question, with no threshold to argue about. The monthly panel is the
+    binding series: the covariance matrix, every backtest and the momentum signals are built
+    from it, so if it stops short the whole run is as of that earlier month whatever the header
+    says. Within `MONTH_END_GRACE_DAYS` of a month end the just-ended month is not yet expected.
+    """
+    expected = last_complete_month_end(pd.Timestamp(as_of))
+    if (pd.Timestamp(as_of) - expected).days <= MONTH_END_GRACE_DAYS:
+        expected = last_complete_month_end(expected)
+    expected_date = expected.date()
+
+    if returns_last_month is None:
+        return AsOfCoverage(
+            as_of=as_of,
+            latest_month=None,
+            expected_month=expected_date,
+            months_missing=-1,
+            stale=True,
+            detail="the spliced return panel is empty; run `uv run saa-data ingest`",
+        )
+
+    missing = 0
+    cursor = expected
+    while cursor.date() > returns_last_month:
+        missing += 1
+        cursor = last_complete_month_end(cursor)
+    stale = missing > 0
+    if stale:
+        detail = (
+            f"monthly returns reach {returns_last_month}, but an as-of of {as_of} expects "
+            f"{expected_date}: {missing} month(s) missing. This run would be as of "
+            f"{returns_last_month} in all but its header. Run `uv run saa-data ingest`, or "
+            f"pass --as-of {returns_last_month} to say so plainly."
+        )
+    else:
+        detail = f"monthly returns reach {returns_last_month}, covering an as-of of {as_of}"
+    return AsOfCoverage(
+        as_of=as_of,
+        latest_month=returns_last_month,
+        expected_month=expected_date,
+        months_missing=missing,
+        stale=stale,
+        detail=detail,
+    )
+
+
+def check_asof_coverage(store, as_of: date, *, allow_stale: bool = False) -> AsOfCoverage:
+    """Raise unless the lake reaches `as_of`. `allow_stale` downgrades it to a warning."""
+    panel = store.returns()
+    last = None
+    if not panel.empty:
+        ends = [panel[c].dropna().index.max() for c in panel.columns]
+        ends = [e for e in ends if e is not None and not pd.isna(e)]
+        if ends:
+            last = min(ends).date()  # usable only as far as the shortest column reaches
+    coverage = asof_coverage(last, as_of)
+    if coverage.stale and not allow_stale:
+        raise StaleLakeError(coverage.detail)
+    if coverage.stale:
+        log.warning("stale lake, continuing on --allow-stale: %s", coverage.detail)
+    return coverage

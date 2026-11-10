@@ -1009,3 +1009,52 @@ working note, rather than at the case. The two serve different readers — `cma.
 judgment step's audit record and the case is the document a human reviews — and
 `reports/asset_class_cases.md` indexes all 18 cases, so discoverability does not depend on that
 pointer.
+
+### 59. The IPS is ratified — settled, 2026-11-09
+Decision 56 put the IPS at `owner_approved` with faculty sign-off outstanding, on the ground
+that answering individual questions is not ratifying a document. The project owner ratified it
+on 2026-11-09 on the basis of Prof. Glasserman's emailed answers of 2026-09-25, which settled
+every question that was put to him: permitted instruments ("I agree with no leverage, no
+shorting"), weight limits ("why rule out the possibility of going all in on one asset class"),
+drift triggers ("let's skip the drift triggers and just go with quarterly rebalancing"), the
+severity of each limit ("treat them as hard constraints"), the benchmark's bond split, and the
+return ceiling ("I could see dropping the ceiling entirely").
+
+`ratified_by` records both the faculty basis and who recorded it, because those are different
+facts and a governance field that blurs them is worth less than one that does not. `approved_by`
+is kept alongside, as decision 56 designed.
+
+Two `[owner]` figures postdate those answers and are recorded as FYIs rather than open
+questions: the floor-only return objective (decision 41), which is the option his own email
+offered — "I could see dropping the ceiling entirely" — and the `EXPINF3YR` deflator
+(decision 55), on a question the paper leaves unspecified.
+
+`IPS.needs_faculty_signoff` is now false, so every agent narrative drops its qualification and
+the board memo's compliance statement reads "Governed by IPS v0.2, which is ratified". Two tests
+were written as tripwires for exactly this moment and both fired, in `test_ips.py` and
+`test_cio.py`.
+
+### 60. A run refuses to start when the lake does not reach its as-of date — settled, 2026-11-09
+`as_of` is an information cutoff, not a timestamp: every `DataStore` query filters on
+`available_from`, so it decides what the agents may know. Nothing checked that the lake actually
+*reaches* it. A run with `as_of` defaulted to today against a lake whose monthly panel ended six
+weeks earlier produced September numbers under a November header, with no error and every
+narrative discussing "current" conditions that were two months old. The cost of discovering that
+during a paid run is the whole run.
+
+`check_asof_coverage` compares the spliced monthly panel's last month against the last complete
+month end before `as_of`, and `saa-agent` calls it before any agent starts. The monthly panel is
+the right series to test because the covariance matrix, every backtest and the momentum signals
+are built from it, so if it stops short the run is as of that earlier month whatever the header
+says. The panel is taken as usable only as far as its *shortest* column reaches, so one lagging
+asset cannot hide behind seventeen current ones.
+
+The test is "does it reach the expected month end", not a day count, which leaves no threshold
+to argue about -- a 40-day gap is fine in early October and means a missing month in November.
+The only tolerance is `MONTH_END_GRACE_DAYS = 7`, for the days a just-ended month takes to
+publish. The error names both remedies: ingest, or pass the earlier `--as-of` and say so plainly.
+
+`--allow-stale` downgrades it to a warning, for deliberately re-running an old as-of against a
+newer lake. Checked on the agents only, not the skills: skills are free and re-runnable, and
+`scenarios` and `asset-class-report` read run artifacts rather than the lake, so the check would
+block them wrongly. `llm-check` is exempt because it makes no data claim.
