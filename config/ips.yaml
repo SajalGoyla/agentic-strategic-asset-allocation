@@ -132,7 +132,9 @@ rebalancing:
   drift_trigger_pct: null
 
 # [paper] §5.2: the IPS sets "escalation triggers"; adjusting them moves the system between
-# autonomy levels. The specific triggers are ours.
+# autonomy levels. The paper requires them and names none, so all three conditions and both
+# thresholds below are [owner] -- never put to faculty as figures, because there is nothing in
+# the paper to compare them against. The 0.40 fired on both paid runs.
 escalation:
   - condition: hard_violation_unresolved
     action: escalate_to_human
