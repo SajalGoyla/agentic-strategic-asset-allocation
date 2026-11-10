@@ -237,15 +237,17 @@ def test_the_case_notes_the_sentiment_gap(run, config):  # noqa: F811
     assert "No sentiment, flows or positioning" in text
 
 
-def test_the_case_overwrites_the_historical_analysis_stub(run, config):  # noqa: F811
-    """Both write analysis.md; this skill runs last and supersedes it."""
+def test_the_case_owns_analysis_md(run, config):  # noqa: F811
+    """Exhibit 3 lists analysis.md as the agent's output and step 8 makes it the 13-section
+    report, so this skill owns the name. The historical-analysis skill wrote it too until
+    decision 58 moved that stub to history.md -- and because that skill runs first in stage 2,
+    sharing the name meant re-running it silently replaced the finished case."""
+    from saa.skills.historical_analysis.analysis import ASSET_REPORT as HISTORY_REPORT
+
+    assert HISTORY_REPORT != "analysis.md"
     seed_judged(run)
-    path = run.root / "cma" / ASSET / "analysis.md"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("# stub\n\n## Return history sources\n", encoding="utf-8")
     write_outputs(run_reports(run, config, [ASSET]), run)
-    text = path.read_text(encoding="utf-8")
-    assert "# stub" not in text
+    text = (run.root / "cma" / ASSET / "analysis.md").read_text(encoding="utf-8")
     assert "## 13." in text
 
 

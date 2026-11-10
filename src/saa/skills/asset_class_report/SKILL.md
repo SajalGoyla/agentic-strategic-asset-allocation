@@ -51,11 +51,26 @@ The consequence is worth knowing: **the report is only as good as the judge's na
 fields.** A thin `rationale` produces a thin section 10, and that is the right failure mode —
 visible, and fixed by improving the agent rather than by padding the report.
 
-## It supersedes the historical-analysis stub
+## It owns `analysis.md`
 
-`skills/historical_analysis/` also writes `analysis.md`, with return history and sources only.
-This skill overwrites it with the full case, which is why it runs last in stage 2. Nothing is
-lost: section 4 carries the return and risk history and section 13 carries the sources.
+Exhibit 3 lists `analysis.md` among the asset-class agent's outputs and makes the 13-section
+report half of step 8, so `analysis.md` is this skill's file. The historical-analysis skill
+used to write it too, with return history and sources only, and because that skill runs *first*
+in stage 2 a re-run of it silently replaced the finished case with the stub. Its per-asset
+report is now `history.md` (decision 58). Nothing is lost either way: section 4 carries the
+return and risk history and section 13 carries the sources.
+
+## Run it last
+
+It reads five contracts and degrades rather than failing when the optional ones are absent, so
+order matters for completeness, not for safety:
+
+```
+cma-methods -> cma-judge -> scenarios -> asset-class-report
+```
+
+Run before `cma-judge` and it raises with the command to run. Run before `scenarios` and
+section 11 falls back to the candidate range and names the command that would fill it.
 
 ## Usage
 

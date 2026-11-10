@@ -86,7 +86,7 @@ volatility, Sharpe and hit rate. This is the input to the regime-adjusted ERP CM
 ```
 runs/<pipeline_run_id>/cma/<asset_id>/historical_stats.json
 runs/<pipeline_run_id>/cma/<asset_id>/correlation_row.json
-runs/<pipeline_run_id>/cma/<asset_id>/analysis.md        per-asset narrative
+runs/<pipeline_run_id>/cma/<asset_id>/history.md         per-asset return history
 runs/<pipeline_run_id>/reports/historical_analysis.md    table across the 18 assets
 ```
 

@@ -35,8 +35,9 @@ uv run saa-skill covariance               # 18x18 covariance matrix (Ledoit-Wolf
 uv run saa-skill cma-methods              # every CMA candidate per asset -> cma_methods.json
 uv run saa-skill signals                  # asset-level macro/technical/valuation signals
 uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
+# stage 2 closes in this order, after `saa-agent cma-judge` (there is no orchestrator yet):
 uv run saa-skill scenarios --run-id <run>     # bull/base/bear per asset (Exhibit 3 step 8)
-uv run saa-skill asset-class-report --run-id <run>  # the 13-section investment case per asset
+uv run saa-skill asset-class-report --run-id <run>  # the 13-section case; run it last
 uv run saa-skill review-assign --run-id <run> # seeded peer-review pairing (§3.5)
 uv run saa-skill method-scores --run-id <run> # six-dimension score: vote + CIO (§4.4)
 uv run saa-agent llm-check                # one structured call: key, model, schema support

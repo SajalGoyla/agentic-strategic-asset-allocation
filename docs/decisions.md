@@ -986,3 +986,26 @@ omission to be noticed.
 Two bugs the tests found: `Signal.value` is nullable and the renderer assumed a float, and
 `CmaJudgment` has no `notes` field (that is on the PC proposal). Both fixed before the skill ran
 on anything.
+
+### 58. The 13-section case owns `analysis.md`; the history stub moves — settled, 2026-11-09
+Decision 57 added the 13-section case and wrote it to `cma/<asset>/analysis.md`, which Exhibit 3
+lists among the asset-class agent's outputs and step 8 identifies as the report. The
+historical-analysis skill was already writing that filename, with a two-heading return-history
+stub, and it runs *first* in stage 2 — so re-running it after the case was built silently
+replaced a finished investment case with the stub, with no error and nothing in the file saying
+what had happened. Two skills owning one filename in opposite orders is a trap, not a layering.
+
+`skills/historical_analysis/` now writes `cma/<asset>/history.md`, and `historical_stats.json`'s
+`report_path` points there. `analysis.md` belongs to `skills/asset_class_report/` alone. Nothing
+is lost: section 4 of the case carries the return and risk history and section 13 carries the
+spliced sources, so the stub was always a subset.
+
+Rejected: giving the case a different filename instead. Exhibit 3 names `analysis.md` as the
+agent's narrative output and the 13-section report is that narrative, so moving the case would
+have kept our file layout further from the paper's to protect a stub.
+
+Not changed, deliberately: `cma.json`'s `report_path` still points at `cma.md`, the judge's own
+working note, rather than at the case. The two serve different readers — `cma.md` is the
+judgment step's audit record and the case is the document a human reviews — and
+`reports/asset_class_cases.md` indexes all 18 cases, so discoverability does not depend on that
+pointer.
