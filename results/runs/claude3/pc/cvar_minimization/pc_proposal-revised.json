@@ -1,0 +1,184 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "revise-cvar-minimization",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:36:09.498026Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/cvar_minimization/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 11788,
+        "output_tokens": 5778,
+        "cache_read_tokens": 2148,
+        "cost_usd": 0.1743112,
+        "attempts": 2
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "cvar_minimization",
+    "method": "CVaR minimisation",
+    "category": "non_traditional",
+    "weights": {
+      "us_large_cap": 0.4543081716961897,
+      "short_treasuries": 0.013545160891701973,
+      "intermediate_treasuries": 0.3729764908166416,
+      "gold": 0.15917017659546667
+    },
+    "expected_return_pct": 6.376355208231494,
+    "expected_volatility_pct": 8.000768388952634,
+    "sharpe_ratio": 0.3445113111932393,
+    "effective_n": 2.936069224417088,
+    "ex_ante_tracking_error_pct": 3.597182896246789,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I file the original mean-CVaR frontier portfolio unchanged: 45.4% US large cap, 37.3% intermediate Treasuries, 15.9% gold and 1.4% short Treasuries. Both reviewers found no technical error. Their shared fixable concern was concentration and sample-sensitivity from the LP vertex solution. I tested the textbook remedy, a 20% shrink toward equal weight. It raised effective assets to 6.0 and Sharpe to 0.35, but cut volatility to 7.95%, a new hard breach of the ratified IPS 8-12% band. The original is compliant on every hard limit, including the CRO's backtest drawdown (-18.72%). Smaller shrinks or a weight cap move volatility the same way, because they shift weight from equity toward lower-volatility assets. Trading a design concern for a hard policy breach would cost more than it fixes. Both reviewers also judge this proposal most useful as an ensemble ingredient, so the CIO's blend across proposals is the right place to dilute its concentration. I narrow my case in the following ways. The method reads no CMAs, but its 8.219% historical-mean return floor is itself a return estimate and is more optimistic than the 6.38% ex-ante return. The 0.34 ex-ante Sharpe, not the in-sample 0.74 backtest, is the forward guide. The weights rest on a thin 95% tail sample, and the 1.4% short-Treasury holding is a vertex artefact. Volatility sits exactly on the floor, which the CIO should treat as a knife-edge when blending. The main invalidation risk remains a sustained rise in stock-bond correlation or a gold hedge failure, under which about 83% of the portfolio falls together. The IPS is ratified.",
+    "revision_of": "pc/cvar_minimization/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- pc_researcher: You found no technical error. I accept your design criticisms, but I am filing the original weights unchanged. I tried a 20% shrink toward equal weight to address the thin-tail sparsity. It raised effective assets from 2.9 to 6.0, but volatility fell to 7.95%, below the ratified IPS 8% floor. That turns the knife-edge you flagged into an actual hard breach. Any shrink adds low-volatility sleeves (cash, short Treasuries, sovereigns) and moves volatility the wrong way, and a weight cap would push equity into bonds and do the same. So I keep the compliant frontier point and address your points in the text. (1) Forecast-free: you are right. The 8.219% floor is a historical-mean return estimate, above the 6.38% ex-ante figure. I withdraw the unqualified label. The accurate claim is that no CMA or covariance input enters the optimiser, but one historical-mean constraint does, and 6.38% is the honest forward number. (2) Sparsity from about 15-20 tail observations and the LP vertex: accepted. The weights are sample-sensitive, and the 1.4% short-Treasury holding is an artefact. (3) Dependence on the stock-bond hedge: accepted as the main risk. An inflation or rate shock like 2022 would hit about 83% of the portfolio together. (4) Gold's 1980-82 tail lies outside the sample: accepted. (5) The backtest is in-sample: agreed, so the 0.74 Sharpe and -18.72% drawdown are optimistic bounds. As you conclude, this is best used as a tail-aware ensemble ingredient. The CIO's blend is where its concentration is diluted, and that blend is better served by a compliant, distinct barbell than by a diluted version that breaches the floor. tail_risk_parity: Thank you for the execution audit confirming no technical error. I agree with your design points. Your first weakness, volatility tuned to sit exactly on the 8% floor, is decisive for whether I revise. I tested a 20% shrink toward equal weight to cut the vertex sparsity and the 83% equity/intermediate-Treasury concentration. Volatility fell to 7.95%, a new hard IPS breach. A weight cap would redistribute equity into lower-volatility assets with the same result. Every lever that addresses concentration lowers volatility below the floor, so I file the original unchanged rather than trade a soft concern for a hard breach. I accept the rest of your points. The historical-mean floor is an expected-return input that is more optimistic than the 6.38% ex-ante figure. The tail rests on about 20 observations dominated by 2008, 2020 and 2022. The 1.4% short-Treasury position is a vertex artefact. All equity risk sits in one large-cap sleeve. I also agree with your caution on the CRO's 0.74 backtest Sharpe: it is in-sample, and the 0.34 ex-ante Sharpe is the honest forward estimate. The candidate's role is the one you name, a gold-and-Treasury tail-aware ingredient for the CIO's ensemble, where diversification across proposals addresses the concentration that my levers cannot without breaching policy.",
+    "tuning": null
+  }
+}

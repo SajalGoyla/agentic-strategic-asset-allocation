@@ -1,0 +1,189 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "revise-black-litterman",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:36:09.499707Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 12491,
+        "output_tokens": 5033,
+        "cache_read_tokens": 2145,
+        "cost_usd": 0.162207,
+        "attempts": 2
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "black_litterman",
+    "method": "Black-Litterman",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.21960148100173235,
+      "us_small_cap": 0.04649326921499207,
+      "us_value": 0.14741550520505653,
+      "us_growth": 0.005459174873347451,
+      "emerging_markets": 0.026441951351730213,
+      "intermediate_treasuries": 0.36265010936692565,
+      "long_treasuries": 0.1254672935911157,
+      "reits": 0.03929837542389199,
+      "gold": 0.027172839971208188
+    },
+    "expected_return_pct": 6.949770632537744,
+    "expected_volatility_pct": 8.000487727892205,
+    "sharpe_ratio": 0.4161959552702169,
+    "effective_n": 5.67310040800327,
+    "ex_ante_tracking_error_pct": 3.2830491645569206,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Governing IPS: ratified. I keep the original Black-Litterman portfolio unrevised: expected return 6.95%, volatility 8.00%, Sharpe 0.42, tracking error 3.28%, and no hard IPS breaches. Backtest max drawdown is -21.9%, which passes the limit but narrowly. The reviewers and the CRO correctly identify two weaknesses. First, risk is concentrated in a single rates and stock-bond bet, with drawdown at about 88% of the limit. Second, the weights rest on an AUM-based prior and an undisclosed tau that cannot be audited. The natural remedy was shrink_to_equal 0.2. The revised figures show it takes volatility to 7.98%, a new hard breach of the 8% floor, while cutting return by 5bp and Sharpe to 0.41. A max-weight cap would move Treasury weight into equities and worsen the binding drawdown constraint. Excluding an equity sleeve would further distort the equilibrium proxy. Every available lever therefore either breaks the volatility floor or worsens the drawdown, so a change would cost more than it fixes. The CIO should read this book as a compliant, return-aware component anchored to equilibrium: a core of intermediate Treasuries plus US large cap and value, with these known limits. It sits exactly at the volatility floor, its drawdown headroom is thin, its tau is unexamined, and its prior is crude. Its concentration is best diluted at the ensemble level by blending with methods that carry real-asset or international exposure, not by moving it below the band.",
+    "revision_of": "pc/black_litterman/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- equal_weight: Accepted on substance, and in the end no lever is applied. You found no technical errors. I agree with your main weakness: the book is largely one bet on rates and the stock-bond correlation, about 49% Treasuries against about 44% overlapping equity, with drawdown at 88% of the limit. I first proposed shrink_to_equal = 0.2 to spread risk across gold, commodities, international and credit. The revised figures show that the shrink lowers volatility from 8.00% to 7.98%, which creates a hard IPS breach of the 8-12% band. The original did not have that breach. The same shrink cuts expected return by 5bp and Sharpe from 0.42 to 0.41. Trading a compliant portfolio for a non-compliant one to gain diversification the CIO can get more cleanly by blending with other shortlisted methods is not worth it, so I withdraw the lever. Your other points stand as disclosed limits. First, gamma 4.028 against prior delta 2.5 makes the book more CMA-driven than default Black-Litterman, so 'market-anchored' is weakest where the portfolio is run. Second, tau was not reported and Omega = diag(tau Sigma) ties view confidence to volatility, not to forecast skill. That is an audit gap I acknowledge, and no lever can close it. Third, the ETF-AUM prior is not a clean market partition. Fourth, the 0.68 backtest Sharpe against 0.42 ex-ante reflects the 1993+ bond rally beating the CMAs and is not validation. The CIO should weight this proposal with those limits in view. max_sharpe: Accepted on substance, with no revision filed. You found no technical errors. (1) AUM double-counting across us_large_cap, us_value and us_growth: agreed. The 22/14.7/0.5 split may partly reflect the prior, not the CMAs. I am not excluding a sleeve, because that would distort the equilibrium proxy further. (2) Undisclosed tau and diagonal Omega: conceded. The levers cannot re-specify Omega. (3) delta 2.5 against gamma 4.028: agreed, and disclosed. It is kept because the untuned tangency portfolio at 2.26% volatility breaches the IPS floor. (4) Zero volatility margin and thin drawdown headroom: this is the decisive point. Your zero-margin observation proved exact. Shrinking 20% toward equal weight, my intended remedy for concentration, moves volatility to 7.98% and breaches the floor. A weight cap on Treasuries would push weight into equities and tighten drawdown, which is the binding risk. So within my method no lever both diversifies and stays inside the band. I keep the compliant original and leave diversification of the stock-bond bet to the CIO's ensemble, where blending with higher-volatility or real-asset methods can add it without breaching the floor. (5) Sharpe gap: it comes from historical returns, mainly the long bond rally, exceeding the CMAs. Neither figure is independent evidence of quality.",
+    "tuning": null
+  }
+}

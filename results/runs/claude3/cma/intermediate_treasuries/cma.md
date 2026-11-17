@@ -1,0 +1,31 @@
+# CMA — intermediate_treasuries
+
+**Expected return:** 5.26% (3y, nominal, arithmetic)  
+**Volatility:** 6.46%  
+**Confidence:** medium_high  
+**Selection:** custom_blend — survey_consensus 15%, yield_building_block 85%  
+**Candidate range:** 4.13% to 6.54% (tight); +0.07pp vs. the auto-blend  
+**Regime:** expansion
+
+## Candidates
+
+| method | estimate % | confidence | components | rationale |
+|---|---|---|---|---|
+| `historical_erp` | 6.41 | 0.30 | risk_free_pct +4.03, excess_return_pct +2.38, months +441.00 | +2.38% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield. |
+| `regime_adjusted` | 6.54 | 0.25 | risk_free_pct +4.03, regime_excess_return_pct +2.58, unconditional_excess_return_pct +2.35, regime_months +155.00, credibility_weight +0.72 | After the 155 past months labelled expansion, excess returns over the next 3 years averaged +2.58% a year (all months +2.35%); credibility weight 0.72, plus 4.03% T-bill. |
+| `bl_equilibrium` | 4.13 | 0.40 | risk_free_pct +4.03, implied_excess_return_pct +0.10, market_weight_pct +2.51, risk_aversion +2.50 | Equilibrium excess return +0.10% at a 2.5% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size. |
+| `inverse_gordon` | – | – | – | unavailable: not applicable to fixed_income |
+| `implied_erp_cape` | – | – | – | unavailable: not applicable to fixed_income |
+| `survey_consensus` | 4.21 | 0.50 | survey_pct +4.00, variance_addback_pct +0.21 | SPF median BOND10 4.00% a year over 10 years + 0.21% variance add-back. |
+| `yield_building_block` | 5.45 | 0.80 | yield_pct +5.24, credit_loss_pct -0.00, variance_addback_pct +0.21 | 5.24% starting yield - 0.00% expected credit loss + 0.21% variance add-back (mean of DGS7, DGS10). |
+| `auto_blend` | 5.19 | 0.53 | weight:historical_erp +0.13, weight:regime_adjusted +0.11, weight:bl_equilibrium +0.18, weight:survey_consensus +0.22, weight:yield_building_block +0.36 | Confidence-weighted average of 5 methods: historical_erp 13%, regime_adjusted 11%, bl_equilibrium 18%, survey_consensus 22%, yield_building_block 36%. |
+
+## Judgment
+
+**Regime logic.** Stage 1 calls a fragile, late-cycle-adjacent expansion with sticky above-history inflation, at low confidence (0.35) and a 20-30% recession probability. For a 7-10 year Treasury, that state cuts both ways. A recession would pull yields down and lift price through roughly 7.5 years of duration. Sticky inflation and a still-restrictive policy score (-0.22) could push yields higher, and a nominal bond has no protection against that. Exhibit 4's late-cycle tilt toward regime-adjusted methods does not carry over here. The regime_adjusted candidate (6.54%) is built from post-1990 expansion months that sit inside a secular fall in yields, and the regime label is low-confidence. Because the regime read is ambiguous, I lean on the starting yield, which does not depend on the regime call. The inflation asymmetry is the reason for trimming slightly below it rather than adding to it.
+
+**Valuation context.** Valuation is the dominant lens for this asset, and it is unambiguous. The 7- and 10-year yields average 5.24%, which the yield_level signal scores +0.80, high against their own history. Over a horizon near duration, the entry yield explains most of the realised return, so yield_building_block (5.45%, including a 0.21pp variance add-back and no credit loss on Treasuries) is the anchor. The 3-year horizon is shorter than the ~7.5-year duration, so the yield path matters as well as the level: a 100bp rise over the horizon would cost about 7% of price, spread over three years. The SPF BOND10 consensus (4.00% compound) sits below today's yield. It is a 10-year average expectation and may embed some reversion or lag in the survey, so I use it as a modest counterweight for path risk rather than as a primary estimate. The historical methods (6.41%, 6.54%) are excluded. They capture 1990-2026 capital gains from falling yields, which cannot repeat from today's starting point in the same way, and they would double-count income the yield already prices.
+
+**Signal alignment.** The composite (+0.18) masks a split. Valuation is strongly bullish (yield_level +0.80). Technicals are bearish: trend -0.67, relative momentum -0.56, 12-1 momentum -0.28. These do not contradict each other. The weak trailing returns (1y -3.75%, 5y -2.06%) are the yield rise that produced today's attractive entry yield. Over a multi-year horizon, bond momentum is a much weaker predictor than the starting yield. Macro alignment signals are all near zero (|score| <= 0.04), so they neither confirm nor hedge the estimate. I treat the negative technicals as a reason to sit slightly below the pure yield anchor, not as grounds for a large cut.
+
+**Rationale.** Final estimate: 5.26%, from 85% yield_building_block and 15% survey_consensus. This sits inside the [4.13, 6.54] range and just above the 5.19% auto-blend. The skill's guidance and Key consideration 1 make the starting yield the most defensible fixed-income building block, so it carries most of the weight. The 0.15 survey weight is a deliberate, explained haircut of about 0.2pp for two risks. First, the asymmetric inflation risk (consideration 5): sticky inflation is the stage-1 base case, and the historical sample has only one real inflation shock. Second, path risk over a 3-year horizon shorter than duration (consideration 4). Three candidates are dropped. historical_erp and regime_adjusted are biased upward by the secular fall in yields. bl_equilibrium (4.13%) is a CAPM artifact: it gives near-zero premia to assets that hedged an equity-heavy ETF market and assumes the negative stock-bond correlation that broke in 2022 (consideration 2), so I do not rely on it. Volatility stays at the covariance figure of 6.46%. Per consideration 5, that should be read as a floor in an inflationary state, and per consideration 2, backtested drawdowns understate a joint rate-and-equity shock. The estimate is held close to the yield anchor because this sleeve is 30% of the IPS benchmark (consideration 3), so an error here would shift the tracking-error budget of every candidate portfolio. Governing policy is config/ips.yaml, whose status is ratified.

@@ -1,0 +1,212 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:29:52.517899Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2712,
+        "output_tokens": 2011,
+        "cache_read_tokens": 4116,
+        "cost_usd": 0.0263572,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "maximum_diversification",
+    "method": "Maximum diversification",
+    "category": "risk_structured",
+    "ex_ante_volatility_pct": 7.874331221464259,
+    "backtest_volatility_pct": 7.766823238205402,
+    "var_95_pct": 2.9949483987861876,
+    "cvar_95_pct": 4.479081267926346,
+    "max_drawdown_pct": -16.7799180818051,
+    "backtest_sharpe": 0.6040009227834198,
+    "ex_ante_tracking_error_pct": 6.884513855485226,
+    "backtest_months": 400,
+    "effective_n": 6.361233551009531,
+    "concentration_hhi": 0.17852162245215628,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.3932509102183593,
+      "active_fixed_income": 0.06348032720018537,
+      "active_real_assets": 0.32977058301817386,
+      "benchmark_beta": 0.5805418321594883
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 7.87% outside the 8.0-12.0% band",
+          "observed": 7.874331221464259,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 6.88% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 6.884513855485226,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.41617200975363605,
+    "risk_score_components": {
+      "volatility": 0.0,
+      "concentration": 0.13019936494934195,
+      "drawdown": 0.671196723272204,
+      "tail": 0.5256194946212251,
+      "tracking_error": 1.0
+    },
+    "judgment": {
+      "key_risks": [
+        "Long Treasuries at 28.5% is the largest single position and the main driver of both the drawdown and the tracking-error breach; a joint stock-bond selloff or a rates shock hits it hardest, and it is the asset whose worst episode (1970s-80s inflation and rate rise) predates the 1993 panel.",
+        "Commodities at 17.3% plus gold at 12.9% put roughly 30% in real assets (+33% active). Both are high-volatility sleeves held for low correlation, not expected return, so the portfolio relies on that correlation staying low.",
+        "Correlation regime shift: the weights exist because gold, commodities and long Treasuries currently look uncorrelated with equities. If stock-bond or commodity-equity correlations rise together, as in an inflationary rates shock, the diversification benefit disappears and the portfolio is left with concentrated duration and commodity risk.",
+        "Equity underweight of -39.3% versus the benchmark, with all equity in us_small_cap and us_growth (18.9% combined). Benchmark beta of 0.58 means the portfolio will lag a 60/40 benchmark in a broad equity rally, and tracking error is the cost.",
+        "Zero cash and short Treasuries by construction (decision 61) removes the low-volatility ballast. The portfolio's stability is therefore carried by long-duration bonds rather than by instruments with no duration risk."
+      ],
+      "concentration_assessment": "This is the method working, not failing. Maximum diversification gives weight to high-volatility assets with low correlation to the rest, which is why long Treasuries, gold and commodities are large while us_value and REITs, which overlap with other holdings, are small. Effective N of 6.4 and a Herfindahl of 0.179 describe a spread-out portfolio, and nothing here looks like the near-singular covariance solution that maximum Sharpe produces. The concentration is still conditional: it is a bet on the stability of a few correlations. Long Treasuries at 28.5% is a large single exposure, but its size is explained by the correlation structure and not by an ill-conditioned matrix. The risk is that a few low-correlation estimates carry the whole allocation.",
+      "tail_risk_assessment": "The backtest tail is moderate (monthly CVaR a little under 1.5 times VaR, drawdown -16.78%, well inside the -25% limit), but I would not treat it as a full picture. The 400-month panel from 1993 contains 2000-02, 2008 and 2020, and in those episodes long Treasuries and gold were hedges, which flatters this portfolio. It does not contain the 1970s inflation or the 1979-81 rate shock, when long bonds, and for a time equities, lost heavily together. Commodities and gold also have worst episodes in part outside the sample (the 1980-82 gold collapse, for example). About 58% of the portfolio is in long Treasuries, gold and commodities, so the understated tail is concentrated in exactly the sleeves that carry the weight. The realistic tail is fatter than -16.78% in an inflationary, rising-rate regime, which is the one scenario the method's own invalidation condition names.",
+      "ips_assessment": "The IPS is ratified. Two hard violations are listed. (1) Volatility of 7.87% is below the 8.0% floor. The shortfall is 0.13 points, small compared with covariance estimation noise, and the volatility component scores 0 because below-floor means not risky. The finding is that this candidate adds essentially no distance from the band, so a blend with something higher-volatility would be enough to fix it. (2) Tracking error of 6.88% against the 6.0% budget is the material breach: it scores 1.00 on the tracking-error component. It is structural and not a calibration issue, since 29% long Treasuries, 17% commodities and 13% gold bear little resemblance to a 60/40 benchmark, and the -39% equity underweight is a deliberate output of the method. This candidate would contribute active risk to an ensemble and not benchmark-like exposure. Neither breach disqualifies it, because the hard limits bind on the CIO's final portfolio. Drawdown of -16.78% is inside the -25% limit.",
+      "commentary": "The binding risk is active risk against the 60/40 benchmark, not absolute risk. Ex-ante volatility is at the bottom of the IPS band and the drawdown is comfortably within limit, yet tracking error exceeds budget, because the portfolio holds real assets and long duration and little equity. The composite of 0.42 reflects this: the drawdown and tail components are the middle-sized contributors, tracking error is fully used, and volatility adds nothing. A board looking at this portfolio would mostly experience benchmark-relative divergence, with the portfolio lagging in equity-led rallies and potentially holding up in deflationary or equity-driven shocks.\n\nEx-ante and backtest volatility agree closely (7.87% vs 7.77%), which is reassuring for the covariance estimate over the sample: the shrunk matrix describes the realised 1993-2026 path well. That agreement should not be mistaken for out-of-sample robustness. Both figures come from the same history, in which stock-bond correlation was mostly negative or low and commodities were diversifying. Ex-ante is the better guide to what the optimiser saw, but for the tail I would trust neither without a haircut, and I would read the backtest drawdown and VaR as a lower bound in an inflationary regime. The backtest cannot say whether the low correlations of long Treasuries and gold to equities will hold.\n\nThe main sensitivity is a simultaneous rise in stock-bond and commodity-equity correlations. In that case the large long Treasury and commodity positions would no longer offset the equity sleeve, volatility would rise above what the matrix implies, and the drawdown would overshoot the historical figure. The proposer's own invalidation condition describes this accurately. Reviewers should weigh the portfolio on that scenario and on the size of its tracking-error breach, since the volatility shortfall is marginal."
+    }
+  }
+}

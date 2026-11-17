@@ -75,6 +75,7 @@ MODELS: dict[Tier, str] = {
 AGENT_TIERS: dict[str, Tier] = {
     "macro": Tier.FLAGSHIP,
     "cma_judge": Tier.FLAGSHIP,
+    "covariance": Tier.LOW_COST,
     "pc": Tier.LOW_COST,
     "pc_researcher": Tier.FLAGSHIP,
     "cro": Tier.LOW_COST,

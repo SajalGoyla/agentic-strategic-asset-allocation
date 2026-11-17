@@ -1,0 +1,121 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "signals",
+    "agent": "long-treasuries",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:22:30.109636Z",
+    "produced_by": "script",
+    "provenance": {
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      },
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "valuation/shiller_us_equity": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cd7bd92e01df213fd104d43c233311469dc988ee65ff898fa7543d4b84c87027"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      }
+    },
+    "inputs": [],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [],
+    "report_path": "reports/signals.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "long_treasuries",
+    "signals": [
+      {
+        "name": "momentum_12_1",
+        "category": "technical",
+        "value": -0.035205225745738034,
+        "score": -0.2766280317853835,
+        "rationale": "11-month return skipping the last 1, vs. its own history",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "trend",
+        "category": "technical",
+        "value": -0.07106132295490175,
+        "score": -0.5619812636812623,
+        "rationale": "price against its 10-month moving average",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "mean_reversion",
+        "category": "technical",
+        "value": 0.021875143210392523,
+        "score": 0.23105734047730192,
+        "rationale": "36-month return, inverted: a stretched run tends to revert",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "relative_momentum",
+        "category": "technical",
+        "value": -0.035205225745738034,
+        "score": -0.8888888888888888,
+        "rationale": "momentum rank against the other 17 asset classes",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "regime_fit",
+        "category": "macro",
+        "value": 0.0019349000434869153,
+        "score": 0.10635917469530365,
+        "rationale": "mean return in 160 past 'expansion' months vs. its unconditional mean",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "growth_alignment",
+        "category": "macro",
+        "value": -0.016003375101704923,
+        "score": -0.0008436075365601179,
+        "rationale": "correlation with the growth score (-0.02) times its level today (+0.05)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "inflation_alignment",
+        "category": "macro",
+        "value": 0.13457737744204168,
+        "score": -0.036372888621165785,
+        "rationale": "correlation with the inflation score (+0.13) times its level today (-0.27)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "monetary_policy_alignment",
+        "category": "macro",
+        "value": 0.01792141574699969,
+        "score": -0.003891064897979982,
+        "rationale": "correlation with the monetary_policy score (+0.02) times its level today (-0.22)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "financial_conditions_alignment",
+        "category": "macro",
+        "value": 0.03338664562270132,
+        "score": 0.011789666413726075,
+        "rationale": "correlation with the financial_conditions score (+0.03) times its level today (+0.35)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "yield_level",
+        "category": "valuation",
+        "value": 5.64,
+        "score": 0.7940382307196018,
+        "rationale": "DGS30: starting yield against its own history: the dominant predictor of bond return",
+        "source": "macro/fred_observations"
+      }
+    ],
+    "composite_score": 0.18412865925754746
+  }
+}

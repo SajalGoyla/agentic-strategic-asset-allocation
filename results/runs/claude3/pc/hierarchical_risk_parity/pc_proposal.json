@@ -1,0 +1,203 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-hierarchical-risk-parity",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.264956Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1404,
+        "output_tokens": 1234,
+        "cache_read_tokens": 7708,
+        "cost_usd": 0.0166896,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "hierarchical_risk_parity",
+    "method": "Hierarchical risk parity",
+    "category": "risk_structured",
+    "weights": {
+      "us_large_cap": 0.022427604415203865,
+      "us_small_cap": 0.013908145813795358,
+      "us_value": 0.02397470919497068,
+      "us_growth": 0.017101963650393206,
+      "intl_developed": 0.023793115938474486,
+      "emerging_markets": 0.012436201703859529,
+      "intermediate_treasuries": 0.19218529580780408,
+      "long_treasuries": 0.07652548301251497,
+      "ig_corporates": 0.15731664396991812,
+      "hy_corporates": 0.09843986452558233,
+      "intl_sovereigns": 0.11742040763893404,
+      "intl_corporates": 0.09960268296043522,
+      "usd_em_debt": 0.03584876270146666,
+      "reits": 0.032763494627413486,
+      "gold": 0.04064697642181273,
+      "commodities": 0.03560864761742124
+    },
+    "expected_return_pct": 5.966896677711591,
+    "expected_volatility_pct": 6.781447359440371,
+    "sharpe_ratio": 0.34607607392904177,
+    "effective_n": 11.490288277944142,
+    "ex_ante_tracking_error_pct": 6.153775752341096,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 6.78% outside the 8.0-12.0% band",
+          "observed": 6.781447359440371,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 6.15% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 6.153775752341096,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "HRP never touches the CMAs, so none of their estimation error reaches this portfolio. That matters because the Sharpe of 0.35 and the 5.97% expected return are scored against judged CMAs the method did not use. It gets no credit for them, and it cannot have been hurt by them either. The regime is expansion. In that regime return forecasts are usually more informative than in a late-cycle regime, so this method is giving up some of its edge by ignoring them. I do not claim the regime favours it. The argument is narrower: when forecasts are noisy, a covariance-only method is a robust base. Ang et al. §4.3 found agents leaning towards covariance-driven methods in a late-cycle regime, but the current regime is not that one.\n\nThe method clusters assets by correlation distance and splits each risk budget down a dendrogram, with no matrix inversion. That is why it spreads (11.5 effective assets of 18) without the instability of a near-singular optimiser. The spread is the method working as designed. It is a stable, diversified allocation, not a bet on a few assets. It concentrates in the credit and Treasury clusters because they have low variance, not because of any view on them. This is the same risk-led tilt as inverse variance, and it is not evidence that bonds are attractive.\n\nThe portfolio is outside the IPS. Volatility is 6.78% against the 8-12% band, and tracking error is 6.15% against the 6.0% budget. The IPS is ratified. The method has no parameter that fixes this without becoming a different method, so I am not tuning it. The breach has a plain cause. Equity weights are low because equities are high-variance, so the portfolio carries too little risk for the band. Cash and short Treasuries were excluded by design (decision 61). Without that exclusion the method would be mostly cash, so their zero weight is a construction choice, not a view on liquidity. The portfolio is therefore a low-risk, highly diversified ballast. In a compliant ensemble it can supply bond and real-asset diversification, which a return-driven proposal could then scale against with equity or higher-return exposure. The CIO can then reach the volatility floor by blending it with higher-risk proposals instead of relying on leverage. As a standalone recommendation it fails the IPS, and I say so.",
+    "revision_of": null,
+    "notes": "Key assumption: Historical covariance and correlation clustering are stable and informative enough that allocating risk by hierarchy beats any return forecast, and that equal-ish risk across clusters is a sound neutral prior. Main weakness: It is under-risked for this mandate. At 6.78% volatility it falls below the 8% floor, and tracking error is over budget, with equity weights far below the 60/40 benchmark. It also treats low variance as safe, so it overweights credit and long-duration bonds, which carry hidden tail and rate risk. In an expansion it gives up equity return that the CMAs would reward, and a single-linkage dendrogram can chain assets into unstable clusters. Preferred when: When expected-return forecasts are unreliable or stale, or when the regime turns defensive and correlation structure is the best evidence available. It also suits an ensemble that needs a robust, diversified, low-risk sleeve to blend with return-seeking proposals. It is a poor standalone choice under an 8-12% volatility mandate. Invalidated if: If the CMAs are reliable and an expansion rewards equity risk, so return-aware methods dominate; if correlations break down or rise sharply so the dendrogram structure no longer holds (for example a joint selloff in credit and Treasuries from a rate shock); or if the CIO cannot lift volatility into the band by blending without breaching tracking error, this portfolio is the wrong choice.",
+    "tuning": null
+  }
+}

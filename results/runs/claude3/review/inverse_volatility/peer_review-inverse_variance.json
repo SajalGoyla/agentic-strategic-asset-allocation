@@ -1,0 +1,186 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-volatility",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.298409Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/inverse_variance/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/inverse_variance/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3904,
+        "output_tokens": 3754,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.053858,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_volatility",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "inverse_variance",
+    "reviewed_category": "heuristic",
+    "kind": "intra_category",
+    "strengths": [
+      "The weights are consistent with 1/σ². The implied volatility ratios are plausible: intermediate vs long Treasuries about 1.9x, large cap vs EM about 1.5x, and small cap and REITs near 20%. Weights sum to about 100% with 16 of 18 held. The two zero-weight assets match the stated cash and short-Treasury exclusion (decision 61).",
+      "The method is faithful to its own premise. It never reads the CMAs, so return-forecast error cannot reach the weights, and the case says so plainly.",
+      "Ex-ante volatility of 6.94% and backtest volatility of 6.96% agree, so the shrunk covariance is not misdescribing realised history for this weight vector. The reported effective N of 11.8 is plausible for 16 held names, so the result looks like the method working, not a degenerate input.",
+      "The proposal is candid about its limits. It names the volatility breach, the tracking error, the credit-sleeve concentration and the conditions that invalidate it, and it does not tune the method to pass the IPS band. That is the right call for a candidate whose value is as an ensemble component.",
+      "The CIO gets usable information: a forecast-free reference portfolio, with tracking error (5.42%) and drawdown (-21.67%) that can be sized against the 6% and -25% limits."
+    ],
+    "weaknesses": [
+      "The volatility breach is large in policy terms: 6.94% against an 8% floor, under a ratified IPS. It cannot be a standalone final portfolio, and any use depends on blending with a higher-risk sleeve, which the case asserts but does not demonstrate.",
+      "Drawdown and tracking error use most of their headroom (about 87% and 90%). A portfolio below the volatility floor sits close to the -25% drawdown limit, which shows the low volatility reading is understating tail risk. Ignoring correlations is the cause: about 75% of the book is bonds and credit, whose losses arrive together in a credit-stress or inflation/rate shock.",
+      "The weights follow past calm, so HY (11.2%), intl corporates (9.5%), USD EM debt (4.1%) and IG (15.7%) get large weights because of low measured volatility. Roughly 40% in credit and 35% in rate-sensitive government paper is a hidden common-factor bet. The backtest window (three decades favourable to duration and credit) is probably a floor on the damage.",
+      "Equity is only about 17% across six sleeves, so the portfolio adds little equity premium. The 5.42% tracking error comes from a deliberate -43% active equity position. In an expansion regime, which favours equities, the cost of that position bites hardest, and the case's regime argument is weak for this run.",
+      "The ballast-sleeve pitch is weaker than presented. Blending with a return-aware proposal would add more credit and duration overlap. The ensemble benefit depends on the other sleeve's composition, which this proposal cannot assess."
+    ],
+    "technical_errors": [
+      "The case says inverse variance is the minimum-variance solution if correlations are assumed equal. That is wrong. Under a constant-correlation covariance, minimum-variance weights are proportional to (1/σ)(1/σ − c) for a constant c that depends on ρ. Inverse variance is minimum variance only when the assets are uncorrelated (diagonal covariance), and inverse volatility is the equal-correlation risk-parity case. The notes repeat the error as 'treated as if equally correlated'.",
+      "The case says equity sleeves are 'roughly a quarter of the portfolio'. The table shows 3.7+2.1+3.6+2.8+3.1+1.6 = 16.9%, so about 17%, as the CRO notes.",
+      "The case calls the sleeve 'correlation-light'. The weights ignore correlations by construction, and the book is dominated by correlated bond and credit exposures. The -21.67% drawdown and the CRO's finding of losses arriving together contradict the claim.",
+      "The 0.36 Sharpe is a forward figure on the judged CMAs, while the 0.51 in the CRO table is realised history. The case's claim that it 'reaches that Sharpe with no forecasting skill assumed' blurs the two. This is a framing problem, not a miscalculation."
+    ],
+    "score": 0.57,
+    "rationale": "As execution of inverse variance, the proposal is sound. The weights follow 1/σ² on a shrunk covariance, the cash and short-Treasury exclusion is honoured, the concentration in bonds and credit is the method behaving as designed and not a degenerate input, and ex-ante and realised volatility agree. The score is held down by three things. First, the proposal is a ratified-IPS volatility miss that, standalone, uses 87% of the drawdown limit and 90% of the tracking-error budget. Second, the risk-only weighting hides a correlated credit and duration exposure the volatility figures do not reveal. Third, the written case has factual and conceptual errors: inverse variance is minimum variance under zero correlation, not equal correlation; equity is about 17%, not a quarter; and 'correlation-light' contradicts the drawdown evidence. These do not change the weights, but they misstate what the method assumes and how it behaves. It is useful as a forecast-free reference or ballast component, but only with the credit overlap and the unresolved volatility gap taken into account."
+  }
+}

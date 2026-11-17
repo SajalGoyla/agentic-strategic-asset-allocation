@@ -1,0 +1,31 @@
+# CMA — hy_corporates
+
+**Expected return:** 6.04% (3y, nominal, arithmetic)  
+**Volatility:** 8.44%  
+**Confidence:** medium  
+**Selection:** custom_blend — bl_equilibrium 20%, regime_adjusted 10%, yield_building_block 70%  
+**Candidate range:** 5.79% to 7.76% (tight); -0.32pp vs. the auto-blend  
+**Regime:** expansion
+
+## Candidates
+
+| method | estimate % | confidence | components | rationale |
+|---|---|---|---|---|
+| `historical_erp` | 7.76 | 0.30 | risk_free_pct +4.03, excess_return_pct +3.73, months +441.00 | +3.73% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield. |
+| `regime_adjusted` | 6.67 | 0.25 | risk_free_pct +4.03, regime_excess_return_pct +2.35, unconditional_excess_return_pct +3.39, regime_months +155.00, credibility_weight +0.72 | After the 155 past months labelled expansion, excess returns over the next 3 years averaged +2.35% a year (all months +3.39%); credibility weight 0.72, plus 4.03% T-bill. |
+| `bl_equilibrium` | 5.79 | 0.40 | risk_free_pct +4.03, implied_excess_return_pct +1.76, market_weight_pct +0.97, risk_aversion +2.50 | Equilibrium excess return +1.76% at a 1.0% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size. |
+| `inverse_gordon` | – | – | – | unavailable: not applicable to fixed_income |
+| `implied_erp_cape` | – | – | – | unavailable: not applicable to fixed_income |
+| `survey_consensus` | – | – | – | unavailable: no public consensus forecast for this asset; the judge may use the macro agent's view instead (the paper's alternative) |
+| `yield_building_block` | 6.02 | 0.80 | yield_pct +8.16, credit_loss_pct -2.50, variance_addback_pct +0.36 | 8.16% starting yield - 2.50% expected credit loss + 0.36% variance add-back (mean of BAMLH0A0HYM2EY). |
+| `auto_blend` | 6.36 | 0.54 | weight:historical_erp +0.17, weight:regime_adjusted +0.14, weight:bl_equilibrium +0.23, weight:yield_building_block +0.46 | Confidence-weighted average of 4 methods: historical_erp 17%, regime_adjusted 14%, bl_equilibrium 23%, yield_building_block 46%. |
+
+## Judgment
+
+**Regime logic.** Stage 1 calls a fragile, late-cycle-adjacent expansion at low confidence (0.35), with a 20-30% recession probability. For high yield this matters more than for any other fixed-income sleeve (consideration 3). HY carries the strongest Growth sensitivity in the group and correlates 0.72 with US large cap, so a growth shock would hit it like an equity drawdown with a coupon attached. Late-cycle logic in Exhibit 4 tilts toward forward-looking and regime-aware methods and away from long-run historical averages. I therefore give no weight to historical_erp and a small weight to regime_adjusted. Its 3-year-forward expansion premium (+2.35% excess) sits below the unconditional +3.39%, which is consistent with spreads already being compressed when expansions are under way. With duration of about three to four years, the view here is a view on the credit cycle rather than on the Fed (consideration 4). The negative monetary-policy score therefore carries little information for this asset.
+
+**Valuation context.** The primary lens is the yield level. The 8.16% ICE HY effective yield is the best single predictor of return over a 3-year horizon close to the sleeve's duration. Consideration 1 says the yield is not the expected return. The yield_building_block candidate already nets a 2.50pp expected credit loss, in line with the roughly 4% default rate and roughly 40% recovery (about 2.4pp) the asset file prescribes. I take that figure as given and do not subtract losses a second time, since the starting spread already prices default risk. Consideration 2 is about callability: yield-to-worst understates the asymmetry, because issuers refinance when spreads tighten and investors keep the downside. That argues against anything above the yield-based figure. The historical_erp candidate (7.76%) is excluded for a specific reason. It is backward-looking and was earned over a 1990-2026 period of secularly falling yields and spread compression that cannot repeat from today's starting point. Consideration 5 adds that the liquid index's cleaner default history flatters that number further.
+
+**Signal alignment.** The composite signal is mildly bearish at -0.08. Technicals lean negative: trend -0.34, mean reversion -0.28 after a strong 3-year run of 7.76%, and weak relative momentum. The macro alignment signals are near zero, apart from a small positive from easy financial conditions. This confirms rather than contradicts a forecast anchored on the credit-loss-adjusted yield and leaning toward the lower half of the range. Easy financial conditions are what keep spreads tight today, and they are also what unwinds in a late-cycle turn. I used no flow or positioning information, because none is sourced in this pipeline.
+
+**Rationale.** Custom blend: yield_building_block 70%, bl_equilibrium 20%, regime_adjusted 10%. This gives 6.04%, inside the [5.79, 7.76] range and slightly below the 6.36% auto-blend. The fixed-income guidance makes the yield building block the anchor, and the horizon (3 years) roughly matches HY duration. It already embeds the 2.5pp credit-loss haircut that consideration 1 calls the most common error to omit, so no further deduction is made. The auto-blend gives 17% to historical_erp, whose 7.76% reflects a secular yield decline and a survivor-clean liquid index. I removed it rather than trust its stated confidence. Black-Litterman's 5.79% is a modest downward cross-check: it rests on an ETF-AUM proxy weight of about 1%, but its CAPM logic is apt for an asset that behaves like equity in drawdowns. Regime_adjusted adds a small forward-looking expansion read. Leaving the estimate a few basis points above the pure yield figure, rather than shading it lower, reflects the tight dispersion (1.97pp) and the absence of evidence that defaults will exceed the long-run haircut. The left-skew and call asymmetry (consideration 2) and the 20-30% recession probability mean the risk around this point estimate lies to the downside. Confidence is medium: the yield anchor is strong, but regime confidence is low. The governing IPS (config/ips.yaml) is ratified.

@@ -236,3 +236,93 @@ def test_outputs_are_a_valid_contract_in_the_run(store, tmp_config, tmp_path):
     assert loaded.body.method is CovarianceMethod.LEDOIT_WOLF
     assert loaded.header.report_path == "reports/covariance.md"
     assert "| ledoit_wolf |" in (run.root / "reports" / "covariance.md").read_text(encoding="utf-8")
+
+
+# ------------------------------------------------------------ validation (decision 63)
+from saa.agents.covariance import judgment_model, run_covariance  # noqa: E402
+from saa.contracts.portfolio import CovarianceJudgment  # noqa: E402
+from saa.llm import LlmClient  # noqa: E402
+from saa.skills.covariance import VALIDATED, validate_estimators  # noqa: E402
+from saa.skills.portfolio_construction.analysis import benchmark_weights  # noqa: E402
+from tests.test_macro_agent import FakeAnthropic  # noqa: E402
+
+
+def regime_labels(dates: pd.DatetimeIndex) -> pd.Series:
+    """Alternating two-year regimes, so every label has enough months to condition on."""
+    names = np.where((dates.year // 2) % 2 == 0, "expansion", "late_cycle")
+    return pd.Series(names, index=dates, name="regime")
+
+
+def test_validation_scores_every_estimator_out_of_sample(store, tmp_config):
+    dates = pd.date_range("1994-01-31", "2026-07-31", freq="ME")
+    records = validate_estimators(
+        store,
+        as_of="2026-09-15",
+        benchmark=benchmark_weights(tmp_config),
+        regime_labels=regime_labels(dates),
+    )
+    assert {r.method for r in records} == set(VALIDATED)
+    for r in records:
+        # The fixture's returns are stationary, so an estimator fitted on the past should be
+        # roughly unbiased about the next year.
+        assert 0.7 < r.realised_to_forecast < 1.3
+        assert r.abs_log_error >= 0.0
+        assert r.stock_bond_correlation_error is not None
+    # The panel ends 2026-07, so year-ends 1999..2024 have a full following year.
+    lw = next(r for r in records if r.method is CovarianceMethod.LEDOIT_WOLF)
+    assert lw.years == 2024 - 1999 + 1
+
+
+def test_validation_uses_only_data_known_at_each_year_end(store, tmp_config):
+    """A cutoff in 2010 can score only year-ends whose next 12 months precede it."""
+    records = validate_estimators(
+        store, as_of="2010-06-30", benchmark=benchmark_weights(tmp_config)
+    )
+    assert {r.method for r in records} == {
+        CovarianceMethod.LEDOIT_WOLF,
+        CovarianceMethod.EXPONENTIAL,
+    }  # no labels, no regime-conditional record
+    assert all(r.years == 2008 - 1999 + 1 for r in records)
+
+
+# ------------------------------------------------------------------ the covariance agent
+def test_the_agent_without_a_model_keeps_the_ledoit_wolf_default(store, tmp_config, tmp_path):
+    run = RunContext.create(tmp_config, as_of="2026-09-15", run_id="r", root=tmp_path / "run")
+    result = run_covariance(run, store, config=tmp_config, llm=None)
+    out = read("covariance", run.path("covariance"))
+    assert out.body.method is CovarianceMethod.LEDOIT_WOLF
+    assert out.body.judgment.method is CovarianceMethod.LEDOIT_WOLF
+    assert "--no-llm" in out.body.judgment.rationale
+    assert out.body.validation and out.header.produced_by.value == "script"
+    assert result.cost_usd == 0.0
+    assert "Out-of-sample record" in run.report_path("covariance.md").read_text(encoding="utf-8")
+
+
+def test_the_agent_hands_on_the_estimator_the_model_chose(store, tmp_config, tmp_path):
+    dates = pd.date_range("1994-01-31", "2026-07-31", freq="ME")
+    run = RunContext.create(tmp_config, as_of="2026-09-15", run_id="r", root=tmp_path / "run")
+    payload = {
+        "method": "exponential",
+        "rationale": "The estimators disagree on the stock-bond correlation and exponential has "
+        "the smallest error on it, so recent years should weigh more. " * 3,
+        "what_would_change_it": "A confident regime call with enough labelled months.",
+    }
+    fake = FakeAnthropic([payload])
+    run_covariance(
+        run, store, config=tmp_config, llm=LlmClient(fake), regime_labels=regime_labels(dates)
+    )
+    out = read("covariance", run.path("covariance"))
+    assert out.body.method is CovarianceMethod.EXPONENTIAL
+    assert out.body.judgment.method is CovarianceMethod.EXPONENTIAL
+    assert out.header.produced_by.value == "hybrid" and out.header.model_calls
+    prompt = fake.messages.calls[0]["messages"][0]["content"]
+    assert "Out-of-sample record" in prompt and "Stock-bond corr" in prompt
+    assert "regime_conditional" in prompt  # on offer: the labels have enough months
+
+
+def test_the_model_may_choose_only_an_estimator_on_offer():
+    model = judgment_model([CovarianceMethod.LEDOIT_WOLF, CovarianceMethod.EXPONENTIAL])
+    ok = {"method": "exponential", "rationale": "r", "what_would_change_it": "w"}
+    assert isinstance(model.model_validate(ok), CovarianceJudgment)
+    with pytest.raises(ValidationError):
+        model.model_validate({**ok, "method": "sample"})

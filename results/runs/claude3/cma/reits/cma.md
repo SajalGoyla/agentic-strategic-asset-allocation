@@ -1,0 +1,36 @@
+# CMA — reits
+
+**Expected return:** 9.09% (3y, nominal, arithmetic)  
+**Volatility:** 18.99%  
+**Confidence:** low  
+**Selection:** custom_blend — bl_equilibrium 25%, historical_erp 15%, inverse_gordon 40%, regime_adjusted 20%  
+**Candidate range:** 7.42% to 11.94% (moderate); -0.45pp vs. the auto-blend  
+**Regime:** expansion
+
+## Candidates
+
+| method | estimate % | confidence | components | rationale |
+|---|---|---|---|---|
+| `historical_erp` | 11.94 | 0.50 | risk_free_pct +4.03, excess_return_pct +7.91, months +441.00 | +7.91% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield. |
+| `regime_adjusted` | 11.40 | 0.40 | risk_free_pct +4.03, regime_excess_return_pct +7.01, unconditional_excess_return_pct +8.28, regime_months +155.00, credibility_weight +0.72 | After the 155 past months labelled expansion, excess returns over the next 3 years averaged +7.02% a year (all months +8.28%); credibility weight 0.72, plus 4.03% T-bill. |
+| `bl_equilibrium` | 7.77 | 0.40 | risk_free_pct +4.03, implied_excess_return_pct +3.74, market_weight_pct +4.26, risk_aversion +2.50 | Equilibrium excess return +3.74% at a 4.3% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size. |
+| `inverse_gordon` | 7.68 | 0.42 | dividend_yield_pct +3.75, net_buyback_yield_pct -2.27, real_growth_pct +2.10, inflation_pct +2.30, valuation_change_pct +0.00, variance_addback_pct +1.80 | 3.75% dividends -2.27% net buybacks + 2.1% real growth + 2.3% inflation +0.00% valuation change + 1.80% variance add-back (net payout from WRDS 2025-12, rolled forward by VNQ's price change; no long valuation history, drift 0). |
+| `implied_erp_cape` | 7.42 | 0.21 | earnings_yield_pct +3.31, inflation_pct +2.30, variance_addback_pct +1.80 | 3.31% real earnings yield (VNQ trailing earnings yield; REIT earnings are net of depreciation, so this understates) + 2.3% expected inflation + 1.80% variance add-back. |
+| `survey_consensus` | – | – | – | unavailable: not applicable to real_assets |
+| `yield_building_block` | – | – | – | unavailable: not applicable to real_assets |
+| `auto_blend` | 9.54 | 0.41 | weight:historical_erp +0.26, weight:regime_adjusted +0.21, weight:bl_equilibrium +0.21, weight:inverse_gordon +0.22, weight:implied_erp_cape +0.11 | Confidence-weighted average of 5 methods: historical_erp 26%, regime_adjusted 21%, bl_equilibrium 21%, inverse_gordon 22%, implied_erp_cape 11%. |
+
+## Judgment
+
+**Regime logic.** Stage 1 calls this a fragile, late-cycle-adjacent expansion with sticky above-history inflation, at low confidence (0.35) and a 20-30% recession probability. REITs are rate-sensitive levered equities: Growth (+), Rates (--). A restrictive monetary score (-0.22) together with sticky inflation argues against assuming policy easing that would compress cap rates. The regime-adjusted candidate (11.40%) uses forward three-year returns after expansion months. Its regime premium (+7.01%) sits below the unconditional premium (+8.28%), so even the regime view trims the historical figure. However, those expansion months fall mostly in a 1990-2021 sample of falling real yields, which flattered REIT returns. Under Exhibit 4, late-cycle tilts toward valuation and regime methods. I keep a meaningful regime_adjusted weight (0.20) but do not let it dominate, because the regime call itself is low-confidence and the sample's rate tailwind is unlikely to repeat.
+
+**Valuation context.** Following key consideration 2, the build is dividend yield plus NOI growth, not GAAP earnings. I therefore give implied_erp_cape (7.42%) zero weight. It capitalises VNQ's GAAP earnings yield, which is net of depreciation on long-lived property, so it is structurally inapplicable rather than merely low-confidence. Its own rationale flags the understatement. The inverse_gordon candidate (7.68%) is the closest match to this asset's lens, so it carries the largest weight (0.40). It is built from a 3.75% dividend yield, -2.27% net issuance, 4.4% nominal growth, zero valuation drift and a 1.80% variance add-back. The negative buyback term is real per-share dilution, because the distribution requirement forces REITs to fund growth by issuing equity. Pairing net payout with aggregate GDP growth is therefore consistent and is not double-counting. The zero valuation-change term reflects the absence of a reliable long valuation anchor for REITs. I did not have current cap-rate or DFII10 levels in the inputs, so I take no explicit cap-rate-spread or NAV-discount view (considerations 3 and 5). Real yields well above their 2010s levels are a reason not to assume multiple expansion. Black-Litterman (7.77%) independently lands near Gordon, which supports this valuation-based anchor. The historical_erp (11.94%) reflects a different property mix: more office and regional retail, versus today's industrial, data centre and tower weight (consideration 4). It also reflects a secular fall in rates. I hold it at 0.15.
+
+**Signal alignment.** The composite signal is essentially neutral (+0.02) and gives no reason to move away from the valuation anchor in either direction. Price sits below its 10-month moving average (trend -0.26), and the mean-reversion score is mildly negative (-0.10). These modestly undercut the high historical and regime candidates. Relative momentum against the other 17 classes is positive (+0.22), and financial conditions are supportive (+0.12), so I do not push the estimate to the bottom of the range. The 5-year (1.36%) and 10-year (4.40%) realised returns are far below the since-1990 9.26%. This confirms that the backward-looking candidates rest on an earlier, more favourable rate and sector environment. Macro alignment scores are near zero, consistent with the low-confidence regime. No fund-flow or positioning view is claimed, because none is sourced in this pipeline.
+
+**Rationale.** Final estimate: 9.09%, a custom blend of inverse_gordon 0.40, bl_equilibrium 0.25, regime_adjusted 0.20 and historical_erp 0.15. It sits inside the [7.42, 11.94] range and 0.45pp below the 9.54% auto-blend, between the paper's -0.2pp markdown and our prior -0.68pp. The main changes from the auto-blend are:
+- I dropped implied_erp_cape entirely, because GAAP earnings are not a usable REIT valuation input (key consideration 2). Dropping it removes a low number, which raises the blend.
+- I reweighted toward the dividend-plus-growth Gordon build, which is this asset's primary lens, and toward the equilibrium estimate that corroborates it.
+- I cut historical_erp, whose 1990-2026 sample reflects falling rates and a superseded office and retail-heavy property mix (key consideration 4).
+
+The estimate implies a Sharpe ratio of about 0.27 at 18.99% volatility. That is consistent with treating REITs as a levered real-asset equity with a 0.65 correlation to US large cap, not a bond substitute (key consideration 1). It sits sensibly below a broad-equity premium, given REITs' heavy rate sensitivity in a restrictive, sticky-inflation backdrop. Confidence is low. The regime call is low-confidence, the candidates differ by 4.5pp, and no direct cap-rate versus real-yield spread or NAV-discount input was available. Governing policy is config/ips.yaml, which is ratified.

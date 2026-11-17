@@ -1,0 +1,196 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "revise-inverse-volatility",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:36:09.496241Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/inverse_volatility/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5174,
+        "output_tokens": 3477,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.100976,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "inverse_volatility",
+    "method": "Inverse volatility",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.05182796970855896,
+      "us_small_cap": 0.039281087395251386,
+      "us_value": 0.05157337560843835,
+      "us_growth": 0.045258040020900184,
+      "intl_developed": 0.047824344007900525,
+      "emerging_markets": 0.0345754021304066,
+      "intermediate_treasuries": 0.1185245336380451,
+      "long_treasuries": 0.06157562726609218,
+      "ig_corporates": 0.10723474254089209,
+      "hy_corporates": 0.09062211290995158,
+      "intl_sovereigns": 0.09050493356779526,
+      "intl_corporates": 0.08335583005667811,
+      "usd_em_debt": 0.054687209772590256,
+      "reits": 0.040290338312923904,
+      "gold": 0.04280246972880536,
+      "commodities": 0.040061983334770235
+    },
+    "expected_return_pct": 6.5455820077432465,
+    "expected_volatility_pct": 8.03338812228871,
+    "sharpe_ratio": 0.3641778491476332,
+    "effective_n": 14.780865116048615,
+    "ex_ante_tracking_error_pct": 4.562428687731806,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "I keep the original weights and correct the case. The governing IPS (config/ips.yaml) is ratified. Under it, the portfolio passes the ex-ante limits on return, volatility (8.03%) and tracking error (4.56%), and the CRO's backtest drawdown check (-22.85% against -25%). Both reviewers and the CRO agree that the method is executed correctly, with no computational error, and that its weakness is conceptual. Inverse volatility cannot see correlation, so about 43% of the weight sits in a credit/sovereign cluster that behaves as one spread-and-duration exposure in a shock. That cluster shows up in the 0.91 drawdown component and in a benchmark beta of 0.76 with only 27% in equities. I accept that diagnosis and withdraw three overstatements. First, 14.8 effective assets is weight dispersion, not risk dispersion. Second, the method equalises standalone risk, not risk contributions, so it is not 'equal-risk'. Third, excluding cash and short Treasuries (decision 61) does compliance work and is not neutral. I also concede that the expansion-regime claim about unreliable return forecasts was asserted rather than shown, and that the tail figures are a lower bound for long Treasuries, gold and commodities. The levers would not repair the weakness, because none of them adds correlation awareness. They only reshuffle 1/σ weights. The portfolio is pinned between two thin margins: volatility 0.03 points above the floor and drawdown about 2 points inside the limit. Shrinking toward equal weight reduces the credit block but adds equity, REIT, EM and commodity risk, eroding the drawdown headroom. A max-weight cap or a credit exclusion redistributes pro rata, lowering volatility toward the floor or diluting intermediate Treasuries, the main offset to credit. Each would likely create a hard IPS breach the original lacks in exchange for a partial fix, so the change costs more than it fixes. The portfolio's value to the CIO is as a transparent anchor that no expected-return estimation error can reach. Its known and now accurately described blind spot, correlated credit, should be offset by blending with a correlation-aware or tail-aware proposal, not patched with levers that would turn it into a different, IPS-fragile method. The CIO should treat its volatility and drawdown compliance as fragile under a covariance refresh.",
+    "revision_of": "pc/inverse_volatility/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- cvar_minimization: I accept the central point and do not move the weights. Standalone volatility is not risk contribution. About 42.7% of the weight sits in HY, IG, international corporates, international sovereigns and USD EM debt, and these fall together in a spread shock. The 14.8 effective assets measures weight dispersion, not risk dispersion. My claim that 'no one-way view dominates' was overstated, and I withdraw it: the portfolio carries an implicit spread-and-duration bet that the method cannot see. I also accept that the tail is understated. Long Treasuries, gold and commodities have their worst episodes before 1993, so the -22.85% drawdown is a lower bound. I accept, too, that excluding cash and short Treasuries (decision 61) does compliance work. It was not neutral, and 'not moved toward the IPS band' should read 'not tuned within the restricted universe'. I partly rebut the procyclicality point. The weights come from a shrunk covariance estimated over the full 400-month panel, not from a short trailing window. Today's tight spreads and low realised credit volatility therefore do not mechanically raise the credit weights. The match between ex-ante and backtest volatility (8.03% vs 8.04%) is consistent with this. On returns, I concede that my expansion-regime claim, that return forecasts are less trustworthy than risk estimates, was asserted rather than shown. Why I still decline the levers: the portfolio sits 0.03 points above the 8% volatility floor and about 2 points inside the -25% drawdown limit, and every lever I have trades one margin against the other. Shrinking toward equal weight cuts the credit block, but it moves weight into equities, REITs, EM and commodities, and raises drawdown toward or past the limit. A 10% cap, or excluding HY or EM debt, scales up the rest pro rata. That trims intermediate Treasuries, the main offset to credit, or lowers volatility toward the floor. None of these controls correlation. Controlling correlation is the job of a correlation-aware or tail-aware complement in the CIO blend, which is where your method belongs. market_cap_weight: You flagged a technical imprecision, and I accept it. Inverse volatility sets weights proportional to 1/σ. That equalises standalone risk, not risk contributions, which are equal only if correlations are zero or uniform. They are not uniform here, because of the credit/sovereign cluster. 'Equal-risk-style' and 'risk allocated in proportion to how little each asset moves' were therefore too strong. The correct description is that each asset's standalone volatility times its weight is equal; risk contributions are not, and they are tilted toward the correlated credit block. I accept your other points. The exclusion of cash and short Treasuries carries compliance weight, and the case should say so plainly. The two hard constraints are fragile at once: volatility is 0.03 points above the floor and drawdown about 2 points inside the limit. The 4.56% tracking error is a by-product of volatility weighting against a benchmark that is 60% US large cap, not a chosen active view. The 0.36 forward Sharpe leaves return on the table if the judged CMAs are informative. I do not revise the weights, because the levers available cannot fix both fragile margins together. Shrink-to-equal adds equity, REIT, EM and commodity weight and erodes the drawdown headroom. A cap or an exclusion of credit sleeves redistributes pro rata and pushes volatility toward or below the floor. Either would swap a passing portfolio with known, disclosed weaknesses for one with a likely new hard breach. That costs more than it fixes. I agree with your conclusion: this is a robust, low-estimation-error core that needs a correlation-aware or drawdown-aware complement, and that pairing is the CIO's to make.",
+    "tuning": null
+  }
+}

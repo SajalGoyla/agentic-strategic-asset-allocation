@@ -1,0 +1,186 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-inverse-volatility",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.256359Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1187,
+        "output_tokens": 1471,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.036354,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "inverse_volatility",
+    "method": "Inverse volatility",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.05182796970855895,
+      "us_small_cap": 0.03928108739525138,
+      "us_value": 0.05157337560843834,
+      "us_growth": 0.04525804002090018,
+      "intl_developed": 0.04782434400790051,
+      "emerging_markets": 0.03457540213040659,
+      "intermediate_treasuries": 0.11852453363804508,
+      "long_treasuries": 0.06157562726609216,
+      "ig_corporates": 0.10723474254089206,
+      "hy_corporates": 0.09062211290995156,
+      "intl_sovereigns": 0.09050493356779525,
+      "intl_corporates": 0.0833558300566781,
+      "usd_em_debt": 0.05468720977259024,
+      "reits": 0.0402903383129239,
+      "gold": 0.04280246972880535,
+      "commodities": 0.04006198333477023
+    },
+    "expected_return_pct": 6.545582007743245,
+    "expected_volatility_pct": 8.033388122288708,
+    "sharpe_ratio": 0.36417784914763307,
+    "effective_n": 14.780865116048608,
+    "ex_ante_tracking_error_pct": 4.562428687731807,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Inverse volatility never reads the expected returns, so none of their estimation error can reach these weights. It uses only each asset's own volatility, the diagonal of the covariance matrix, so correlation estimation error does not reach it either. That is the heuristic family's argument in Ang, Azimbayev and Kim (2026) §3.4: such methods hold up when returns are poorly measured. The portfolio's 6.55% expected return and 0.36 Sharpe are scored against the judged CMAs, but the weights were not tuned to them. In an expansion regime, where return forecasts are typically more dispersed and less trustworthy than risk estimates, that independence is the selling point. The portfolio is also well spread. It holds 14.8 effective assets out of 18, with a Herfindahl of 0.073. Concentration is the usual failure of the return-optimized proposals, whose near-singular covariance matrices push most of the weight into a few names. Here the spread is the method working as designed. Risk is allocated roughly in proportion to how little each asset moves, and no single asset or one-way view dominates. Against equal weight it tilts toward intermediate Treasuries, investment-grade corporates and the other credit and sovereign sleeves, and away from equities and emerging markets. That is a covariance-driven tilt, not a return forecast. Two points on scope. First, the method was run over the universe without cash and short Treasuries (decision 61). Their zero weight is a construction choice, not a view on liquidity or safety. Left unrestricted, inverse volatility would have put most of the portfolio in them at far below the IPS volatility floor. Second, the portfolio passes the ex-ante IPS limits for return, volatility and tracking error under the ratified IPS. It sits at 8.03%, just above the 8% floor, so the margin is thin. The 4.56% tracking error against the benchmark is the cost of an equal-risk-style design. The drawdown limit is a backtest measure the CRO will check, so this is not yet a full compliance claim. It has no tuned parameter. Its only knob is the volatility exponent, and changing that makes it a different method. The portfolio was therefore not moved toward the IPS band.",
+    "revision_of": null,
+    "notes": "Key assumption: Each asset's own volatility is a usable proxy for the risk it brings, and returns per unit of volatility are roughly similar across assets, so that weighting inversely to volatility costs little in expected return. Correlations are assumed not to matter enough to estimate. Main weakness: It ignores correlations completely. Because it looks only at standalone volatility, it overweights a cluster of correlated credit and sovereign bonds (high yield, investment-grade and international corporates, international sovereigns, emerging-market debt). Together these make up a large share of the portfolio and can fall at the same time in a credit or rate shock, even though each looks calm alone. That is a hidden concentration that the 14.8 effective assets figure does not show, since it measures weight dispersion, not risk dispersion. It also ignores returns, so it will underweight assets whose compensation is high relative to their volatility. Its 0.36 Sharpe sits below what a return-aware method can reach if the CMAs are good. Preferred when: It should be preferred when the CMAs are judged unreliable or the regime is uncertain enough that return forecasts add more noise than information, and when the covariance matrix is ill-conditioned so that full-matrix methods would be unstable. It also suits being the transparent, low-estimation-error anchor in the CIO's ensemble: a robust diversified core to blend with return-aware or tail-aware proposals that bring the views this one lacks. It is a better pick than inverse variance when a less extreme low-volatility tilt is wanted, and against risk parity when a simpler method with no covariance inversion is preferred. Invalidated if: It is the wrong choice if correlations across the heavy bond sleeves rise sharply toward one in stress, because the portfolio would then behave like a single concentrated credit and duration bet. It is also wrong if the CMAs prove accurate and clearly differentiated, since a return-aware method would then earn a materially higher Sharpe at similar risk. It also fails if volatility stops being a good guide to risk, for example if a low-volatility asset proves fragile in the tail, or if the 8.03% volatility drifts below the 8% IPS floor once the covariance estimate is refreshed, which would make it non-compliant on its own.",
+    "tuning": null
+  }
+}

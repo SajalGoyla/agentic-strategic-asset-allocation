@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-maximum-diversification",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.334361Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/market_cap_weight/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/market_cap_weight/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3816,
+        "output_tokens": 3021,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.0385228,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "maximum_diversification",
+    "reviewer_category": "risk_structured",
+    "reviewed_agent_id": "market_cap_weight",
+    "reviewed_category": "heuristic",
+    "kind": "inter_category",
+    "strengths": [
+      "It needs no return forecast and no covariance estimate, so it carries no estimation error from either. This is the one proposal whose weights cannot be blamed on noisy CMAs. That is a real property and it is stated honestly.",
+      "It passes the ex-ante limits unaided: volatility is 11.78%, expected return clears the floor, and tracking error is 3.68%. It needed no repair step or leverage.",
+      "The proposal's own numbers are internally consistent. A Herfindahl of about 0.264 follows from the weights, and the effective-N of 7.0 is a sensible entropy measure.",
+      "It is candid about its weaknesses. It states the 0.32 Sharpe, the roughly 49% single-asset concentration, and that gold is sized by ETF AUM rather than by a view.",
+      "It has real use as a reference point for the CIO: a low-turnover core against which the tracking-error cost of any tilt can be measured."
+    ],
+    "weaknesses": [
+      "The core premise is that market weights are close to efficient, but the weights are ETF AUM, not global market capitalisation. Fixed income is only about 11% here against roughly 40-50% of global investable assets, and gold is about 9% only because gold ETFs are large. The CAPM argument therefore does not carry over to this portfolio, which is a US-equity-heavy and gold-heavy slice of the ETF universe.",
+      "The premise needs equal beliefs, a stable market portfolio and an all-asset market. Nothing in the current expansion regime supports that. An expansion says little about drawdown risk, which comes from equity concentration whatever the regime. A benign-regime argument is weakest exactly where this portfolio is most exposed.",
+      "The CRO reports a backtest maximum drawdown of -40.6% against the -25% IPS limit, a breach of about 16 points. The IPS is ratified, so a limit breach of this size is material. The proposal's own 'invalidated if' clause says a drawdown breach would count against it, and that condition is now met.",
+      "About 73% is in listed equity (77% with REITs) and about 11% in fixed income, with intermediate treasuries 27.5% under the benchmark. The realised beta is 1.23. The portfolio has almost nothing that offsets a 2000-02 or 2008-type sell-off. Gold is the only meaningful diversifier, and its weight comes from ETF size, not a view on its role.",
+      "Several asset slices overlap: us_large_cap, us_growth, us_value and us_small_cap. Capitalisation weights across overlapping style ETFs double-count US equity and mix categories. The 48.8% large-cap weight is partly an artefact of how the universe is cut.",
+      "Volatility sits near the IPS ceiling (CRO component 0.95), so there is no buffer if equity volatility rises. Tracking error is also concentrated in the equity-long, duration-short tilt, which bites when equities and bonds diverge.",
+      "The proposal puts 'no estimation error' forward as its main merit. But this passivity swaps estimation risk for an unexamined concentration risk, and it does not say why the market's equity share is the right risk level for this mandate. Its risk-and-return case is also unconvincing: expected return of 7.43% on 11.78% volatility gives a Sharpe of 0.32."
+    ],
+    "technical_errors": [
+      "The proposal presents ETF market values as 'the market portfolio' and says nothing in the pipeline can distort the weights. ETF AUM is a flow- and product-driven subset of the market, and it overlaps across style funds. The CAPM mean-variance-efficiency claim cannot be applied to weights built this way, so the efficiency argument does not follow from the method as executed."
+    ],
+    "score": 0.42,
+    "rationale": "This is the passive null, and as a null it has value. It carries no input error, it meets the ex-ante limits, and the proposer is honest about the Sharpe and the concentration. My challenge goes to the premise. The method has to believe that ETF-AUM weights approximate the efficient market portfolio, and they do not: bonds are badly underweighted relative to the true market, gold is sized by product popularity, and overlapping US equity slices are double-counted. The expansion regime does not make that belief any safer. The CRO's -40.6% drawdown against the ratified -25% limit follows directly from the 73-77% equity weight with little duration, and it meets the proposer's own invalidation condition. The breach does not disqualify the portfolio, since the limits bind on the CIO's final choice. It does mean that as a final portfolio this would need heavy modification, and its value to the ensemble is mainly as a benchmark for what tilts cost. I score it a little below the midpoint for an honest but premise-weak proposal."
+  }
+}

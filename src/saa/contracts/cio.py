@@ -48,6 +48,36 @@ class EnsembleMethod(StrEnum):
     TRIMMED_MEAN = "trimmed_mean"
 
 
+class RepairKind(StrEnum):
+    """How an ensemble that breached the IPS was brought inside it (decision 62)."""
+
+    # The candidate mix was shifted, by the least squared change in ensemble weights, until
+    # the blend complied: every holding is still some candidate's.
+    REWEIGHTED = "reweighted"
+    # The fallback: the asset allocation itself was moved to the nearest compliant one.
+    ASSET_PROJECTION = "asset_projection"
+
+
+class PolicyRepair(Contract):
+    """What it took to make the chosen ensemble IPS-compliant. Absent when it complied as built.
+
+    The paper publishes a 7.54%-volatility portfolio against an 8-12% band; ours binds hard on
+    both sides with no leverage, and averaging lowers volatility, so the repair is ours and is
+    recorded rather than hidden.
+    """
+
+    kind: RepairKind
+    breached: list[str]
+    # The ensemble technique's own weights, before any repair.
+    recipe_weights: dict[str, float]
+    # Half the absolute change in ensemble weights; zero for an asset projection.
+    ensemble_weight_moved_pct: float = Field(ge=0.0, le=100.0)
+    # One-way turnover between the unrepaired and the repaired asset allocation.
+    asset_turnover_pct: float = Field(ge=0.0, le=100.0)
+    unrepaired_volatility_pct: float
+    unrepaired_max_drawdown_pct: float
+
+
 class MethodScore(Contract):
     """One PC method scored on the six dimensions. Each score is 0-1."""
 
@@ -133,6 +163,8 @@ class CioDecisionBody(Contract):
     # The IPS escalation rules this decision triggers, evaluated by the script, not the model
     # (decision 53): the first paid run's memo said none fired while one had.
     escalations: list[str] = Field(default_factory=list)
+    # How the ensemble was brought inside the IPS, if it was not compliant as built.
+    policy_repair: PolicyRepair | None = None
 
     @model_validator(mode="after")
     def _weights_and_compliance(self) -> CioDecisionBody:

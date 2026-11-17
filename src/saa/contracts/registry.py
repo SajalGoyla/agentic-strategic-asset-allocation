@@ -122,9 +122,10 @@ _SPECS = [
         name=portfolio.COVARIANCE_CONTRACT,
         filename=portfolio.COVARIANCE_FILENAME,
         body=portfolio.CovarianceBody,
+        judgment=portfolio.CovarianceJudgment,
         stage="pc",
-        produced_by=Producer.SCRIPT,
-        description="Asset-class covariance matrix (§3.1 step 3)",
+        produced_by=Producer.HYBRID,
+        description="Asset-class covariance matrix (§3.1 step 3), chosen by the covariance agent",
     ),
     Spec(
         name=portfolio.PROPOSAL_CONTRACT,

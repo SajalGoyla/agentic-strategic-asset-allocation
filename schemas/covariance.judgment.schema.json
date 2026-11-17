@@ -1,0 +1,36 @@
+{
+  "$defs": {
+    "CovarianceMethod": {
+      "enum": [
+        "sample",
+        "ledoit_wolf",
+        "exponential",
+        "regime_conditional"
+      ],
+      "title": "CovarianceMethod",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The covariance agent's LLM half (decision 63): which validated estimator to hand the PC\nagents, given the macro regime and each estimator's out-of-sample record. The matrices and\nthe record are computed; the model only chooses among them and says why.",
+  "properties": {
+    "method": {
+      "$ref": "#/$defs/CovarianceMethod"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "what_would_change_it": {
+      "title": "What Would Change It",
+      "type": "string"
+    }
+  },
+  "required": [
+    "method",
+    "rationale",
+    "what_would_change_it"
+  ],
+  "title": "CovarianceJudgment",
+  "type": "object"
+}

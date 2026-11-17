@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "vote",
+    "agent": "vote-risk-parity",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:35:01.240599Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 334,
+        "output_tokens": 1528,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.047288,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "risk_parity",
+    "top_five": [
+      "inverse_volatility",
+      "tail_risk_parity",
+      "resampled_efficient_frontier",
+      "cvar_minimization",
+      "maximum_diversification"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "Governing IPS status as given to me: ratified. Reviewers also treat the IPS limits as binding. I ranked for what the CIO can build from in a late-cycle regime, where covariance-based methods deserve more trust than return-forecast methods. 1) inverse_volatility: no hard IPS breaches, 14.8 effective N, -22.9% backtest drawdown inside the -25% limit, and no tuned parameter. Its reviewer found the weights check out. The weakness is that it ignores correlation across the roughly 43% in credit and sovereign sleeves, which is a known limit and not an error. 2) tail_risk_parity: covariance-only, 14.4 effective N, -20.9% drawdown, and its only breach is volatility at 7.67% against the 8% floor, which is a small shortfall that a blend can fix. The intra-category review found only a denominator quibble. 3) resampled_efficient_frontier: compliant and well diversified at 13.1 effective N, but the -24.84% drawdown is only 16bp inside the limit, as its reviewer noted, and the 8% volatility point was tuned. 4) cvar_minimization: compliant with the best drawdown among compliant names at -18.7%. It holds only 4 assets (2.9 effective N) and the volatility was walked up to exactly 8.00%, so it is a diversifying sleeve and not a core holding. 5) maximum_diversification: -16.8% drawdown and a covariance-only construction, which fits the regime. It breaches volatility and tracking error, and its reviewer says the TE breach is structural, so it only works in a blend. My first choice beats my fifth because inverse_volatility is IPS-compliant on its own with a simple, auditable construction. The fifth needs a blending partner to fix its 6.88% tracking error. I did not rank black_litterman or max_sharpe: the late-cycle evidence in §4.3 favours covariance methods over return forecasts, and reviewers flagged max_sharpe's drawdown breach and 3.1 effective N. I flag market_cap_weight at the bottom. Its -40.6% backtest drawdown breaches the limit by 15.6 points, and its CRO risk score is 0.80, far above the others. It is about 77% equity, and its reviewer shows that ETF AUM weights are not a market portfolio and double-count overlapping style funds. I did not flag adversarial_diversifier, since its orthogonality is valuable in an ensemble."
+  }
+}

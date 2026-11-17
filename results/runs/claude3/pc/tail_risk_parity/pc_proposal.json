@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-tail-risk-parity",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.268992Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1378,
+        "output_tokens": 1437,
+        "cache_read_tokens": 7708,
+        "cost_usd": 0.0186676,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "tail_risk_parity",
+    "method": "Tail-risk parity",
+    "category": "non_traditional",
+    "weights": {
+      "us_large_cap": 0.043992552117493096,
+      "us_small_cap": 0.034968787759387096,
+      "us_value": 0.04362922294299002,
+      "us_growth": 0.04118572496191879,
+      "intl_developed": 0.039987864962929935,
+      "emerging_markets": 0.03146817259016892,
+      "intermediate_treasuries": 0.14247324112445534,
+      "long_treasuries": 0.07638404196147947,
+      "ig_corporates": 0.10619243628587038,
+      "hy_corporates": 0.08328081196610986,
+      "intl_sovereigns": 0.08904996419846561,
+      "intl_corporates": 0.07747619569999015,
+      "usd_em_debt": 0.04960064890608949,
+      "reits": 0.03655516373182267,
+      "gold": 0.05653791667063453,
+      "commodities": 0.04721725412019463
+    },
+    "expected_return_pct": 6.425051986033557,
+    "expected_volatility_pct": 7.667003967375982,
+    "sharpe_ratio": 0.3658602497102373,
+    "effective_n": 14.433463423838603,
+    "ex_ante_tracking_error_pct": 4.961372711720621,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 7.67% outside the 8.0-12.0% band",
+          "observed": 7.667003967375982,
+          "limit": 8.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Tail-risk parity equalises each asset's contribution to downside semicovariance (shortfalls below each asset's mean; Estrada 2008) using Spinu's convex solver, and it reads no expected returns. The 6.43% return and 0.37 Sharpe are computed from the judged CMAs after the fact, so they are not something the method chose. That matters in an expansion regime, where return forecasts are the thing most likely to be crowded and noisy. This portfolio does not depend on any of them. Its risk budget comes from how the 18 assets actually fell together in the monthly scenarios since 1993.\n\nThe diversification is real, not a by-product of a near-singular matrix. The effective number of assets is 14.4 of 18 and the Herfindahl is 0.077. Nothing is concentrated beyond what the method's own logic produces. The tilts toward intermediate Treasuries, investment-grade and international credit, and the 8.3% in high yield are what the method yields when equity-like assets carry heavy downside semivariance and bonds carry less. This is the method working as designed, not a view on credit. Gold and commodities keep small, roughly equal shares because their downside semivariance is moderate and they fall at different times from equities.\n\nThe IPS breach is on volatility: 7.67% against an 8.0% floor. It is a narrow miss, and the portfolio is otherwise compliant on the ex-ante limits, with tracking error of 4.96%. The method has no parameter that moves it into the band without turning it into a different method, so I do not tune it. Reaching the target with risk-parity-style leverage is ruled out by the IPS. The band binds on the CIO's recommendation, not on this candidate. What the portfolio offers a compliant ensemble is a broadly spread, return-agnostic, tail-aware anchor. A CIO can blend it with a higher-risk, return-informed candidate and reach the band while keeping a diversified downside structure that does not rest on the CMAs. Without that anchor, an ensemble drifts toward the optimisers that rely on forecasts.\n\nDecision 61 matters for reading the weights. Cash and short Treasuries were removed from the investable set for this method. Their zero weight is a design choice, not the method's view of liquidity. Left unrestricted, tail-risk parity would have held most of the portfolio there at under 3% volatility. The portfolio should be read as a risk-balanced allocation across the remaining 16 assets and not as a statement about cash. The IPS is ratified, so the volatility shortfall is a real policy breach and not a draft-status technicality.",
+    "revision_of": null,
+    "notes": "Key assumption: The downside co-movement in the 1993-onward monthly scenarios (semicovariance below each asset's mean) is a fair guide to how the assets will behave in future stress, so equalising those risk contributions will balance future losses. Main weakness: It is exposed to the sample's tail history. If the historical window under-represents a regime in which stocks and bonds fall together (an inflation shock, for example), Treasuries and investment-grade credit will look like better hedges than they are. The portfolio also holds 8.3% in high yield and 7.7% in international corporates, whose downside correlation with equities rises in stress. Semicovariance is estimated from limited tail observations and is noisy. Finally, it sits below the 8% volatility floor, so it breaches the IPS on its own and cannot be recommended unblended. Preferred when: When return forecasts are poorly measured or the CMA process is under doubt, and when the committee's priority is limiting drawdown and tail loss rather than hitting a return target. It is best used as a component in a CIO ensemble, which can lift volatility into the band with higher-risk candidates. It is preferred over covariance-only methods when asymmetric loss matters and downside semicovariance differs materially from full covariance. Invalidated if: It is the wrong choice if the forward environment has stock-bond and credit-equity correlations well above their 1993-onward downside behaviour, so the bond-heavy tilt fails to hedge. It is also wrong if the CIO cannot find a compliant ensemble partner that lifts volatility to at least 8% without breaching tracking-error or drawdown limits, or if the CRO's backtest drawdown check shows losses the semicovariance model did not anticipate.",
+    "tuning": null
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.460481Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_developed/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/intl_developed/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/intl_developed/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3916,
+        "output_tokens": 2580,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.0700876,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/intl_developed/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intl_developed",
+    "horizon_years": 3,
+    "expected_return_pct": 8.18,
+    "volatility_pct": 15.9996,
+    "method_range": [
+      7.6698,
+      8.9449
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "historical_erp",
+          "weight": 0.25
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.25
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "inverse_gordon",
+          "weight": 0.1
+        },
+        {
+          "method": "implied_erp_cape",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 8.18,
+      "confidence": "medium",
+      "dispersion": "tight",
+      "regime_logic": "The stage-1 call is an expansion, but a fragile, late-cycle-adjacent one. It is held at low confidence (0.35), inflation is sticky, policy is restrictive and recession odds are 20-30%. Exhibit 4 says late-cycle should tilt toward regime-adjusted and valuation methods. Here the only real valuation input is a structurally cheap EAFE earnings yield (see valuation_context), so I put the late-cycle tilt into regime_adjusted rather than the valuation methods. I give regime_adjusted equal weight with historical_erp, above its confidence-based share. Its forward-looking construction is informative here: excess returns in the three years after past expansion months were +3.34%, against +4.41% unconditionally, which fits a late-cycle starting point. I do not weight it more heavily for two reasons. The regime label itself is low-confidence, and the 155-month sample mixes two different cycles. Europe is about 60% of the index, exposed to energy costs and ECB policy. Japan is about a fifth, where the governance-reform story has its own momentum. One US-centred regime label fits neither cycle cleanly.",
+      "valuation_context": "EAFE screens cheap. The trailing earnings yield is 5.37%, which drives implied_erp_cape to the top of the range at 8.94%. Key consideration 4 warns that this asset will always look cheap on CAPE against the US. Much of the discount reflects a structurally different sector mix: less technology, and more financials, industrials and staples. Lower long-run growth and governance differences explain more of it. Those parts are not mean-reverting over a 3-year horizon. I therefore cut implied_erp_cape slightly to 15% weight, and I do not credit any valuation re-rating. I also discount inverse_gordon to 10%, for reasons specific to its inputs:\n- its yield is dividends only, with zero buybacks (Compustat Global has none);\n- its growth term is US SPF real GDP and CPI applied to Europe and Japan;\n- its valuation drift is set to zero for lack of history.\nWith those adjustments, the valuation methods still sit above the backward-looking ones, so valuation adds a modest upward lean rather than a large one. On key consideration 5: the historical, regime and BL candidates are built on the 4.03% US T-bill, not on Bund, JGB or Gilt yields. Local yields are lower than US bills, so a build-up anchored to local rates would come out somewhat lower in local terms. The gap would be offset in USD terms by expected currency carry. I treat the two effects as netting and do not adjust for them.",
+      "signal_alignment": "The composite signal is mildly positive (+0.14), but its components conflict. Momentum is positive (12-1 at +0.33; relative momentum at +0.56, the strongest cross-asset rank). Mean reversion is firmly negative at -0.64, after a 3-year annualised return of 18.3% that is well above the long-run 5.9% since 1990. Trend is flat. Part of that 3-year run is dollar weakness: the USD share class is unhedged, so currency drives both return and volatility. Mean reversion therefore partly implies a risk that the dollar recovers. The macro alignments are close to zero, apart from a small positive from easy financial conditions. Overall, the signals do not justify moving away from the centre of a tight range in either direction. They are consistent with a marginal trim below the auto-blend, not with a call above it. The short-term momentum is real, but a 3-year horizon is long enough for the mean-reversion signal to matter.",
+      "rationale": "Dispersion is tight: 7.67-8.94%, a 1.28pp spread. The decision is therefore about modest tilts, not method selection. I use a custom blend that cuts the two valuation-based methods relative to the auto-blend and lifts regime_adjusted and bl_equilibrium. The weights are 25% each for historical_erp, regime_adjusted and bl_equilibrium, 10% for inverse_gordon and 15% for implied_erp_cape. The result is 8.18%, 0.07pp below the auto-blend's 8.25%.\n\nThe reasons for the tilts:\n- Per key consideration 4, EAFE's persistent CAPE and earnings-yield discount is mostly sector mix and structure, not mean-reverting sentiment. I do not let the cheapness signal pull the estimate up.\n- The Gordon candidate uses dividends-only inputs and US-based growth, so it gets less weight than its confidence implies.\n- The late-cycle-adjacent regime supports the lower regime-conditioned premium.\n\nThe markdown is small and close to the paper's -0.3pp. That is deliberate, because return estimates are the least reliable input in the chain.\n\nOn currency (key consideration 1), the estimate assumes no expected contribution from the dollar in either direction. The candidates are USD-denominated, but none forecasts FX. Dollar moves enter through the 16% volatility, not the mean. The recent 3-year outperformance was partly dollar weakness, and I do not extrapolate it.\n\nConfidence is medium. The candidates agree closely, but the regime call is weak, the index combines distinct European and Japanese cycles, and currency adds variance that none of the methods forecasts.\n\nThe governing IPS (config/ips.yaml) is ratified."
+    }
+  }
+}

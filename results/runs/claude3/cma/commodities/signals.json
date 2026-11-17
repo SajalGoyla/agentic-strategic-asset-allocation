@@ -1,0 +1,113 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "signals",
+    "agent": "commodities",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:22:30.118988Z",
+    "produced_by": "script",
+    "provenance": {
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      },
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "valuation/shiller_us_equity": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cd7bd92e01df213fd104d43c233311469dc988ee65ff898fa7543d4b84c87027"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      }
+    },
+    "inputs": [],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [],
+    "report_path": "reports/signals.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "commodities",
+    "signals": [
+      {
+        "name": "momentum_12_1",
+        "category": "technical",
+        "value": 0.3935010695899521,
+        "score": 0.6722626478369461,
+        "rationale": "11-month return skipping the last 1, vs. its own history",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "trend",
+        "category": "technical",
+        "value": 0.15976932610952677,
+        "score": 0.5601254623056223,
+        "rationale": "price against its 10-month moving average",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "mean_reversion",
+        "category": "technical",
+        "value": 0.43331918178013407,
+        "score": -0.4209725074416409,
+        "rationale": "36-month return, inverted: a stretched run tends to revert",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "relative_momentum",
+        "category": "technical",
+        "value": 0.3935010695899521,
+        "score": 1.0,
+        "rationale": "momentum rank against the other 17 asset classes",
+        "source": "market/asset_returns_monthly"
+      },
+      {
+        "name": "regime_fit",
+        "category": "macro",
+        "value": 0.0006863074613495659,
+        "score": 0.024455503817500293,
+        "rationale": "mean return in 160 past 'expansion' months vs. its unconditional mean",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "growth_alignment",
+        "category": "macro",
+        "value": 0.19431411152873973,
+        "score": 0.010243142331155156,
+        "rationale": "correlation with the growth score (+0.19) times its level today (+0.05)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "inflation_alignment",
+        "category": "macro",
+        "value": -0.04784558583030462,
+        "score": 0.01293146142017505,
+        "rationale": "correlation with the inflation score (-0.05) times its level today (-0.27)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "monetary_policy_alignment",
+        "category": "macro",
+        "value": 0.18901518789728103,
+        "score": -0.041038630719525016,
+        "rationale": "correlation with the monetary_policy score (+0.19) times its level today (-0.22)",
+        "source": "macro/regime_history"
+      },
+      {
+        "name": "financial_conditions_alignment",
+        "category": "macro",
+        "value": 0.29123220396469646,
+        "score": 0.10284143464066266,
+        "rationale": "correlation with the financial_conditions score (+0.29) times its level today (+0.35)",
+        "source": "macro/regime_history"
+      }
+    ],
+    "composite_score": 0.33759142739253073
+  }
+}

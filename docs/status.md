@@ -3,8 +3,9 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-11-04.** Phases 1-3 are complete: every stage runs end to end on Claude, and two
-paid runs (`claude1`, `claude2`) have produced board memos. Phase 4 (out-of-sample backtests,
+**As of 2026-11-18.** Phases 1-3 are complete: every stage runs end to end on Claude, and three
+paid runs (`claude1`, `claude2`, `claude3`) have produced board memos. `claude3` is the first
+with the faculty's cash fix, the reweighting repair and the covariance agent (decisions 61-63). Phase 4 (out-of-sample backtests,
 historical as-of runs, stress tests, visualisation) is next and passes to Shambhawi; see
 "Paid runs" and "Next, in order" below. `main` is the only source of truth.
 
@@ -41,7 +42,7 @@ historical as-of runs, stress tests, visualisation) is next and passes to Shambh
 
 **Milestone M1 (data and macro layer live, week 3): met.**
 **Milestone M2 (CMA layer complete, week 6): met, a week early** — all 18 assets have candidate
-methods, a judge and a validation check; the covariance agent is live; the full PC roster (15
+methods, a judge and a validation check; the covariance skill is live (the agent that chooses among its estimators came later, decision 63); the full PC roster (15
 agents across Exhibit 5's four families, plus the researcher and the adversarial diversifier)
 produces candidate portfolios.
 **Milestone M3 (deliberation and CIO ensemble complete, week 9): met** with the paid runs
@@ -137,7 +138,7 @@ the risk methods (still 1.6-5.7% volatility, now in short Treasuries).
 | IPS ratification as a whole (`status: owner_approved` since 2026-11-09) | Prof. Glasserman | Nothing; every figure is settled and every header records the standing |
 | Note to faculty: the return objective is now a floor only, CPI + 3% (decision 41), not the paper's 3-4% band | Prof. Glasserman (FYI) | Nothing; adopted |
 | Note to faculty: the paper specifies no deflator, so the real-return test uses `EXPINF3YR` (decision 55) | Prof. Glasserman (FYI) | Nothing; adopted |
-| Asset-class floors: four risk methods collapse into 62-92% cash without them (§5.2 calls bounds IPS content) | Prof. Glasserman | A re-run of stages 4-6; the largest behavioural gap against the paper |
+| ~~Asset-class floors~~ Settled 2026-11-10: faculty chose running the risk-only methods over the risky assets (decision 61), applied in `claude3` | Prof. Glasserman | Nothing |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
 | Does the authors' 13-section list exist? Ours is reconstructed from Exhibit 3 (decision 57) | Prof. Glasserman | Nothing; the reports say they are a reconstruction |
 
@@ -348,26 +349,38 @@ every candidate (8.40 vs 8.41, 14.99 vs 15.09). That is not independent confirma
 Ledoit–Wolf matrix is estimated over the same history the backtest runs through. It will stop
 agreeing once the Phase 4 backtest estimates the matrix out of sample.
 
-## Paid runs (2026-10-29 to 2026-11-03)
+## Paid runs (2026-10-29 to 2026-11-18)
 
-Both as of 2026-10-01, Opus 5.5 for macro, CMA judge, researcher, revisions and CIO; Sonnet 5.5
-for the PC agents, CRO, reviews and ballots (decision 51). Both run folders are committed under
+All as of 2026-10-01, Opus 5.5 for macro, CMA judge, researcher, revisions and CIO; Sonnet 5.5
+for the PC agents, CRO, reviews and ballots (decision 51). Every run folder is committed under
 `results/runs/`, where every new run is now written (decision 54).
 
 - **`claude1`** (all six stages, about $5.00 recorded; an earlier CMA-judge attempt that failed
   on the schema bug of decision 52 cost a further $2-4, unrecorded). Its reviewers' findings
   became decision 53.
 - **`claude2`** (stages 4-6 rerun on `claude1`'s stages 1-3 after decision 53, $3.68).
+- **`claude3`** (all six stages afresh, $5.49), after the faculty's reply of 2026-11-10: the
+  risk-only methods without cash-like assets (61), the reweighting repair (62) and the
+  covariance agent (63), plus Shambhawi's per-asset descriptions and 13-section cases (57-58).
+  Its CIO stage ran before the repair priced increases by the vote (62, amended); replayed free
+  with that change, the deterministic pick is regime-conditional at 6.74% / 8.00% / 0.39.
 
-| | `claude1` | `claude2` | 60/30/10 benchmark | Paper §4.4 |
-|---|---|---|---|---|
-| CIO's ensemble | meta-optimisation | composite score | – | inverse TE |
-| Expected return | 7.26% | 6.94% | 6.68% | 6.87% |
-| Volatility | 8.00% | 8.00% | 9.37% | 7.54% |
-| Sharpe | 0.43 | 0.39 | 0.31 | 0.43 |
-| Effective assets (entropy) | 9.9 | 14.5 | – | 11.2 |
-| Backtest max drawdown | −23.1% | −23.2% | – | −25.6% |
-| Cash + short Treasuries | 5.7% | 18.4% | – | 15.4% |
+| | `claude1` | `claude2` | `claude3` | 60/30/10 benchmark | Paper §4.4 |
+|---|---|---|---|---|---|
+| CIO's ensemble | meta-optimisation | composite score | composite score | – | inverse TE |
+| Expected return | 7.26% | 6.94% | 6.73% | 6.68% | 6.87% |
+| Volatility | 8.00% | 8.00% | 8.00% | 9.37% | 7.54% |
+| Sharpe | 0.43 | 0.39 | 0.39 | 0.31 | 0.43 |
+| Effective assets (entropy) | 9.9 | 14.5 | 14.9 | – | 11.2 |
+| Backtest max drawdown | −23.1% | −23.2% | −23.3% | – | −25.6% |
+| Cash + short Treasuries | 5.7% | 18.4% | 5.1% | – | 15.4% |
+| Moved to meet the IPS | none | 13.5% (assets) | 5.6% (reweighted) | – | – |
+| Candidates >50% cash-like | – | 8 of 15 | 2 of 15 | – | – |
+
+`claude3` also: the covariance agent kept Ledoit-Wolf (records within 0.016; regime confidence
+0.35); the vote put inverse volatility 2nd and risk parity 5th, so two risk-based methods made
+the shortlist for the first time; the backtest drawdown of −23.3% passes the hard −25% limit with
+1.7 points to spare, the same headroom as the earlier runs.
 
 - **Macro:** expansion, "borderline late-cycle", confidence 0.36 (Gemini's dry run said
   late-cycle at 0.42; the paper, late-cycle). The 0.36 triggers the IPS regime-confidence
@@ -391,8 +404,8 @@ for the PC agents, CRO, reviews and ballots (decision 51). Both run folders are 
 2. Should Black-Litterman's Ω carry the CMA judge's per-asset confidence? Now
    Ω = diag(τΣ) / view_confidence with view_confidence = 1.
 3. The regime call differs by model (expansion vs late-cycle): which do we report?
-4. Keep the strict IPS projection, or tolerate near-misses as the paper's own pick did
-   (7.54% volatility, −25.6% drawdown)?
+4. ~~Keep the strict IPS projection?~~ Superseded: the band is hard on both sides (faculty,
+   2026-09-25), and the CIO now reaches it by reweighting candidates (decision 62).
 5. Is the CIO's run-to-run sensitivity acceptable, or should revisions be held to fewer moves?
 
 ## Next, in order

@@ -1,0 +1,222 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "scenarios",
+    "agent": "us-small-cap",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:44.025677Z",
+    "produced_by": "script",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/cash/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/commodities/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/emerging_markets/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/gold/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/hy_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/ig_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intermediate_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_developed/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_sovereigns/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/long_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/reits/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/short_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_growth/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_large_cap/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_small_cap/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_value/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/usd_em_debt/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [],
+    "report_path": "reports/scenarios.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "us_small_cap",
+    "scenarios": [
+      {
+        "name": "bear",
+        "expected_return_pct": 6.654,
+        "probability": null,
+        "narrative": "the most pessimistic available candidate is `inverse_gordon` at 6.65%, -2.69pp against the judged estimate. 1.21% dividends -0.86% net buybacks + 2.1% real growth + 2.3% inflation +0.00% valuation change + 1.90% variance add-back (net payout from WRDS 2025-12, rolled forward by IWM's price change; no long valuation history, drift 0)."
+      },
+      {
+        "name": "base",
+        "expected_return_pct": 9.34,
+        "probability": null,
+        "narrative": "The judge's estimate, 9.34%, by custom blend across 6 available candidates. This is the recommendation and the number every downstream agent consumes."
+      },
+      {
+        "name": "bull",
+        "expected_return_pct": 12.383,
+        "probability": null,
+        "narrative": "the most optimistic available candidate is `historical_erp` at 12.38%, +3.04pp against the judged estimate. +8.35% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield."
+      }
+    ]
+  }
+}

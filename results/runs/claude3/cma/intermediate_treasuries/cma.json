@@ -1,0 +1,80 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.472567Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/intermediate_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/intermediate_treasuries/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/intermediate_treasuries/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3793,
+        "output_tokens": 2160,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.061195599999999996,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/intermediate_treasuries/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intermediate_treasuries",
+    "horizon_years": 3,
+    "expected_return_pct": 5.26,
+    "volatility_pct": 6.4558,
+    "method_range": [
+      4.1253,
+      6.5445
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.85
+        },
+        {
+          "method": "survey_consensus",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 5.26,
+      "confidence": "medium_high",
+      "dispersion": "tight",
+      "regime_logic": "Stage 1 calls a fragile, late-cycle-adjacent expansion with sticky above-history inflation, at low confidence (0.35) and a 20-30% recession probability. For a 7-10 year Treasury, that state cuts both ways. A recession would pull yields down and lift price through roughly 7.5 years of duration. Sticky inflation and a still-restrictive policy score (-0.22) could push yields higher, and a nominal bond has no protection against that. Exhibit 4's late-cycle tilt toward regime-adjusted methods does not carry over here. The regime_adjusted candidate (6.54%) is built from post-1990 expansion months that sit inside a secular fall in yields, and the regime label is low-confidence. Because the regime read is ambiguous, I lean on the starting yield, which does not depend on the regime call. The inflation asymmetry is the reason for trimming slightly below it rather than adding to it.",
+      "valuation_context": "Valuation is the dominant lens for this asset, and it is unambiguous. The 7- and 10-year yields average 5.24%, which the yield_level signal scores +0.80, high against their own history. Over a horizon near duration, the entry yield explains most of the realised return, so yield_building_block (5.45%, including a 0.21pp variance add-back and no credit loss on Treasuries) is the anchor. The 3-year horizon is shorter than the ~7.5-year duration, so the yield path matters as well as the level: a 100bp rise over the horizon would cost about 7% of price, spread over three years. The SPF BOND10 consensus (4.00% compound) sits below today's yield. It is a 10-year average expectation and may embed some reversion or lag in the survey, so I use it as a modest counterweight for path risk rather than as a primary estimate. The historical methods (6.41%, 6.54%) are excluded. They capture 1990-2026 capital gains from falling yields, which cannot repeat from today's starting point in the same way, and they would double-count income the yield already prices.",
+      "signal_alignment": "The composite (+0.18) masks a split. Valuation is strongly bullish (yield_level +0.80). Technicals are bearish: trend -0.67, relative momentum -0.56, 12-1 momentum -0.28. These do not contradict each other. The weak trailing returns (1y -3.75%, 5y -2.06%) are the yield rise that produced today's attractive entry yield. Over a multi-year horizon, bond momentum is a much weaker predictor than the starting yield. Macro alignment signals are all near zero (|score| <= 0.04), so they neither confirm nor hedge the estimate. I treat the negative technicals as a reason to sit slightly below the pure yield anchor, not as grounds for a large cut.",
+      "rationale": "Final estimate: 5.26%, from 85% yield_building_block and 15% survey_consensus. This sits inside the [4.13, 6.54] range and just above the 5.19% auto-blend. The skill's guidance and Key consideration 1 make the starting yield the most defensible fixed-income building block, so it carries most of the weight. The 0.15 survey weight is a deliberate, explained haircut of about 0.2pp for two risks. First, the asymmetric inflation risk (consideration 5): sticky inflation is the stage-1 base case, and the historical sample has only one real inflation shock. Second, path risk over a 3-year horizon shorter than duration (consideration 4). Three candidates are dropped. historical_erp and regime_adjusted are biased upward by the secular fall in yields. bl_equilibrium (4.13%) is a CAPM artifact: it gives near-zero premia to assets that hedged an equity-heavy ETF market and assumes the negative stock-bond correlation that broke in 2022 (consideration 2), so I do not rely on it. Volatility stays at the covariance figure of 6.46%. Per consideration 5, that should be read as a floor in an inflationary state, and per consideration 2, backtested drawdowns understate a joint rate-and-equity shock. The estimate is held close to the yield anchor because this sleeve is 30% of the IPS benchmark (consideration 3), so an error here would shift the tracking-error budget of every candidate portfolio. Governing policy is config/ips.yaml, whose status is ratified."
+    }
+  }
+}

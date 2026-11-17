@@ -173,6 +173,13 @@ def build_prompt(candidate: Candidate, stage: StageInputs, *, ips_status: str) -
             " It optimises over the historical monthly return scenarios, so the tails it sees "
             "are the ones 1993 onward happened to contain."
         )
+    if candidate.method.risky_assets_only:
+        cma_note += (
+            "\n\n**Your method was run over the universe without its cash-like assets** (cash "
+            "and short Treasuries; decision 61). Weighting by risk alone, with no weight "
+            "limits, it would otherwise hold 76-98% in them. Their zero weight is this design "
+            "choice, not the method's view of them: say so if you discuss liquidity or cash."
+        )
     if candidate.method.prompt_note:
         cma_note += "\n\n" + candidate.method.prompt_note
     cma_note += _band_note(candidate)

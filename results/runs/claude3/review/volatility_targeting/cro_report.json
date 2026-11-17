@@ -1,0 +1,204 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:29:52.522859Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2599,
+        "output_tokens": 4101,
+        "cache_read_tokens": 4116,
+        "cost_usd": 0.047031199999999995,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "volatility_targeting",
+    "method": "Volatility targeting",
+    "category": "heuristic",
+    "ex_ante_volatility_pct": 8.903389595833417,
+    "backtest_volatility_pct": 8.909595093710628,
+    "var_95_pct": 3.5234070156867103,
+    "cvar_95_pct": 5.807148998815409,
+    "max_drawdown_pct": -28.140250234459486,
+    "backtest_sharpe": 0.5640420337729777,
+    "ex_ante_tracking_error_pct": 4.398478663768801,
+    "backtest_months": 400,
+    "effective_n": 17.0,
+    "concentration_hhi": 0.058823529411764705,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.24705882352941172,
+      "active_fixed_income": 0.07058823529411762,
+      "active_real_assets": 0.1764705882352941,
+      "benchmark_beta": 0.8572291899373741
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.max_drawdown",
+          "severity": "hard",
+          "message": "maximum drawdown -28.14% breaches the -25.0% limit",
+          "observed": -28.140250234459486,
+          "limit": -25.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.5209899748518383,
+    "risk_score_components": {
+      "volatility": 0.22584739895835426,
+      "concentration": 0.00346020761245675,
+      "drawdown": 1.0,
+      "tail": 0.6183650495216235,
+      "tracking_error": 0.7330797772948001
+    },
+    "judgment": {
+      "key_risks": [
+        "Drawdown is the binding risk. The held portfolio fell about 3 points past the -25% IPS limit. It is fully invested across 17 assets at equal weight, with no cash cushion (cash is 0.0%, although the proposal's narrative mentions a small cash residual). The volatility governor did not bind, so nothing in the method de-risks in a drawdown.",
+        "Equal capital produces unequal risk. Each of emerging_markets, hy_corporates, commodities, reits, us_small_cap, us_growth and long_treasuries gets the same 5.9% as short_treasuries, so these dominate risk contributions. Many of them are equity-beta or credit-beta assets that sell off together in a crisis. The equity group is -24.7% against the benchmark, yet benchmark beta is still 0.86 because reits, hy_corporates, commodities and emerging_markets carry equity-like risk.",
+        "Duration and a joint stock-bond selloff. long_treasuries (5.9%), intl_sovereigns and intermediate_treasuries are held alongside 6 equity sleeves, reits and hy_corporates. An inflation or rate-shock regime in which bonds fail as a hedge hits both sides at once. Only 2022 in the panel tests this.",
+        "Tracking error of 4.40% is a design byproduct. It comes from the -54.1% us_large_cap and -24.1% intermediate_treasuries active weights against a benchmark concentrated in those two sleeves. It uses most of the 6% budget and would constrain how far an ensemble containing this portfolio could tilt further.",
+        "Volatility sits close to the band floor. The ex-ante figure is only about 0.9 points above the 8% floor, and the method sizes off trailing 12-month volatility. A calm year would leave it fully invested and at risk of falling below the floor, while the drawdown risk stays."
+      ],
+      "concentration_assessment": "This is the method working, not failing. Equal weight is concentration-free by construction. No single asset's estimate drives the result, and a near-singular covariance matrix cannot push it into a corner. The low Herfindahl and the effective N near the 18-asset maximum are what this method should produce. The reading changes for risk concentration. Capital is spread evenly, but risk is not. The volatile sleeves (emerging_markets, hy_corporates, commodities, reits, small cap, long_treasuries) carry a disproportionate share of variance and drawdown, and these sleeves are correlated in stress. The concentration score of 0.00 is capital-based, so it does not capture this. The score therefore understates the risk that actually binds here, which is common-factor risk-asset exposure behind the even weights.",
+      "tail_risk_assessment": "The tail is moderately fat. CVaR is roughly 1.65 times VaR, so bad months are clustered in a few severe episodes rather than spread out. The 400 months from 1993 include 2000-02, 2008, 2020 and 2022, which are the episodes that matter for equal-weight risk assets, credit and commodities. The drawdown most plausibly comes from a 2008-type event in which emerging_markets, hy_corporates, reits, commodities and small cap fell together. The panel does not contain 1970s-style inflation. For this portfolio that effect is two-sided. long_treasuries and the equity sleeves were badly hurt in that period, while gold and commodities did well, so the net effect is ambiguous. The panel's only rate-driven stock-bond selloff is 2022, so the bond-side tail rests on one episode. Gold's and commodities' worst episodes are only partly covered. I would treat the -28.14% drawdown as a floor on a plausible stress outcome rather than a worst case, because several sleeves have tails older than the data.",
+      "ips_assessment": "The IPS is ratified, so the limits are the governing policy. The one hard violation is max drawdown of -28.14% against the -25% limit, a breach of about 3.1 points. It means that holding these weights through 2008-type stress would have gone through the loss limit. It also shows that landing inside the 8-12% volatility band says little about drawdown, since volatility measures typical dispersion and the limit binds on a correlated crash. This does not disqualify the candidate, because the hard limits bind on the CIO's final portfolio. It does mean this candidate cannot be taken as-is toward a compliant final portfolio. Any ensemble that includes it would need other components to offset the crash exposure, or the weight on the volatile sleeves would need to fall. Volatility (8.90%) and tracking error (4.40% against the 6% budget) are inside their limits, with the volatility margin to the floor being the thinner. Nothing was left unevaluated.",
+      "commentary": "The risk that binds is drawdown, driven by correlated losses across the volatile risk-asset sleeves held at equal weight in a fully invested portfolio. Volatility is not the constraint: it is inside the band and takes just under a quarter of the way up it. The tracking-error component is a consequence of ignoring the benchmark, not an independent hazard.\n\nEx-ante volatility (8.90%) and backtest volatility (8.91%) agree almost exactly, so the shrunk covariance matrix describes this portfolio's realised variability well over the sample, and I trust both for the volatility level. Neither says much about the tail, because volatility measures average dispersion while the breach comes from co-movement in a few crisis episodes. For tail and drawdown, the backtest is the figure to read, and it should be read as a lower bound given the panel starts in 1993.\n\nA concern for the reviewers: the proposal describes a small cash residual from the volatility scaling, but the weights show 0.0% cash and 17 risk assets at 5.9% each. The scaling did not bind, so this is effectively a plain equal-weight portfolio and the volatility target adds no protection. The drawdown breach is therefore a property of the equal-weight basket, and the volatility-targeting rule would only have helped had trailing volatility risen in time, which the 2008-type pattern of a sudden gap makes unlikely. The composite risk score of 0.52 is fixed and I do not dispute it, but its concentration component of 0.00 is based on capital weights and does not capture the common-factor risk concentration described above, so the score probably understates the risk to a board."
+    }
+  }
+}

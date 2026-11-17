@@ -30,6 +30,35 @@ class CovarianceMethod(StrEnum):
     REGIME_CONDITIONAL = "regime_conditional"
 
 
+class CovarianceJudgment(Contract):
+    """The covariance agent's LLM half (decision 63): which validated estimator to hand the PC
+    agents, given the macro regime and each estimator's out-of-sample record. The matrices and
+    the record are computed; the model only chooses among them and says why."""
+
+    method: CovarianceMethod
+    rationale: str
+    # What in the data or the regime would make another estimator the better choice.
+    what_would_change_it: str
+
+
+class EstimatorValidation(Contract):
+    """One estimator's forecasts checked against what followed (decision 63).
+
+    At each year-end the estimator is fitted on data to that date only; its volatility forecast
+    for the IPS benchmark and for equal weight is compared with the volatility realised over the
+    next 12 months, and its stock-bond correlation with the one realised over the next 36.
+    """
+
+    method: CovarianceMethod
+    years: int = Field(ge=1)
+    # Median of realised / forecast benchmark volatility: 1.0 is unbiased, below 1 forecasts high.
+    realised_to_forecast: float = Field(gt=0.0)
+    # Mean |log(realised / forecast)| over both portfolios and every year: lower is better.
+    abs_log_error: float = Field(ge=0.0)
+    # Mean absolute error of the US large cap / intermediate Treasuries correlation.
+    stock_bond_correlation_error: float | None = Field(default=None, ge=0.0)
+
+
 class CovarianceBody(Contract):
     """Annualised covariance matrix over the universe, row/column order given by ``asset_ids``.
 
@@ -46,6 +75,9 @@ class CovarianceBody(Contract):
     # Set when the estimate was conditioned on the macro agent's regime call.
     regime: str | None = None
     shrinkage: float | None = Field(default=None, ge=0.0, le=1.0)
+    # Set when the covariance agent chose the estimator (decision 63); None from the skill alone.
+    judgment: CovarianceJudgment | None = None
+    validation: list[EstimatorValidation] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _well_formed(self) -> CovarianceBody:

@@ -1,0 +1,185 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-adversarial-diversifier",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.300891Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/tail_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/tail_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4082,
+        "output_tokens": 5236,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.069034,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "adversarial_diversifier",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "tail_risk_parity",
+    "reviewed_category": "non_traditional",
+    "kind": "intra_category",
+    "strengths": [
+      "The weights are internally consistent. They sum to about 100%, the Herfindahl of 0.077 matches the table (sum of squares about 0.0766), and the benchmark gaps imply a 60/30/10 benchmark that reconciles with the stated active equity of -36.5%. The CRO's tallies also reconcile: 52.9% in crash-correlated assets, 31.6% in credit and 41.3% in Treasury-like ballast. I found no arithmetic slips.",
+      "The allocation looks like equal-risk-contribution weights over a downside matrix. Low-volatility Treasuries and IG credit carry about 10-14%, equity sleeves about 3-4.5% each, and gold and commodities sit in between. Nothing suggests a degenerate input, a corner solution or a near-singular matrix.",
+      "The method reads no expected returns. The 6.43% return and 0.37 Sharpe are computed after the fact, so the portfolio is independent of the CMAs. That is a real property in an expansion regime when forecasts are crowded.",
+      "The proposal is candid about its own limits. It states the volatility breach, the dependence on a Treasury/IG hedge and the noisy semicovariance, and it names the invalidation test (backtest drawdown the model did not anticipate). The CRO's -20.91% drawdown sits inside the -25% limit and is the check the proposer named.",
+      "Decision 61 is disclosed. The restricted universe (cash and short Treasuries removed) is stated openly, so the zero cash weight is not read as a liquidity view."
+    ],
+    "weaknesses": [
+      "The method is called tail-risk parity, but semicovariance below each asset's mean uses roughly half of all months, not the tail. The risk budget is a downside-half-sample measure and is not tied to stress months. The truncated-asset co-semivariance is also not the downside deviation of the portfolio, so equalising these contributions does not equalise contributions to actual portfolio shortfall. This is a known approximation, but the proposal presents it as balancing future losses.",
+      "The volatility breach is mildly understated. The proposal says no parameter can lift volatility without changing the method, yet the universe restriction (decision 61) is exactly that kind of lever and already shaped the result. Without cash and short Treasuries, intermediate Treasuries become the lowest-risk anchor and take the largest weight (14.2%). The portfolio is therefore partly a product of the universe choice, not purely of the estimator.",
+      "The 'diversification is real' argument rests on weight-spread statistics, which an ERC-type solver produces almost by construction. They say nothing about the conditioning or stability of the semicovariance matrix, which is estimated from limited downside observations. The Treasury-versus-credit split is the most sensitive output, and no stability check is shown.",
+      "The hedge is weaker than the narrative suggests. The sample runs from 1993 and so includes 2022, when stocks and bonds fell together. The result is a -20.91% backtest drawdown for a portfolio with 7.67% volatility, which uses about 84% of the limit. The weights still put 41% in rate-sensitive ballast. Either the sample's one stock-bond failure is diluted by the many ordinary months, or the 'under-represented regime' caveat is overstated. A sustained inflation regime would have to be worse than 2022 to make it worse than this.",
+      "Credit and crash-correlated exposure is large. Four credit sleeves total 31.6%, more than the equities, and HY is 8.3%, about twice any single equity sleeve. HY is justified only by its low sample volatility, but its downside correlation with equities rises in stress, which is when the semicovariance matters.",
+      "Ex-ante and backtest volatility are identical at 7.67%. This is an in-sample consistency check, not validation. The backtest is evaluated on the same data the weights were fitted to, so the Sharpe of 0.55 and the drawdown are optimistic about out-of-sample behaviour.",
+      "Tracking error of 4.96% is driven almost entirely by the 55.6-point underweight in US large cap. The proposal states this only as a number, and the sustained-rally risk (large relative shortfall with no absolute loss) gets little attention."
+    ],
+    "technical_errors": [
+      "The effective number of assets is reported as 14.4 of 18, and '16 of 18 held' is offered as breadth. Only 16 assets were investable once cash and short Treasuries were removed, so the correct ceiling is 16 and 16 of 16 are held by construction. The ratio is reported against the wrong denominator, which overstates how much room there was to be more concentrated. The 14.4 figure itself is consistent with the weights."
+    ],
+    "score": 0.6,
+    "rationale": "On execution the proposal looks like the method working. The weights are consistent, the Herfindahl reconciles, the risk-contribution pattern is plausible for ERC over a downside matrix, and nothing points to a degenerate input. Its main claims (return-agnostic, no concentration, reasonable drawdown) hold up. The ex-ante volatility breach (7.67% vs the 8% floor) is narrow, and the ratified IPS makes it a real breach that binds only the CIO's final portfolio. It reads as a viable component of a blend, not a standalone recommendation, which the proposer says too. I held the score down for several reasons. 'Tail' is really a below-mean half-sample measure. The result depends on the decision-61 universe restriction, which the proposal calls not tuning but which is functionally a lever. The Treasury-versus-credit split is noisy and untested for stability. The backtest is in-sample, and it already contains the 2022 joint bond-equity loss that produced a -20.91% drawdown near the -25% limit. Reporting breadth against 18 instead of 16 is a small presentational error. The overall assessment is a competent, honestly argued proposal with real but bounded weaknesses."
+  }
+}

@@ -11,6 +11,17 @@
           "title": "Asset Ids",
           "type": "array"
         },
+        "judgment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CovarianceJudgment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "matrix": {
           "items": {
             "items": {
@@ -50,6 +61,13 @@
           "default": null,
           "title": "Shrinkage"
         },
+        "validation": {
+          "items": {
+            "$ref": "#/$defs/EstimatorValidation"
+          },
+          "title": "Validation",
+          "type": "array"
+        },
         "volatilities_pct": {
           "additionalProperties": {
             "type": "number"
@@ -70,6 +88,30 @@
         "volatilities_pct"
       ],
       "title": "CovarianceBody",
+      "type": "object"
+    },
+    "CovarianceJudgment": {
+      "additionalProperties": false,
+      "description": "The covariance agent's LLM half (decision 63): which validated estimator to hand the PC\nagents, given the macro regime and each estimator's out-of-sample record. The matrices and\nthe record are computed; the model only chooses among them and says why.",
+      "properties": {
+        "method": {
+          "$ref": "#/$defs/CovarianceMethod"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "what_would_change_it": {
+          "title": "What Would Change It",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "rationale",
+        "what_would_change_it"
+      ],
+      "title": "CovarianceJudgment",
       "type": "object"
     },
     "CovarianceMethod": {
@@ -100,6 +142,51 @@
         "sha256"
       ],
       "title": "DatasetVersion",
+      "type": "object"
+    },
+    "EstimatorValidation": {
+      "additionalProperties": false,
+      "description": "One estimator's forecasts checked against what followed (decision 63).\n\nAt each year-end the estimator is fitted on data to that date only; its volatility forecast\nfor the IPS benchmark and for equal weight is compared with the volatility realised over the\nnext 12 months, and its stock-bond correlation with the one realised over the next 36.",
+      "properties": {
+        "abs_log_error": {
+          "minimum": 0.0,
+          "title": "Abs Log Error",
+          "type": "number"
+        },
+        "method": {
+          "$ref": "#/$defs/CovarianceMethod"
+        },
+        "realised_to_forecast": {
+          "exclusiveMinimum": 0.0,
+          "title": "Realised To Forecast",
+          "type": "number"
+        },
+        "stock_bond_correlation_error": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stock Bond Correlation Error"
+        },
+        "years": {
+          "minimum": 1,
+          "title": "Years",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "method",
+        "years",
+        "realised_to_forecast",
+        "abs_log_error"
+      ],
+      "title": "EstimatorValidation",
       "type": "object"
     },
     "Header": {
@@ -173,7 +260,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "5.1.0",
+          "default": "5.2.0",
           "title": "Schema Version",
           "type": "string"
         },

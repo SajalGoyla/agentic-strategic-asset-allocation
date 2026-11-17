@@ -1,0 +1,220 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:29:52.518903Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2456,
+        "output_tokens": 2205,
+        "cache_read_tokens": 4116,
+        "cost_usd": 0.0277852,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "pc_researcher",
+    "method": "Maximum entropy with a Sharpe floor",
+    "category": "pc_researcher",
+    "ex_ante_volatility_pct": 2.7414949198231238,
+    "backtest_volatility_pct": 2.7175823544844095,
+    "var_95_pct": 0.9437554281008866,
+    "cvar_95_pct": 1.570824345710289,
+    "max_drawdown_pct": -8.078010902021704,
+    "backtest_sharpe": 0.6996604477020327,
+    "ex_ante_tracking_error_pct": 7.2655200721164785,
+    "backtest_months": 400,
+    "effective_n": 5.335878613927022,
+    "concentration_hhi": 0.32468554031098856,
+    "factor_tilts": {
+      "active_cash": 0.16303879626108692,
+      "active_equity": -0.49073882615568165,
+      "active_fixed_income": 0.29160255939759105,
+      "active_real_assets": 0.03609747049700365,
+      "benchmark_beta": 0.24478178084938593
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 2.71% is below the CPI + 3.0% target",
+          "observed": 2.708278580470691,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 2.74% outside the 8.0-12.0% band",
+          "observed": 2.7414949198231238,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 7.27% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 7.2655200721164785,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.2983689307118928,
+    "risk_score_components": {
+      "volatility": 0.0,
+      "concentration": 0.28496116032928204,
+      "drawdown": 0.32312043608086816,
+      "tail": 0.1656309842818898,
+      "tracking_error": 1.0
+    },
+    "judgment": {
+      "key_risks": [
+        "Tracking error of 7.27% against the 60/40 benchmark is the binding risk. It comes from being roughly 60 points underweight us_large_cap (0.3% held) and about 49 points underweight equity overall, offset by 53.4% in short_treasuries and 16.3% in cash. The portfolio is a different asset mix from the benchmark, not a tilted version of it.",
+        "Return shortfall: expected real return of 2.71% against the CPI+3.0% target. Roughly 70% of capital sits in short_treasuries and cash, which carry little real return, and the Sharpe floor is met by lowering volatility rather than by raising return.",
+        "Rate and inflation exposure in the Treasury and cash block. In an inflation-driven selloff, short_treasuries and cash lose real value, and the 2.0% long_treasuries and 7.0% intermediate_treasuries add duration risk. Equity is only about 11% of capital, so it offers little offset.",
+        "Equity-led regime break. With benchmark_beta of 0.24, the portfolio would capture only a quarter of a broad equity rally. The cost is a persistent opportunity loss for a portfolio held against a 60/40 benchmark. It would show up as tracking error, not as drawdown.",
+        "Small tail positions in hy_corporates (2.6%), reits (0.8%), commodities (1.3%) and gold (1.5%). They are too small to move portfolio risk much on their own. They do add credit and real-asset sensitivity that the maximum-entropy objective chose for breadth rather than for any risk or return reason."
+      ],
+      "concentration_assessment": "This is the method working, but it is working on capital weights, not risk. Maximum entropy under a Sharpe floor spreads weight across all 18 assets, and the 5.3 effective assets is the result of the floor binding. The Herfindahl of 0.325 is driven almost entirely by short_treasuries at 53.4%, with cash at 16.3% a distant second. That is not a near-singular covariance artefact. Short Treasuries are the lowest-volatility asset in the panel, so the Sharpe floor can be met by loading them. The consequence is that capital breadth overstates diversification: risk is probably carried by us_value (7.3%), intermediate_treasuries and ig_corporates, with a large inert block underneath. The 18-of-18 holdings are mostly positions of about 1% or less, which add count without adding much diversification.",
+      "tail_risk_assessment": "The backtest tail is mild: a monthly 95% VaR of 0.94%, a CVaR of 1.57% and a worst drawdown of -8.08%. For this asset mix it is credible in the sense that it was computed on 400 months containing 2000, 2008 and 2020. The drawdown of -8.08% is most likely a rate-shock episode (2022-style), because the portfolio holds little equity and its biggest loss path runs through Treasuries and credit rather than equities. Two caveats. First, the panel starts in 1993, so it excludes the 1970s inflation, the setting where a portfolio about 70% in short_treasuries and cash would suffer most in real terms, and where gold, commodities and long_treasuries have their worst historical episodes. The real-terms tail is therefore understated, even though nominal drawdown is small. Second, the 0.70 backtest Sharpe reflects a long period of falling rates and positive cash returns, which flatters Treasury-heavy mixes. Treat the drawdown as a floor for nominal risk, not an estimate of the worst case.",
+      "ips_assessment": "The IPS is ratified, so these limits are the standing policy and not drafts. All three are hard violations. (1) Return: 2.71% expected real return is below CPI+3.0%. This reflects the construction itself, not a marginal miss. A portfolio roughly 70% in cash-like assets cannot reach the return target at any plausible CMA, so it would contribute return shortfall to any ensemble it joined. (2) Volatility: 2.74% is far below the 8-12% band, so this is a floor breach, not excessive risk. It does not signal danger. It means the portfolio is too defensive for the policy mandate, and it would need to be blended with higher-volatility candidates to bring an ensemble into the band. (3) Tracking error: 7.27% exceeds the 6.0% budget. This is the one place where the breach reflects real risk, because the portfolio departs heavily from the benchmark, and it is the largest contributor to the risk score (component 1.00). These breaches are mutually consistent: all come from the low-risk, low-return stance. Since the hard limits apply to the CIO's final portfolio and not to each proposal, they describe what this candidate would pull an ensemble toward, not a reason to exclude it.",
+      "commentary": "The binding risk is benchmark-relative, not absolute. The composite score of 0.30 looks moderate, but it hides a split: tracking error scores 1.00 while volatility scores 0.00, because the portfolio is below the volatility floor and is not penalised for it. In absolute terms this is a low-risk portfolio, with 2.7% volatility, a -8% worst drawdown and a monthly VaR under 1%. Against a 60/40 benchmark it is a large active bet, essentially an underweight in equities of around 49 points, funded by short Treasuries and cash. A board holding it against 60/40 would see it lag badly in any equity rally, and that is the loss it would actually experience.\n\nThe ex-ante and backtest volatilities agree closely (2.74% vs 2.72%), so the covariance estimate is not telling a conflicting story here, and either figure can be trusted for volatility. The reason is that short Treasuries and cash dominate and their volatility is stable and well estimated. The more important caution is that both figures describe nominal volatility. Neither captures the real-return risk of a cash-heavy mix, which a 1993-start panel cannot show. For this portfolio the nominal numbers understate the risk that matters, the erosion of real purchasing power over a long horizon.\n\nThe proposer's own case acknowledges the objective depends on one parameter, the Sharpe floor, and that entropy is measured on capital and not on risk. The metrics bear that out: the portfolio is broad by count (5.3 effective assets, 18 of 18 held) but is dominated by one defensive asset. Whether the floor was set sensibly is a question for the reviewers. For the IPS, the main point is that satisfying a Sharpe floor with low volatility does not satisfy a return target, so the Sharpe floor and the IPS return objective pull in different directions for this candidate."
+    }
+  }
+}

@@ -18,7 +18,7 @@ from saa.agents.peer_review import run_peer_reviews
 from saa.agents.revision import run_revisions
 from saa.agents.vote import run_vote
 from saa.contracts import CioJudgment, EnsembleMethod, read
-from saa.contracts.cio import BoardMemo
+from saa.contracts.cio import BoardMemo, PolicyRepair, RepairKind
 from saa.llm import LlmClient
 from saa.run import RunContext
 from saa.skills.ensemble import (
@@ -30,10 +30,12 @@ from saa.skills.ensemble import (
     inverse_tracking_error,
     meta_optimization,
     project_to_policy,
+    reweight_to_policy,
     simple_average,
     single_method,
     trimmed_mean,
 )
+from saa.skills.ensemble import ensembles as ensemble_module
 from saa.skills.method_scoring import (
     load_cro_reports,
     load_proposals,
@@ -141,13 +143,60 @@ def test_the_meta_optimisation_respects_every_ips_limit(ensemble_inputs, config)
     assert meta.compliant and not meta.policy_adjusted, "verified by the CRO backtest, unadjusted"
 
 
-def test_a_breaching_ensemble_is_projected_and_then_verified(ensemble_inputs, config):
+def test_a_breaching_ensemble_is_repaired_and_then_verified(ensemble_inputs, config):
     ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
-    for e in ensembles.values():
-        if e.policy_adjusted:
-            assert e.compliant, "a projection is kept only if the CRO's backtest verifies it"
-            assert not e.projected_from.compliance.compliant
-            assert "projected into the IPS" in e.note
+    repaired = [e for e in ensembles.values() if e.policy_adjusted]
+    assert repaired, "the fixture's averaging ensembles sit below the volatility floor"
+    for e in repaired:
+        assert e.compliant, "a repair is kept only if the CRO's backtest verifies it"
+        assert not e.projected_from.compliance.compliant
+        assert "into the IPS" in e.note
+        assert isinstance(e.policy_repair(), PolicyRepair)
+
+
+def test_reweighting_is_the_first_repair_and_keeps_every_holding_a_candidates(
+    ensemble_inputs, config
+):
+    """Decision 62: shift weight between candidates before moving assets."""
+    ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
+    reweighted = [e for e in ensembles.values() if e.repair is RepairKind.REWEIGHTED]
+    assert reweighted
+    for e in reweighted:
+        a = np.array([e.ensemble_weights.get(c, 0.0) for c in ensemble_inputs.candidates])
+        blend = pd.Series(ensemble_inputs.matrix @ a, index=e.final_weights.index)
+        pd.testing.assert_series_equal(e.final_weights, blend / blend.sum(), atol=1e-9)
+        assert e.recipe_weights is not None and e.recipe_weights != e.ensemble_weights
+        assert 0.0 < e.ensemble_weight_moved <= 1.0
+        record = e.policy_repair()
+        assert record.kind is RepairKind.REWEIGHTED
+        assert record.recipe_weights == e.recipe_weights
+        assert "reweighted" in e.repair_summary()
+
+
+def test_reweighting_reaches_the_volatility_band(ensemble_inputs, config):
+    stage = ensemble_inputs.stage
+    k = len(ensemble_inputs.candidates)
+    a = reweight_to_policy(simple_average(ensemble_inputs), ensemble_inputs, config)
+    assert sum(a.values()) == pytest.approx(1.0) and min(a.values()) >= 0.0
+    w = ensemble_inputs.matrix @ np.array([a[c] for c in ensemble_inputs.candidates])
+    sigma = stage.covariance.loc[RICH_IDS, RICH_IDS].to_numpy()
+    band = config.ips.objectives.volatility
+    assert band.min_pct - 0.01 <= 100 * np.sqrt(w @ sigma @ w) <= band.max_pct + 0.01
+    assert len(a) == k
+
+
+def test_the_asset_projection_is_the_fallback(ensemble_inputs, config, monkeypatch):
+    def no_mix(*args, **kwargs):
+        raise ValueError("no mix of the candidates near this ensemble satisfies the IPS")
+
+    monkeypatch.setattr(ensemble_module, "reweight_to_policy", no_mix)
+    ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
+    repaired = [e for e in ensembles.values() if e.policy_adjusted]
+    assert repaired
+    for e in repaired:
+        assert e.repair is RepairKind.ASSET_PROJECTION
+        assert e.ensemble_weight_moved == 0.0
+        assert "projected into the IPS" in e.note
 
 
 def test_projection_moves_an_allocation_into_the_volatility_band(ensemble_inputs, config):
@@ -165,7 +214,9 @@ def test_an_ensemble_reports_what_it_is_made_of(ensemble_inputs, config):
     ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
     e = ensembles[EnsembleMethod.SIMPLE_AVERAGE]
     n = len(ensemble_inputs.candidates)
-    assert e.candidates_held == n and e.effective_candidates == pytest.approx(n)
+    # The recipe, before any reweighting repair: an equal mix of n counts n.
+    recipe = Ensemble(e.method, simple_average(ensemble_inputs), e.final_weights, e.profile, 0, 0)
+    assert recipe.candidates_held == n and recipe.effective_candidates == pytest.approx(n)
     lead = Ensemble(e.method, {"a": 0.9, "b": 0.1}, e.final_weights, e.profile, 0.0, 0.0)
     assert lead.largest_share == ("a", 0.9) and lead.candidates_held == 2
     assert 1.0 < lead.effective_candidates < 2.0
@@ -308,3 +359,17 @@ def test_the_memo_carries_the_scripts_escalations(full_run):
     memo = (run.root / "reports" / "board_memo.md").read_text(encoding="utf-8")
     assert "## Escalations under the IPS" in memo
     assert all(e in memo for e in result.body.escalations)
+
+
+def test_reweighting_will_not_lean_on_a_method_the_vote_rejected(ensemble_inputs, config):
+    """Decision 62: an increase is priced at 1 / vote composite, a cut at 1."""
+    recipe = simple_average(ensemble_inputs)
+    flat = dataclasses.replace(
+        ensemble_inputs, tally_composite={c: 1.0 for c in ensemble_inputs.candidates}
+    )
+    a = reweight_to_policy(recipe, flat, config)
+    favourite = max(a, key=lambda c: a[c] - recipe[c])
+    assert a[favourite] > recipe[favourite], "the repair raises someone under equal votes"
+    rejected = dataclasses.replace(flat, tally_composite={**flat.tally_composite, favourite: 0.0})
+    b = reweight_to_policy(recipe, rejected, config)
+    assert b[favourite] - recipe[favourite] < 0.5 * (a[favourite] - recipe[favourite])

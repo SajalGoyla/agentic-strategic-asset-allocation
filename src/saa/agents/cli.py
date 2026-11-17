@@ -97,6 +97,40 @@ def _add_cma_judge(sub) -> None:
     judge.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
 
 
+def _add_covariance(sub) -> None:
+    cv = sub.add_parser(
+        "covariance", help="stage 3: choose the validated covariance estimator (decision 63)"
+    )
+    cv.add_argument(
+        "--run-id", help="the pipeline run to write covariance.json into", required=True
+    )
+    cv.add_argument("--run-dir", help="override the run directory entirely")
+    cv.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    cv.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="keep the Ledoit-Wolf default: no API key needed, no spend",
+    )
+    cv.add_argument("--cap-usd", type=float, help="stop the stage at this spend")
+
+
+def _run_covariance(args, config) -> int:
+    from saa.agents.covariance import render_summary, run_covariance
+    from saa.llm import Budget, LlmClient
+    from saa.run import RunContext
+
+    run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+    store = DataStore(config)
+    llm = None if args.no_llm else LlmClient(budget=Budget(cap_usd=args.cap_usd))
+    result = run_covariance(
+        run, store, config=config, llm=llm, regime_labels=_regime_labels(store, config, run.as_of)
+    )
+    print(render_summary(result))
+    print(f"  report   {run.report_path('covariance.md')}")
+    print(f"  cost     ${result.cost_usd:.4f}")
+    return 0
+
+
 def _add_pc(sub) -> None:
     pc = sub.add_parser("pc", help="portfolio-construction agents (stage 4)")
     pc.add_argument("--run-id", help="the pipeline run holding covariance.json", required=True)
@@ -374,6 +408,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     _add_macro(sub)
     _add_cma_judge(sub)
+    _add_covariance(sub)
     _add_pc(sub)
     _add_cro(sub)
     args = parser.parse_args(argv)
@@ -404,6 +439,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_macro(args, config)
     if args.command == "cma-judge":
         return _run_cma_judge(args, config)
+    if args.command == "covariance":
+        return _run_covariance(args, config)
     if args.command == "pc":
         return _run_pc(args, config)
     if args.command == "cro":

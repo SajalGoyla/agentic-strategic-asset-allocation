@@ -284,7 +284,7 @@ def test_anthropic_tiers_default_to_opus_and_sonnet_and_can_be_overridden(monkey
 
 def test_every_agent_has_a_tier_and_a_typo_fails_loudly():
     agents = {"macro", "cma_judge", "pc", "pc_researcher", "cro", "peer_review", "vote"}
-    agents |= {"revision", "cio"}
+    agents |= {"revision", "cio", "covariance"}
     assert set(AGENT_TIERS) == agents
     assert tier_for("cio") is Tier.FLAGSHIP and tier_for("peer_review") is Tier.LOW_COST
     with pytest.raises(KeyError, match="no tier set"):

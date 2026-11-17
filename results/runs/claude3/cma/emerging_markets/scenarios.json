@@ -1,0 +1,222 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "scenarios",
+    "agent": "emerging-markets",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:44.010263Z",
+    "produced_by": "script",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/cash/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/commodities/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/emerging_markets/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/gold/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/hy_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/ig_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intermediate_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_developed/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_sovereigns/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/long_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/reits/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/short_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_growth/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_large_cap/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_small_cap/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/us_value/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma_methods",
+        "path": "cma/usd_em_debt/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [],
+    "report_path": "reports/scenarios.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "emerging_markets",
+    "scenarios": [
+      {
+        "name": "bear",
+        "expected_return_pct": 7.5708,
+        "probability": null,
+        "narrative": "the most pessimistic available candidate is `regime_adjusted` at 7.57%, -1.87pp against the judged estimate. After the 155 past months labelled expansion, excess returns over the next 3 years averaged +2.59% a year (all months +6.00%); credibility weight 0.72, plus 4.03% T-bill."
+      },
+      {
+        "name": "base",
+        "expected_return_pct": 9.44,
+        "probability": null,
+        "narrative": "The judge's estimate, 9.44%, by custom blend across 6 available candidates. This is the recommendation and the number every downstream agent consumes."
+      },
+      {
+        "name": "bull",
+        "expected_return_pct": 11.7628,
+        "probability": null,
+        "narrative": "the most optimistic available candidate is `implied_erp_cape` at 11.76%, +2.32pp against the judged estimate. 7.01% real earnings yield (EEM trailing earnings yield) + 2.3% expected inflation + 2.45% variance add-back."
+      }
+    ]
+  }
+}

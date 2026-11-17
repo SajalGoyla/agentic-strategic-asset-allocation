@@ -1,0 +1,204 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:29:52.513395Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2550,
+        "output_tokens": 3893,
+        "cache_read_tokens": 4116,
+        "cost_usd": 0.044853199999999996,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "inverse_variance",
+    "method": "Inverse variance",
+    "category": "heuristic",
+    "ex_ante_volatility_pct": 6.943597108564011,
+    "backtest_volatility_pct": 6.962732718160648,
+    "var_95_pct": 2.8777920744442116,
+    "cvar_95_pct": 4.534110661375694,
+    "max_drawdown_pct": -21.6674177959283,
+    "backtest_sharpe": 0.5107410573439363,
+    "ex_ante_tracking_error_pct": 5.419138739561076,
+    "backtest_months": 400,
+    "effective_n": 11.76940161943946,
+    "concentration_hhi": 0.1068285568668123,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.43024034682341483,
+      "active_fixed_income": 0.36107384685470867,
+      "active_real_assets": 0.06916649996870623,
+      "benchmark_beta": 0.6174940535096572
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 6.94% outside the 8.0-12.0% band",
+          "observed": 6.943597108564011,
+          "limit": 8.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.43605475393169274,
+    "risk_score_components": {
+      "volatility": 0.0,
+      "concentration": 0.054289060211918906,
+      "drawdown": 0.866696711837132,
+      "tail": 0.5050583230106335,
+      "tracking_error": 0.903189789926846
+    },
+    "judgment": {
+      "key_risks": [
+        "Drawdown headroom is thin for a portfolio below the volatility floor. The worst peak-to-trough decline sits close to the -25% IPS limit, which is the unusual feature of a 6.9% volatility portfolio. The cause is correlated losses across the 40% in credit (ig_corporates 15.7%, hy_corporates 11.2%, intl_corporates 9.5%, usd_em_debt 4.1%) and the 35% in rate-sensitive government paper (intermediate_treasuries 19.2%, intl_sovereigns 11.2%, long_treasuries 5.2%).",
+        "Tracking error is near the budget because of the equity underweight. Active equity is -43%, with us_large_cap at 3.7% against a benchmark of about 60%, and active fixed income is +36%. Realised benchmark beta is 0.62. Any strong equity-led market will leave this portfolio far behind, and the 6% budget leaves little room to add to the gap.",
+        "Credit spread risk is held under a low volatility reading. hy_corporates, usd_em_debt and intl_corporates are weighted up because their measured variance was low. In a liquidity stress they behave more like equity than like the Treasuries that sit beside them in the weights.",
+        "Duration and inflation risk run through about 35% of the book (long_treasuries, intermediate_treasuries, intl_sovereigns). A simultaneous rise in yields and inflation would hit these and the investment-grade credit together, and the 2.5% gold and 2.2% commodities are too small to offset it.",
+        "Equity upside is capped. Total equity is roughly 17%, split across six sleeves of 1.6-3.7% each, so the portfolio contributes little growth and little equity-risk premium."
+      ],
+      "concentration_assessment": "At the asset level the concentration is the method working as designed, not failing. The largest single position is 19.2% (intermediate_treasuries), and the effective number of assets and Herfindahl show a spread-out book, not the single-name collapse that a near-singular covariance matrix produces in return-driven optimisers. Inverse variance loads into the calmest assets by construction, and the weights are mechanical, not a view. The concentration that matters is at the factor level. About 76% of the book is fixed income, and within that, credit spread and interest-rate duration are the two shared exposures. Asset-level diversification therefore overstates how diversified the risk is. The proposer cites roughly half the book in credit; that holds only if international sovereigns are counted (about 52%), while corporate and EM credit alone is about 40%.",
+      "tail_risk_assessment": "The monthly CVaR is about 1.6 times the VaR, a mildly fat left tail, and the drawdown is close to the IPS limit. These tail figures are worth more than the volatility figure here. The backtest covers 1993 onward, so it includes the 1994 bond shock, 2000-02, 2008, 2020 and the 2022 stock-bond drawdown, which is a reasonable test for a bond-and-credit book. Its main limit is that it excludes the 1970s inflation and the early-1980s rate shock, and it is dominated by a thirty-year decline in yields that flattered long and intermediate Treasuries, intl_sovereigns and IG credit. The tail from a sustained inflation or term-premium shock is therefore probably understated. The gold and commodity sleeves are too small for their missing history to matter much. The credit sleeves are the second concern: 2008 is a single episode in the sample, so the HY and EM-debt tails rest on very few independent observations.",
+      "ips_assessment": "The single hard violation is volatility: 6.94% against an 8-12% band, about one point under the floor. In this portfolio the breach is a shortfall in risk, not an excess, and the risk score gives it zero weight for that reason. The IPS is ratified, so the breach is a real policy miss for this portfolio held alone and not a draft-stage technicality. It does not disqualify the candidate, because the hard limits bind on the CIO's final portfolio. What it means is that this portfolio would need risk added from elsewhere in an ensemble to reach the band. A reader should note that the remaining headroom is smaller than the volatility gap suggests: drawdown already uses most of its -25% allowance and tracking error is close to its 6% budget, so volatility is the only limit with a lot of room. No other violations were listed and nothing was left unevaluated.",
+      "commentary": "The binding risks are drawdown and tracking error, not volatility. Volatility is the one number that looks safe, and it is also the one that breaches the IPS, in the benign direction. Drawdown at roughly 87% of its limit and tracking error at roughly 90% of its budget are the figures that say where this portfolio is exposed: a diversified-looking bond and credit book whose losses arrive together, and a large, deliberate gap to an equity-heavy benchmark.\n\nEx-ante and backtest volatility agree almost exactly, so the shrunk covariance matrix is not misdescribing the realised history for this weight vector. That agreement is reassuring about the estimate but is not independent evidence: both use the same three decades, which were favourable to duration and to credit. For volatility, either figure can be trusted. For the tail and the drawdown, the backtest is the figure to read, with the caveat that it is probably a floor on the damage in an inflationary or credit-stress regime missing from the sample.\n\nThe concentration is the method working, and the weights say little about what drives risk. Inverse variance has weighted the book toward whatever has been calm, which in this panel is bonds and credit. The risk of that is exactly what the proposer's own note names: low measured volatility in HY, international and IG credit can understate equity-like behaviour in a stress. Two statements in the proposer's case do not match the table above: the equity sleeves total about 17%, not a quarter, and the 0.36 Sharpe it quotes is a forward-looking figure on the judged CMAs while the 0.51 in the table is realised history. They measure different things, and neither changes the assessment. A sleeve like this would add little equity risk premium and a fair amount of shared credit and duration exposure to any ensemble that includes it."
+    }
+  }
+}

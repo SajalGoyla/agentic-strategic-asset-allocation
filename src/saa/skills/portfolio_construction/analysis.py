@@ -14,7 +14,7 @@ the way out, because every ``_pct`` field the pipeline writes is percent.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 
@@ -361,6 +361,21 @@ def portfolio_inputs(stage: StageInputs) -> PortfolioInputs:
     )
 
 
+def risky_inputs(inputs: PortfolioInputs, config: Config) -> PortfolioInputs:
+    """The same inputs over the universe minus its cash-like assets (decision 61).
+
+    Cash (0.6% volatility) and short Treasuries (1.7%) sit an order of magnitude below every
+    other asset, so a method that weights by risk alone puts 76-98% in them. Removing cash
+    alone moves the weight into short Treasuries; removing both gives bond-heavy balanced
+    portfolios at 6.8-7.9% volatility with an effective N of 6-13, measured on claude2.
+    """
+    cash_like = set(config.universe.cash_like_ids)
+    risky = [a for a in inputs.asset_ids if a not in cash_like]
+    if not risky:
+        raise ValueError("the universe has no assets that are not cash-like")
+    return replace(inputs, asset_ids=risky, cash_id=None)
+
+
 def build_candidate(
     method: Method,
     stage: StageInputs,
@@ -381,7 +396,11 @@ def build_candidate(
     recommendation (§3.6), as in the paper.
     """
     inputs = portfolio_inputs(stage)
+    if method.risky_assets_only:
+        inputs = risky_inputs(inputs, config)
     weights = (build or method.build)(inputs)  # type: ignore[operator]
+    weights = weights.reindex(stage.asset_ids).fillna(0.0)
+    inputs = portfolio_inputs(stage)  # measure the result on the full universe
     band = config.ips.objectives.volatility
     tuning = None
     if method.knob is not None and build is None:

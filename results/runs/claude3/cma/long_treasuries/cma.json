@@ -1,0 +1,80 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.476997Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/long_treasuries/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/long_treasuries/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/long_treasuries/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3743,
+        "output_tokens": 2439,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.06657560000000001,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/long_treasuries/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "long_treasuries",
+    "horizon_years": 3,
+    "expected_return_pct": 5.98,
+    "volatility_pct": 12.4265,
+    "method_range": [
+      4.1864,
+      8.2324
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.8
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.2
+        }
+      ],
+      "expected_return_pct": 5.98,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "The stage-1 call is a fragile, late-cycle-adjacent expansion with sticky above-history inflation, held at low confidence (0.35) and with a 20-30% recession probability. For the longest-duration nominal asset in the universe the regime label matters less than which macro surprise arrives over three years. A deflationary growth shock would drive a large, convexity-boosted gain. A renewed inflation surprise, which the -0.27 inflation score warns of, would drive a large loss, since roughly 16-17 years of duration turns 100bp into about 16% of price. These two tails roughly offset, so the regime gives no clean directional tilt. I therefore do not lean on regime_adjusted. Its 8.23% comes from the three years after past expansion months, and those were overwhelmingly drawn from the 1990-2020 secular fall in yields, so it measures a tailwind that started from much higher yields and cannot repeat in the same form. Exhibit 4's late-cycle guidance points toward valuation-anchored methods, and for a bond that means the starting yield.",
+      "valuation_context": "Valuation is the strongest input here. The 20-30 year yield averages 5.66%, and the DGS30 yield-level signal is +0.79 against its own history, which makes long Treasuries cheap by their own standards. The term-structure split is the key judgment (consideration 4). The starting yield sits about 1.6pp above the 4.03% T-bill. If the expected average short rate over the bonds' life is roughly 3.5-4%, the implied term premium is about +1.5-2%. That is high relative to the near-zero or negative estimates of the past decade, and it is what separates this sleeve from intermediate Treasuries. I assume only part of that premium is earned over the next three years. The 3-year horizon is far shorter than the bonds' duration, so the starting yield is a noisy predictor here: a modest further rise in yields from sticky inflation could absorb a year or more of carry. That is why I shade below the 6.43% building block rather than taking it whole. Credit loss is correctly zero, and the 0.77pp variance add-back converts the yield to the arithmetic convention. Cheap valuation also argues against the low end of the range: bl_equilibrium's +0.16% excess return is a CAPM artifact, because Treasuries hedge the equity-heavy ETF market portfolio. It is not a valuation view.",
+      "signal_alignment": "The signals split cleanly by category. Valuation (yield_level +0.79) and mean reversion (+0.23, after a deeply negative 36-month run) support the yield-based estimate. Trend (-0.56), 12-1 momentum (-0.28) and relative momentum (-0.89, near the bottom of the 18 assets) say yields are still rising and the sleeve is losing ground. The macro alignment signals are essentially zero; the measured correlations with the dimension scores are tiny. The composite is +0.18, mildly bullish. I read this as confirming the direction of the building block, a positive expected excess return from a high starting yield. The adverse momentum justifies hedging the magnitude, which is why 20% goes to the lower equilibrium anchor. I do not set the estimate at the bottom of the range. No fund-flow or positioning view is claimed, because this pipeline does not source one.",
+      "rationale": "For a default-free bond, the starting yield is the strongest single predictor, so yield_building_block (6.43%, confidence 0.80) carries 80% of the weight. The other 20% goes to bl_equilibrium (4.19%). This is not because equilibrium is a good forecast for a hedge asset. It is a deliberate haircut for horizon mismatch: three years against roughly 16-17 years of duration leaves substantial mark-to-market risk if sticky inflation pushes yields higher, and price trend and momentum still point that way. The result is 0.8 x 6.43 + 0.2 x 4.19 = 5.98%. That is about 1.95pp over the 4.03% T-bill, which implies about a 1.5pp term premium earned, a Sharpe of about 0.16 at 12.43% volatility, and a value comfortably inside [4.19, 8.23]. I gave zero weight to historical_erp (6.98%) and regime_adjusted (8.23%). Both are built on 1990-2026 returns dominated by the secular decline in yields, and the 5- and 10-year windows of -8.5% and -2.8% a year show how regime-specific that history was. Auto_blend is excluded to avoid double-counting its components and to keep those history-based methods out. Two risks fall outside the point estimate. First, this 'safe' sleeve has suffered drawdowns near -48% (consideration 2), well beyond the -25% IPS limit, so position sizing must respect that. Second, convexity's asymmetric payoff in a deflationary shock (consideration 3) is real tail-hedge value that the covariance matrix does not capture. Governing policy is config/ips.yaml, which is ratified."
+    }
+  }
+}

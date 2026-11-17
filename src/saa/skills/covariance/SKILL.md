@@ -70,6 +70,34 @@ Reading it:
 - **Exponential weighting** is kept as the reactive alternative, with a 60-month half-life,
   which beat 36, 24 and 12.
 
+## Validating the estimates, not just the choice (decision 63)
+
+The test above ranks estimators against each other. `validate_estimators` asks of each one
+whether its forecasts came true: at every year-end it is fitted on data to that date only, its
+volatility forecast for the IPS benchmark and equal weight is compared with the volatility
+realised over the next 12 months, and its US large cap / intermediate Treasuries correlation
+with the one realised over the next 36. As of 2026-10-01, year-ends 1999-2024:
+
+| Estimator | Years | Realised / forecast (benchmark) | Mean abs log error | Stock-bond correlation error |
+|---|---|---|---|---|
+| ledoit_wolf | 26 | 0.83 | 0.380 | 0.36 |
+| exponential (60m) | 26 | 0.83 | 0.385 | 0.30 |
+| regime_conditional | 22 | 0.91 | 0.369 | 0.43 |
+
+All three forecast more benchmark risk than followed, by about a fifth at the median, because
+the long windows include 2008 and 2020 (the caveat below). The exponential estimator tracks the
+stock-bond correlation best -- the full-history estimate sat at -0.02 to -0.17 throughout,
+against realised -0.4 in the 2000s-2010s and +0.5 to +0.7 after 2020 -- and the
+regime-conditional one is least biased on volatility. No estimator dominates, which is why the
+choice is the covariance agent's (`agents/covariance/`), made against this record and the macro
+regime, with Ledoit-Wolf the `--no-llm` default. The record is written into `covariance.json`
+(`validation`) and `reports/covariance.md`.
+
+Tested and rejected: annualising with an autocorrelation (Newey-West) correction instead of
+x12. It triples cash's volatility (0.6% to 2.0%) but made one-year forecasts worse for every
+diversified portfolio but the benchmark, and cash's one-year surprise given the starting T-bill
+yield is only 1.2% (decision 61).
+
 ## Outputs
 
 ```

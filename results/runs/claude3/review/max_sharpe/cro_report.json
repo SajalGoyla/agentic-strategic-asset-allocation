@@ -1,0 +1,205 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cro_report",
+    "agent": "cro",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:29:52.516704Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 2500,
+        "output_tokens": 2132,
+        "cache_read_tokens": 4116,
+        "cost_usd": 0.0271432,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "portfolio_agent_id": "max_sharpe",
+    "method": "Maximum Sharpe ratio",
+    "category": "return_optimized",
+    "ex_ante_volatility_pct": 8.000685101771284,
+    "backtest_volatility_pct": 7.889844931175991,
+    "var_95_pct": 3.1484619389860176,
+    "cvar_95_pct": 4.935966913531899,
+    "max_drawdown_pct": -25.92493726211833,
+    "backtest_sharpe": 0.6474902557832322,
+    "ex_ante_tracking_error_pct": 4.088131779655653,
+    "backtest_months": 400,
+    "effective_n": 3.0761517832396033,
+    "concentration_hhi": 0.3672660197370672,
+    "factor_tilts": {
+      "active_cash": 0.0,
+      "active_equity": -0.09049517456374911,
+      "active_fixed_income": 0.06028170126639365,
+      "active_real_assets": 0.030213473297355548,
+      "benchmark_beta": 0.7884234919036274
+    },
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.max_drawdown",
+          "severity": "hard",
+          "message": "maximum drawdown -25.92% breaches the -25.0% limit",
+          "observed": -25.92493726211833,
+          "limit": -25.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": []
+    },
+    "risk_score": 0.4846458478601185,
+    "risk_score_components": {
+      "volatility": 0.00017127544282091733,
+      "concentration": 0.33004637383924756,
+      "drawdown": 1.0,
+      "tail": 0.5525614310666251,
+      "tracking_error": 0.6813552966092754
+    },
+    "judgment": {
+      "key_risks": [
+        "US value equity at 51% is the binding exposure: it drives most of the portfolio's variance and the -25.92% drawdown, and the 2000-02 and 2008 equity drawdowns are inside the panel, so the breach is realised history rather than a model artefact.",
+        "Equity-Treasury correlation regime: 21% long Treasuries is the diversifier against the 51% value-equity leg. It worked in the 2000, 2008 and 2020 equity selloffs but was a different relationship when inflation drove both asset classes down together. If the correlation turns positive, long duration adds drawdown instead of offsetting it.",
+        "Long Treasury duration: 21% in long_treasuries has its own rate-shock tail. The 1993 start excludes the 1970s-early 1980s rate surge, so the backtest probably understates this leg's worst episode, and a rates-up, equities-down year would hit both major legs together.",
+        "CMA error passing straight into the weights: the allocation reflects the value-equity return forecast relative to the others. The proposer's own Sharpe of 0.48 is in-sample against those same CMAs, so it carries no independent evidence.",
+        "No volatility margin: ex-ante volatility was tuned to sit at the 8.00% band floor, and the 25% in short_treasuries is the buffer that keeps it there. Any shift in the equity-to-Treasury mix moves volatility out of the band.",
+        "Gold at 3% is too small to matter for risk; it adds slight real-asset diversification and is not a driver."
+      ],
+      "concentration_assessment": "Mixed, but closer to the method working as designed than to a covariance failure. Max Sharpe loading heavily into one asset is normally the first sign of a near-singular covariance matrix. Here the portfolio looks like a CMA-driven solution on a well-behaved frontier: four names, a sensible equity/short-rates/long-rates structure, and ex-ante and backtest volatility within about 0.1 points of each other, which is not what a pathological matrix would produce. The concentration is therefore a return-forecast bet more than a matrix artefact. It is still fragile: 3.1 effective assets and Herfindahl of 0.367 mean the result depends on the value-equity CMA, and the IPS sets no per-asset cap to limit that. The 0.33 concentration component understates this somewhat, because the 25% in short Treasuries is cash-like and the effective risk concentration is closer to two exposures than the weights suggest.",
+      "tail_risk_assessment": "The tail is dominated by the equity leg. A monthly 95% CVaR of 4.94% against a VaR of 3.15% indicates a fat left tail, with losses past the VaR threshold averaging about 1.6 points beyond it. The -25.92% drawdown is consistent with that and is almost certainly the 2008 episode, possibly with 2000-02 contributing. The backtest's tail is credible for the equity leg, since the panel contains 2000, 2008 and 2020. It is not credible for the Treasury and gold legs. The 21% in long Treasuries has its worst historical episode (the 1970s and 1980-81 rate surge) outside the data, and 1993-2020 was largely a falling-rate period that favoured long duration. The drawdown is therefore likely understated, because the equity-Treasury hedge is partly a feature of the sample. Real-asset legs carry little weight, so the gold gap matters little here.",
+      "ips_assessment": "There is one hard violation: maximum drawdown of -25.92% against the -25.0% limit, a breach of about 0.9 points. It is marginal but it is a breach of a backtest measure, which the proposer flagged as the check still outstanding. It means this candidate does not hold the volatility band and the drawdown limit together at this mix. Volatility is at the band floor and the drawdown is already over the limit, so a lower-drawdown version would need less equity, which would push volatility below the floor unless risk came from somewhere else. That is a genuine tension in this candidate. Because the breach is small and rests on a single historical path, it is within the estimation error of the backtest, so it should be read as the limit being touched rather than as a gross failure. Under decision 32 it does not disqualify the candidate; the hard limit binds on the CIO's final portfolio. If this mix were blended into an ensemble, the drawdown contribution of the equity leg would need to be offset. The ex-ante limits (volatility, tracking error, return) are compliant as stated. The IPS is ratified, so these limits are the governing policy.",
+      "commentary": "The binding risk is drawdown driven by 51% in US value equity. Volatility scores 0.00 and concentration only 0.33, but drawdown scores 1.00 and tracking error 0.68, so the composite of 0.48 understates the real position. The portfolio is at the band floor on volatility and over the drawdown limit at the same time, which says the risk is in the shape of the loss (equity-led, clustered in a few crisis episodes) rather than in average volatility. I would not treat the 0.00 volatility component as comfort.\n\nOn which number to trust: ex-ante volatility of 8.00% and backtest volatility of 7.89% agree closely, so the shrunk covariance matrix is describing the realised path reasonably well for this mix. That agreement concerns volatility only, and it is the less informative statistic here. For drawdown and tail risk the backtest is the better guide for the equity leg, and the reviewers should treat it as a lower bound for the Treasury leg because the panel excludes the 1970s inflation regime. The ex-ante figure is not a good guide to the crisis path, since it is a symmetric measure and the loss here is concentrated in equity drawdowns.\n\nThe method is not failing on concentration, but its output is only as good as the value-equity CMA, and the 0.48 Sharpe cannot be used to validate it because it is computed from the same inputs. Tracking error of 4.09% with a beta of 0.79 against the benchmark reflects the underweight in equity overall (-9%) combined with a heavy tilt to one equity style, a fixed income overweight of +6%, and a short-duration cash-like buffer. The result is a portfolio that holds less equity than the benchmark but is far more exposed to a single value factor within it. A value-led drawdown, or a year in which rates and equities fall together, would hit this portfolio harder than the headline beta of 0.79 suggests."
+    }
+  }
+}

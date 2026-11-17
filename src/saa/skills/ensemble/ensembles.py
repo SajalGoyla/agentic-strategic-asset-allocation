@@ -25,7 +25,7 @@ import pandas as pd
 from scipy.optimize import minimize
 
 from saa.config import Config
-from saa.contracts.cio import EnsembleMethod
+from saa.contracts.cio import EnsembleMethod, PolicyRepair, RepairKind
 from saa.contracts.portfolio import PcCategory
 from saa.skills.portfolio_construction import StageInputs
 from saa.skills.risk import RiskProfile, profile_portfolio
@@ -35,6 +35,11 @@ log = logging.getLogger(__name__)
 MONTHS_PER_YEAR = 12
 HELD_SHARE = 0.01  # a candidate with less of the ensemble than this is not counted as held
 TRIM_SHARE = 0.1  # share of candidates the trimmed mean drops as outliers, at least one
+# The reweighting repair prices an increase in a candidate's weight at 1 / its vote composite
+# (decision 62): a composite below the floor costs as much as the floor, and a candidate absent
+# from the tally is priced as a middling one.
+REWEIGHT_COMPOSITE_FLOOR = 0.05
+REWEIGHT_DEFAULT_COMPOSITE = 0.5
 # The meta-optimisation's drawdown constraint is fitted on a monthly-rebalanced approximation
 # of the backtest; the CRO's quarterly backtest then verifies it. A margin keeps the two from
 # disagreeing at the boundary.
@@ -74,10 +79,66 @@ class Ensemble:
     # compliant one; this is the profile and the allocation it had before.
     projected_from: RiskProfile | None = None
     unprojected_weights: pd.Series | None = None
+    # How it was brought inside the IPS (decision 62), and the technique's own candidate
+    # weights before that, when the repair reweighted them.
+    repair: RepairKind | None = None
+    recipe_weights: dict[str, float] | None = None
 
     @property
     def policy_adjusted(self) -> bool:
         return self.projected_from is not None
+
+    @property
+    def ensemble_weight_moved(self) -> float:
+        """Half the absolute change in candidate weights a reweighting repair made."""
+        if self.recipe_weights is None:
+            return 0.0
+        keys = set(self.recipe_weights) | set(self.ensemble_weights)
+        return 0.5 * sum(
+            abs(self.ensemble_weights.get(k, 0.0) - self.recipe_weights.get(k, 0.0)) for k in keys
+        )
+
+    def policy_repair(self) -> PolicyRepair | None:
+        if not self.policy_adjusted or self.repair is None:
+            return None
+        before = self.projected_from
+        return PolicyRepair(
+            kind=self.repair,
+            breached=[v.rule for v in before.compliance.violations if v.severity == "hard"],
+            recipe_weights=self.recipe_weights or self.ensemble_weights,
+            ensemble_weight_moved_pct=100 * self.ensemble_weight_moved,
+            asset_turnover_pct=100 * self.projection_turnover,
+            unrepaired_volatility_pct=before.ex_ante_volatility_pct,
+            unrepaired_max_drawdown_pct=before.max_drawdown_pct,
+        )
+
+    def repair_summary(self) -> str:
+        """One line for the CIO's prompt and the ensembles report."""
+        if not self.policy_adjusted:
+            return "none"
+        before = self.projected_from
+        start = f"from {before.ex_ante_volatility_pct:.2f}% vol, {before.max_drawdown_pct:.1f}% DD"
+        if self.repair is RepairKind.REWEIGHTED:
+            return (
+                f"reweighted {start}: {self.ensemble_weight_moved:.1%} of the ensemble moved "
+                f"between candidates ({self.reweight_shifts()}), {self.projection_turnover:.1%} "
+                "of the portfolio"
+            )
+        return f"asset projection {start}: {self.projection_turnover:.1%} of the portfolio moved"
+
+    def reweight_shifts(self, n: int = 2) -> str:
+        """The largest candidate-weight increases and cuts a reweighting made."""
+        if self.recipe_weights is None:
+            return ""
+        keys = set(self.recipe_weights) | set(self.ensemble_weights)
+        delta = {
+            k: self.ensemble_weights.get(k, 0.0) - self.recipe_weights.get(k, 0.0) for k in keys
+        }
+        ups = sorted((k for k in delta if delta[k] > 5e-3), key=lambda k: (-delta[k], k))[:n]
+        downs = sorted((k for k in delta if delta[k] < -5e-3), key=lambda k: (delta[k], k))[:n]
+        parts = [f"+{100 * delta[k]:.0f}pp {k}" for k in ups]
+        parts += [f"{100 * delta[k]:.0f}pp {k}" for k in downs]
+        return ", ".join(parts)
 
     @property
     def projection_turnover(self) -> float:
@@ -262,6 +323,48 @@ def project_to_policy(target: pd.Series, x: EnsembleInputs, config: Config) -> p
     return pd.Series(best, index=ids, dtype="float64")
 
 
+def reweight_costs(x: EnsembleInputs) -> np.ndarray:
+    """What adding weight to each candidate costs the reweighting, relative to cutting it.
+
+    The plain squared distance treats every candidate alike, so on claude3 the repair added the
+    most weight (+6pp) to market-cap weight, which 14 of 15 ballots put at the bottom: it was
+    the cheapest volatility on offer. Scaling an increase by 1 / (vote composite) makes raising a
+    peer-rejected method expensive and raising a peer-approved one cheap; cuts stay at cost 1,
+    so trimming a low-voted method is never penalised. The floor keeps a zero composite finite.
+    """
+    q = np.array([x.tally_composite.get(c, REWEIGHT_DEFAULT_COMPOSITE) for c in x.candidates])
+    return 1.0 / np.maximum(q, REWEIGHT_COMPOSITE_FLOOR)
+
+
+def reweight_to_policy(
+    ensemble_weights: dict[str, float], x: EnsembleInputs, config: Config
+) -> dict[str, float]:
+    """The nearest mix of the candidates whose blend satisfies the IPS's volatility band,
+    tracking-error budget and drawdown limit (decision 62). Nearest is the squared change in
+    ensemble weights, with increases priced by the vote (``reweight_costs``).
+
+    The repair the CIO prefers. Averaging lowers volatility, so a blend of candidates at 7-8%
+    lands below the 8% floor, and without leverage something must move. Moving weight between
+    candidates keeps every holding some candidate's and keeps the technique's ordering, where an
+    asset projection adds exposures no candidate proposed. Measured on claude2 with decision
+    61's candidates: 9-16% of ensemble weight moved, 5-7% of the portfolio.
+    """
+    P = x.matrix
+    a0 = np.array([ensemble_weights.get(c, 0.0) for c in x.candidates])
+    _, constraints = _ips_terms(x, config)
+    k = len(a0)
+    up_cost = reweight_costs(x)
+
+    def distance(a: np.ndarray) -> float:
+        d = a - a0
+        return float((np.where(d > 0, up_cost, 1.0) * d**2).sum())
+
+    best = _solve(distance, [a0, *np.eye(k)], k, constraints(lambda a: P @ a))
+    if best is None:
+        raise ValueError("no mix of the candidates near this ensemble satisfies the IPS")
+    return _normalised(dict(zip(x.candidates, best, strict=True)))
+
+
 def meta_optimization(x: EnsembleInputs, config: Config) -> dict[str, float]:
     """The candidate portfolios as assets of a second-level optimisation: the highest ex-ante
     Sharpe ratio over their weighted sums, subject to the IPS's volatility band, tracking-error
@@ -300,6 +403,8 @@ def evaluate(
     final_weights: pd.Series | None = None,
     projected_from: RiskProfile | None = None,
     unprojected_weights: pd.Series | None = None,
+    repair: RepairKind | None = None,
+    recipe_weights: dict[str, float] | None = None,
 ) -> Ensemble:
     """The final allocation an ensemble implies, profiled exactly as a candidate is.
     ``final_weights`` overrides the weighted sum, for a policy-projected ensemble."""
@@ -345,6 +450,8 @@ def evaluate(
         note=note,
         projected_from=projected_from,
         unprojected_weights=unprojected_weights,
+        repair=repair,
+        recipe_weights=recipe_weights,
     )
 
 
@@ -378,15 +485,37 @@ def build_ensembles(
 
 
 def _projected(ensemble: Ensemble, x: EnsembleInputs, config: Config) -> Ensemble:
-    """The ensemble projected into the IPS, if a verified compliant projection exists."""
+    """The ensemble brought inside the IPS, if a verified compliant repair exists.
+
+    Reweighting the candidates comes first (decision 62); the asset projection is the fallback
+    for when no nearby mix of the candidates complies.
+    """
     breaches = (
         ", ".join(v.rule for v in ensemble.profile.compliance.violations if v.severity == "hard")
         or "a rule not evaluated"
     )
     try:
+        reweighted = reweight_to_policy(ensemble.ensemble_weights, x, config)
+    except ValueError as exc:
+        log.info("ensemble %s: %s", ensemble.method.value, exc)
+    else:
+        adjusted = evaluate(
+            ensemble.method,
+            reweighted,
+            x,
+            config,
+            projected_from=ensemble.profile,
+            unprojected_weights=ensemble.final_weights,
+            repair=RepairKind.REWEIGHTED,
+            recipe_weights=ensemble.ensemble_weights,
+            note=f"reweighted into the IPS; it breached {breaches}",
+        )
+        if adjusted.compliant:
+            return adjusted
+    try:
         projected = project_to_policy(ensemble.final_weights, x, config)
     except ValueError as exc:
-        ensemble.note = f"breaches {breaches}; no compliant projection ({exc})"
+        ensemble.note = f"breaches {breaches}; no compliant repair ({exc})"
         return ensemble
     adjusted = evaluate(
         ensemble.method,
@@ -396,11 +525,12 @@ def _projected(ensemble: Ensemble, x: EnsembleInputs, config: Config) -> Ensembl
         final_weights=projected,
         projected_from=ensemble.profile,
         unprojected_weights=ensemble.final_weights,
-        note=f"projected into the IPS; it breached {breaches}",
+        repair=RepairKind.ASSET_PROJECTION,
+        note=f"projected into the IPS (no compliant reweighting); it breached {breaches}",
     )
     if adjusted.compliant:
         return adjusted
-    ensemble.note = f"breaches {breaches}; its projection did not verify on the backtest"
+    ensemble.note = f"breaches {breaches}; its repair did not verify on the backtest"
     return ensemble
 
 

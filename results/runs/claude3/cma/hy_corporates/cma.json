@@ -1,0 +1,84 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.485220Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/hy_corporates/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/hy_corporates/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/hy_corporates/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3710,
+        "output_tokens": 2100,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.0596636,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/hy_corporates/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "hy_corporates",
+    "horizon_years": 3,
+    "expected_return_pct": 6.04,
+    "volatility_pct": 8.4436,
+    "method_range": [
+      5.7889,
+      7.7638
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.7
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.2
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.1
+        }
+      ],
+      "expected_return_pct": 6.04,
+      "confidence": "medium",
+      "dispersion": "tight",
+      "regime_logic": "Stage 1 calls a fragile, late-cycle-adjacent expansion at low confidence (0.35), with a 20-30% recession probability. For high yield this matters more than for any other fixed-income sleeve (consideration 3). HY carries the strongest Growth sensitivity in the group and correlates 0.72 with US large cap, so a growth shock would hit it like an equity drawdown with a coupon attached. Late-cycle logic in Exhibit 4 tilts toward forward-looking and regime-aware methods and away from long-run historical averages. I therefore give no weight to historical_erp and a small weight to regime_adjusted. Its 3-year-forward expansion premium (+2.35% excess) sits below the unconditional +3.39%, which is consistent with spreads already being compressed when expansions are under way. With duration of about three to four years, the view here is a view on the credit cycle rather than on the Fed (consideration 4). The negative monetary-policy score therefore carries little information for this asset.",
+      "valuation_context": "The primary lens is the yield level. The 8.16% ICE HY effective yield is the best single predictor of return over a 3-year horizon close to the sleeve's duration. Consideration 1 says the yield is not the expected return. The yield_building_block candidate already nets a 2.50pp expected credit loss, in line with the roughly 4% default rate and roughly 40% recovery (about 2.4pp) the asset file prescribes. I take that figure as given and do not subtract losses a second time, since the starting spread already prices default risk. Consideration 2 is about callability: yield-to-worst understates the asymmetry, because issuers refinance when spreads tighten and investors keep the downside. That argues against anything above the yield-based figure. The historical_erp candidate (7.76%) is excluded for a specific reason. It is backward-looking and was earned over a 1990-2026 period of secularly falling yields and spread compression that cannot repeat from today's starting point. Consideration 5 adds that the liquid index's cleaner default history flatters that number further.",
+      "signal_alignment": "The composite signal is mildly bearish at -0.08. Technicals lean negative: trend -0.34, mean reversion -0.28 after a strong 3-year run of 7.76%, and weak relative momentum. The macro alignment signals are near zero, apart from a small positive from easy financial conditions. This confirms rather than contradicts a forecast anchored on the credit-loss-adjusted yield and leaning toward the lower half of the range. Easy financial conditions are what keep spreads tight today, and they are also what unwinds in a late-cycle turn. I used no flow or positioning information, because none is sourced in this pipeline.",
+      "rationale": "Custom blend: yield_building_block 70%, bl_equilibrium 20%, regime_adjusted 10%. This gives 6.04%, inside the [5.79, 7.76] range and slightly below the 6.36% auto-blend. The fixed-income guidance makes the yield building block the anchor, and the horizon (3 years) roughly matches HY duration. It already embeds the 2.5pp credit-loss haircut that consideration 1 calls the most common error to omit, so no further deduction is made. The auto-blend gives 17% to historical_erp, whose 7.76% reflects a secular yield decline and a survivor-clean liquid index. I removed it rather than trust its stated confidence. Black-Litterman's 5.79% is a modest downward cross-check: it rests on an ETF-AUM proxy weight of about 1%, but its CAPM logic is apt for an asset that behaves like equity in drawdowns. Regime_adjusted adds a small forward-looking expansion read. Leaving the estimate a few basis points above the pure yield figure, rather than shading it lower, reflects the tight dispersion (1.97pp) and the absence of evidence that defaults will exceed the long-run haircut. The left-skew and call asymmetry (consideration 2) and the 20-30% recession probability mean the risk around this point estimate lies to the downside. Confidence is medium: the yield anchor is strong, but regime confidence is low. The governing IPS (config/ips.yaml) is ratified."
+    }
+  }
+}

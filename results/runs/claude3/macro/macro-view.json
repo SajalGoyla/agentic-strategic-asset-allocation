@@ -1,0 +1,533 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "macro_view",
+    "agent": "macro",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:22:22.383004Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      }
+    },
+    "inputs": [],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 2413,
+        "output_tokens": 2627,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.085657,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "scores": {
+      "dimensions": [
+        {
+          "dimension": "growth",
+          "score": 0.05271435126645529,
+          "indicators": [
+            {
+              "series_id": "PAYEMS",
+              "name": "Nonfarm payrolls",
+              "value": -0.0004481296585371343,
+              "raw_value": null,
+              "transform": "mom_annualised",
+              "score": -0.0004481296585371343,
+              "weight": 0.2,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-07",
+              "point_in_time": false
+            },
+            {
+              "series_id": "CFNAI",
+              "name": "Chicago Fed National Activity Index",
+              "value": 0.043425870824035456,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.043425870824035456,
+              "weight": 0.15,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-25",
+              "point_in_time": false
+            },
+            {
+              "series_id": "INDPRO",
+              "name": "Industrial production index",
+              "value": 0.120496302978439,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": 0.120496302978439,
+              "weight": 0.12,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-17",
+              "point_in_time": false
+            },
+            {
+              "series_id": "RSAFS",
+              "name": "Advance retail sales",
+              "value": 0.12432096203769931,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": 0.12432096203769931,
+              "weight": 0.1,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-16",
+              "point_in_time": false
+            },
+            {
+              "series_id": "GDPC1",
+              "name": "Real GDP",
+              "value": -0.09475278778981469,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.09475278778981469,
+              "weight": 0.12,
+              "observation_date": "2026-04-30",
+              "available_from": "2026-05-30",
+              "point_in_time": false
+            },
+            {
+              "series_id": "GDPNOW",
+              "name": "Atlanta Fed GDPNow real GDP nowcast",
+              "value": 0.0970448289719055,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.0970448289719055,
+              "weight": 0.08,
+              "observation_date": "2026-07-31",
+              "available_from": "2026-08-30",
+              "point_in_time": false
+            },
+            {
+              "series_id": "UNRATE",
+              "name": "Unemployment rate",
+              "value": 0.04486309158060822,
+              "raw_value": null,
+              "transform": "diff",
+              "score": 0.04486309158060822,
+              "weight": 0.1,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-07",
+              "point_in_time": false
+            },
+            {
+              "series_id": "ICSA",
+              "name": "Initial jobless claims",
+              "value": 0.08842346806031934,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": 0.08842346806031934,
+              "weight": 0.05,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-05",
+              "point_in_time": false
+            },
+            {
+              "series_id": "JTSJOL",
+              "name": "JOLTS job openings",
+              "value": -0.02516234575541346,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.02516234575541346,
+              "weight": 0.04,
+              "observation_date": "2026-07-31",
+              "available_from": "2026-09-09",
+              "point_in_time": false
+            },
+            {
+              "series_id": "SAHMREALTIME",
+              "name": "Real-time Sahm rule recession indicator",
+              "value": 0.2114441527442247,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.2114441527442247,
+              "weight": 0.02,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-07",
+              "point_in_time": false
+            },
+            {
+              "series_id": "UMCSENT",
+              "name": "University of Michigan consumer sentiment",
+              "value": -0.31946829532678817,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.31946829532678817,
+              "weight": 0.02,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-30",
+              "point_in_time": false
+            }
+          ]
+        },
+        {
+          "dimension": "inflation",
+          "score": -0.27027491033424594,
+          "indicators": [
+            {
+              "series_id": "CPILFESL",
+              "name": "Core CPI",
+              "value": -0.10142865720134099,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.10142865720134099,
+              "weight": 0.22,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-13",
+              "point_in_time": false
+            },
+            {
+              "series_id": "PCEPILFE",
+              "name": "Core PCE price index",
+              "value": -0.3414139252580602,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.3414139252580602,
+              "weight": 0.22,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-30",
+              "point_in_time": false
+            },
+            {
+              "series_id": "CPIAUCSL",
+              "name": "CPI all items",
+              "value": -0.29435346680537455,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.29435346680537455,
+              "weight": 0.15,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-13",
+              "point_in_time": false
+            },
+            {
+              "series_id": "PCEPI",
+              "name": "PCE price index",
+              "value": -0.366341071351147,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.366341071351147,
+              "weight": 0.11,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-30",
+              "point_in_time": false
+            },
+            {
+              "series_id": "T5YIFR",
+              "name": "5-year 5-year forward inflation expectation",
+              "value": -0.12199637463934203,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.12199637463934203,
+              "weight": 0.1,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "T10YIE",
+              "name": "10-year breakeven inflation",
+              "value": -0.30031908818849407,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.30031908818849407,
+              "weight": 0.08,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "T5YIE",
+              "name": "5-year breakeven inflation",
+              "value": -0.32440025272750733,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.32440025272750733,
+              "weight": 0.05,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "MICH",
+              "name": "University of Michigan 1-year inflation expectations",
+              "value": -0.3795654141176978,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.3795654141176978,
+              "weight": 0.04,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-30",
+              "point_in_time": false
+            },
+            {
+              "series_id": "EXPINF10YR",
+              "name": "Cleveland Fed 10-year expected inflation",
+              "value": -0.6923736867882774,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.6923736867882774,
+              "weight": 0.03,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-15",
+              "point_in_time": false
+            }
+          ]
+        },
+        {
+          "dimension": "monetary_policy",
+          "score": -0.2171181648208459,
+          "indicators": [
+            {
+              "series_id": "DFEDTARU",
+              "name": "Federal funds target range upper limit",
+              "value": 0.3873412675475512,
+              "raw_value": null,
+              "transform": "diff",
+              "score": 0.3873412675475512,
+              "weight": 0.22,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "DFF",
+              "name": "Effective federal funds rate",
+              "value": -0.46261004326362054,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.46261004326362054,
+              "weight": 0.13,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "T10Y3M",
+              "name": "10-year minus 3-month Treasury spread",
+              "value": -0.14551388219846165,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.14551388219846165,
+              "weight": 0.18,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "T10Y2Y",
+              "name": "10-year minus 2-year Treasury spread",
+              "value": -0.30674595664876697,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.30674595664876697,
+              "weight": 0.12,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "DFII10",
+              "name": "10-year TIPS real yield",
+              "value": -0.6733828061801633,
+              "raw_value": null,
+              "transform": "level",
+              "score": -0.6733828061801633,
+              "weight": 0.15,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "DGS2",
+              "name": "2-year Treasury constant maturity",
+              "value": -0.5936297514057053,
+              "raw_value": null,
+              "transform": "diff",
+              "score": -0.5936297514057053,
+              "weight": 0.1,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "WALCL",
+              "name": "Federal Reserve total assets",
+              "value": -0.18821528395866327,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": -0.18821528395866327,
+              "weight": 0.1,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-02",
+              "point_in_time": false
+            }
+          ]
+        },
+        {
+          "dimension": "financial_conditions",
+          "score": 0.353125215002422,
+          "indicators": [
+            {
+              "series_id": "NFCI",
+              "name": "Chicago Fed National Financial Conditions Index",
+              "value": 0.2010554164539469,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.2010554164539469,
+              "weight": 0.24,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-05",
+              "point_in_time": false
+            },
+            {
+              "series_id": "BAA10Y",
+              "name": "Moody's Baa minus 10-year Treasury spread",
+              "value": 0.4981437898281591,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.4981437898281591,
+              "weight": 0.18,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "VIXCLS",
+              "name": "CBOE VIX",
+              "value": 0.2874227778128146,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.2874227778128146,
+              "weight": 0.16,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "STLFSI4",
+              "name": "St. Louis Fed Financial Stress Index",
+              "value": 0.3599576231234307,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.3599576231234307,
+              "weight": 0.14,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-07",
+              "point_in_time": false
+            },
+            {
+              "series_id": "BAMLH0A0HYM2",
+              "name": "ICE BofA US high yield OAS",
+              "value": 0.5955716975199613,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.5955716975199613,
+              "weight": 0.12,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "BAMLC0A0CM",
+              "name": "ICE BofA US corporate (IG) OAS",
+              "value": 0.3875728733839687,
+              "raw_value": null,
+              "transform": "level",
+              "score": 0.3875728733839687,
+              "weight": 0.08,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-01",
+              "point_in_time": false
+            },
+            {
+              "series_id": "DTWEXBGS",
+              "name": "Nominal broad US dollar index",
+              "value": 0.20437359529953275,
+              "raw_value": null,
+              "transform": "yoy",
+              "score": 0.20437359529953275,
+              "weight": 0.08,
+              "observation_date": "2026-08-31",
+              "available_from": "2026-09-07",
+              "point_in_time": false
+            }
+          ]
+        }
+      ],
+      "pit_quality": [
+        {
+          "dimension": "growth",
+          "indicators_total": 11,
+          "indicators_point_in_time": 0
+        },
+        {
+          "dimension": "inflation",
+          "indicators_total": 9,
+          "indicators_point_in_time": 0
+        },
+        {
+          "dimension": "monetary_policy",
+          "indicators_total": 7,
+          "indicators_point_in_time": 0
+        },
+        {
+          "dimension": "financial_conditions",
+          "indicators_total": 7,
+          "indicators_point_in_time": 0
+        }
+      ],
+      "lookback_years": 20,
+      "data_end": "2026-08-31",
+      "point_in_time": false
+    },
+    "judgment": {
+      "regime": "expansion",
+      "regime_qualifier": "fragile, late-cycle-adjacent expansion with sticky above-history inflation",
+      "confidence": "low",
+      "confidence_score": 0.35,
+      "recession_probability": {
+        "low_pct": 20.0,
+        "high_pct": 30.0
+      },
+      "dimension_rationales": [
+        {
+          "dimension": "growth",
+          "rationale": "The composite sits barely above zero, and that masks a split. Industrial production, retail sales, claims, CFNAI and GDPNow are mildly positive, while payrolls are flat, JOLTS openings are slightly negative and consumer sentiment is weak. The GDP reading is stale (April) and negative. This looks like moderate, not strong, growth with a softening labour core, though the Sahm rule remains benign."
+        },
+        {
+          "dimension": "inflation",
+          "rationale": "The negative sign means inflation is high relative to its own history, not low. It is broad-based: core PCE and headline PCE are the weakest realised measures, and market and survey expectations (breakevens, Michigan, Cleveland Fed 10-year) are elevated. That makes this a sticky-inflation backdrop rather than a transitory spike."
+        },
+        {
+          "dimension": "monetary_policy",
+          "rationale": "Direction and level disagree. The positive score on the change in the target-range upper limit points to cuts, so direction is easing. But real 10-year yields, the effective funds rate level and a rising 2-year yield are all restrictive, and both curve spreads score flat relative to history. I read this as easing from a still-restrictive level, with the market partly pricing cuts back out."
+        },
+        {
+          "dimension": "financial_conditions",
+          "rationale": "This is the clearest supportive signal. Every component is positive, led by tight high-yield, Baa and IG spreads, with low stress indices, a subdued VIX and a softer dollar. As the leading block, it argues against near-term recession risk."
+        }
+      ],
+      "key_risks": [
+        "Labour-market roll-over: flat payroll momentum and soft openings could tip the Sahm indicator if unemployment starts rising.",
+        "Sticky inflation constraining the Fed: elevated core PCE and expectations, alongside a rising 2-year yield, may halt the easing path and push the regime to late-cycle with stagflationary risk.",
+        "Complacent credit pricing: HY and IG spreads tight versus history leave little cushion if growth disappoints, and a reversal in financial conditions would be the leading signal of a regime change.",
+        "Data staleness: GDP is as of April, and GDPNow and JOLTS as of July. The August cut-off leaves September unobserved, and GDP-based growth evidence is several months old.",
+        "Label instability: the regime has flipped between expansion and late-cycle four times in 13 months, so threshold effects may be driving the call more than the economy is."
+      ],
+      "narrative": "We retain the rule-based classification of expansion but at low confidence (0.35, below even the deterministic 0.43), with a qualifier: this is a fragile, late-cycle-adjacent expansion with sticky inflation. We do not override the prior. Financial conditions, the most forward-looking block, are clearly loose. Policy direction is easing. Measured growth momentum is positive. Together these give no defensible basis yet to call late-cycle. That said, the label has held for only 3 of the last 13 months after a long late-cycle run, and the late-cycle rule (positive growth alongside an inflation or policy squeeze) is close to firing. Downstream agents should treat expansion and late-cycle as near-equal-weight scenarios rather than lean hard on the expansion label.\n\nThe growth composite of roughly zero is not steady moderate growth across the board. Activity and spending indicators (industrial production, retail sales, CFNAI, GDPNow, claims) are mildly positive, while payroll momentum is flat, job openings are soft and consumer sentiment is weak. The real GDP reading is as of April and negative year-on-year, so part of the growth picture is stale. Inflation scores negative, meaning it is running above its own history. That holds across core and headline PCE and CPI and across market and survey expectations, which is what keeps stagflationary risk on the table. Policy is the classic split: the Fed has been cutting, which is supportive in direction, but real yields and the funds-rate level remain restrictive. A rising 2-year yield suggests markets are pricing out some easing. Curve spreads are flat relative to history, a late-cycle marker but not a recession call. Where conditions and activity disagree on the near-term risk read, we follow financial conditions: tight credit spreads and low stress argue against imminent recession. Hence a baseline recession probability of 20-30%, slightly below a neutral late-cycle baseline.\n\nData coverage: the newest scoreable month is August 2026, 31 days before the 1 October as-of date, so September is unobserved. This is a live run on latest vintages; none of the contributing series are flagged point-in-time, which is acceptable for a current call but would not be for a backtest. The momentum figure was supplied over a stated window of 380 months rather than the usual six-month window. We have treated its sign as indicative only, and the window should be checked in the scoring output. The governing IPS (config/ips.yaml) is reported as ratified, so this view operates under the approved policy. The main triggers that would move us to late-cycle are any of the following:\n- a renewed rise in unemployment or claims;\n- a pause in Fed easing driven by inflation;\n- a widening in high-yield spreads."
+    }
+  }
+}

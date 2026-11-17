@@ -1,0 +1,184 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-tail-risk-parity",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.349914Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/maximum_diversification/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/maximum_diversification/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4041,
+        "output_tokens": 3509,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.043852800000000004,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "tail_risk_parity",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "maximum_diversification",
+    "reviewed_category": "risk_structured",
+    "kind": "inter_category",
+    "strengths": [
+      "The method's inputs are stated honestly: it uses only the covariance matrix, and expected return and Sharpe are computed afterward as evaluation only. The proposal does not claim a return view it lacks.",
+      "The concentration is explained correctly. Gold, commodities and long Treasuries get weight for low correlation with the rest, and us_value and REITs are squeezed for the opposite reason. The figures are internally consistent: effective N of 6.4 matches the weights, and the -39.3% equity underweight and +33% real-asset active weight both reconcile.",
+      "It discloses that excluding cash and short Treasuries (decision 61) is a design choice, and that without it the method would collapse into them at roughly 76-98%. That makes clear the weights depend on the universe and are not a pure market-implied answer.",
+      "It is candid about the IPS position under a ratified policy. It does not claim compliance, it names tracking error as the structural breach, and it frames the volatility shortfall (7.87% vs 8.0%) as marginal.",
+      "It names a specific role for the ensemble: real-asset and inflation exposure plus a long-duration sleeve, which bond-heavy risk-structured methods do not supply. It also states clear invalidation conditions that match the CRO's main sensitivity, a joint rise in stock-bond and commodity-equity correlations.",
+      "Ex-ante and backtest volatility agree closely (7.87% vs 7.77%), and the drawdown (-16.78%) is within limit."
+    ],
+    "weaknesses": [
+      "The 'it never touches CMAs' framing hides an implicit return assumption. Maximum diversification is optimal only if every asset has the same Sharpe ratio, i.e. expected return proportional to volatility. That is a strong claim for commodities and gold, which are high-volatility and have no clear risk premium, and for 28.5% in long Treasuries. The portfolio's own ex-ante Sharpe of 0.36 against a 0.60 backtest Sharpe shows the equal-compensation premise is not comparable to the inputs the other methods use. The method shifts the estimation risk from returns to the assumption that volatility equals compensation.",
+      "The premise rests on low correlations of long Treasuries, gold and commodities to equities being stable. Both the ex-ante covariance and the backtest come from the same 1993-2026 history, in which stock-bond correlation was mostly low or negative. Agreement between them (7.87% vs 7.77%) is in-sample consistency, not robustness. The largest position, long Treasuries, has its worst episode (1970s-80s inflation and rising rates) outside the sample. If an inflationary rate shock pushes stock-bond and commodity-equity correlations up together, the portfolio loses its diversification at once and holds about 58% in long-duration and commodity risk.",
+      "The regime argument is asserted, not shown. The case says an expansion is when CMAs are crowded, so covariance-based methods hedge. But an expansion late in the cycle with firm growth and inflation pressure is also when long duration and commodity correlations can turn. The proposal does not say why the current regime favours the low-correlation premise. The portfolio is also structurally short the asset class (equities, -39.3% vs benchmark, beta 0.58) that tends to lead in expansions.",
+      "Results depend heavily on the universe definition. Excluding cash and short Treasuries is what produces the diversified-looking portfolio. A method whose output flips from about 8 assets with an effective N of 6.4 to near-total cash with one exclusion rule is highly sensitive to a discretionary input and is not model-neutral.",
+      "Hard IPS breaches on both volatility (7.87% vs 8.0% floor) and tracking error (6.88% vs 6.0% budget). The volatility miss is small, but the tracking-error breach is structural and not an estimation artefact. The proposal's value depends on a blend that fixes it, and the proposal gives no evidence that any blend with specific partner weights works. The claim that blending 'lifts volatility and pulls TE back' is plausible but not demonstrated.",
+      "Weights are an unconstrained function of covariance estimates, so covariance error maps directly into weights, with no position cap on long Treasuries (28.5%) as the single largest holding. The effective N of 6.4 understates the true dependence: three assets with 58.7% of weight all depend on one correlation assumption, so independent risk sources are fewer than the count suggests.",
+      "The appeal to the paper's finding that agents favoured covariance-driven methods and that this method ranked first in the vote is not evidence about this portfolio under this regime and carries no weight in judging quality."
+    ],
+    "technical_errors": [],
+    "score": 0.55,
+    "rationale": "The proposal is well executed and unusually candid. The weights, effective N, active weights and Sharpe arithmetic are consistent with the stated method, and it does not hide the IPS breaches or the dependence on the universe exclusion. As a premise, though, it is fragile. A covariance-only method must believe that volatility is a fair proxy for compensation (equal Sharpe across assets) and that the low correlations of long Treasuries, gold and commodities with equities persist. Both are untested out of sample, and the CRO notes the backtest cannot answer the second. The regime does not clearly support the premise, since an expansion with inflation or rate pressure is the main scenario in which the stock-bond and commodity-equity diversification fails. A 28.5% long-Treasury position, an equity underweight of about 39 points and a hard tracking-error breach mean the portfolio is not usable as proposed, and its value depends on the CIO blending it. As an ensemble component supplying real-asset and duration exposure it has genuine value, which keeps the score near the middle. No technical errors were found, but the score is held down by premise fragility and by the structural tracking-error breach under a ratified IPS."
+  }
+}

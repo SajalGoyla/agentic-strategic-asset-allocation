@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-equal-weight",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.338249Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/black_litterman/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/black_litterman/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3852,
+        "output_tokens": 3718,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.0455648,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "equal_weight",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "black_litterman",
+    "reviewed_category": "return_optimized",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal states its tuning openly. It says the default long-only tangency portfolio (2.26% vol, Sharpe 0.70) sat far below the 8-12% band. It then lowered gamma to 4.028 to reach the 8.00% floor and reports the Sharpe cost (0.70 to 0.42). The reader can see what was changed.",
+      "The internal numbers are consistent. The weights sum to about 100%, the Herfindahl of 0.222 follows from them, and the 5.7 effective assets is the entropy-based measure, which should exceed 1/HHI. The 8.00% vol and 6.95% return imply a risk-free rate near 3.6%. The CRO's 7.96% backtest vol matches the ex-ante figure.",
+      "Shrinking the CMAs toward an equilibrium prior is a sound way to handle noisy return forecasts. It avoids the corner solutions that raw mean-variance produces from the same inputs. The result is nine holdings with no position above 36%.",
+      "The proposal does not oversell itself. It says the Sharpe of 0.42 is in-sample against the same CMAs. It says the drawdown limit is not yet checked, and that the ETF market-value proxy is crude. It also lists conditions that would invalidate it.",
+      "It is compliant on the ex-ante limits and on the CRO's backtest drawdown check (-21.9%). Tracking error of 3.28% is modest for a book with this much active tilt."
+    ],
+    "weaknesses": [
+      "The premise needs a stable negative stock-bond correlation. About 49% of the book is Treasuries and about 44% is equities, so diversification rests on bonds hedging stocks. The CRO puts the drawdown at 88% of the limit, which leaves about 3 points of headroom. A 2022-style or 1970s-style joint selloff is the scenario that breaches it. The 1993+ covariance panel contains little of that.",
+      "The tuned portfolio is no longer the equilibrium-anchored one. The prior is reverse-optimised at delta 2.5, but the portfolio is held at gamma 4.028. As risk is dialled up, the weights are driven more by the posterior return tilt, meaning the CMA spreads, and less by the market prior. The 'market-anchored' selling point is therefore weakest exactly where the portfolio is run.",
+      "The method needs the CMAs to be informative, yet Omega = diag(tau Sigma) ties view uncertainty to asset volatility rather than to forecast quality. How much weight the views get is set by tau, an arbitrary scalar, and not by evidence about CMA accuracy. The proposal gives no tau, no sensitivity to it, and no evidence that the CMAs have skill.",
+      "The equilibrium prior uses ETF market values as asset-class weights. US large cap, value, growth and small cap are overlapping slices of one equity market. ETF AUM is not float-adjusted market capitalisation, and it is skewed by what is investable in ETF form. The market portfolio that justifies the prior is therefore not well defined, and the 'anchor' may carry bias that the shrinkage then spreads through the posterior.",
+      "Both the ex-ante Sharpe (0.42) and the 7.96% backtest vol rely on inputs shared with the optimiser. The backtest Sharpe is 0.68 against 0.42 ex-ante, which suggests the 1993+ history, with its long bond rally, is more generous than the CMAs. That 0.68 should not be treated as validation, and the gap is not explained.",
+      "The portfolio sits exactly on the IPS volatility floor, with zero margin. Small covariance drift or rebalancing slippage would put it below the band, and any move toward more risk runs into the drawdown limit first.",
+      "Concentration is more than the weights suggest. Large cap and value overlap heavily, long Treasuries and REITs both add rate sensitivity, and the whole book is effectively one rates and stock-bond bet. The 5.7 effective assets overstates diversification in terms of independent risk sources."
+    ],
+    "technical_errors": [],
+    "score": 0.58,
+    "rationale": "I judge the method on its own premise. Black-Litterman needs three things to be true. First, the CMAs must hold real information once shrunk. Second, the ETF-size prior must approximate an equilibrium portfolio. Third, the covariance, and above all the stock-bond correlation, must stay stable. An expansion regime supports the first only weakly. Nothing is offered to show the CMAs have skill, and tau, the knob that sets how much they count, is left unexamined. The second is shaky because the asset universe has overlapping equity slices. The third is the main exposure, since the drawdown is already at 88% of the limit with no headroom. I found no technical errors, and the figures reconcile, so the execution is competent and the proposal is candid about its limits. The weaknesses are about the premise and about the tuning step, which moves the portfolio from the equilibrium-anchored default toward CMA-driven weights. The portfolio is compliant, moderately concentrated, and reasonably shaped for expansion, but its risk adjustment rests on forecasts that no metric in the report can validate. I score it as a sound but moderately fragile candidate."
+  }
+}
