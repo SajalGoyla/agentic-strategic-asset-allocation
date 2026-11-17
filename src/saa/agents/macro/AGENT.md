@@ -72,7 +72,9 @@ The arithmetic is settled before you see it. Your job is the part a weighted ave
 - Every dimension needs a rationale. The contract rejects output missing any of the four.
 - The recession probability is a range with `low_pct <= high_pct`.
 - If you override the rule-based regime, the narrative must name the rule you departed from.
-- Governing policy is `config/ips.yaml`. When it is still a draft, say so in the narrative.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  in the narrative (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off
+  outstanding).
 
 ## Output
 

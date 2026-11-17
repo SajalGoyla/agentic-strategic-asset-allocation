@@ -17,11 +17,26 @@ autonomy levels, so it is the one place a human stays in control of what the age
 This document is the human-readable form. `config/ips.yaml` is the machine-readable form that
 agents actually load, and `src/saa/ips.py` is the single implementation of the rules.
 
-**Status: v0.2, draft.** Prof. Glasserman answered the open questions on 2026-09-25 and those
-answers are encoded below, but the document has not been formally ratified — answering
-individual questions is not the same as signing it off. `status` stays `draft` until someone
-does, and `IPS.is_draft` remains true, so agents keep recording that they ran against a draft
-policy. The YAML tags every figure `[paper]`, `[faculty]` or `[proposed]`.
+**Status: v0.2, owner-approved.** Every figure below is settled and tagged `[paper]`,
+`[faculty]` or `[owner]`; no `[proposed]` figure remains. The project owner approved the
+document on 2026-11-09, so it is no longer a draft.
+
+It is not yet *ratified*. Prof. Glasserman answered each open question on 2026-09-25, and those
+answers are encoded below, but he has not been asked to sign the document off as a whole — and
+answering individual questions is not the same as signing it off. So `status` has three states
+(decision 56):
+
+| `status` | Meaning | `is_draft` | `needs_faculty_signoff` |
+|---|---|---|---|
+| `draft` | a figure is still open | true | true |
+| `owner_approved` | every figure settled, owner has approved — **where we are** | false | true |
+| `ratified` | faculty have signed the document off | false | false |
+
+The two approvals sit on separate fields (`approved_by`/`approved_on` and
+`ratified_by`/`ratified_on`), so ratifying records who signed without overwriting who approved.
+Agents key their narrative caveat off `needs_faculty_signoff`, not `is_draft`: an owner-approved
+policy is not a draft, but it still carries the caveat, and `IPS.standing` is the clause they
+use. Faculty sign-off is the only thing outstanding, and it reopens none of the figures below.
 
 ## The three layers
 
@@ -114,7 +129,7 @@ Three properties worth knowing:
   exists at portfolio construction, realised drawdown only after a backtest. Anything missing
   lands in `not_evaluated`. A report can be `compliant` while having verified nothing, so
   callers should check both.
-- **Every figure carries its provenance.** The YAML tags each one `[paper]` or `[faculty]`,
+- **Every figure carries its provenance.** The YAML tags each one `[paper]`, `[faculty]` or `[owner]`,
   and the table at the end of this document lists them all, so it stays clear which numbers
   come from Ang et al. and which were decided here.
 
@@ -142,10 +157,10 @@ the backtest as well as ex-ante — and we accept that the paper's published fig
 clear them. The CIO may not recommend a portfolio that breaks them; the CRO reports candidates'
 breaches without rejecting them (decision 32).
 
-All three limits are hard, so all three would reject it. The return figure is the one worth a
-second look: it binds from above as well as below, which means a portfolio forecast to earn
-more than the target is disqualified. That follows from the literal reading of "treat them as
-hard constraints", and we have implemented it that way, but it is flagged for confirmation.
+The volatility and drawdown limits are hard, so either would reject it. The return figure no
+longer does: read against our floor-only objective (decision 41), 4.37% real clears CPI + 3%
+comfortably. Under the paper's literal 3–4% band it would have breached the ceiling for being
+too profitable, which is part of why the ceiling went.
 
 This is pinned in
 `tests/test_ips.py::test_the_papers_own_portfolio_breaches_three_of_its_own_limits`, so any
@@ -156,7 +171,8 @@ future relaxation of either limit has to change a test that says why.
 | Item | Value | Source |
 |---|---|---|
 | Universe | 18 asset classes | paper §4 |
-| Real return target | CPI + 3.0–4.0%, hard | paper §4, severity by faculty |
+| Real return target | at least CPI + 3.0%, hard floor, no ceiling | paper §4, ceiling removed by decision 41 |
+| Return deflator | `EXPINF3YR` (Cleveland Fed 3-year expected inflation) | ours; the paper specifies none (decision 55) |
 | Volatility band | 8–12%, hard both sides | paper §4, severity by faculty |
 | Maximum drawdown | −25%, hard, incl. backtest | paper §4, severity by faculty |
 | CMA horizon | 3 years nominal | paper Exhibit 8 |

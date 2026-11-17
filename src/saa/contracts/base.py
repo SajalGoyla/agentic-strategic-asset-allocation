@@ -110,8 +110,8 @@ class Header(Contract):
     provenance: dict[str, DatasetVersion] = Field(default_factory=dict)
     inputs: list[InputRef] = Field(default_factory=list)
 
-    # Which policy governed this output. `ips_status` is "draft" until faculty ratify it, and
-    # agents are expected to say so in their narrative.
+    # Which policy governed this output. `ips_status` is "draft" or "owner_approved" until
+    # faculty ratify the document, and agents are expected to say which in their narrative.
     ips_version: float
     ips_status: str
 

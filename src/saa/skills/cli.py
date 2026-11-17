@@ -88,6 +88,18 @@ def main(argv: list[str] | None = None) -> int:
     cm.add_argument("--run-id", help="write into an existing pipeline run instead of a new one")
     cm.add_argument("--run-dir", help="override the run directory entirely")
 
+    sc = sub.add_parser("scenarios", help="bull/base/bear per asset from the method range")
+    sc.add_argument("--run-id", required=True, help="the run holding cma_methods.json and cma.json")
+    sc.add_argument("--run-dir", help="override the run directory entirely")
+    sc.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    sc.add_argument("--assets", nargs="+", help="asset ids (default: every asset in the run)")
+
+    ac = sub.add_parser("asset-class-report", help="the 13-section investment case per asset")
+    ac.add_argument("--run-id", required=True, help="the run holding the stage-2 contracts")
+    ac.add_argument("--run-dir", help="override the run directory entirely")
+    ac.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
+    ac.add_argument("--assets", nargs="+", help="asset ids (default: every asset in the run)")
+
     cv_ = sub.add_parser("cma-validate", help="check the CMA layer against expected ranges")
     cv_.add_argument("--run-id", required=True, help="the pipeline run holding cma_methods.json")
     cv_.add_argument("--run-dir", help="override the run directory entirely")
@@ -212,6 +224,24 @@ def main(argv: list[str] | None = None) -> int:
         written = write_outputs(result, run)
         print(render_report(result).split("## Rationales")[0])
         print(f"Wrote {len(written)} files for {len(result.bodies)} assets to {run.root}")
+
+    if args.command == "scenarios":
+        from saa.skills.scenarios import render_report, run_scenarios, write_outputs
+
+        run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+        result = run_scenarios(run, args.assets)
+        written = write_outputs(result, run)
+        print(render_report(result))
+        print(f"Wrote {len(written)} files for {len(result.assets)} assets to {run.root}")
+
+    if args.command == "asset-class-report":
+        from saa.skills.asset_class_report import render_index, run_reports, write_outputs
+
+        run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
+        result = run_reports(run, config, args.assets)
+        written = write_outputs(result, run)
+        print(render_index(result))
+        print(f"Wrote {len(written)} reports to {run.root}")
 
     if args.command == "cma-validate":
         from saa.skills.cma_methods.validation import (

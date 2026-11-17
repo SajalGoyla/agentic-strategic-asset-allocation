@@ -53,7 +53,8 @@ second answer is filed as it is.
 - `revise: false` means no lever moves; any lever means `revise: true`.
 - Do not abandon your method. A revision that shrinks all the way to equal weight has become a
   different proposal, which is why the shrink is capped at half-way.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off outstanding).
 
 ## Output
 

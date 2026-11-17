@@ -423,7 +423,6 @@ def fallback_judgment(
     dissents: list[str],
     *,
     regime: str | None,
-    ips_status: str,
     n_candidates: int,
     score: float,
 ) -> CioJudgment:
@@ -449,9 +448,9 @@ def fallback_judgment(
         if chosen.policy_adjusted
         else ""
     )
-    draft = "a draft, not yet ratified" if ips_status == "draft" else ips_status
     statement = (
-        f"Governed by IPS v{ips.version}, which is {draft}. The recommended allocation satisfies "
+        f"Governed by IPS v{ips.version}, which is {ips.standing}. "
+        "The recommended allocation satisfies "
         f"every hard limit: ex-ante volatility {p.ex_ante_volatility_pct:.2f}% within the "
         f"{ips.objectives.volatility.min_pct:g}-{ips.objectives.volatility.max_pct:g}% band; "
         f"backtest maximum drawdown {p.max_drawdown_pct:.1f}% against a "
@@ -564,7 +563,6 @@ def run_cio(
             config,
             dissents,
             regime=scoring.regime,
-            ips_status=run.ips_status,
             n_candidates=len(candidates),
             score=composites[chosen.method],
         )

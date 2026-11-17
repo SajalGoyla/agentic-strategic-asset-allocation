@@ -35,6 +35,9 @@ uv run saa-skill covariance               # 18x18 covariance matrix (Ledoit-Wolf
 uv run saa-skill cma-methods              # every CMA candidate per asset -> cma_methods.json
 uv run saa-skill signals                  # asset-level macro/technical/valuation signals
 uv run saa-skill cma-validate --run-id <run>  # CMA layer vs expected ranges
+# stage 2 closes in this order, after `saa-agent cma-judge` (there is no orchestrator yet):
+uv run saa-skill scenarios --run-id <run>     # bull/base/bear per asset (Exhibit 3 step 8)
+uv run saa-skill asset-class-report --run-id <run>  # the 13-section case; run it last
 uv run saa-skill review-assign --run-id <run> # seeded peer-review pairing (§3.5)
 uv run saa-skill method-scores --run-id <run> # six-dimension score: vote + CIO (§4.4)
 uv run saa-agent llm-check                # one structured call: key, model, schema support
@@ -64,11 +67,13 @@ src/saa/
               history.py (18-asset spliced returns) · equity_valuation.py (WRDS group
               aggregates) · validation.py · pipeline.py
   skills/     deterministic, no LLM: historical_analysis/ · macro_regime/ · covariance/
-              cma_methods/ · signals/ · portfolio_construction/ · risk/ · peer_review/
-              method_scoring/ · voting/ · ensemble/
+              cma_methods/ · signals/ · scenarios/ · asset_class_report/ ·
+              portfolio_construction/ · risk/ · peer_review/ · method_scoring/ · voting/ ·
+              ensemble/
   agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/ · peer_review/ · vote/
               revision/ · cio/
-              (each AGENT.md + agent.py)
+              (each AGENT.md + agent.py; cma_judge/assets/ holds the 18 per-asset
+              description files of Exhibit 3)
 schemas/      generated JSON Schemas — never edit by hand
 results/runs/ tracked: one folder per pipeline run (agent outputs, reports, board memo)
 data/         git-ignored: raw payloads, curated parquet, ingestion logs

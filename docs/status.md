@@ -15,8 +15,9 @@ historical as-of runs, stress tests, visualisation) is next and passes to Shambh
 | Data layer: 8 sources, 14 datasets, 18-asset history, validation | Done | Sajal |
 | Historical-analysis skill (writes the shared contracts) | Done | Sajal |
 | Run context: run ids, directory layout, headers | Done | Sajal |
-| IPS (`config/ips.yaml`, `check_compliance`) | Done, v0.2 draft with faculty answers | Shambhawi |
+| IPS (`config/ips.yaml`, `check_compliance`) | Done, v0.2 owner-approved; every figure settled | Shambhawi |
 | Output contracts (16) + generated schemas | Done, schema 2.0.0 | Shambhawi |
+| 18 per-asset agent descriptions (Exhibit 3) + `scenarios` + the 13-section case (decision 57) | Done | Shambhawi |
 | LLM layer (routing, budget, retries) | Done | Shambhawi |
 | 1. Macro regime agent | Done: scoring skill + agent + `regime_history` | Shambhawi |
 | 2. Asset-class agents: CMA method calculators (all 18 assets) | Done | Sajal |
@@ -133,9 +134,17 @@ the risk methods (still 1.6-5.7% volatility, now in short Treasuries).
 
 | Question | Who decides | Blocks |
 |---|---|---|
-| IPS ratification as a whole (`status: draft` today) | Prof. Glasserman | Nothing yet; every header records the draft status |
+| IPS ratification as a whole (`status: owner_approved` since 2026-11-09) | Prof. Glasserman | Nothing; every figure is settled and every header records the standing |
 | Note to faculty: the return objective is now a floor only, CPI + 3% (decision 41), not the paper's 3-4% band | Prof. Glasserman (FYI) | Nothing; adopted |
+| Note to faculty: the paper specifies no deflator, so the real-return test uses `EXPINF3YR` (decision 55) | Prof. Glasserman (FYI) | Nothing; adopted |
+| Asset-class floors: four risk methods collapse into 62-92% cash without them (§5.2 calls bounds IPS content) | Prof. Glasserman | A re-run of stages 4-6; the largest behavioural gap against the paper |
 | Orchestration: how the six stages run end to end | Shambhawi | Week 6 onward |
+| Does the authors' 13-section list exist? Ours is reconstructed from Exhibit 3 (decision 57) | Prof. Glasserman | Nothing; the reports say they are a reconstruction |
+
+The IPS is internally final: every figure is tagged `[paper]`, `[faculty]` or `[owner]` and no
+`[proposed]` figure remains. The three ratification states and why the middle one exists are in
+decision 56. Ratification and the asset-class floors are the two items that still need faculty;
+the two notes above are courtesy FYIs on choices already adopted.
 
 ## Phase 3 progress (2026-10-16, week 7)
 

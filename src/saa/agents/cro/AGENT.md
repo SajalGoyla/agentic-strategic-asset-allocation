@@ -72,7 +72,8 @@ commentary — that disagreement is useful and the score staying fixed is what m
 - Name at least one concrete risk. A report with no named risk is not an assessment.
 - Do not re-derive or dispute any number. They are computed; you read them.
 - Address every IPS violation listed, and say what it means rather than only that it happened.
-- Governing policy is `config/ips.yaml`. While it is a draft, say so.
+- Governing policy is `config/ips.yaml`. Until faculty ratify it, say what its standing is
+  (`header.ips_status`: `draft`, or `owner_approved` with faculty sign-off outstanding).
 
 ## Output
 

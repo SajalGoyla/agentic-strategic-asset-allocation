@@ -86,9 +86,9 @@ class ReturnObjective(BaseModel):
     # The index the objective is stated against ("CPI + 3%").
     inflation_series: str
     # The series used to *deflate* the CMAs, which are nominal forecasts over the CMA horizon
-    # (decision 38). A market breakeven rate observes expected inflation directly; trailing
-    # realised CPI is a different quantity and is only the fallback. None restores that
-    # fallback, which is what a backtest before 2003 has to use.
+    # (decisions 38 and 55). It has to observe expected inflation over that same horizon;
+    # trailing realised CPI is a different quantity and is only the fallback. None restores
+    # that fallback.
     expected_inflation_series: str | None = None
     severity: Severity = SOFT
 
@@ -164,8 +164,25 @@ class EscalationTrigger(BaseModel):
 
 
 class IPS(BaseModel):
+    """The governing policy. Its standing moves through three states, because the two sign-offs
+    it needs come from different people (decision 56):
+
+    - ``draft`` -- figures still open, or settled but not yet reviewed as a document.
+    - ``owner_approved`` -- every figure is settled by the paper, a faculty answer or an owner
+      ruling, and the project owner has approved the document. Faculty have answered each
+      question individually but have not signed the whole thing off.
+    - ``ratified`` -- faculty have signed the document off.
+
+    Only ``ratified`` is unqualified, so agents keep stating the policy's standing until then.
+    """
+
     version: float
-    status: Literal["draft", "ratified"] = "draft"
+    status: Literal["draft", "owner_approved", "ratified"] = "draft"
+    # The project owner's approval of the document (the `owner_approved` step).
+    approved_by: str | None = None
+    approved_on: date | None = None
+    # Faculty sign-off. Kept separate so ratification records who signed without overwriting
+    # who approved: a ratified policy carries both.
     ratified_by: str | None = None
     ratified_on: date | None = None
     universe: UniversePolicy
@@ -178,12 +195,32 @@ class IPS(BaseModel):
     def _ratification(self) -> IPS:
         if self.status == "ratified" and not (self.ratified_by and self.ratified_on):
             raise ValueError("a ratified IPS needs both ratified_by and ratified_on")
+        if self.status == "owner_approved" and not (self.approved_by and self.approved_on):
+            raise ValueError("an owner_approved IPS needs both approved_by and approved_on")
         return self
 
     @property
     def is_draft(self) -> bool:
-        """Agents should state in their output when they ran against an unratified IPS."""
+        """True only while figures are still open. Use `needs_faculty_signoff` for the caveat
+        agents put in their narrative: an owner-approved policy is not a draft, but it is not
+        ratified either."""
         return self.status == "draft"
+
+    @property
+    def needs_faculty_signoff(self) -> bool:
+        """What an agent checks before qualifying its compliance statement."""
+        return self.status != "ratified"
+
+    @property
+    def standing(self) -> str:
+        """One clause naming the policy's standing, for an agent's narrative."""
+        return {
+            "draft": "a draft, not yet ratified",
+            "owner_approved": (
+                "approved by the project owner, with faculty sign-off still outstanding"
+            ),
+            "ratified": "ratified",
+        }[self.status]
 
     def group_bound(self, group: str) -> Bound | None:
         if self.universe.bounds is None:

@@ -187,8 +187,8 @@ def test_outputs_are_valid_contracts_in_the_run_layout(store, run):
     assert stats.header.pipeline_run_id == "20260915T120000Z"
     assert stats.header.agent == "us-large-cap"
     assert stats.header.as_of.isoformat() == "2026-09-15"
-    assert stats.header.ips_status in {"draft", "ratified"}
-    assert stats.header.report_path == "cma/us_large_cap/analysis.md"
+    assert stats.header.ips_status in {"draft", "owner_approved", "ratified"}
+    assert stats.header.report_path == "cma/us_large_cap/history.md"
     assert stats.header.provenance["market/asset_returns_monthly"].run_id == "r1"
 
     row = read("correlation_row", run.root / "cma" / "gold" / "correlation_row.json")
@@ -199,7 +199,7 @@ def test_outputs_are_valid_contracts_in_the_run_layout(store, run):
     assert "| US Large Cap (SPY) |" in (run.root / "reports" / "historical_analysis.md").read_text(
         encoding="utf-8"
     )
-    assert "# US Large Cap (SPY)" in (run.root / "cma" / "us_large_cap" / "analysis.md").read_text(
+    assert "# US Large Cap (SPY)" in (run.root / "cma" / "us_large_cap" / "history.md").read_text(
         encoding="utf-8"
     )
 

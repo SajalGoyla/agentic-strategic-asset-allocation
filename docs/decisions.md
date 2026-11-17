@@ -833,7 +833,7 @@ Runs used to sit in the git-ignored `data/runs/`, so a teammate picking up the a
 be sent them outside git or pay to rerun them. The owner wants every run in the repository.
 
 Before moving them, all 446 files of `claude1` and `claude2` were scanned. They hold no firm-,
-bond- or fund-level rows, no CRSP identifiers (PERMNO, CUSIP, GVKEY) and no return series; the
+bond- or fund-level rows and no return series; the
 only long series is the 380-month regime history, built from public FRED data. WRDS appears
 only as aggregates quoted in rationales (index payout yields, CAPE) and as the market-cap
 *weights* of the 18 asset classes; headers name dataset versions by hash. No local paths, keys
@@ -845,3 +845,216 @@ ignored lake. Rejected: un-ignoring `data/runs/`, which puts tracked and license
 tree and makes an accidental commit of the latter one `git add` away. Test fixtures redirect
 `runs_dir` with `data_dir`, so a test never writes a tracked run. The development runs
 (`dry1`, `dry2`, `tune_check`, dated `--no-llm` runs) were not copied; only the two paid runs.
+
+**Corrected 2026-11-09.** This entry originally claimed the runs hold "no CRSP identifiers
+(PERMNO, CUSIP, GVKEY)". They do: `crsp:CEF(69251)` appears in 20 tracked files, in the
+`sources` list of `historical_stats.json` and the reports built from it. The audit's conclusion
+stands and nothing needs removing -- that PERMNO is already committed in `config/universe.yaml`
+as `permno: 69251`, where `crsp_permno` is a documented config field, so it is an identifier we
+publish by design rather than an extract. What was wrong was the sweeping claim. A source label
+plus a date range is provenance; it carries no licensed rows and no return series, which is the
+line the owner's 2026-10-01 ruling actually draws.
+
+### 55. The deflator is the Cleveland Fed's 3-year expected inflation — settled, 2026-11-09
+Decision 38 established that the real-return test has to deflate by *expected* inflation over
+the CMA horizon, not trailing realised CPI, and named `T5YIE` for it. The reasoning stands; the
+instrument was the nearest thing to hand rather than the right one. `EXPINF3YR` replaces it
+(project owner, 2026-11-09).
+
+Three reasons, all structural rather than numerical. **The horizon matches.** The CMAs are
+3-year forecasts (Exhibit 8) and `T5YIE` is a 5-year rate; FRED publishes no 3-year breakeven,
+but the Cleveland Fed's model does publish a 3-year expectation. **A breakeven is not an
+expectation.** It is an expectation plus an inflation-risk premium minus a TIPS liquidity
+premium, and the two wedges need not cancel. **The fallback stops mattering.** `T5YIE` begins
+in 2003, so every backtest before then silently switched to trailing CPI; `EXPINF3YR` begins in
+1982, which covers every date the asset histories reach. `T5YIE` stays in `macro_series.yaml`
+as the cross-check.
+
+Measured effect on `claude2`'s sixteen portfolios: **none.** Read point-in-time at that run's
+as_of of 2026-10-01 the deflator moves from 2.36% to 2.49%, so the nominal hurdle to clear
+CPI + 3% rises from 5.43% to 5.56% and no candidate changes verdict. The CIO's recommendation
+goes from 4.48% to 4.35% real. This is a correctness change with no effect on any current
+result, which is the cheapest kind to make.
+
+Worth recording why that gap is so small, because the published series differ by more. The
+spot readings on 2026-10-01 were `T5YIE` 2.37% and `EXPINF3YR` 2.82%, a 0.45pp gap that opened
+during September. `EXPINF3YR` is monthly with a 15-day release lag, so a run with an as_of of
+2026-10-01 correctly sees August's 2.49% rather than October's 2.82%. Comparing spot values
+across series of different frequency and lag overstates what a point-in-time run actually
+reads; the `available_from` machinery of decision 4 is what keeps that honest. The gap that
+does matter is against the *fallback*: trailing CPI at 3.71% is 1.22pp away, which would raise
+the hurdle to 6.82% and fail two candidates (CVaR minimisation and maximum entropy).
+
+Also fixed here: `load_config()` validated `inflation_series` against the macro catalog but not
+`expected_inflation_series`, so a typo in the deflator raised nothing — `expected_inflation_pct`
+logs a warning and falls back to trailing CPI, which is the one quantity the docstring says must
+never be used silently. It now fails at load.
+
+What this does *not* settle is that the paper specifies no deflator at all. §4 states "a target
+real return of CPI +3.0-4.0%", §4.1 reports a trailing CPI of 2.4% and an expectation of
+re-acceleration "toward 3%", and §4.4 reports 6.87% nominal without ever converting it. So the
+paper mandates a test (§3.5, §5.2: the CRO "explicitly checks IPS compliance for every candidate
+portfolio") that it never performs, and the choice of deflator is unavoidably ours. Deflating
+the paper's own 6.87% by its own trailing 2.4% gives 4.37% real, which would have breached the
+paper's own CPI + 4% ceiling -- further support for decision 41. Flagged for faculty as
+reasoning rather than as a number: the plausible deflator range (2.41-3.71% on this run, 1.3pp)
+is wider than the paper's entire 1pp objective band.
+
+### 56. The IPS has an owner-approved state between draft and ratified — settled, 2026-11-09
+`status` was `draft | ratified`, and the gap between them had become the whole story. Every
+figure in `config/ips.yaml` is now settled -- by the paper, by a faculty answer of 2026-09-25,
+or by an owner ruling -- and decision 55 closed the last `[proposed]` one. But Prof. Glasserman
+has never been asked to sign the document off as a whole, and answering each question
+individually is not ratification. Calling that state "draft" understated it; calling it
+"ratified" would have been a false record of a sign-off nobody gave.
+
+So `status` is now `draft | owner_approved | ratified`, and the two approvals sit on separate
+fields: `approved_by`/`approved_on` for the owner step, `ratified_by`/`ratified_on` for faculty.
+Ratifying therefore records who signed without overwriting who approved, and a ratified policy
+carries both. The same validator rule applies to each: a status cannot be set without its
+signatory and date.
+
+Agents now key the narrative caveat off `IPS.needs_faculty_signoff` (`status != "ratified"`)
+rather than `IPS.is_draft`, because an owner-approved policy is not a draft but still needs the
+qualification. `IPS.standing` supplies the clause they use, which also removes the hand-rolled
+version in `cio/agent.py`. `header.ips_status` was already a free-form `str`, so no contract
+changed and `SCHEMA_VERSION` did not move.
+
+Rejected: flipping straight to `ratified` with the project owner as signatory. The field records
+who ratified, the document's own rule reserves that for faculty, and a governance record that
+overstates its approval is worth less than one that is accurate about what is outstanding.
+
+### 57. Eighteen asset-class description files, scenarios, and the 13-section case — settled, 2026-11-09
+Three Exhibit 3 components that were missing, built together because they depend on each other.
+
+**Eighteen description files, not one shared prompt.** §3.3: "Each agent has its own description
+file with appropriate asset class-specific instructions", read "at runtime", and Exhibit 3 makes
+"Key considerations" a named component. We had one shared `cma_judge/AGENT.md` for all 18, which
+bought a cached prefix -- 71% of stage-2 prompt volume read from cache on `claude2`, at a tenth
+of price -- and cost every asset its own guidance. Nothing told the Large Cap judge about index
+concentration or buyback yield, or the gold judge that no discounted-cash-flow method applies.
+
+Both are now available: `assets/<asset_id>.md` carries the per-asset description and
+`build_prompt` prepends it to that asset's own message, while `system_prompt()` stays
+asset-agnostic and therefore stays one cached prefix. A test asserts no asset's guidance leaks
+into the shared prefix, and `asset_description` raises on a missing file rather than falling
+through to generic instructions -- a judge that never saw its asset's considerations is not
+Exhibit 3's agent, and the difference would be invisible in the output.
+
+Each file follows Exhibit 3's shape: role, slug, index, category, ETF, history, macro
+sensitivities, valuation lens, required skills, the eight-step workflow, numbered key
+considerations and the output contract. Sensitivity signs are documented as the direction of the
+*asset's return*, not of its earnings, because Exhibit 3's own US Large Cap row pairs "Dollar
+(+)" with a bullet saying a strong dollar hurts earnings; without the convention stated the two
+read as a contradiction. The scored values still come from the measured `dimension_alignment`
+signal, never from these files.
+
+**`scenarios.json` now has a producer.** The contract was written on 2026-09-15 with every other
+contract and no skill ever filled it, so all 18 asset folders held six files instead of seven.
+It went unnoticed because it is the only one of Exhibit 3's outputs with no downstream
+consumer -- nothing reads it, in our pipeline or the paper's, so nothing ever failed. Exhibit 3
+step 8 specifies "bull/bear from method range" and that is what it computes: bear is the lowest
+available candidate, bull the highest, base the judge's estimate, so the bounds are the same
+interval Exhibit 4 confines the judge to. `probability` stays unset because the paper assigns
+none and a method's `confidence` says how much to trust it, not how likely its number is.
+Measured on `claude2`: US Large Cap spans 9.89pp against short Treasuries' 0.85pp, which is the
+honest error bar on the pipeline's least reliable input and was previously invisible.
+
+Its registry `Producer` moves from `HYBRID` to `SCRIPT`. It never had a judgment model, so
+`HYBRID` described an intention rather than the contract.
+
+**The 13-section investment case.** Exhibit 3's headline deliverable -- "Produces 13-section
+investment case" -- with `asset-class-report` among the required skills. **The paper never
+publishes the thirteen sections**: it names the report twice and nowhere enumerates it, so the
+count is the paper's and the contents are reconstructed from Exhibit 3's own workflow. Every
+report says so in its own subtitle rather than implying a fidelity we cannot claim, and
+`skills/asset_class_report/SKILL.md` maps each section to the workflow step and contract behind
+it. If the authors' list surfaces, that table is what changes.
+
+The skill writes no prose of its own: every judgement is quoted from the judge's
+`regime_logic`, `valuation_context`, `signal_alignment` and `rationale`, and section 12 is the
+asset's own key considerations. That keeps decision 8's split intact and makes the failure mode
+visible -- a thin rationale produces a thin section 10, fixed by improving the agent rather than
+by padding the report. It supersedes the two-heading `analysis.md` the historical-analysis skill
+writes, which is why it runs last in stage 2; nothing is lost, as section 4 carries the return
+history and section 13 the sources.
+
+Exhibit 3 step 5 gets no section. Sentiment, flows and positioning come from a runtime web
+search the pipeline does not do (decision 26), and section 13 says so rather than leaving the
+omission to be noticed.
+
+Two bugs the tests found: `Signal.value` is nullable and the renderer assumed a float, and
+`CmaJudgment` has no `notes` field (that is on the PC proposal). Both fixed before the skill ran
+on anything.
+
+### 58. The 13-section case owns `analysis.md`; the history stub moves — settled, 2026-11-09
+Decision 57 added the 13-section case and wrote it to `cma/<asset>/analysis.md`, which Exhibit 3
+lists among the asset-class agent's outputs and step 8 identifies as the report. The
+historical-analysis skill was already writing that filename, with a two-heading return-history
+stub, and it runs *first* in stage 2 — so re-running it after the case was built silently
+replaced a finished investment case with the stub, with no error and nothing in the file saying
+what had happened. Two skills owning one filename in opposite orders is a trap, not a layering.
+
+`skills/historical_analysis/` now writes `cma/<asset>/history.md`, and `historical_stats.json`'s
+`report_path` points there. `analysis.md` belongs to `skills/asset_class_report/` alone. Nothing
+is lost: section 4 of the case carries the return and risk history and section 13 carries the
+spliced sources, so the stub was always a subset.
+
+Rejected: giving the case a different filename instead. Exhibit 3 names `analysis.md` as the
+agent's narrative output and the 13-section report is that narrative, so moving the case would
+have kept our file layout further from the paper's to protect a stub.
+
+Not changed, deliberately: `cma.json`'s `report_path` still points at `cma.md`, the judge's own
+working note, rather than at the case. The two serve different readers — `cma.md` is the
+judgment step's audit record and the case is the document a human reviews — and
+`reports/asset_class_cases.md` indexes all 18 cases, so discoverability does not depend on that
+pointer.
+
+### 59. The IPS is ratified — settled, 2026-11-09
+Decision 56 put the IPS at `owner_approved` with faculty sign-off outstanding, on the ground
+that answering individual questions is not ratifying a document. The project owner ratified it
+on 2026-11-09 on the basis of Prof. Glasserman's emailed answers of 2026-09-25, which settled
+every question that was put to him: permitted instruments ("I agree with no leverage, no
+shorting"), weight limits ("why rule out the possibility of going all in on one asset class"),
+drift triggers ("let's skip the drift triggers and just go with quarterly rebalancing"), the
+severity of each limit ("treat them as hard constraints"), the benchmark's bond split, and the
+return ceiling ("I could see dropping the ceiling entirely").
+
+`ratified_by` records both the faculty basis and who recorded it, because those are different
+facts and a governance field that blurs them is worth less than one that does not. `approved_by`
+is kept alongside, as decision 56 designed.
+
+Two `[owner]` figures postdate those answers and are recorded as FYIs rather than open
+questions: the floor-only return objective (decision 41), which is the option his own email
+offered — "I could see dropping the ceiling entirely" — and the `EXPINF3YR` deflator
+(decision 55), on a question the paper leaves unspecified.
+
+`IPS.needs_faculty_signoff` is now false, so every agent narrative drops its qualification and
+the board memo's compliance statement reads "Governed by IPS v0.2, which is ratified". Two tests
+were written as tripwires for exactly this moment and both fired, in `test_ips.py` and
+`test_cio.py`.
+
+### 60. A run refuses to start when the lake does not reach its as-of date — settled, 2026-11-09
+`as_of` is an information cutoff, not a timestamp: every `DataStore` query filters on
+`available_from`, so it decides what the agents may know. Nothing checked that the lake actually
+*reaches* it. A run with `as_of` defaulted to today against a lake whose monthly panel ended six
+weeks earlier produced September numbers under a November header, with no error and every
+narrative discussing "current" conditions that were two months old. The cost of discovering that
+during a paid run is the whole run.
+
+`check_asof_coverage` compares the spliced monthly panel's last month against the last complete
+month end before `as_of`, and `saa-agent` calls it before any agent starts. The monthly panel is
+the right series to test because the covariance matrix, every backtest and the momentum signals
+are built from it, so if it stops short the run is as of that earlier month whatever the header
+says. The panel is taken as usable only as far as its *shortest* column reaches, so one lagging
+asset cannot hide behind seventeen current ones.
+
+The test is "does it reach the expected month end", not a day count, which leaves no threshold
+to argue about -- a 40-day gap is fine in early October and means a missing month in November.
+The only tolerance is `MONTH_END_GRACE_DAYS = 7`, for the days a just-ended month takes to
+publish. The error names both remedies: ingest, or pass the earlier `--as-of` and say so plainly.
+
+`--allow-stale` downgrades it to a warning, for deliberately re-running an old as-of against a
+newer lake. Checked on the agents only, not the skills: skills are free and re-runnable, and
+`scenarios` and `asset-class-report` read run artifacts rather than the lake, so the check would
+block them wrongly. `llm-check` is exempt because it makes no data claim.

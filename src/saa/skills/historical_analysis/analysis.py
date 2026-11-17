@@ -31,7 +31,10 @@ AGENT = "historical-analysis"
 EQUITY_ANCHOR = "us_large_cap"
 BOND_ANCHOR = "intermediate_treasuries"
 MIN_MONTHS_OPEN_WINDOW = 36  # 'since_1990' / 'full' windows need at least 3 years
-ASSET_REPORT = "analysis.md"
+# Not `analysis.md`: Exhibit 3 reserves that name for the 13-section investment case,
+# which `skills/asset_class_report/` writes at the end of stage 2. Sharing the filename
+# meant a re-run of this skill silently replaced the case with this stub (decision 58).
+ASSET_REPORT = "history.md"
 RUN_REPORT = "historical_analysis.md"
 
 DEFAULT_WINDOWS: dict[str, int | str] = {
