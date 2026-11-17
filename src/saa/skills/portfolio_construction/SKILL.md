@@ -177,6 +177,31 @@ parity 92%, CVaR minimisation 97%, tail-risk parity 53% — at 0.6-2.5% volatili
 the CIO's final portfolio is (decision 32). On these portfolios a meta-optimised ensemble
 constrained to the IPS reaches 8.0% volatility, Sharpe 0.47 and 2.9% tracking error.
 
+## Risk-only methods build without cash-like assets (decision 61)
+
+Six methods take their weights from risk alone and have no parameter to tune: inverse
+volatility, inverse variance, risk parity, hierarchical risk parity, maximum diversification and
+tail-risk parity (and the researcher's global minimum variance). With no weight limits, each was
+a cash fund on the claude2 inputs: 63-98% in cash and short Treasuries, at 0.7-3.1%
+volatility. They now build over the universe minus the assets `config/universe.yaml` marks
+`cash_like` (cash, and short Treasuries), report their weights over all 18 with zeros there, and
+are measured on the full matrix. Removing cash alone was tested and fails: the weight moves to
+short Treasuries (41-81%). Removing both, on claude2:
+
+| method | volatility | expected return | Sharpe | effective N | equity / bonds / real |
+|---|---|---|---|---|---|
+| hierarchical risk parity | 6.78% | 6.04% | 0.33 | 9.2 | 11 / 78 / 11 |
+| inverse variance | 6.94% | 6.19% | 0.34 | 9.4 | 17 / 76 / 7 |
+| maximum diversification | 7.87% | 6.65% | 0.36 | 5.6 | 21 / 46 / 33 |
+| risk parity | 7.56% | 6.54% | 0.36 | 12.6 | 23 / 61 / 16 |
+| inverse volatility | 8.03% | 6.66% | 0.35 | 13.7 | 27 / 61 / 12 |
+| tail-risk parity | 7.67% | 6.54% | 0.35 | 13.0 | 24 / 62 / 14 |
+
+No new asset takes cash's place. They still sit just under the 8% floor -- risk parity funds
+reach their target with leverage, which the IPS rules out -- so the CIO's repair (decision 62)
+remains, smaller. Methods with a parameter (maximum Sharpe, Black-Litterman, the resampled
+frontier, CVaR) keep the whole universe and reach the band by tuning it (decision 49).
+
 ## Outputs
 
 `pc/<agent_id>/pc_proposal.json` per agent, `pc/pc_research.json` from the researcher, and

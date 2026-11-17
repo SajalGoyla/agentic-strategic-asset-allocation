@@ -273,3 +273,47 @@ def test_unknown_agents_are_reported_not_ignored(stage_run, tmp_config):
 def test_agent_slugs():
     assert pc_agent.agent_slug("max_sharpe") == "pc-max-sharpe"
     assert pc_agent.agent_slug("pc_researcher") == "pc-researcher"
+
+
+# ------------------------------------------------------------- cash-like assets (decision 61)
+RISK_ONLY = {
+    "inverse_volatility",
+    "inverse_variance",
+    "risk_parity",
+    "hierarchical_risk_parity",
+    "maximum_diversification",
+    "tail_risk_parity",
+}
+
+
+def test_the_risk_only_methods_are_the_ones_flagged():
+    assert {m.id for m in METHODS.values() if m.risky_assets_only} == RISK_ONLY
+    # Methods with a parameter reach the band by tuning it; they keep the whole universe.
+    assert all(METHODS[m].knob is None for m in RISK_ONLY)
+
+
+def test_the_universe_names_cash_and_short_treasuries_as_cash_like(tmp_config):
+    assert tmp_config.universe.cash_like_ids == ["short_treasuries", "cash"]
+
+
+def test_risk_only_methods_build_without_cash_like_assets(tmp_config):
+    stage = rich_stage_inputs()
+    candidates, skipped = build_candidates(stage, tmp_config)
+    assert not skipped
+    for method_id in RISK_ONLY:
+        weights = candidates[method_id].weights
+        assert list(weights.index) == stage.asset_ids  # still reported over the full universe
+        assert weights["cash"] == 0.0
+        assert weights.sum() == pytest.approx(1.0)
+    # The other methods are unchanged: equal weight still holds its 1/N in cash.
+    assert candidates["equal_weight"].weights["cash"] == pytest.approx(1 / len(stage.asset_ids))
+
+
+def test_risk_only_statistics_are_measured_on_the_full_universe(tmp_config):
+    stage = rich_stage_inputs()
+    candidate = build_candidates(stage, tmp_config, method_ids=["inverse_variance"])[0][
+        "inverse_variance"
+    ]
+    w = candidate.weights.to_numpy()
+    expected = 100 * np.sqrt(w @ stage.covariance.to_numpy() @ w)
+    assert candidate.stats.expected_volatility_pct == pytest.approx(expected)

@@ -43,6 +43,7 @@ uv run saa-skill method-scores --run-id <run> # six-dimension score: vote + CIO 
 uv run saa-agent llm-check                # one structured call: key, model, schema support
 uv run saa-agent macro [--no-llm]         # stage 1: macro regime
 uv run saa-agent cma-judge --run-id <run> # stage 2: select the final CMA per asset
+uv run saa-agent covariance --run-id <run> [--no-llm]  # stage 3: choose the validated estimator
 uv run saa-agent pc --run-id <run> [--no-llm]   # stage 4: the 15 PC agents
 uv run saa-agent cro --run-id <run> [--no-llm]  # stage 5: a risk report per candidate
 uv run saa-agent peer-review --run-id <run> [--no-llm]  # stage 5: two reviews per agent
@@ -70,7 +71,8 @@ src/saa/
               cma_methods/ · signals/ · scenarios/ · asset_class_report/ ·
               portfolio_construction/ · risk/ · peer_review/ · method_scoring/ · voting/ ·
               ensemble/
-  agents/     LLM agents: macro/ · cma_judge/ · pc/ · pc_researcher/ · cro/ · peer_review/ · vote/
+  agents/     LLM agents: macro/ · cma_judge/ · covariance/ · pc/ · pc_researcher/ · cro/ ·
+              peer_review/ · vote/
               revision/ · cio/
               (each AGENT.md + agent.py; cma_judge/assets/ holds the 18 per-asset
               description files of Exhibit 3)

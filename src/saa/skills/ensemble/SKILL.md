@@ -59,6 +59,20 @@ The CIO sees each projected ensemble's figures before projection and is told to 
 projection as a real cost; the meta-optimisation and the single best-voted compliant candidate
 need none.
 
+**Since decision 62 the first repair reweights the candidates, not the assets.**
+`reweight_to_policy` finds the mix of the candidates nearest the technique's own weights
+(squared distance) whose blend meets the band, the budget and the drawdown limit; the asset
+projection above runs only when no such mix complies. Both are verified on the CRO's backtest
+and recorded (`Ensemble.repair`, `recipe_weights`, and `policy_repair` in `cio_decision.json`).
+With decision 61's candidates on the claude2 inputs, the averaging ensembles start at
+7.31-7.75% volatility and the reweighting moves 9-16% of ensemble weight, 5-7% of the
+portfolio; before decision 61 they started at 4.96-6.72% and the asset projection moved
+13.5-29.5%. Reweighting costs a little more asset turnover than the nearest asset projection
+(5.2% against 2.4% for the composite-score ensemble) and buys an allocation made only of what
+the methods proposed. An increase in a candidate's ensemble weight is priced at 1 / its vote
+composite (a cut at 1), so the repair leans on the methods the peers approved rather than on
+whichever offers the cheapest volatility (`reweight_costs`).
+
 ## The free-run choice
 
 Every ensemble is scored on the candidates' six-dimension rubric by
@@ -70,4 +84,5 @@ with the best composite. With a model, the CIO chooses and has to say what it tr
 
 Each `Ensemble` also reports its composition, so a concentrated mix is visible: the candidates
 holding at least 1% of it, the largest single share, the effective number of candidates, and
-for a projected ensemble the one-way turnover the projection cost.
+for a repaired ensemble the one-way turnover the repair cost and, if it was reweighted, the
+share of ensemble weight that moved.

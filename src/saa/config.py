@@ -94,6 +94,10 @@ class Asset(BaseModel):
     history: list[HistorySource] = Field(default_factory=list)
     cma_series: list[str] = Field(default_factory=list)
     notes: str | None = None
+    # Near-riskless holdings (decision 61). The risk-structured methods size weights by risk
+    # alone, so with no weight limits they would park almost everything here; they build over
+    # the remaining assets instead.
+    cash_like: bool = False
 
     @property
     def proxy_tickers(self) -> list[str]:
@@ -116,6 +120,10 @@ class Universe(BaseModel):
     @property
     def tickers(self) -> list[str]:
         return [a.ticker for a in self.assets]
+
+    @property
+    def cash_like_ids(self) -> list[str]:
+        return [a.id for a in self.assets if a.cash_like]
 
     def all_tickers(self) -> list[str]:
         """ETF tickers, Yahoo history proxies and reference tickers (de-duplicated, ordered)."""

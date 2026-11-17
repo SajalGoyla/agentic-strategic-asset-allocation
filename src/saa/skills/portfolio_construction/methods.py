@@ -903,6 +903,10 @@ class Method:
     # portfolio falls outside it (decision 49). None for a method whose only "parameter" is its
     # definition -- 1/sigma's exponent, risk parity's equal budgets -- so it is proposed as it is.
     knob: object | None = None  # Callable[[PortfolioInputs], Knob]
+    # Built over the universe minus its cash-like assets (decision 61). True for the methods
+    # whose weights come from risk alone and that have no parameter: given a 0.6%-volatility
+    # asset and no weight limits, each of them is a cash fund by construction.
+    risky_assets_only: bool = False
 
 
 METHODS: dict[str, Method] = {
@@ -923,6 +927,7 @@ METHODS: dict[str, Method] = {
             reference="Kirby and Ostdiek (2012)",
             uses_cmas=False,
             build=inverse_volatility,
+            risky_assets_only=True,
         ),
         Method(
             id="inverse_variance",
@@ -931,6 +936,7 @@ METHODS: dict[str, Method] = {
             reference="Kirby and Ostdiek (2012)",
             uses_cmas=False,
             build=inverse_variance,
+            risky_assets_only=True,
         ),
         Method(
             id="market_cap_weight",
@@ -982,6 +988,7 @@ METHODS: dict[str, Method] = {
             reference="Maillard, Roncalli and Teiletche (2010)",
             uses_cmas=False,
             build=risk_parity,
+            risky_assets_only=True,
         ),
         Method(
             id="hierarchical_risk_parity",
@@ -990,6 +997,7 @@ METHODS: dict[str, Method] = {
             reference="Lopez de Prado (2016)",
             uses_cmas=False,
             build=hierarchical_risk_parity,
+            risky_assets_only=True,
         ),
         Method(
             id="maximum_diversification",
@@ -998,6 +1006,7 @@ METHODS: dict[str, Method] = {
             reference="Choueifaty and Coignard (2008)",
             uses_cmas=False,
             build=maximum_diversification,
+            risky_assets_only=True,
         ),
         Method(
             id="cvar_minimization",
@@ -1016,6 +1025,7 @@ METHODS: dict[str, Method] = {
             reference="Spinu (2013)",
             uses_cmas=False,
             build=tail_risk_parity,
+            risky_assets_only=True,
             needs_scenarios=True,
         ),
     ]
@@ -1042,6 +1052,7 @@ RESEARCH_LIBRARY: dict[str, Method] = {
             reference="Clarke, de Silva and Thorley (2006)",
             uses_cmas=False,
             build=global_minimum_variance,
+            risky_assets_only=True,
         ),
         Method(
             id="mean_downside_risk",

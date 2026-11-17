@@ -20,6 +20,7 @@
 #              Licensed links are skipped without WRDS credentials; the public links after them
 #              keep the pipeline working for collaborators.
 # cma_series   FRED series the asset-class agent uses for yield / valuation building blocks
+# cash_like    near-riskless; the methods that weight by risk alone build without it (decision 61)
 
 assets:
   # ------------------------------------------------------------------ equity
@@ -108,6 +109,8 @@ assets:
       - {source: par_bond, series: [DGS2], maturity_years: 2, kind: synthetic}
       - {source: yahoo, ticker: VFISX, kind: index_fund}
     cma_series: [DGS1, DGS2, DGS3]
+    # 1.7% volatility: with cash removed, the risk-structured methods put 41-81% here (decision 61)
+    cash_like: true
 
   - id: intermediate_treasuries
     name: Intermediate Treasuries
@@ -255,5 +258,6 @@ assets:
       - {source: crsp_treasury, columns: [t30ret], kind: index}
       - {source: french, dataset: F-F_Research_Data_Factors, columns: [RF], kind: academic_index}
     cma_series: [DTB3, DGS1MO, DFF]
+    cash_like: true
 
 reference_tickers: []

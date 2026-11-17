@@ -291,13 +291,7 @@ def candidate_digest(
 
 
 def _projection(e: Ensemble) -> str:
-    if e.projected_from is None:
-        return "none"
-    before = e.projected_from
-    return (
-        f"from {before.ex_ante_volatility_pct:.2f}% vol, {before.max_drawdown_pct:.1f}% DD; "
-        f"{e.projection_turnover:.1%} of the portfolio moved"
-    )
+    return e.repair_summary()
 
 
 def build_prompt(
@@ -333,7 +327,7 @@ def build_prompt(
     rows = [
         "| ensemble | composite | vol % | TE % | backtest DD % | backtest Sharpe | exp. return % "
         "| Sharpe | eff. N assets | candidates held | largest share | eff. N candidates "
-        "| projection | top holdings |",
+        "| IPS repair | top holdings |",
         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     dims = [
@@ -442,9 +436,7 @@ def fallback_judgment(
     )
     top = "; ".join(f"{a} {w:.1%}" for a, w in _top(chosen.final_weights))
     projected = (
-        f" It was projected into the IPS from {chosen.projected_from.ex_ante_volatility_pct:.2f}% "
-        f"volatility and a {chosen.projected_from.max_drawdown_pct:.1f}% drawdown, moving "
-        f"{chosen.projection_turnover:.1%} of the portfolio."
+        f" It was brought inside the IPS by {chosen.repair_summary()}."
         if chosen.policy_adjusted
         else ""
     )
@@ -654,6 +646,7 @@ def decision_body(
         invalidation_conditions=list(judgment.invalidation_conditions),
         rationale=judgment.rationale,
         board_memo=judgment.board_memo,
+        policy_repair=chosen.policy_repair(),
     )
 
 
@@ -668,18 +661,19 @@ def render_ensembles(
         "# CIO ensembles",
         "",
         "Every ensemble of the candidate portfolios, profiled as a candidate is (§3.6). Only "
-        "IPS-compliant ensembles may be recommended; a projected one breached a limit and was "
-        "moved to the nearest compliant allocation. The score is the candidates' six-dimension "
-        "composite (§4.4).",
+        "IPS-compliant ensembles may be recommended. One that breached a limit was repaired: "
+        "first by shifting the least ensemble weight between candidates (reweighted), and only "
+        "if no such mix complies by moving the allocation to the nearest compliant one (asset "
+        "projection; decision 62). The score is the candidates' six-dimension composite (§4.4).",
         "",
         "| ensemble | IPS | vol % | TE % | DD % | backtest Sharpe | return % | eff. N | "
-        "candidates held | largest share | projection moved | score | chosen | note |",
+        "candidates held | largest share | IPS repair | score | chosen | note |",
         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for method, e in ensembles.items():
         p = e.profile
         lead, share = e.largest_share
-        moved = f"{e.projection_turnover:.1%}" if e.policy_adjusted else "-"
+        moved = e.repair_summary() if e.policy_adjusted else "-"
         lines.append(
             f"| {method.value} | {'pass' if e.compliant else 'FAIL'} | "
             f"{p.ex_ante_volatility_pct:.2f} | {p.ex_ante_tracking_error_pct:.2f} | "

@@ -145,7 +145,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "5.1.0",
+          "default": "5.2.0",
           "title": "Schema Version",
           "type": "string"
         },

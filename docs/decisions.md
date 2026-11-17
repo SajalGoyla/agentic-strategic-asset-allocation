@@ -1058,3 +1058,85 @@ publish. The error names both remedies: ingest, or pass the earlier `--as-of` an
 newer lake. Checked on the agents only, not the skills: skills are free and re-runnable, and
 `scenarios` and `asset-class-report` read run artifacts rather than the lake, so the check would
 block them wrongly. `llm-check` is exempt because it makes no data claim.
+
+### 61. The risk-only methods build without cash-like assets — settled, 2026-11-18
+Six methods size weights from risk alone and have no parameter: inverse volatility, inverse
+variance, risk parity, hierarchical risk parity, maximum diversification and tail-risk parity,
+plus the researcher's global minimum variance. Cash has 0.62% volatility against 22% for
+emerging markets and the IPS sets no weight limits (faculty, 2026-09-25), so on claude2 they held
+63-98% in cash and short Treasuries at 0.7-3.1% volatility. Faculty preferred, of the three
+options put on 2026-11-09, running them over the risky assets and setting cash separately
+(2026-11-10).
+
+`config/universe.yaml` marks cash and short Treasuries `cash_like`, and `Method.risky_assets_only`
+builds those methods over the rest. Short Treasuries are included because removing cash alone
+was tested (decision 32 first, again on claude2): the weight moves to short Treasuries, 41-81%,
+at 2.3-5.7% volatility. Removing both gives bond-heavy balanced portfolios, 6.8-8.0% volatility,
+Sharpe 0.33-0.36 and effective N 5.6-13.7, with no new concentration (table in
+`skills/portfolio_construction/SKILL.md`). The methods with a parameter keep the whole universe.
+Each affected PC agent is told the exclusion is a design choice, not its method's view of cash.
+
+Rejected, measured on the same inputs: correcting the monthly-to-annual scaling for
+autocorrelation (Newey-West, 11 lags). It lifts cash to 2.0% and short Treasuries to 3.0%, but
+alone it leaves hierarchical risk parity 79% cash-like, it barely moves the weights once cash-like
+assets are excluded, and out of sample (1999-2024, one-year outcomes) it made forecasts worse for
+every diversified portfolio but the benchmark. Cash's one-year surprise given the starting T-bill
+yield is 1.2% (1980 on), so near-riskless is the honest reading of its low measured volatility.
+
+### 62. An ensemble that breaches the IPS is reweighted before it is projected — settled, 2026-11-18
+Averaging lowers volatility, so a blend of candidates at 7-8% lands below the hard 8% floor, and
+with no leverage something must move. Until now the CIO moved the *asset allocation* to the
+nearest compliant one (decision 37's projection): on claude2 that moved 13.5% of the chosen
+portfolio and 26-30% of the others, buying emerging markets, gold and small caps that no
+candidate had proposed in those amounts.
+
+`reweight_to_policy` now comes first: the mix of candidates nearest the technique's own weights
+(squared distance in ensemble weights) whose blend meets the volatility band, the tracking-error
+budget and the drawdown limit. It is the meta-optimisation's feasible set with the technique's
+weights as the target, so the IPS becomes a constraint on how the methods are combined rather
+than a correction after it. Every holding stays some candidate's. The asset projection remains
+the fallback when no nearby mix complies; either is kept only if the CRO's backtest verifies
+it, and the choice is recorded in `cio_decision.json` as `policy_repair` (kind, recipe weights,
+ensemble weight moved, asset turnover, the figures before; schema 5.2.0).
+
+Measured on claude2's candidates with decision 61 applied: the averaging ensembles start at
+7.31-7.75% volatility; reweighting moves 9-16% of ensemble weight and 5-7% of the portfolio,
+mostly toward market-cap weight and Black-Litterman and away from the researcher and the
+adversarial diversifier, at 6.80-6.93% expected return and Sharpe 0.37-0.39. The nearest asset
+projection would move less (2.4-6.5%) but adds exposures no method chose; the CIO sees which
+repair each ensemble needed and its largest shifts, and is asked to defend them.
+
+**Amended after `claude3`: increases are priced by the vote.** With a plain squared distance the
+repair takes the cheapest volatility on offer, whoever proposed it: on `claude3` it added 6pp
+to market-cap weight, bottom-ranked on 14 of 15 ballots (composite 0.00), and the CIO's memo
+flagged it. An increase in a candidate's weight now costs 1 / its vote composite (floored at
+0.05); a cut costs 1, so trimming a rejected method stays cheap. Replayed on `claude3`'s
+candidates (`--no-llm`): no ensemble raises market-cap weight; the added weight goes to the
+best-voted methods (inverse volatility 0.95, CVaR 0.89, volatility targeting), while the cuts
+fall on the researcher, the adversarial diversifier and the low-ranked risk methods. More
+ensemble weight moves (14-34% against 9-17%), asset turnover is about the same (6-11%), and
+return, Sharpe and drawdown are unchanged to within 0.03pp, 0.01 and 0.1pp.
+
+### 63. A covariance agent chooses among validated estimators — settled, 2026-11-18
+§3.1 step 3 describes "a covariance agent [that] estimates the asset class covariance matrix
+using historical data and macro forecasts". Until now stage 3 was the covariance skill with
+decision 17's fixed default; the agent half was planned in its SKILL.md but never built, and
+`docs/status.md` wrongly called it live. Faculty asked on 2026-11-10 how the matrix is estimated
+and whether the estimates were validated. Decision 17 validated the *choice* of estimator
+against the others, not the estimates against what followed.
+
+`skills/covariance/validation.py` now does the second: each estimator fitted at every year-end
+on data to that date, its benchmark and equal-weight volatility forecasts against the next 12
+months, its stock-bond correlation against the next 36. As of 2026-10-01 (26 year-ends): all
+three forecast about a fifth more benchmark risk than followed; exponential has the smallest
+stock-bond correlation error (0.30, against 0.36 for Ledoit-Wolf and 0.43 regime-conditional);
+regime-conditional the smallest volatility error (0.369, against 0.380 and 0.385). No estimator
+dominates, so the choice is a judgment, and it is the agent's: `agents/covariance/` gives the
+model the estimators' current diagnostics, their volatilities and this record, with the macro
+regime and its confidence, and constrains it to the positive-definite validated estimators.
+It writes `pc/covariance.json` with its `judgment` and the `validation` record (schema 5.2.0).
+`--no-llm` keeps Ledoit-Wolf. One call per run on the low-cost tier.
+
+Not adopted: a covariance the model writes or adjusts itself, which would put an unvalidated
+matrix under every optimiser; the arithmetic stays in the skill (decision 8).
+

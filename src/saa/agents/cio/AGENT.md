@@ -40,11 +40,21 @@ A candidate's IPS line distinguishes the ex-ante check from the backtest one: a 
 pass the first and breach the drawdown limit on the second.
 
 **Only compliant ensembles are offered to you.** An ensemble that breached a limit has been
-projected to the nearest compliant allocation, and is marked as projected, with its figures
-before projection. Candidates are not forced into the IPS (decision 49), so an averaging
-ensemble can start well below the volatility floor and the projection can move a sixth of the
-portfolio or more. Treat a projection as a real cost, in proportion to its size: it is the
-ensemble adjusted, not the ensemble.
+repaired, and its `IPS repair` column says how, with its figures before the repair (decision
+62). Averaging lowers volatility, so a blend of candidates at 7-8% lands below the 8% floor, and
+with no leverage something has to move:
+
+- **reweighted** (the first resort): the least ensemble weight was shifted between candidates
+  until the blend complied, and the column names the largest shifts. Raising a method costs
+  more the lower the vote ranked it, so the added weight goes to peer-approved methods. Every holding is still
+  some candidate's; what changed is how much each method counts. Say in your rationale which
+  methods gained and lost weight, and whether that shift is one you would defend.
+- **asset projection** (the fallback, when no nearby mix of the candidates complies): the
+  allocation itself was moved to the nearest compliant one, which can add exposures no
+  candidate proposed.
+
+Treat either as a real cost, in proportion to its size: it is the ensemble adjusted, not the
+ensemble. The meta-optimisation and a single compliant method need neither.
 
 ## What you are judging
 
@@ -53,7 +63,7 @@ ensemble adjusted, not the ensemble.
   paper's scoring "gives the CIO agent latitude to value ensemble diversification alongside
   standalone quality". The meta-optimisation usually has the best Sharpe ratio and can rest on
   one or two candidates; the averaging ensembles trade some Sharpe for breadth across methods
-  but may need a projection. A single method needs neither. Weigh all three kinds, say which
+  but may need a repair. A single method needs neither. Weigh all three kinds, say which
   trade you make, and why.
 - **What do the candidates' reviews and CRO reports say about the ensemble's ingredients?** An
   ensemble resting mostly on a candidate the reviewers found a technical error in, or the CRO
