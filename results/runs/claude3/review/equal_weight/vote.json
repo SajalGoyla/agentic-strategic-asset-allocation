@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "vote",
+    "agent": "vote-equal-weight",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:35:01.230964Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 329,
+        "output_tokens": 1572,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.047718,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "equal_weight",
+    "top_five": [
+      "inverse_volatility",
+      "resampled_efficient_frontier",
+      "risk_parity",
+      "black_litterman",
+      "cvar_minimization"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "Governing IPS status is ratified, per the brief, so hard breaches count. Four candidates have no hard breaches: inverse_volatility, resampled_efficient_frontier, black_litterman and cvar_minimization. Risk_parity breaches only the volatility floor (7.56% against 8%) and has a -20.3% drawdown. My order favours covariance-based methods and diversified books, in line with the late-cycle reasoning the paper found. 1) Inverse_volatility: no breaches, no tuned parameter and no return forecast. Its intra-category reviewer confirmed the arithmetic. Effective N is 14.8 and the drawdown is -22.9%. The reviews flag that about 43% sits in correlated credit and sovereign sleeves, and that is a real weakness. 2) Resampled_efficient_frontier: no breaches and breadth of 13.1. Averaging tames the estimation error that max_sharpe suffers from. Its weakness is a drawdown of -24.84%, only 16bp inside the limit, so compliance is fragile. 3) Risk_parity: a covariance-only method with a low drawdown of -20.3% and breadth of 14.3. Reviewers noted that the 14.3 measures capital dispersion, not risk dispersion. The small volatility shortfall can be fixed by blending. 4) Black_litterman: compliant with Sharpe 0.42 and effective N 5.7. Its prior is distorted by overlapping ETF AUM, and it relies on a stable stock-bond correlation. 5) Cvar_minimization: compliant, with the best backtest Sharpe at 0.74 and a -18.7% drawdown. It ranks last because the reviews show it is concentrated in 4 assets (effective N 2.9) and tuned to land exactly on the 8.00% volatility floor. Inverse_volatility beats it because it reaches compliance with 14.8 effective assets and no tuning, so the CIO can lean on it more safely. I rank myself nowhere. My own 1/N breaches the drawdown limit, and I do not argue otherwise. Bottom flag is market_cap_weight: it has a -40.6% drawdown, a CRO risk score of 0.80 and about 77% in equity. Its reviewers showed that ETF AUM is not a market portfolio and double-counts overlapping US style sleeves. It is also candid that it is only a diagnostic. I did not flag the adversarial diversifier, whose orthogonality is useful in an ensemble even though it breaches the return, volatility and tracking-error limits."
+  }
+}

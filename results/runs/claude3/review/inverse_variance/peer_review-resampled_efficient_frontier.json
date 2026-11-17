@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-variance",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.336343Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/resampled_efficient_frontier/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/resampled_efficient_frontier/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3847,
+        "output_tokens": 4601,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.054384800000000004,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_variance",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "resampled_efficient_frontier",
+    "reviewed_category": "return_optimized",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal is candid about what it is: a tuned setting of the method, not its default. It reports the cost, Sharpe 0.42 against 0.67, and says the 8% point was chosen for policy fit and not for any optimality property.",
+      "It names the premise it rests on, that the judged CMAs are unbiased and centred on the truth, and states the conditions that would invalidate it: biased value/REIT/duration forecasts and a positive stock-bond correlation in a rate shock. The reader does not have to dig for the weak point.",
+      "The reported numbers are internally consistent. The weights sum to about 100%, the active weights match a 60/30/10 benchmark, and the Herfindahl of 0.088 reproduces from the weights. The ex-ante volatility of 8.00% agrees with the backtest's 7.96%, so the shrunk covariance holds up on realised volatility.",
+      "Resampling does what it is meant to do at the name level. 13.1 effective assets of 18 and no weight above 15.3% is a stable, non-corner portfolio, unlike a raw max-Sharpe solution built on small CMA gaps.",
+      "It is IPS-compliant ex-ante and with the backtest, with tracking error of 4.51% inside the 6% budget. It keeps a CMA-driven view on returns, which is defensible in an expansion regime where the backdrop is not stress-dominated."
+    ],
+    "weaknesses": [
+      "The drawdown is -24.84%, 16bp inside the -25% limit, so compliance is fragile. A different rebalance date or a slightly different history would breach it. The composite risk score of 0.45 hides this, as the CRO says. The proposal has the same fragility on volatility, which is tuned to sit exactly at the 8% floor.",
+      "The method has to believe the CMAs are unbiased, and resampling cannot test or fix that. Every active bet traces to the same forecasts: -59.6% large cap, about -29% active equity, and overweights in value, REITs, long Treasuries, gold and commodities. These tilts are correlated errors, not independent bets, so averaging over draws does not diversify them.",
+      "Name-level diversification overstates risk diversification. The 13.1 effective assets include value, growth, small cap, REITs, HY, EM and international equity, which share an equity-beta driver and are exposed together in a growth or rate shock. The 13.7% in long Treasuries is the intended offset, and it only works if the 1993+ stock-bond correlation persists.",
+      "Large cap at 0.4% next to value at 10.9% and growth at 6.2% looks like a near-collinearity artifact. Large cap is roughly a blend of value and growth, and the optimizer picks among near-substitutes on small CMA differences. If resampling had diluted weak conviction as claimed, this split should have been smoothed, yet it leaves the portfolio far from the benchmark's core holding.",
+      "The level of dilution depends on the 10-year draw length and on N(mu, Sigma) as the noise model. Neither has a principled basis, and both affect how far weights are averaged away. Averaging after optimizing with gamma tuned to a volatility target is also an ad hoc shrinkage, not a solution to a defined objective, so it has no clear optimality property.",
+      "The expansion regime gives only weak support. The CMAs are long-horizon judgments that expansion does not validate. Expansion is also when inflation and rate shocks can push the stock-bond correlation positive, and that is the one scenario that breaks this portfolio's long-duration, equity-light thesis.",
+      "The ex-ante Sharpe of 0.42 and the backtest Sharpe of 0.61 are on different return bases and cannot be compared. The proposal therefore gives no clear evidence that the CMA tilts add value over a covariance-only portfolio, which the proposal itself lists as a test of the method."
+    ],
+    "technical_errors": [],
+    "score": 0.57,
+    "rationale": "Judged on its premise, this is a coherent and honestly argued proposal. Resampling is a reasonable answer to the problem that max-Sharpe treats noisy CMAs as exact, and the portfolio is spread across names, not concentrated in a few. But the premise has to hold for the portfolio to make sense: unbiased CMAs and a stock-bond correlation that stays negative. Resampling does not protect against either, and the CRO's report shows what happens when they fail, with a drawdown 16bp from the limit and volatility sitting on the floor. The name-level diversification hides a concentrated thesis of underweight large cap, overweight value, REITs, real assets and long duration, all from one set of forecasts. The expansion regime gives modest support at best. I found no technical errors: the arithmetic and the active weights reconcile, and the tuned gamma is a transparent, disclosed choice. The IPS is ratified and the portfolio passes ex-ante and with the backtest, so the thin drawdown margin is fragility, not a breach. The portfolio could add useful diversification to an ensemble, but standing alone it is fragile and not strongly justified, which puts the score at 0.57."
+  }
+}

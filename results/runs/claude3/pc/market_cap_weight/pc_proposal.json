@@ -1,0 +1,188 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-market-cap-weight",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.259626Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1100,
+        "output_tokens": 1310,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.03457,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "market_cap_weight",
+    "method": "Market-cap weight",
+    "category": "heuristic",
+    "weights": {
+      "us_large_cap": 0.48787231757846233,
+      "us_small_cap": 0.04834696661980972,
+      "us_value": 0.05044218582157731,
+      "us_growth": 0.075430967741424,
+      "intl_developed": 0.047659627335326776,
+      "emerging_markets": 0.01875151731019385,
+      "short_treasuries": 0.015570502034611435,
+      "intermediate_treasuries": 0.025131011179890604,
+      "long_treasuries": 0.028268942229898966,
+      "ig_corporates": 0.01925371046945065,
+      "hy_corporates": 0.009725871672423534,
+      "intl_sovereigns": 0.0007896046365521719,
+      "intl_corporates": 0.0002143792786663835,
+      "usd_em_debt": 0.008962964248668609,
+      "reits": 0.042555657155397116,
+      "gold": 0.0918504053635512,
+      "commodities": 0.0010807043492470946,
+      "cash": 0.028092664974848258
+    },
+    "expected_return_pct": 7.428622987471925,
+    "expected_volatility_pct": 11.784932970284407,
+    "sharpe_ratio": 0.32317731437890485,
+    "effective_n": 7.044511558655856,
+    "ex_ante_tracking_error_pct": 3.6848264908669113,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Market-cap weight is the one proposal that needs no forecast from anyone: not a CMA, not a covariance estimate, not a scenario set. It holds what the market holds, so its weights come from ETF market values and nothing in the pipeline can distort them. In Sharpe's (1964) CAPM, the market portfolio is mean-variance efficient if investors share beliefs, which makes it the natural passive null that every optimiser should have to beat. In an expansion regime, where there is no obvious macro stress to hedge, the case for paying estimation risk to leave the market portfolio is weaker than in a late-cycle or recessionary setting.\n\nThe statistics fit that. Volatility of 11.78% sits inside the IPS band, expected return of 7.43% clears the return floor, and the 3.68% tracking error against the IPS benchmark is moderate for a portfolio that never looked at that benchmark. It passes the ex-ante limits with no tuning and no forcing. Seven effective assets from 18 is more diversified than the Herfindahl of 0.264 suggests. Several of the risk-only methods only reach the band by leverage, which the IPS prohibits, or need a repair step. This one gets there unaided.\n\nThe Sharpe of 0.32 is not impressive, and I do not claim it is. That ratio uses the judged CMAs, which this method ignores, so it is partly a measure of how far market weights sit from the CMA-implied frontier. Return-optimized proposals will show higher ex-ante Sharpe, but they gain it by trusting the very estimates that carry the most error. The 0.32 is a fair price for not depending on them. The proposal's value to the CIO is as a low-error anchor and a reference for how much any tilt costs in tracking error.\n\nThe concentration is a feature of capitalisation, not a sign of optimiser failure: about half the portfolio is US large cap because that segment dominates the ETF universe, with a sizeable gold position because of its ETF size. That is the method working as designed, and it is also its main exposure.",
+    "revision_of": null,
+    "notes": "Key assumption: That ETF market values are a good proxy for the true market portfolio, and that the market portfolio is near enough to efficient that no forecast of returns or risk improves on it after estimation error. In practice this means passive capitalisation weights are a sound neutral position in the current expansion. Main weakness: Roughly half the portfolio sits in a single asset, US large cap, and the weights are driven by ETF size rather than economic risk. Gold at 9.2% is an artefact of how large its ETFs are, not a deliberate allocation. Equity risk dominates the volatility budget, so the portfolio is poorly diversified in risk terms despite the 7.0 effective assets, and it will draw down with US equities in a sell-off. It also leaves the judged CMAs unused, giving a Sharpe of 0.32 that is lower than what return-aware methods claim. Preferred when: When the CMAs are judged noisy and the regime gives no strong reason to tilt, as in a benign expansion. It also suits a CIO who wants a low-turnover, low-estimation-error core that already meets the IPS ex-ante limits, and as the baseline against which tilted or risk-structured proposals are judged. It is the better choice when covariance estimates are suspect, because it uses none. Invalidated if: If the regime turned toward late-cycle or contraction, where the paper found covariance-aware methods preferred, a half-equity portfolio would be the wrong choice. It would also be wrong if US large cap valuations were so stretched that the CMAs credibly pointed to a sustained underperformance of the segment, or if ETF sizes were shown to misrepresent actual asset-class capitalisation, for example because gold or equity ETFs are inflated by flows rather than by underlying market value. A backtest drawdown breach found by the CRO would also count against it, since the drawdown limit has not yet been checked.",
+    "tuning": null
+  }
+}

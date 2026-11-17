@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "vote",
+    "agent": "vote-pc-researcher",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:35:01.238865Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 337,
+        "output_tokens": 1789,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.049914,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "pc_researcher",
+    "top_five": [
+      "cvar_minimization",
+      "tail_risk_parity",
+      "resampled_efficient_frontier",
+      "inverse_volatility",
+      "black_litterman"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "IPS status: ratified, as stated in the brief; I treat the limits as binding. I ranked for what the CIO can build from, favouring compliance and covariance-based methods over return-forecast methods, per the late-cycle finding in section 4.3. (1) cvar_minimization is IPS-clean with the best backtest of the compliant set (Sharpe 0.74, drawdown -18.7%). Its reviewer confirmed it ran as designed. The weaknesses are real: only about 2.9 effective assets, and volatility tuned to exactly 8.00%. Both are fixable by blending with broader sleeves. (2) tail_risk_parity is built on downside co-movement and reads no return forecast. Its only breach is volatility (7.67% against the 8% floor), which is marginal. Its drawdown is -20.9% and its effective N is 14.4. The reviews found only framing errors, such as the 14.4-of-18 denominator. (3) resampled_efficient_frontier is compliant and well diversified (effective N 13.1). The reviews flag that its -24.84% drawdown sits only 16bp inside the limit, so it ranks below the two above. (4) inverse_volatility is compliant, broad (effective N 14.8) and has no tuned parameter. It ignores correlation, and about 43% sits in credit and sovereign sleeves that fall together, so it is a stable base, not a lead. (5) black_litterman is compliant, with a -21.9% drawdown and an ex-ante Sharpe of 0.42. Its reviewer found the equilibrium prior distorted because overlapping ETF AUMs are double-counted. It also relies on return views, which is what the regime argues against. My first choice beats my fifth on tail-risk evidence. cvar_minimization has a shallower drawdown (-18.7% against -21.9%) and a higher backtest Sharpe (0.74 against 0.68), and it does not depend on a contaminated prior or on return forecasts. I flag market_cap_weight. It has a -40.6% backtest drawdown, a CRO risk score of 0.80 and a breach of the drawdown limit. Reviewers also showed its ETF-AUM weights are not a true market portfolio, since they double-count overlapping US style funds. I did not rank or flag adversarial_diversifier. Its value is orthogonality, which should be kept in the ensemble, and its three IPS breaches keep it out of my top five."
+  }
+}

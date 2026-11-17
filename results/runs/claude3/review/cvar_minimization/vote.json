@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "vote",
+    "agent": "vote-cvar-minimization",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:35:01.230194Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 328,
+        "output_tokens": 1448,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.046496,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "cvar_minimization",
+    "top_five": [
+      "resampled_efficient_frontier",
+      "tail_risk_parity",
+      "black_litterman",
+      "inverse_volatility",
+      "risk_parity"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "IPS status per the brief: ratified, so the hard breaches are binding. Ranking: (1) resampled_efficient_frontier has no hard breaches, the highest effective N among compliant candidates (13.1), the best compliant return (6.98%), and a Sharpe of 0.42. Resampling averages out CMA estimation error, which suits a regime where covariance structure deserves more trust than point forecasts. Its weakness is a backtest drawdown of -24.84% against the -25% limit. That is fragile, but it is still inside the limit. (2) tail_risk_parity uses downside co-movement only and reads no return forecasts. It has a low drawdown (-20.9%) and a CRO risk score of 0.42. Its volatility breach is small (7.67% vs the 8% floor) and is fixable by blending, though the intra-category reviewer rightly notes that semicovariance is not a true tail measure. (3) black_litterman is compliant with a 0.42 Sharpe and a -21.9% drawdown. The reviewers' point that ETF AUM double-counts overlapping equity sleeves in the prior distorts its implied returns, so it ranks below the covariance-based methods. (4) inverse_volatility is compliant, simple and forecast-free. It ignores correlation, and about 43% of the book sits in credit-like sleeves that fall together. (5) risk_parity has a 0.41 CRO score and a -20.3% drawdown, but its 7.56% volatility breaches the floor and the reviewers note it overstates risk diversification by reading capital-weight entropy as risk dispersion. My first choice beats my fifth because resampled_efficient_frontier clears every hard IPS limit and carries higher return and breadth, while risk_parity breaches volatility and offers less return. The bottom flag is market_cap_weight: it has a -40.6% drawdown that the CRO treats as a floor, a 0.80 risk score, and a breach of the ratified drawdown limit. It is also near-pure US equity beta, and reviewers noted that ETF AUM is not a market portfolio and double-counts overlapping style funds. The CIO should not lean on it. I did not flag adversarial_diversifier because its orthogonality has ensemble value, though I left it unranked given its three hard breaches."
+  }
+}

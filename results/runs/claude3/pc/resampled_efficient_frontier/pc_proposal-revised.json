@@ -1,0 +1,197 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "revise-resampled-efficient-frontier",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:36:09.494120Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/resampled_efficient_frontier/pc_proposal.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 5106,
+        "output_tokens": 3264,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.096429,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "resampled_efficient_frontier",
+    "method": "Resampled efficient frontier",
+    "category": "return_optimized",
+    "weights": {
+      "us_large_cap": 0.004000094346922432,
+      "us_small_cap": 0.0545621651235116,
+      "us_value": 0.10936056415456444,
+      "us_growth": 0.062095095991056795,
+      "intl_developed": 0.03799362810144989,
+      "emerging_markets": 0.03896829944611672,
+      "short_treasuries": 0.1534939945016961,
+      "intermediate_treasuries": 0.055238328526386056,
+      "long_treasuries": 0.13667371913605575,
+      "ig_corporates": 0.04567532839932478,
+      "hy_corporates": 0.03162029725404621,
+      "intl_sovereigns": 0.0002532423456658228,
+      "intl_corporates": 0.01853823903633659,
+      "usd_em_debt": 0.04021593679490877,
+      "reits": 0.09451008611322088,
+      "gold": 0.05829030713994696,
+      "commodities": 0.0585106735887902
+    },
+    "expected_return_pct": 6.984300772030075,
+    "expected_volatility_pct": 8.000259554878326,
+    "sharpe_ratio": 0.42052395287333166,
+    "effective_n": 13.142760707033926,
+    "ex_ante_tracking_error_pct": 4.507914675959369,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Under the ratified IPS, the unrevised portfolio passes every hard limit, including the CRO's backtest drawdown check. The drawdown is -24.84% against a -25% limit, and volatility is 8.00% against an 8% floor.\n\nI correct my original case on one point. The drawdown is no longer unchecked: the CRO has checked it and the margin is only 16bp, so compliance is marginal and rests on one historical path.\n\nBoth reviews make the same core critique. First, the margins are thin on both drawdown and volatility. Second, the tilts are diversified by name but concentrated in one thesis: underweight large cap, overweight value, REITs and real assets, and long duration, all from one set of CMAs.\n\nI accept both points, but the available levers cannot improve the portfolio on them:\n- Shrinking toward equal weight adds cash and international sovereigns. It would most likely take volatility below the floor, a new hard breach.\n- Weight caps would mainly trim the two Treasury sleeves and push weight into equity-like assets. That would likely deepen a drawdown already 16bp from its limit.\n- Excluding long Treasuries would remove the main equity offset in the sample.\n\nThe portfolio already sits at the volatility floor with the drawdown at its limit. Any lever that lowers tail risk also lowers volatility, and any lever that raises volatility raises tail risk. The fragility is better handled by the CIO, who can blend this candidate with lower-drawdown, covariance-driven proposals and use its name-level diversification and expansion-regime CMA view as one part of the ensemble.\n\nNeither reviewer found a technical error. The open caveats stand as disclosed:\n- Monte Carlo noise in small weights from 200 draws.\n- No sensitivity analysis of the draw horizon or noise model.\n- No demonstration that the CMA tilts add value over a covariance-only portfolio.\n- Dependence on a negative stock-bond correlation.",
+    "revision_of": "pc/resampled_efficient_frontier/pc_proposal.json",
+    "notes": "Revision: no change; one-way turnover 0.0%. Responses to reviews -- black_litterman: I accept the main point and correct my case. The CRO has now checked the drawdown, and at -24.84% it is 16bp inside the -25% limit. Compliance is real but marginal, and it rests on one historical path. I also accept that the 8.00% volatility is a policy-fit setting and not an optimality result. I said so in the original case, and I now add that sitting at the floor makes the portfolio sensitive to small changes in the CMAs or the covariance.\n\nI am not revising, because the two limits pull in opposite directions. Volatility is pinned at the 8% floor and drawdown at the -25% limit.\n- Shrinking toward equal weight brings in cash and international sovereigns at about 5.6% each. It would most likely push volatility below the floor, a new hard breach.\n- A cap at 12-14% mostly trims short and long Treasuries and hands the weight to riskier sleeves. That would likely deepen the drawdown.\n- Excluding long Treasuries removes the main equity offset in the historical sample.\nNo lever cuts tail risk without crossing the volatility floor. The margin is better handled by the CIO's blend with lower-drawdown candidates than by a lever here.\n\nOn your other points:\n- **Shared CMA source and thesis-level concentration:** agreed. Resampling cannot diversify a common bias, and I flagged this as the method's limit.\n- **The barbell:** agreed, it is a product of the CMAs and the covariance, and it depends on the post-1993 stock-bond regime.\n- **Max Sharpe concentrating in a handful of assets:** fair, that was asserted, not shown here. It is the standard result for unconstrained max Sharpe on close CMAs, but I withdraw it as evidence.\n- **Draw count and horizon:** also fair. With 200 draws, Monte Carlo noise can move weights of a few percent or less, such as large cap at 0.4% and international corporates at 1.9%. Those small weights should be read with that noise in mind. No sensitivity of the averaged weights to the horizon or draw count was run, and the revision levers cannot add one.\n\nYou reported no technical errors. inverse_variance: I accept most of this critique, and I am not revising.\n\n- **Correlated tilts:** the CMA tilts are correlated errors, not independent bets. Underweight large cap, overweight value, REITs, long Treasuries and real assets all come from one set of forecasts. Resampling dilutes sampling noise, not bias.\n- **Name-level diversification overstates risk diversification:** agreed. Much of the 13.1 effective assets loads on one equity-beta factor. The long Treasury offset depends on a negative stock-bond correlation persisting, and a rate shock in an expansion is the scenario that breaks it.\n- **Large cap at 0.4%:** this is plausibly a near-collinearity effect. Large cap is close to a blend of value and growth, so the averaged weights still reflect small CMA gaps between near-substitutes. Note that the combined large-cap exposure through value and growth is about 17%, not 0.4%. The benchmark gap is mainly an equity underweight, not a missing asset.\n- **Draw horizon and noise model:** these are ad hoc parameters without a principled basis, and the method has no clean optimality property once gamma is tuned to a volatility target. I disclose that rather than defend it.\n- **The two Sharpe ratios:** the 0.42 ex-ante and 0.61 backtest figures cannot be compared, and the proposal does not show that the CMA tilts add value over a covariance-only portfolio.\n\nThe reason I do not revise is that the levers cannot fix the fragility you identify without creating a breach. Volatility sits exactly at the 8% floor. Shrinking toward equal weight would add cash and sovereigns and most likely breach that floor. Caps would push weight into riskier sleeves and threaten the -25% drawdown limit, which is 16bp away. Excluding long Treasuries would remove the only historical equity hedge. You found no technical errors.",
+    "tuning": null
+  }
+}

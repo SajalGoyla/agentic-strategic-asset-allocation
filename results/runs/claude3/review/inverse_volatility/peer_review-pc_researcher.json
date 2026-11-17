@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-inverse-volatility",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.326833Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/pc_researcher/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/pc_researcher/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3870,
+        "output_tokens": 3292,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.041340800000000004,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "inverse_volatility",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "pc_researcher",
+    "reviewed_category": "pc_researcher",
+    "kind": "inter_category",
+    "strengths": [
+      "The objective is explicit: maximise Shannon entropy subject to a Sharpe floor under the CMAs and the IPS bounds. The reliance on expected-return estimates is stated and bounded, not hidden inside an optimiser, and the proposal admits it may lag equal weight if the CMAs are poor.",
+      "The portfolio is long-only and fully invested, and all 18 assets are held. Effective breadth is 5.3 (exp of entropy, not 1/HHI), so the metric is reported honestly.",
+      "The risk numbers hang together. Ex-ante volatility of 2.74% against backtest volatility of 2.72% shows the covariance estimate is not contradicted by realised data. Maximum drawdown of -8.1% and monthly VaR of 0.94% are small in absolute terms.",
+      "The proposal is candid about its main weaknesses: entropy is measured on capital, not risk, and the result depends on one arbitrary parameter (the floor)."
+    ],
+    "weaknesses": [
+      "The Sharpe ratio is scale-free, so a Sharpe floor says nothing about return or volatility level. Under long-only, no-leverage constraints it can be met by moving into low-volatility assets, and here it was. About 70% of capital sits in short Treasuries and cash, volatility is 2.74% against an 8-12% IPS band, and expected real return is 2.71% against CPI+3%. The binding constraint therefore pulls away from the IPS objectives.",
+      "Cash is close to a free asset under this formulation. Mixing a risky portfolio with the risk-free asset leaves its Sharpe ratio unchanged, so the entropy term can add cash for breadth without breaching the floor. The 16.3% cash weight looks like entropy filler. The 5.3 effective assets overstates diversification: one defensive block dominates and equity is only about 11%.",
+      "The premise requires the CMA excess-return-to-volatility ranking to be stable, with short Treasuries and cash offering a better risk-adjusted payoff than equity. In an expansion regime, where the proposal itself says the CMAs carry useful return tilts, that is hard to square with an 11% equity weight and a benchmark beta of 0.24. The portfolio lags sharply in any equity-led continuation.",
+      "The floor is unanchored. The proposal gives no reason why this Sharpe level, and nothing shows how weights move as the floor moves. Because the floor binds, the weights inherit the full estimation error in the marginal expected-return inputs, which is the fragility the proposal says it is avoiding.",
+      "Tracking error of 7.27% exceeds the 6.0% budget. This is not a small tilt: roughly a 60-point underweight in us_large_cap and 49 points in equity overall. As a diversifier it adds a defensive, low-volatility vertex, but it would have to be blended heavily to be usable in a final portfolio.",
+      "The backtest Sharpe of 0.70 is flattered by a 1993-start sample in which the bond and cash block performed well as rates fell. Nominal volatility understates the real-purchasing-power risk of a cash-heavy mix, as the CRO notes."
+    ],
+    "technical_errors": [
+      "The reported Sharpe of 0.60 does not reconcile with the proposal's own account. The case says the best CMA-driven Sharpe is about 0.48 (max Sharpe), and that maximum entropy keeps a share of the gain between 0.37 and 0.48. A max-Sharpe optimiser under the same CMAs should give the highest Sharpe, yet this portfolio reports 0.60. Either the Sharpe is computed with a different risk-free rate or return basis than the registry figures, or the max-Sharpe benchmark was solved under tighter constraints. The floor-versus-realised relationship is not explained, and the case's 'between 0.37 and 0.48' framing does not describe the portfolio actually produced."
+    ],
+    "score": 0.4,
+    "rationale": "The method is transparent and well specified, and its risk statistics are internally consistent. The premise is weak in the current setting, though. A scale-free Sharpe floor with an entropy objective and no leverage yields a portfolio that is broad by count but dominated by short Treasuries and cash. That portfolio is below the IPS volatility band, below the real-return target, and over the tracking-error budget in an expansion regime. Cash is Sharpe-neutral, so entropy fills with it, which makes the breadth figure misleading. The reported 0.60 Sharpe also sits above the 0.48 the proposal cites as the optimum, which needs explaining. The IPS breaches are evidence about what the candidate would contribute, not grounds for dismissal. Its likely value is as a defensive anchor in an ensemble, not as a standalone or near-final portfolio. I score it below the midpoint because the method's stated aim, controlled and broad exposure to the CMAs, is not what the portfolio delivers."
+  }
+}

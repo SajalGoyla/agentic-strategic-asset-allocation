@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-volatility-targeting",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.352071Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/hierarchical_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/hierarchical_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4014,
+        "output_tokens": 3374,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.0424488,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "volatility_targeting",
+    "reviewer_category": "heuristic",
+    "reviewed_agent_id": "hierarchical_risk_parity",
+    "reviewed_category": "risk_structured",
+    "kind": "inter_category",
+    "strengths": [
+      "Candid about its own limits: it says plainly that the 6.78% volatility and 6.15% tracking error breach the ratified IPS and that it fails as a standalone recommendation. It does not tune the method to hide this.",
+      "The weights are internally consistent. Equity is about 11.3% (active -48.7%), fixed income about 77.7%, and the benchmark offsets reconcile to a 60% US large cap, 30% intermediate Treasury and 10% IG corporate benchmark.",
+      "The estimator choice fits a no-inversion method. Clustering and recursive bisection avoid the near-singular optimiser problem, and 11.5 effective assets of 18 with 16 held is real diversification, not a degenerate input.",
+      "Ex-ante volatility (6.78%) and backtest volatility (6.80%) agree, so the covariance input describes realised full-sample risk well.",
+      "It correctly separates the score from the CMAs it did not use, and it does not claim the expansion regime favours it.",
+      "Its framing as a low-risk ballast sleeve that the CIO can blend with higher-risk proposals is a coherent account of what it adds to an ensemble, since the volatility shortfall comes from construction, not a view."
+    ],
+    "weaknesses": [
+      "The premise is implicitly equal expected returns across assets. Inverse-variance-style splitting is only optimal if long Treasuries, HY, REITs and large-cap equity have the same expected return per unit of variance. In an expansion, where equity risk is typically rewarded, that discards the main return signal. The proposal concedes this but only argues that forecasts are noisy, with no evidence that the CMAs are unreliable now.",
+      "The allocation is sensitive to universe composition. Seven of the 18 assets are fixed income and six are equity, so correlated bond assets can pull the bond cluster to about 78% of the portfolio. Part of that tilt reflects how many bond-like assets are in the list and the exclusion of cash, not an independent risk judgement. The claim that the tilt is only because bonds have low variance is therefore incomplete.",
+      "Low variance is treated as safe. The -21.25% backtest drawdown is 85% of the -25% limit with only about 11% equity. Duration and spread are 78% of the book, so the failure case is a joint rate and credit selloff like 2022 or a stagflation episode, and the 1993+ panel omits the 1970s and early 1980s. The CRO's view that -21.25% is a lower bound is credible.",
+      "The diversification is partly illusory. HY (9.8%), REITs, commodities and EM USD debt behave like equity in a growth shock, and the realised benchmark beta of 0.55 is far above the 11% equity weight. The dendrogram's historical correlations can break exactly when diversification is needed, which is what the method's own 'invalidated if' says.",
+      "The portfolio carries about 49 points of equity underweight and 6.15% tracking error, so its standalone relative-performance risk is high. Whether blending fixes this depends on the CIO having higher-risk candidates that are not just more rates and credit exposure. The proposal asserts this contribution without showing it.",
+      "The description of 'equal-ish risk across clusters' as a neutral prior is loose. HRP allocates by inverse cluster variance at each bisection, which does not equalise risk contributions, and single linkage can chain assets together. The proposal names this chaining risk but does not show that the dendrogram here is stable."
+    ],
+    "technical_errors": [],
+    "score": 0.5,
+    "rationale": "Challenging the premise, HRP assumes that covariance structure is stable and informative and that return forecasts add no value, so it implicitly treats all assets as having equal expected returns. That is a weak stance in an expansion, where equity risk is usually rewarded, and the proposal does not argue the regime supports it. The result is a well-executed but under-risked portfolio: it breaches the volatility floor and the tracking-error budget, and its bond-heavy mix leaves a -21.25% drawdown with only about 11% equity. Its strengths are real: consistent arithmetic, genuine diversification of weights, a covariance that matches realised volatility, and candid disclosure. The IPS breaches are evidence about its role as a low-risk sleeve, not grounds for dismissal. I found no misapplied estimator or number that cannot follow from the method, only weaknesses of the premise. The main discount is that the diversification it offers is concentrated in duration and spread exposure that can fail together. The ensemble value claimed is plausible but unproven. I score it as a competent, honestly argued but mid-quality proposal."
+  }
+}

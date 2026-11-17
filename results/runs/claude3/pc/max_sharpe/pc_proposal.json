@@ -1,0 +1,180 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-max-sharpe",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.261182Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1021,
+        "output_tokens": 1494,
+        "cache_read_tokens": 7708,
+        "cost_usd": 0.018523599999999998,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "max_sharpe",
+    "method": "Maximum Sharpe ratio",
+    "category": "return_optimized",
+    "weights": {
+      "us_value": 0.5095048254362509,
+      "short_treasuries": 0.25049246439242795,
+      "long_treasuries": 0.20978923687396572,
+      "gold": 0.030213473297355548
+    },
+    "expected_return_pct": 7.4688477821422765,
+    "expected_volatility_pct": 8.000685101771284,
+    "sharpe_ratio": 0.4810647754765619,
+    "effective_n": 3.0761517832396033,
+    "ex_ante_tracking_error_pct": 4.088131779655653,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "This is maximum Sharpe run at a lower risk aversion than its default, and the reviewer should read it that way. The default long-only tangency portfolio has 1.80% volatility and a Sharpe of 0.80, far below the IPS 8-12% band. Setting gamma to 4.446 walks along the same long-only efficient frontier until volatility reaches 8.00%, the band floor. The method is unchanged. The setting changed the point on the frontier: volatility rose from 1.80% to 8.00%, and Sharpe fell from 0.80 to 0.48 because the frontier is concave. The 0.80 was a cash-heavy artefact. The 0.48 is the best reward per unit of risk the judged CMAs and the covariance matrix support at a volatility the IPS allows. The portfolio is compliant on the ex-ante limits (return, volatility, tracking error) under the ratified IPS. The drawdown limit is a backtest measure and the CRO still has to check it.\n\nIn an expansion regime, a method that uses return forecasts has its best case. If the CMAs carry real information, optimising against them should pay, and equal weight and the covariance-only methods discard that information. The portfolio shows what the CMAs actually say: a large value-equity position for return, with Treasuries (short and long) as the low-risk and diversifying legs and a small gold position. This is the profile of a CMA-driven solution, not of a diversification argument. Part of the case is that the covariance structure contributes, since the long Treasury leg and gold are there for their correlation with the equity position and not for their own return.\n\nThe concentration is a sign of how much the method relies on the CMAs. With 3.1 effective assets out of 18 and 4 names held, the weights rest on a handful of return differences between assets, and 4.09% tracking error against the benchmark is a meaningful active bet. The IPS sets no per-asset caps, so this is permitted, but the vote should weigh it. If the covariance matrix is well conditioned, the concentration reflects the CMAs' view of value equity relative to the rest. It also carries the CMAs' errors. Every error in the value-equity CMA passes straight into half the portfolio. Reviewers from the heuristic and risk-structured categories will say this, and they are right about the mechanism. The case here is narrower: if one believes the CMAs, this is the efficient way to hold them at an allowed risk level. For a compliant ensemble, it adds an explicit return-seeking leg that the cash-light, risk-only methods lack.",
+    "revision_of": null,
+    "notes": "Key assumption: The judged CMAs, especially the value-equity expected return relative to the other assets, are accurate enough that optimising against them gives a better risk-adjusted outcome than ignoring them, and the covariance matrix is stable enough that the Treasury and gold hedges keep the correlations assumed. Main weakness: Estimation-error maximisation: about half the portfolio sits in one asset, with 3.1 effective assets and 4.09% tracking error, so a modest overstatement of the value-equity CMA or a shift in its correlation with Treasuries would hurt it more than it would a diversified portfolio. The 0.48 Sharpe is an in-sample figure from the same CMAs used to build the weights, so it is not independent evidence of quality. The volatility setting (gamma 4.446) was chosen to hit the band floor, not to reflect the CMAs' own preference, so the portfolio sits exactly at the 8.00% edge with no volatility margin. Preferred when: When the regime supports trusting return forecasts (expansion, with the CMA judge reasonably confident in its value-equity view), and when the CIO wants an explicit return-seeking component that complies with the IPS. It should be preferred over equal weight and the covariance-only methods when CMA dispersion across assets is large relative to its uncertainty, and as one leg of an ensemble that other, more diversified proposals temper. Invalidated if: The portfolio is the wrong choice if the value-equity CMA is overstated or its uncertainty is wide enough that the resampled frontier or Black-Litterman, which are more diversified points on their own frontiers, give a materially different allocation. It is also wrong if equity-Treasury correlations turn positive, removing the hedge the long Treasury leg provides. If the CRO's drawdown backtest breaches the IPS limit, or the peer review shows the allocation shifts largely with small changes to the CMAs, the concentration is estimation error and not signal.",
+    "tuning": {
+      "parameter": "risk_aversion",
+      "value": 4.446417655558803,
+      "untuned_volatility_pct": 1.7989228485490005,
+      "reached_band": true,
+      "untuned_sharpe": 0.7983024203095482
+    }
+  }
+}

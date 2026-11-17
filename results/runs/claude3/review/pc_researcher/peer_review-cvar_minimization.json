@@ -1,0 +1,184 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-pc-researcher",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.332489Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/cvar_minimization/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/cvar_minimization/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3658,
+        "output_tokens": 2445,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.0324468,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "pc_researcher",
+    "reviewer_category": "pc_researcher",
+    "reviewed_agent_id": "cvar_minimization",
+    "reviewed_category": "non_traditional",
+    "kind": "inter_category",
+    "strengths": [
+      "It is open about what the method is. The proposal says outright that this is a point on the mean-CVaR frontier reached by raising the return floor, and not the pure minimum-CVaR cash-like portfolio. That makes it easy to judge on its own terms.",
+      "The method does not take a covariance matrix or CMA return forecasts as inputs. It works from empirical scenarios that carry skew and fat tails, which suits an expansion regime where return views are only moderately reliable.",
+      "The 4-asset structure is economically legible: equity for return, intermediate Treasuries as the stress offset, gold as a diversifier. The proposal ties each holding to the tail role it plays.",
+      "It is IPS-compliant ex-ante and in the CRO's backtest, with the drawdown limit met (-18.72%). Backtest and ex-ante volatility agree (7.91% vs 8.00%), and VaR is moderate at 3.23% per month.",
+      "The proposal names its own invalidation conditions: a joint stock-bond selloff, gold failing to hedge, and a rise in stock-bond correlation. That is the right set of risks and is consistent with the CRO's reading.",
+      "It describes itself honestly as a modest-Sharpe, concentrated, tail-aware anchor, not as a best-Sharpe candidate."
+    ],
+    "weaknesses": [
+      "The portfolio only makes sense if stock-bond co-movement in the 1993-onward sample persists. That sample is dominated by decades when Treasuries hedged equity drawdowns. In an inflation or rate-shock regime, such as 2022 or the 1970s, the two holdings that make up about 83% of the portfolio fall together. The 95% shortfall it minimised would then understate the real loss.",
+      "The method is called forecast-free, but it is not. The 8.219% return floor is a historical mean, and it is what pulled the portfolio into risk assets. It is also well above the 6.38% ex-ante return the portfolio carries, so the optimiser was told to expect a return the forward estimate does not support. The estimation-error channel was moved to a different input, not removed.",
+      "The return floor was tuned to reach the IPS 8% volatility band. The weights are therefore a result of hitting the policy constraint, not the method's natural tail-minimising answer. Volatility lands exactly on the floor, so a small change in scenario weighting or covariance could breach it. The 3.60% tracking error is a byproduct of that tuning, not clearly a deliberate active view.",
+      "Monthly 95% CVaR from roughly 30 years of data rests on only about 15-20 tail observations. The linear-program solution sits at a vertex, which gives sparsity (4 of 18 assets, 2.9 effective). That sparsity partly reflects a thin tail sample and not a considered judgement that the other assets add nothing. Small changes in the sample could shift the weights materially.",
+      "Gold is a single 15.9% bet that the whole real-assets tilt rests on. Its worst episode (1980-82) lies outside the scenario window used to select it, so the optimiser has never seen gold's own tail.",
+      "The backtest is in-sample for this method: the weights were fitted on the same scenarios the backtest replays. The favourable drawdown and Sharpe of 0.74 are best-case readings, not evidence of robustness.",
+      "All equity risk sits in one large-cap sleeve, and the 1.4% short-Treasury position adds nothing. Effectively three positions carry the portfolio. The -14.6% equity underweight means it will lag a strong rally."
+    ],
+    "technical_errors": [],
+    "score": 0.55,
+    "rationale": "I am judging the premise. The method needs a stable historical tail structure, with Treasuries and gold offsetting equity losses and the 1993-onward scenarios representative of what comes next. Expansion regimes are exactly where that assumption looks safest, so the regime does not contradict the premise, but the portfolio has no protection if the assumption fails. The forecast-free claim is weakened by the historical-mean return floor, which exceeds the 6.38% ex-ante return, and by tuning that floor to the volatility band. The sparse 3-asset core partly reflects a thin tail sample and the vertex solutions of the LP, so it is not strong evidence of an optimal structure. On the plus side, the proposal is honestly framed, internally coherent and IPS-compliant with the ratified policy. It also identifies its own failure mode, which matches the CRO's. I find no technical errors, because the stated method and numbers are consistent, but the in-sample backtest and the knife-edge on the volatility floor are real limits. This is a moderate-quality, conditionally useful proposal that depends on the stock-bond hedge continuing. It is better as a tail-aware ensemble ingredient than as a stand-alone portfolio."
+  }
+}

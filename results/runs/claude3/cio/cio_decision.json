@@ -1,0 +1,415 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cio_decision",
+    "agent": "cio",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:37:26.929640Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "vote_tally",
+        "path": "review/vote_tally.json",
+        "sha256": null
+      },
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 16694,
+        "output_tokens": 6146,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.205741,
+        "attempts": 1
+      }
+    ],
+    "report_path": "reports/board_memo.md",
+    "seed": null
+  },
+  "body": {
+    "ensemble_method": "composite_score",
+    "ensemble_weights": {
+      "black_litterman": 0.11848318826117839,
+      "cvar_minimization": 0.12622498860163858,
+      "equal_weight": 0.06554315478347117,
+      "hierarchical_risk_parity": 0.010095295615657071,
+      "inverse_variance": 0.024441082164960028,
+      "inverse_volatility": 0.14056675523998438,
+      "market_cap_weight": 0.06271418462485459,
+      "max_sharpe": 0.03672486200621933,
+      "maximum_diversification": 0.022422130824509775,
+      "resampled_efficient_frontier": 0.14581445364926002,
+      "risk_parity": 0.09573140421951586,
+      "tail_risk_parity": 0.07834011961829829,
+      "volatility_targeting": 0.07289838039045257
+    },
+    "final_weights": {
+      "us_large_cap": 0.13891458961521555,
+      "us_small_cap": 0.03945431574334455,
+      "us_value": 0.08000013704466216,
+      "us_growth": 0.03942158055435124,
+      "intl_developed": 0.03150529164611568,
+      "emerging_markets": 0.029407753809611865,
+      "short_treasuries": 0.0438147546885242,
+      "intermediate_treasuries": 0.15756011445863052,
+      "long_treasuries": 0.0831821085983996,
+      "ig_corporates": 0.05223790915708101,
+      "hy_corporates": 0.042826564335080176,
+      "intl_sovereigns": 0.03845289257544569,
+      "intl_corporates": 0.037955465617554994,
+      "usd_em_debt": 0.03208495836030486,
+      "reits": 0.043157223385552376,
+      "gold": 0.06669131876497306,
+      "commodities": 0.036311771655339095,
+      "cash": 0.007021249989813421
+    },
+    "method_scores": [
+      {
+        "agent_id": "resampled_efficient_frontier",
+        "backtest_sharpe": 0.767402,
+        "ips_compliance": 1.0,
+        "diversification": 0.730153,
+        "regime_fit": 0.866924,
+        "estimation_robustness": 0.55,
+        "cma_utilization": 0.864293,
+        "composite": 0.793688
+      },
+      {
+        "agent_id": "black_litterman",
+        "backtest_sharpe": 0.849575,
+        "ips_compliance": 1.0,
+        "diversification": 0.315172,
+        "regime_fit": 1.0,
+        "estimation_robustness": 0.6,
+        "cma_utilization": 0.793825,
+        "composite": 0.779052
+      },
+      {
+        "agent_id": "inverse_volatility",
+        "backtest_sharpe": 0.685425,
+        "ips_compliance": 1.0,
+        "diversification": 0.821159,
+        "regime_fit": 0.761295,
+        "estimation_robustness": 0.9,
+        "cma_utilization": 0.235545,
+        "composite": 0.755344
+      },
+      {
+        "agent_id": "equal_weight",
+        "backtest_sharpe": 0.704995,
+        "ips_compliance": 0.667264,
+        "diversification": 1.0,
+        "regime_fit": 0.766179,
+        "estimation_robustness": 1.0,
+        "cma_utilization": 0.25,
+        "composite": 0.754574
+      },
+      {
+        "agent_id": "volatility_targeting",
+        "backtest_sharpe": 0.705053,
+        "ips_compliance": 0.592987,
+        "diversification": 0.944444,
+        "regime_fit": 0.76643,
+        "estimation_robustness": 0.9,
+        "cma_utilization": 0.34934,
+        "composite": 0.730098
+      },
+      {
+        "agent_id": "market_cap_weight",
+        "backtest_sharpe": 0.791889,
+        "ips_compliance": 0.5,
+        "diversification": 0.391362,
+        "regime_fit": 0.936346,
+        "estimation_robustness": 0.95,
+        "cma_utilization": 0.319917,
+        "composite": 0.693437
+      },
+      {
+        "agent_id": "cvar_minimization",
+        "backtest_sharpe": 0.920651,
+        "ips_compliance": 1.0,
+        "diversification": 0.163115,
+        "regime_fit": 0.850449,
+        "estimation_robustness": 0.55,
+        "cma_utilization": 0.248229,
+        "composite": 0.682043
+      },
+      {
+        "agent_id": "risk_parity",
+        "backtest_sharpe": 0.706539,
+        "ips_compliance": 0.681595,
+        "diversification": 0.793279,
+        "regime_fit": 0.748961,
+        "estimation_robustness": 0.75,
+        "cma_utilization": 0.181853,
+        "composite": 0.678343
+      },
+      {
+        "agent_id": "tail_risk_parity",
+        "backtest_sharpe": 0.69066,
+        "ips_compliance": 0.697969,
+        "diversification": 0.801859,
+        "regime_fit": 0.736408,
+        "estimation_robustness": 0.65,
+        "cma_utilization": 0.185983,
+        "composite": 0.661019
+      },
+      {
+        "agent_id": "inverse_variance",
+        "backtest_sharpe": 0.638426,
+        "ips_compliance": 0.584937,
+        "diversification": 0.653856,
+        "regime_fit": 0.703,
+        "estimation_robustness": 0.85,
+        "cma_utilization": 0.235545,
+        "composite": 0.63708
+      },
+      {
+        "agent_id": "max_sharpe",
+        "backtest_sharpe": 0.809363,
+        "ips_compliance": 0.703753,
+        "diversification": 0.170897,
+        "regime_fit": 0.933158,
+        "estimation_robustness": 0.2,
+        "cma_utilization": 0.8127,
+        "composite": 0.63144
+      },
+      {
+        "agent_id": "pc_researcher",
+        "backtest_sharpe": 0.874576,
+        "ips_compliance": 0.0,
+        "diversification": 0.296438,
+        "regime_fit": 0.79321,
+        "estimation_robustness": 0.6,
+        "cma_utilization": 0.835913,
+        "composite": 0.595343
+      },
+      {
+        "agent_id": "hierarchical_risk_parity",
+        "backtest_sharpe": 0.609602,
+        "ips_compliance": 0.277565,
+        "diversification": 0.638349,
+        "regime_fit": 0.620684,
+        "estimation_robustness": 0.8,
+        "cma_utilization": 0.191662,
+        "composite": 0.553091
+      },
+      {
+        "agent_id": "maximum_diversification",
+        "backtest_sharpe": 0.755001,
+        "ips_compliance": 0.296091,
+        "diversification": 0.353402,
+        "regime_fit": 0.701637,
+        "estimation_robustness": 0.6,
+        "cma_utilization": 0.217711,
+        "composite": 0.538273
+      },
+      {
+        "agent_id": "adversarial_diversifier",
+        "backtest_sharpe": 0.550747,
+        "ips_compliance": 0.0,
+        "diversification": 0.107716,
+        "regime_fit": 0.0,
+        "estimation_robustness": 0.3,
+        "cma_utilization": 0.758031,
+        "composite": 0.274647
+      }
+    ],
+    "expected_return_pct": 6.731784452465235,
+    "expected_volatility_pct": 8.00000000000003,
+    "sharpe_ratio": 0.38897305655815284,
+    "effective_n": 14.869883516219708,
+    "ex_ante_tracking_error_pct": 3.7552166047576767,
+    "ips_compliance": {
+      "compliant": true,
+      "violations": [],
+      "not_evaluated": []
+    },
+    "dissenting_views": [
+      "Meta-optimisation has the better Sharpe (0.43 ex-ante, 0.68 backtest), slightly more drawdown room (-23.2%) and needs no repair. A Sharpe-first committee would choose it. I did not, because it is 37% max_sharpe, which breached the drawdown limit on its own and rests on an untested value-equity forecast.",
+      "market_cap_weight was bottom-flagged on 14 of 15 ballots, yet the repair raised its share by 6pp. The regime-conditional ensemble raised it by only 3pp. I accept this because the added exposure is mostly benchmark US large-cap equity and the result complies. Its standalone -40.6% drawdown is still why headroom fell to 1.7 points.",
+      "resampled_efficient_frontier, the largest ingredient at 15%, passes the drawdown limit by only 16bp on one historical path, as the CRO and both reviewers note. The ensemble dilutes this but inherits some of the fragility.",
+      "risk_parity is shortlisted and weighted here, but its revised version still breaches the 8% volatility floor ex-ante and its drawdown was not re-checked after revision. Reviewers also found technical errors in its diversification and Sharpe claims. It is acceptable only as a minority ingredient within a compliant blend.",
+      "inverse_volatility, an ingredient, carries about 43% in credit and sovereign spread assets that fall together in a spread-widening shock. Its reviewers found its diversification overstated.",
+      "The pc_researcher and resampled_efficient_frontier reviewers note that the stock-bond hedge behind cvar_minimization, black_litterman and risk_parity failed in 2022 and the 1970s. That is the main unhedged scenario for this allocation."
+    ],
+    "invalidation_conditions": [
+      "Ex-ante volatility, recomputed at any quarterly rebalance, falls below the IPS 8% floor (it is exactly 8.00% today) or rises above 12%.",
+      "The backtest maximum drawdown, re-run on the latest data or an alternative rebalance date, is worse than -24%. That leaves under 1 point of headroom to the -25% hard limit.",
+      "The trailing 12-month correlation between US large-cap equity and intermediate Treasuries turns positive above +0.3, meaning the stock-bond hedge has failed.",
+      "The macro agent changes the regime call away from expansion (to late-cycle, contraction or stagflation), or its confidence falls below 0.25.",
+      "The CMA for US equity (large-cap or value) is cut by 1 percentage point or more, or the investment-grade or high-yield spread forecast widens by 1.5 percentage points or more. Either would undercut the return case and the credit sleeves.",
+      "Ex-ante tracking error to the 60/30/10 benchmark rises above 5%, against the 6% limit, or expected return falls below the CPI + 3% real-return floor."
+    ],
+    "rationale": "The macro agent calls the regime expansion but with only 0.35 confidence, which is below the IPS escalation threshold of 0.4. When the regime label is this uncertain, I want breadth across methods and weights that lean on the pipeline's most-tested evidence: the peer reviews, CRO reports, vote and metric scores. I do not want weights that lean on the regime call or on one return forecast. The composite-score ensemble does this. It weights candidates by the same quality score the committee used. Its largest share goes to the vote winner, and the other revised shortlisted candidates carry the most weight. It still holds 13 candidates, about 10.8 effective. It has the highest composite score of the offered ensembles (0.800), a 6.73% expected return, 3.76% tracking error, and a -23.3% backtest drawdown against the -25% limit.\n\nThe trade I am making is about 0.04 of ex-ante Sharpe (0.39 against 0.43) and about 0.05 of backtest Sharpe (0.63 against 0.68), given up relative to the meta-optimisation, in exchange for breadth. The meta-optimisation needs no repair and has the best figures. But it rests on four candidates, 3.8 effective, and 37% of it is max_sharpe. Standing alone, max_sharpe breached the drawdown limit, and its reviewers found that half its book rests on one value-equity return forecast that was never stress-tested. In a low-confidence regime I will not concentrate on that forecast.\n\nI also rejected the single resampled-frontier portfolio. Its drawdown sits 16bp inside the limit, and both its reviewers and the CRO call that compliance fragile. Within this ensemble it is diluted to 15%.\n\nThe regime-conditional ensemble came close: its repair moved less weight toward market-cap. I passed on it because it conditions on a regime label the macro agent itself does not trust.\n\nThe repair is a real cost, and I own it. Before repair the blend had 7.43% volatility, below the 8% floor, and a -20.8% drawdown. To comply, 11.2% of the ensemble was moved between candidates, which is 5.6% of the portfolio. Market-cap weight gained 6pp and volatility targeting 2pp. The researcher's maximum-entropy portfolio lost 4pp and hierarchical risk parity 3pp. The direction is defensible. The two that lost weight sit far below the volatility floor and breach the tracking-error limit on their own, and moving toward market-cap weight mainly adds benchmark-like US large-cap exposure. The cost is that the committee's most-rejected candidate, which had a -40.6% standalone drawdown, gained weight. The repair also used up drawdown headroom, from 4.2 points to 1.7 points.\n\nKey assumptions:\n- Treasuries keep cushioning equity sell-offs. The CRO named this as the binding risk for cvar_minimization, black_litterman and risk_parity, all heavy ingredients here.\n- The equity and credit forecasts are roughly right.\n- Volatility estimates stay near current levels, because the allocation sits exactly at the 8% volatility floor.",
+    "board_memo": {
+      "recommendation": "Adopt the composite-score blend of the committee's candidate portfolios as the Fund's strategic allocation for the coming quarter. The blend combines 13 of the 15 independently built portfolios. Each is weighted by how well it scored with the reviewers, the risk officer and the committee vote, so the best-reviewed portfolios count most. No single approach dominates: the largest, the vote winner, makes up 15% of the blend.",
+      "expected_performance_vs_benchmark": "The blend has an expected annual return of about 6.7%, with expected volatility of 8.0%, at the bottom of the IPS 8-12% band. The benchmark is 60% US large-cap equity, 30% intermediate Treasuries and 10% investment-grade corporates. Expected tracking error to it is 3.8%, so in a typical year the Fund's return could differ from the benchmark's by roughly ±4 percentage points. The Fund carries less equity than the benchmark, so it should lag in strong stock rallies and lose less in sharp equity sell-offs. Over the historical test (quarterly rebalancing since 1993) the worst peak-to-trough loss was -23.3%, inside the -25% limit, with a risk-adjusted return (Sharpe ratio) of 0.63.",
+      "macro_rationale": "The macro team judges the economy to be in expansion, but with low confidence (0.35). That is low enough to trigger a policy flag. Expansion normally rewards equity and credit risk. Because the call is uncertain, we chose a blend that spreads exposure across many independent methods and asset classes. We did not choose the higher-scoring but concentrated option, which leaned heavily on one forecast about value stocks. We keep meaningful equity for growth, Treasuries as ballast, and real assets and credit for breadth.",
+      "largest_positions": "The largest holdings are intermediate-term US Treasuries (about 16%), US large-cap equity (about 14%) and long-term US Treasuries (about 8%). The rest is spread across US value, small-cap and international equity, investment-grade and high-yield credit, international bonds, real estate, gold and commodities. The portfolio's diversity is equivalent to about 15 equally weighted assets. No single position is large enough to drive results alone.",
+      "changes_since_last_review": "This is the first recommendation made under the ratified IPS v0.2, and no prior allocation is recorded in this run. Compared with a straightforward average of the candidates, the blend was adjusted before submission. The raw mix was slightly too cautious, with 7.4% volatility, under the 8% IPS minimum. About 11% of the blend's weight therefore moved toward the more equity-heavy candidates and away from the two most bond- and cash-heavy ones. This changed roughly 5.6% of the actual holdings. The adjustment raised expected risk to the policy minimum and reduced the cushion against the drawdown limit from about 4 points to about 1.7 points.",
+      "key_risks": [
+        "Stocks and bonds falling together, as in 2022 or the 1970s. Several building blocks rely on Treasuries cushioning equity losses, and this is the scenario most likely to push losses toward the -25% limit.",
+        "Thin drawdown cushion. The historical worst loss of -23.3% leaves only about 1.7 points before the -25% hard limit.",
+        "Sitting at the volatility floor. Expected volatility is exactly 8.0%, so a calmer market estimate could put the portfolio below the IPS minimum at the next rebalance.",
+        "Credit spread widening. High-yield, international and emerging-market debt sleeves tend to fall together in a credit shock.",
+        "Uncertain regime call. The macro team's confidence is 0.35, so the forecasts the portfolio relies on carry extra uncertainty.",
+        "Lagging a strong equity rally, since the portfolio holds less equity than the 60/30/10 benchmark."
+      ],
+      "rebalancing_plan": "Rebalance quarterly, as the IPS requires. At each quarter-end the team will:\n1. Re-estimate the forecasts and risk model.\n2. Re-run the candidate portfolios and the blend.\n3. Confirm that expected volatility is within 8-12%, tracking error is at most 6%, the historical worst loss is no worse than -25%, and expected return clears inflation plus 3%.\n4. Trade back to target weights.\n\nBetween rebalances, the risk officer will monitor the stock-bond correlation, drawdown and volatility against the invalidation triggers listed with this recommendation. If any trigger is hit, the allocation returns to the committee before the next scheduled date rather than waiting for quarter-end.",
+      "ips_compliance_statement": "The recommended allocation complies with every hard rule of the governing IPS, version 0.2, which has been ratified:\n- Expected real return at least CPI + 3%: met.\n- Ex-ante volatility between 8% and 12%: 8.00%, at the floor.\n- Backtest maximum drawdown no worse than -25%: -23.3%.\n- Ex-ante tracking error to the 60/30/10 benchmark at most 6%: 3.76%.\n- Long only, no leverage, no derivatives: met.\n\nCompliance was reached after a disclosed reweighting of the blend, which raised volatility from 7.43% to the 8% floor.\n\nEscalations:\n- TRIGGERED (regime confidence below 0.4). The macro agent's regime confidence is 0.35. The board should note that the forecasts behind this allocation inherit that uncertainty.\n- Not triggered (CIO selects below composite threshold). The chosen blend's composite score of 0.800 is well above the 0.3 threshold.\n- Not triggered (hard violation unresolved). Several candidate portfolios clear every hard rule after the revision cycle."
+    },
+    "escalations": [
+      "regime_confidence_below: the macro agent's regime confidence is 0.35, below 0.4; action: flag_in_board_memo. Macro agent's regime confidence is low; downstream CMAs inherit that uncertainty."
+    ],
+    "policy_repair": {
+      "kind": "reweighted",
+      "breached": [
+        "objectives.volatility"
+      ],
+      "recipe_weights": {
+        "adversarial_diversifier": 0.011173232462324765,
+        "black_litterman": 0.11581128215146941,
+        "cvar_minimization": 0.12615647042565226,
+        "equal_weight": 0.053508085570588934,
+        "hierarchical_risk_parity": 0.03573506143209861,
+        "inverse_variance": 0.04314384070496402,
+        "inverse_volatility": 0.13434078239024144,
+        "max_sharpe": 0.04264639308835779,
+        "maximum_diversification": 0.03614640148737402,
+        "pc_researcher": 0.036025427421701055,
+        "resampled_efficient_frontier": 0.14115993660789566,
+        "risk_parity": 0.09318052111449157,
+        "tail_risk_parity": 0.07962352080266927,
+        "volatility_targeting": 0.051349044340171165
+      },
+      "ensemble_weight_moved_pct": 11.247038716984507,
+      "asset_turnover_pct": 5.609479821904475,
+      "unrepaired_volatility_pct": 7.43376621989605,
+      "unrepaired_max_drawdown_pct": -20.84167549067323
+    }
+  }
+}

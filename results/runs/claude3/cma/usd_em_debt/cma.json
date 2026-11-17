@@ -1,0 +1,84 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.497029Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/usd_em_debt/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/usd_em_debt/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/usd_em_debt/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3781,
+        "output_tokens": 2355,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.0650476,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/usd_em_debt/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "usd_em_debt",
+    "horizon_years": 3,
+    "expected_return_pct": 6.96,
+    "volatility_pct": 13.9918,
+    "method_range": [
+      6.4489,
+      10.331
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.65
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.2
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 6.96,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "Stage 1 reads a fragile, late-cycle-adjacent expansion at low confidence (0.35), with recession odds of 20-30%. For EM sovereign debt that calls for caution on spread capture rather than extrapolation. In late cycle Exhibit 4 tilts toward valuation and regime-adjusted methods, and for a bond the valuation method is the starting yield, so yield_building_block anchors the estimate. I kept a 15% weight on regime_adjusted (9.74%) to recognise that expansions have historically favoured EM credit carry. Per Key consideration 4 I capped it there: the history begins in June 1993, so the expansion sample is only 155 months, and the series still contains post-Brady spread compression. The negative inflation (-0.27) and monetary-policy (-0.22) scores argue against expecting further Treasury-yield declines to add to returns over three years. Dollar sensitivity (Key consideration 1) reaches this asset through issuer funding stress and spreads, not FX translation. A late-cycle dollar spike is the main left-tail path, and it is one reason not to lean on the higher historical figures.",
+      "valuation_context": "The starting yield of 6.47% is the strongest predictor at a 3-year horizon, which is short of the asset's roughly 7-year duration but still yield-dominated. The yield_level signal (+0.80, DGS10 against its own history) says the rate leg is starting from an attractive level. Taking the two legs separately (Key consideration 3): the Treasury leg supplies most of the carry and carries duration risk if yields rise. The spread leg is the excess of 6.47% over Treasuries, from which the method subtracts a 1.00% expected credit loss. Two caveats temper the yield candidate. First, it uses the ICE EM corporate yield (BAMLEMCBPIEY) as a proxy, because no free sovereign EMBI yield exists, and EMB holds sovereigns. Second, the 1.00% loss is a corporate-style default-times-recovery haircut, which transfers poorly to negotiated sovereign restructurings (Key consideration 2). I did not adjust the loss further or deduct credit risk again, because the spread already prices it. I relied on the EM corporate series in the CMA method, not the US IG proxy that the signal layer uses (Key consideration 5). The historical_erp figure of 10.33% reflects 1993-2026, when spreads were far wider at the start and both spreads and Treasury yields fell secularly. Those starting conditions do not repeat today, so I gave that method zero weight.",
+      "signal_alignment": "The composite is mildly positive (+0.26), but almost all of it comes from the valuation yield signal, which supports anchoring on the starting yield rather than chasing a higher number. The technicals lean the other way. Trend is -0.47 (price below its 10-month average) and mean reversion is -0.31 after a strong 3-year run of 8.81%. Momentum is flat. Together these argue against weighting the backward-looking historical and regime figures heavily. Macro alignments are near zero. Financial-conditions alignment is modestly positive (+0.11), but it is measured partly through the US IG spread proxy, so I treat it as weak confirmation. Net, the signals confirm a yield-anchored estimate with no case for an upward tilt.",
+      "rationale": "Final estimate 6.96% from a custom blend: 65% yield_building_block (6.45%), 20% bl_equilibrium (6.55%) and 15% regime_adjusted (9.74%). For fixed income the starting-yield builder is the strongest candidate, and I depart from it only slightly, for one stated reason. Its input is an EM corporate proxy with a corporate-style credit-loss haircut, while sovereign recoveries are bargained, so I add a small regime-conditional carry component. That component acknowledges sovereign spreads that may differ from the corporate proxy and the expansion backdrop. Black-Litterman (6.55%) independently corroborates the yield anchor and is given 20%. historical_erp (10.33%) gets zero weight because it embeds post-Brady spread compression and three decades of falling yields. I preferred this blend to the auto-blend (7.79%), which weights by stated confidence alone and so gives 37% combined to the two backward-looking methods. That is too much in a fragile late-cycle regime with weak technicals and dollar-driven spread risk. The estimate sits inside the [6.45, 10.33] range. Against 13.99% volatility and a 4.03% T-bill it implies a modest Sharpe of about 0.21, consistent with a credit-plus-duration asset whose drawdowns (-39.6% worst, -25% in the last five years) are equity-like. Confidence is medium: the yield anchor is sound, but the proxy yield and thin history limit precision. Governing policy is config/ips.yaml, which is ratified."
+    }
+  }
+}

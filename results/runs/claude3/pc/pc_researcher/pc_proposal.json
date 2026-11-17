@@ -1,0 +1,213 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-researcher",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.270083Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 1350,
+        "output_tokens": 2376,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.06093,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "pc_researcher",
+    "method": "Maximum entropy with a Sharpe floor",
+    "category": "pc_researcher",
+    "weights": {
+      "us_large_cap": 0.0029148933104123586,
+      "us_small_cap": 0.014106888167961126,
+      "us_value": 0.07258455907290084,
+      "us_growth": 0.010119064674611614,
+      "intl_developed": 0.0054082825409219725,
+      "emerging_markets": 0.004127486077510392,
+      "short_treasuries": 0.5337237151034085,
+      "intermediate_treasuries": 0.07034639843242423,
+      "long_treasuries": 0.020319539592871715,
+      "ig_corporates": 0.03270160640055637,
+      "hy_corporates": 0.026424380063063854,
+      "intl_sovereigns": 0.0009137323920828987,
+      "intl_corporates": 0.002784546454493259,
+      "usd_em_debt": 0.004388640958690234,
+      "reits": 0.008017057784853059,
+      "gold": 0.015195141990423202,
+      "commodities": 0.012885270721727389,
+      "cash": 0.16303879626108692
+    },
+    "expected_return_pct": 5.261406515671093,
+    "expected_volatility_pct": 2.7414949198231238,
+    "sharpe_ratio": 0.5987268128065668,
+    "effective_n": 5.335878613927022,
+    "ex_ante_tracking_error_pct": 7.2655200721164785,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.return",
+          "severity": "hard",
+          "message": "expected real return 2.71% is below the CPI + 3.0% target",
+          "observed": 2.708278580470691,
+          "limit": 3.0,
+          "entity": null
+        },
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 2.74% outside the 8.0-12.0% band",
+          "observed": 2.7414949198231238,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 7.27% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 7.2655200721164785,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "In an expansion regime the CMAs carry useful return tilts, and Sharpe rises from ~0.37 to 0.48 when they are used. But the optimizer that captures that most fully (max Sharpe) holds about 3 effective assets, which makes it fragile to error in the expected-return estimates. Maximum entropy keeps a chosen share of the CMA-driven Sharpe gain while holding the portfolio as broad as possible, so the reliance on point estimates is explicit and bounded. It gives the vote a portfolio that is neither another concentrated optimizer nor another CMA-blind heuristic. It also makes the adversarial diversifier's centroid more informative, because it sits between the two clusters on a defined objective. This is not a claim that it beats the registry. If the CMAs are poor it will lag equal weight, and if they are strong it will lag max Sharpe ex post. Its value is controlled exposure to the CMAs rather than an all-or-nothing reliance on them.",
+    "revision_of": null,
+    "notes": "Proposed method: maximum_entropy (Bera and Park (2008)). Objective: Choose the long-only, fully invested weights with the greatest Shannon entropy, -sum w_i ln w_i, subject to the portfolio's ex-ante Sharpe ratio under the CMAs being at least a stated floor and to the IPS bounds. It is the most spread-out portfolio that still reaches the required risk-adjusted return. Gap in the registry: The table splits in two. The methods that do not use CMAs are broad but give up return. Equal weight has 18.0 effective assets at Sharpe 0.37, volatility targeting 17.0 at 0.37, and inverse volatility 14.8 at 0.36. The methods that use CMAs earn Sharpe but concentrate. Max Sharpe has 3.1 effective assets at 0.48 and Black-Litterman 5.7 at 0.42. Resampled efficient frontier (13.1 at 0.42) reaches the middle, but its breadth comes from averaging over simulation noise rather than from an explicit objective, and nobody chooses its Sharpe level. Maximum diversification maximises a volatility-ratio objective and still gives only 6.4 effective assets. No registry method lets the committee state a required Sharpe ratio and then demand as much breadth as is consistent with it. That rules out choosing a point between 0.37 and 0.48 Sharpe on purpose rather than by accident of method. Maximum entropy expresses exactly that trade-off, and exp(entropy) reads directly as an effective number of holdings. Main weakness: Entropy is measured on capital weights, not on risk, so a portfolio that is broad in dollars can still be concentrated in risk. Equal weight, the unconstrained solution, runs 8.41% volatility against 7.56% for risk parity because high-volatility assets get as much capital as low-volatility ones. Its results also depend heavily on one arbitrary parameter. Too low a floor gives back equal weight, and too high a floor converges to the concentrated max Sharpe portfolio. The binding Sharpe constraint inherits the full error in the expected-return estimates at the margin.",
+    "tuning": null
+  }
+}

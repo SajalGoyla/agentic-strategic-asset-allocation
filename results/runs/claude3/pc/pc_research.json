@@ -1,0 +1,164 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_research",
+    "agent": "pc-researcher",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.254135Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 1350,
+        "output_tokens": 2376,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.06093,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "method_name": "Maximum entropy with a Sharpe floor",
+    "objective": "Choose the long-only, fully invested weights with the greatest Shannon entropy, -sum w_i ln w_i, subject to the portfolio's ex-ante Sharpe ratio under the CMAs being at least a stated floor and to the IPS bounds. It is the most spread-out portfolio that still reaches the required risk-adjusted return.",
+    "reference": "Bera and Park (2008)",
+    "not_spanned_by": [
+      "equal_weight",
+      "max_sharpe",
+      "black_litterman",
+      "resampled_efficient_frontier",
+      "maximum_diversification",
+      "risk_parity",
+      "inverse_volatility",
+      "volatility_targeting"
+    ],
+    "implementation_notes": "Inputs are the CMA expected returns, the CMA covariance matrix and the risk-free rate. Constraints are long-only, weights summing to one, the IPS asset and asset-class bounds from config/ips.yaml (ratified), and Sharpe(w) >= floor. Suggested floor: between the heuristic cluster (~0.37) and max Sharpe (0.48), for example 0.42-0.44. That makes the floor bind and keeps it from collapsing to equal weight (floor <= 0.37) or approaching max Sharpe (floor near 0.48). The objective is concave; the Sharpe constraint can be written as a second-order cone once excess return is fixed, or solved with SLSQP from an equal-weight start. Reviewers should check four things. (1) The floor's value and whether it binds; if it is slack, the result is equal weight and adds nothing. (2) IPS compliance, since four risk-structured and tail methods FAIL this run; the IPS bounds must be hard constraints, not checked after the fact. (3) Effective N against resampled efficient frontier at the same Sharpe; it should be at least comparable. (4) Feasibility after the IPS bounds are applied.",
+    "rationale": "In an expansion regime the CMAs carry useful return tilts, and Sharpe rises from ~0.37 to 0.48 when they are used. But the optimizer that captures that most fully (max Sharpe) holds about 3 effective assets, which makes it fragile to error in the expected-return estimates. Maximum entropy keeps a chosen share of the CMA-driven Sharpe gain while holding the portfolio as broad as possible, so the reliance on point estimates is explicit and bounded. It gives the vote a portfolio that is neither another concentrated optimizer nor another CMA-blind heuristic. It also makes the adversarial diversifier's centroid more informative, because it sits between the two clusters on a defined objective. This is not a claim that it beats the registry. If the CMAs are poor it will lag equal weight, and if they are strong it will lag max Sharpe ex post. Its value is controlled exposure to the CMAs rather than an all-or-nothing reliance on them."
+  }
+}

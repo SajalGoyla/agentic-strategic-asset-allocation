@@ -1,0 +1,182 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-tail-risk-parity",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.321220Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/cvar_minimization/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/cvar_minimization/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3654,
+        "output_tokens": 3626,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.044248800000000005,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "tail_risk_parity",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "cvar_minimization",
+    "reviewed_category": "non_traditional",
+    "kind": "intra_category",
+    "strengths": [
+      "The execution matches the method. A mean-CVaR linear program with a binding return floor lands on a vertex solution with few nonzero weights, so 4 of 18 assets and about 2.9 effective assets (my recomputation from the weights gives about 2.94) is the optimiser working as designed, not a degenerate input.",
+      "The proposal is honest that this is a point on the Rockafellar-Uryasev mean-CVaR frontier, not the natural minimum-CVaR portfolio. It explains why the unconstrained solution (0.62% volatility, Sharpe 0.05) was unusable and says the floor was raised to 8.219% to reach the IPS volatility band. Judging it as the lowest 95% expected shortfall for that historical mean is the right frame.",
+      "The barbell is economically coherent: large-cap equity supplies return, intermediate Treasuries offset equity stress, and gold diversifies. It reads no CMAs, so it carries none of the forecast error that return-optimised proposals inherit.",
+      "The reported statistics are internally consistent. A Sharpe of 0.34 on 6.38% return and 8.00% volatility implies a risk-free rate of about 3.66%. Tracking error (3.60%) and benchmark beta (0.78) fit an underweight of 14.6% in equity.",
+      "It is compliant on the ex-ante limits and on the CRO's backtest including drawdown (-18.72%), and the IPS is ratified. The proposal states plainly that this is a tail-aware anchor and not the highest-Sharpe candidate, and its key assumption, main weakness and invalidation conditions are specific and testable."
+    ],
+    "weaknesses": [
+      "The volatility is tuned, not found. The return floor was walked up until volatility hit exactly 8.00%, the IPS floor, and the backtest volatility (7.91%) sits just below it. Small changes in the covariance shrinkage, the scenario window or the floor could push the portfolio out of the band. The portfolio is built to satisfy the constraint, not to reflect an independent preference for that risk level.",
+      "The method is described as forecast-free, but the 8.219% floor is a historical mean, which is itself an expected-return estimate. It also differs from the 6.38% ex-ante return used for IPS compliance. The construction relies on a more optimistic return view than the one it is checked against, and a further 1.8-point shortfall against the floor is possible going forward.",
+      "The tail estimate is thin. About 400 monthly scenarios give a 5% tail of roughly 20 observations, so the CVaR is dominated by a few episodes (e.g. 2008, 2020, 2022). The optimiser can fit those episodes closely. 2022 is only about a year of data, so the model has seen a joint stock-bond sell-off but with little weight. If the next stress is another one, the 37% intermediate-Treasury hedge fails alongside the 45% equity position.",
+      "About 83% of the portfolio sits in two assets that are expected to offset each other, and all equity risk is in one large-cap sleeve. The 15.9% gold position rests on a hedge behaviour whose worst episode (1980-82) is outside the 1993 sample.",
+      "The 1.4% short_treasuries holding is a vertex artefact and adds nothing, so effectively three assets carry the risk. The -14.6% equity underweight (beta 0.78) will lag the benchmark in a strong expansion-regime rally, which is the current regime.",
+      "The backtest is in-sample by construction: the weights were fitted to the scenarios that the backtest replays. The Sharpe of 0.74 and the -18.72% drawdown are therefore optimistic bounds, not evidence of out-of-sample quality."
+    ],
+    "technical_errors": [],
+    "score": 0.62,
+    "rationale": "I audited the execution and found no technical error. The objective (minimum 95% CVaR subject to a return floor), the sparse barbell solution, the effective-number and Sharpe arithmetic, and the framing as a frontier point are all consistent with the method working properly. The weaknesses concern the design choices around it, not mistakes in it. The return floor is tuned to land exactly on the IPS volatility floor, which makes compliance knife-edge. The 'forecast-free' claim leaks through the historical-mean floor. The tail is estimated from few observations and the backtest is in-sample. The 83% concentration in an equity/intermediate-Treasury pair is fragile to a stock-bond correlation shift. The proposal states these limits itself, which raises its credibility. On a related point, the CRO's suggestion to prefer the 0.74 backtest Sharpe over the 0.34 ex-ante figure should be read cautiously, because the 0.74 is fitted in-sample. The score reflects a sound, transparent but concentrated and regime-dependent candidate. It is a reasonable ensemble ingredient for its gold and Treasury barbell, not a robust standalone portfolio."
+  }
+}

@@ -1,0 +1,31 @@
+# CMA — short_treasuries
+
+**Expected return:** 4.74% (3y, nominal, arithmetic)  
+**Volatility:** 1.69%  
+**Confidence:** medium_high  
+**Selection:** custom_blend — bl_equilibrium 10%, yield_building_block 90%  
+**Candidate range:** 4.03% to 4.88% (tight); +0.09pp vs. the auto-blend  
+**Regime:** expansion
+
+## Candidates
+
+| method | estimate % | confidence | components | rationale |
+|---|---|---|---|---|
+| `historical_erp` | 4.88 | 0.30 | risk_free_pct +4.03, excess_return_pct +0.85, months +441.00 | +0.85% mean excess return over T-bills across 441 months since 1990-01, plus the 4.03% T-bill yield. |
+| `regime_adjusted` | 4.79 | 0.25 | risk_free_pct +4.03, regime_excess_return_pct +0.79, unconditional_excess_return_pct +0.69, regime_months +155.00, credibility_weight +0.72 | After the 155 past months labelled expansion, excess returns over the next 3 years averaged +0.79% a year (all months +0.69%); credibility weight 0.72, plus 4.03% T-bill. |
+| `bl_equilibrium` | 4.03 | 0.40 | risk_free_pct +4.03, implied_excess_return_pct +0.00, market_weight_pct +1.56, risk_aversion +2.50 | Equilibrium excess return +0.00% at a 1.6% market weight and risk aversion 2.50, plus 4.03% T-bill. Weights are ETF sizes (fund snapshot AUM, 2026-10-01), a proxy for asset-class size. |
+| `inverse_gordon` | – | – | – | unavailable: not applicable to fixed_income |
+| `implied_erp_cape` | – | – | – | unavailable: not applicable to fixed_income |
+| `survey_consensus` | – | – | – | unavailable: no public consensus forecast for this asset; the judge may use the macro agent's view instead (the paper's alternative) |
+| `yield_building_block` | 4.82 | 0.80 | yield_pct +4.81, credit_loss_pct -0.00, variance_addback_pct +0.01 | 4.81% starting yield - 0.00% expected credit loss + 0.01% variance add-back (mean of DGS1, DGS2, DGS3). |
+| `auto_blend` | 4.65 | 0.54 | weight:historical_erp +0.17, weight:regime_adjusted +0.14, weight:bl_equilibrium +0.23, weight:yield_building_block +0.46 | Confidence-weighted average of 4 methods: historical_erp 17%, regime_adjusted 14%, bl_equilibrium 23%, yield_building_block 46%. |
+
+## Judgment
+
+**Regime logic.** The regime is a fragile, late-cycle-adjacent expansion, and stage 1 classifies it at low confidence (0.35). Monetary policy scores -0.22 and recession probability is 20-30%, so the balance of risks for the front end is that short rates fall over the next three years. For a 1-3 year Treasury sleeve the exposure that matters is reinvestment risk, not price risk (consideration 5). If the Fed eases, coupons and maturities in years two and three roll into lower yields. The price gain from that easing arrives early and only partly offsets the lower carry. With duration near two years against a three-year horizon, the starting yield remains a good anchor, but the risk is skewed modestly to the downside of it. The regime_adjusted candidate (4.79) conditions on past expansion months. Those months sat mostly inside a secular decline in yields, and this regime label is uncertain, so I give it no separate weight beyond what the yield anchor already captures.
+
+**Valuation context.** Carry is almost the whole return (consideration 1). The mean of DGS1, DGS2 and DGS3 is 4.81%, which is 78bp above the 4.03% T-bill. The curve slopes up from bills to three years, so roll-down is positive rather than negative (consideration 4). The yield_level signal (+0.73) puts the 2-year yield high against its own history, which favours bond return through carry. The two backward-looking candidates rest on weaker inputs. historical_erp (4.88) embeds a 1990-2026 sample dominated by falling yields, which inflates past excess returns, so it gets zero weight. bl_equilibrium (4.03) assigns a zero premium because a 1.6% ETF market weight and the asset's hedging role in a CAPM equilibrium mechanically drive the implied excess return to nothing. That makes it structurally uninformative as a point forecast for a bond with a positive starting term spread. It is retained only at a 10% weight, as a proxy for the reinvestment haircut, not as a forecast in its own right.
+
+**Signal alignment.** The composite is +0.17 and is carried almost entirely by the yield_level valuation signal, which is the dominant predictor for this asset and confirms anchoring on the starting yield. The technical signals are negative: trend -0.38, relative momentum -0.33 and mean reversion -0.52. On a ~2-year-duration sleeve these mostly reflect a recent rate path that has already been repriced, and over three years they have little power next to carry. The macro alignment signals are near zero, which is consistent with low duration. regime_fit is -0.24, meaning expansion months have historically been below-average for short Treasuries. Together with the easing tilt, that supports a small haircut to the yield anchor rather than an estimate above it. I therefore stay below yield_building_block and do not lean toward historical_erp.
+
+**Rationale.** Final estimate 4.74%, from a custom blend of 90% yield_building_block (4.82%) and 10% bl_equilibrium (4.03%), inside the 4.03-4.88% range. Dispersion is tight at 0.85pp. The confidence-weighted auto-blend (4.65%) gives 23% to a Black-Litterman figure whose zero premium is an artefact of CAPM hedging and tiny ETF weight, so I depart from it. For a bond with duration near the horizon, the starting yield is the strongest candidate, and I depart from it only by the ~8bp haircut to reflect reinvestment risk under an easing-tilted policy outlook. historical_erp and regime_adjusted get zero weight because their samples are biased by the secular yield decline. Downstream flags: (1) Implied Sharpe. At 4.74% and 1.69% volatility, the ex-ante Sharpe is about 0.42, still at or near the top of the universe (consideration 2). Return-optimised PC methods will crowd into this sleeve, and that is an arithmetic consequence of low volatility, not a high-conviction return view. (2) Cash substitute. This sleeve is a near-substitute for cash with high correlation (consideration 3). Large weights in both amount to one front-end position with little independent diversification. (3) Governance. The governing IPS (config/ips.yaml) is reported as ratified for this run.

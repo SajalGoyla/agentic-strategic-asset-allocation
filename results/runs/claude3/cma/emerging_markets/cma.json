@@ -1,0 +1,92 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.464697Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/emerging_markets/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/emerging_markets/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/emerging_markets/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3863,
+        "output_tokens": 2567,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.0696156,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/emerging_markets/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "emerging_markets",
+    "horizon_years": 3,
+    "expected_return_pct": 9.44,
+    "volatility_pct": 22.1305,
+    "method_range": [
+      7.5708,
+      11.7628
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "historical_erp",
+          "weight": 0.15
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.25
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.25
+        },
+        {
+          "method": "inverse_gordon",
+          "weight": 0.2
+        },
+        {
+          "method": "implied_erp_cape",
+          "weight": 0.15
+        }
+      ],
+      "expected_return_pct": 9.44,
+      "confidence": "medium",
+      "dispersion": "moderate",
+      "regime_logic": "Stage 1 calls the regime a fragile, late-cycle-adjacent expansion with sticky inflation, and holds that view at low confidence (0.35). Recession probability is 20-30%. Under Exhibit 4, late-cycle conditions tilt weight toward regime-adjusted and valuation methods, while a plain expansion tilts toward the blend. The regime-adjusted candidate (7.57%) is the only one that conditions on what followed past expansion months. For EM, those 3-year-forward excess returns averaged just 2.59%, against 6.00% unconditionally. EM is the most dollar- and liquidity-sensitive equity in the universe, and late-expansion phases have often ended in dollar strength and tighter global funding. I therefore raised regime_adjusted's weight to 25%, above its 21% auto-blend weight. Because the regime call itself is low-confidence, I did not let it dominate. The candidate is already credibility-shrunk at 0.72, so I set no weight beyond a quarter. Only the macro view applies here: no survey consensus exists for EM, and I import no carry or local-rate reasoning from usd_em_debt, which is a different asset.",
+      "valuation_context": "EM is the cheapest equity in the universe on earnings yield (7.01% trailing on EEM). Taken at face value, that drives the top candidate, implied_erp_cape, to 11.76%. I treat that figure as overstated, for the reasons in Key consideration 4. A sustained discount reflects governance, state ownership, capital-controls and concentration risk, so it is largely compensation rather than mispricing. In addition, EM firms persistently dilute shareholders through net issuance, so headline earnings yield translates poorly into per-share returns. The same dilution means the Gordon candidate's net buyback term of 0.00% (no buyback data for international) is generous, since true net issuance is negative. I see no specific catalyst to close the discount within 3 years: the weight is roughly 60% China, Taiwan and Korea, which makes this a China-policy and semiconductor-cycle bet. Accordingly I cut implied_erp_cape to 15% from 18%, and held inverse_gordon (9.04%) at 20% as a cash-flow anchor. That only modestly lowers the estimate, which is consistent with the paper's judge marking EM down just -0.2% rather than rejecting the cheapness case.",
+      "signal_alignment": "The composite is mildly positive at +0.21, but the components conflict. Relative momentum (+0.89) and 12-1 momentum (+0.43) are strong after a 27.5% one-year and 23.6% three-year annualised run, much of it semiconductor-driven in Taiwan and Korea. The 36-month mean-reversion signal (-0.64) flags that run as stretched over a 3-year horizon, which is the relevant one here. The measured macro alignments are near zero. Financial conditions (+0.10) are the only meaningful support, which fits EM's liquidity sensitivity, and that support would reverse if the dollar strengthens. On net, the signals do not justify leaning toward the historical or CAPE end of the range. Momentum argues against a deep cut, so I hedge toward the middle of the range rather than the bottom.",
+      "rationale": "I use a custom blend: historical 15%, regime-adjusted 25%, Black-Litterman 25%, Gordon 20%, CAPE 15%. That gives 9.44%, about 0.4pp below the 9.84% auto-blend and well inside the [7.57, 11.76] range. Dispersion is moderate at 4.19pp. Compared with the confidence-weighted blend, I made three moves. First, I trimmed historical_erp (11.45%, down to 15% from 26%), because it adds a full 7.4% excess premium to today's 4.03% T-bill, above the 8.0% compound and roughly 10.4% arithmetic realised since 1990. Second, I trimmed implied_erp_cape for the dilution and persistent-discount reasons above. Third, I raised the late-cycle regime-adjusted and equilibrium anchors; BL's 9.02% reflects EM's beta to the ETF market portfolio. The adjustment is deliberately small, because return estimates are the weakest input. At 22.1% volatility, the highest in the universe (Key consideration 1), 9.44% implies a Sharpe of about 0.24 and a geometric return near 7%. That is lower than US large cap on a risk-adjusted basis, so risk-based portfolio-construction methods will rightly keep EM's weight small. Confidence is medium, not high, given the low-confidence regime call, the dollar sensitivity and the China/semiconductor concentration. The governing IPS (config/ips.yaml) is ratified."
+    }
+  }
+}

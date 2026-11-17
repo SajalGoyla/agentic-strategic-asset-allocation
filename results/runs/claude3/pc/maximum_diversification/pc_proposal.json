@@ -1,0 +1,195 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "pc_proposal",
+    "agent": "pc-maximum-diversification",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:27:22.265867Z",
+    "produced_by": "hybrid",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 1186,
+        "output_tokens": 1580,
+        "cache_read_tokens": 7708,
+        "cost_usd": 0.019713599999999998,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "agent_id": "maximum_diversification",
+    "method": "Maximum diversification",
+    "category": "risk_structured",
+    "weights": {
+      "us_small_cap": 0.0914156864640386,
+      "us_value": 0.017738845922722235,
+      "us_growth": 0.09759455739487988,
+      "intermediate_treasuries": 0.17885096430484046,
+      "long_treasuries": 0.28462936289534496,
+      "reits": 0.027914035788880166,
+      "gold": 0.12872458212997814,
+      "commodities": 0.17313196509931555
+    },
+    "expected_return_pct": 6.472085182015689,
+    "expected_volatility_pct": 7.874331221464259,
+    "sharpe_ratio": 0.3622003065150888,
+    "effective_n": 6.361233551009531,
+    "ex_ante_tracking_error_pct": 6.884513855485226,
+    "ips_compliance": {
+      "compliant": false,
+      "violations": [
+        {
+          "rule": "objectives.volatility",
+          "severity": "hard",
+          "message": "expected volatility 7.87% outside the 8.0-12.0% band",
+          "observed": 7.874331221464259,
+          "limit": 8.0,
+          "entity": null
+        },
+        {
+          "rule": "active_risk.tracking_error",
+          "severity": "hard",
+          "message": "ex-ante tracking error 6.88% exceeds the 6.0% budget vs. 60/40 equity-bond benchmark",
+          "observed": 6.884513855485226,
+          "limit": 6.0,
+          "entity": null
+        }
+      ],
+      "not_evaluated": [
+        "objectives.max_drawdown"
+      ]
+    },
+    "rationale": "Maximum diversification (Choueifaty and Coignard 2008) maximises the ratio of the weighted-average asset volatility to portfolio volatility, using only the covariance matrix. It never touches the CMAs, so none of their estimation error reaches the weights. Expected return (6.47%) and Sharpe (0.36) are computed from the judged CMAs afterwards, as an evaluation and not as an input. In an expansion regime, where return forecasts are most likely to be crowded or extrapolated, a method that rests on correlation structure is a reasonable hedge against CMA error. This also fits the paper's §4.3 finding that agents favoured covariance-driven methods, and the method ranked first in the paper's vote.\n\nThe concentration is the method working, not failing. It gives weight to assets whose volatility is high but whose correlation to the rest is low. That is why gold, commodities and long Treasuries carry large weights while us_value and REITs, which are highly correlated with the other equity holdings, are squeezed. Meucci effective N is 6.4 of 18, so this is a diversification-ratio tilt, not a single-asset bet. Concentration here is a statement about the correlations, not about the assets' merit, and a reviewer should read it that way. It is not the near-singular blow-up that maximum Sharpe often shows.\n\nThe portfolio is outside the IPS as produced: volatility is 7.87% against an 8.0% floor, and tracking error is 6.88% against a 6.0% budget. The IPS is ratified. The method has no parameter to turn without becoming a different method, so I propose it as it is and do not claim compliance. The volatility shortfall is small and sits inside the sampling noise of the covariance estimate. The tracking-error breach is the larger concern and is structural: a portfolio of 29% long Treasuries, 17% commodities and 13% gold bears little resemblance to a 60/40 benchmark. Cash and short Treasuries were excluded by construction (decision 61), so their zero weight is a design choice, not the method's view. Without that exclusion the method would have collapsed into them at about 76-98%.\n\nWhat it offers a compliant ensemble is a diversifier with real inflation and real-asset exposure (gold plus commodities near 30%) and a long-duration bond sleeve. A heavily bond-weighted method like HRP or inverse variance does not supply either. Blended with a return-aware or equity-heavy proposal, it can lift the volatility into the band and pull tracking error back inside budget while keeping the covariance-driven protection. It is better used as a component than held alone.",
+    "revision_of": null,
+    "notes": "Key assumption: That the estimated correlation structure is stable and forward-looking, and that volatility is a fair proxy for each asset's expected compensation, so maximising the diversification ratio is a good proxy for maximising risk-adjusted return. The method is mean-variance optimal only if all assets have the same Sharpe ratio. Main weakness: Its weights are driven by correlation estimates, and those are most fragile at regime turns. Gold, commodities and long Treasuries get large weights because they currently look uncorrelated with the rest. If stock-bond or commodity-equity correlations rise, the diversification benefit disappears and the portfolio is left with concentrated high-volatility, long-duration and commodity exposure. It also ignores returns completely: it holds commodities at 17% and 29% in long Treasuries without asking whether either is expected to pay for its risk. Finally, it breaches both the volatility floor (7.87%) and the tracking-error budget (6.88%), so it cannot be the CIO's recommendation unmodified. Preferred when: When return forecasts are judged unreliable or crowded and the covariance estimate is trusted, especially when assets with low pairwise correlation (gold, commodities, long bonds) are available. It is also preferred when the CIO needs a real-asset and duration diversifier to blend into a compliant ensemble, and when the objective is to spread risk across independent sources and not to chase forecast return. It should beat equal weight and inverse-volatility rules when correlations are heterogeneous, and beat return-optimised methods when CMA error is the dominant risk. Invalidated if: The case fails if correlations the matrix treats as low (long Treasuries or gold versus equities, commodities versus the rest) rise sharply, for example in an inflationary rates shock where bonds and equities sell off together. It fails if the CMAs prove reliable, because then max Sharpe or Black-Litterman would capture return the method forgoes. It also fails if the CIO cannot bring tracking error under 6.0% and volatility into the 8-12% band by blending, since then the portfolio has no usable role under the ratified IPS.",
+    "tuning": null
+  }
+}

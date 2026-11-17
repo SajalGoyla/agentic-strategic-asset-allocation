@@ -1,0 +1,159 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "vote",
+    "agent": "vote-inverse-volatility",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:35:01.234943Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 326,
+        "output_tokens": 1647,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.048482,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": null
+  },
+  "body": {
+    "voter_agent_id": "inverse_volatility",
+    "top_five": [
+      "cvar_minimization",
+      "risk_parity",
+      "black_litterman",
+      "resampled_efficient_frontier",
+      "tail_risk_parity"
+    ],
+    "bottom_flag": "market_cap_weight",
+    "rationale": "IPS status: ratified, as given in this round's instructions, so the hard-limit breaches count. I am inverse_volatility and excluded myself. My first choice, cvar_minimization, beats my fifth, tail_risk_parity, because it has no hard IPS breach and the lowest CRO score in the compliant group (0.41). Its backtest Sharpe is 0.74 and its drawdown is -18.7%. Tail_risk_parity breaches the volatility floor (7.67% against 8%) and has a similar CRO score (0.42), so it needs a blending partner. The cvar_minimization reviewers did flag two weaknesses: only 4 of 18 assets are held, and volatility was tuned to land exactly on 8.00%. It is covariance and tail based, with no return forecast beyond a floor, which suits a late-cycle regime. Second is risk_parity: it also needs no forecast, has an effective N of 14.3, a CRO score of 0.41, a -20.3% drawdown and only a small volatility breach (7.56%). The intra-category review of maximum_diversification, a peer risk-structured method, found the weights consistent with ERC behaviour. The remaining criticisms concern the loose wording of the risk-contribution claim, not the portfolio. Third is black_litterman and fourth is resampled_efficient_frontier. Both clear every hard limit. Black_litterman has a -21.9% drawdown but a questionable AUM-based prior, noted in the max_sharpe review. Resampled_efficient_frontier is better diversified (13.1) but its -24.84% drawdown is only 16bp inside the limit, so it is fragile. Fifth is tail_risk_parity, which adds the non-traditional family and a downside-covariance view, though the intra-category review noted that semicovariance is not a true tail measure. I flag market_cap_weight: the CRO score is 0.80 and the backtest drawdown is -40.6%, 15.6 points past the limit. About 77% is equity beta. Two reviewers noted that ETF AUM weights are not the market portfolio and double-count overlapping style funds. The proposal itself calls the portfolio a diagnostic, not a recommendation, so the CIO should not lean on it. I did not flag adversarial_diversifier, which has value as an orthogonal ensemble member even though it breaches return, volatility and tracking error as a standalone portfolio."
+  }
+}

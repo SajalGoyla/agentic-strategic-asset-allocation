@@ -1,0 +1,186 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-maximum-diversification",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.304998Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3736,
+        "output_tokens": 4827,
+        "cache_read_tokens": 0,
+        "cost_usd": 0.064252,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "maximum_diversification",
+    "reviewer_category": "risk_structured",
+    "reviewed_agent_id": "risk_parity",
+    "reviewed_category": "risk_structured",
+    "kind": "intra_category",
+    "strengths": [
+      "The weights follow ERC behaviour. Capital shares fall as stand-alone volatility and correlation rise. Intermediate Treasuries (16.5%) are about 1.8 times long Treasuries (9.3%), and the correlated equity sleeves sit at 3-4.4% each. The 6% in gold and commodities fits their low correlation to the rest of the book.",
+      "The accounting reconciles. Weights sum to about 100% and the active weights imply a 60/30/10-type benchmark. The active sleeve totals (equity -36.8%, fixed income +21.1%, real assets +15.7%) match the table. The 14.3 effective-asset figure is what exp(entropy) gives for these weights, and I reproduced it.",
+      "It states and justifies the universe decision. Cash and short Treasuries are excluded because unconstrained risk parity would pile into them. It correctly says their zero weight is a construction choice and not a view.",
+      "It is candid about the IPS volatility breach. It calls it real, sizes it at about 0.44 points, and explains why the method has no parameter to fix it without leverage. It does not claim a tuned fit. Ex-ante and backtest volatility agree (7.56% vs 7.55%), so the covariance matrix looks consistently applied.",
+      "The key assumption and invalidation conditions are specific and correct: positive stock-bond correlation, covariance instability, and equal-Sharpe-across-sleeves. They tie directly to the 61% fixed-income weight."
+    ],
+    "weaknesses": [
+      "No risk-contribution output is given, so the central claim of an even spread of risk contributions cannot be checked. The only diversification statistic is entropy of capital weights. That measures capital dispersion, not risk dispersion, and says nothing about whether the ERC solve converged.",
+      "ERC over 16 sleeves is sensitive to how the universe is cut. Six equity sleeves (large, small, value, growth, international, EM) mostly share one factor, and so do HY, EM debt, REITs and commodities. Equal risk per asset therefore gives equity-beta-like sleeves a larger risk share than a bucket-level risk-parity design would. The 14.3 effective assets flatters diversification, as the CRO noted.",
+      "About 61% of capital is in rates-sensitive fixed income, which is the dominant failure path. Stock-bond correlation turning positive hits the bulk of the book at once. The ex-ante covariance is estimated on the same era the backtest replays, so the matching 7.56%/7.55% figures are not independent confirmation.",
+      "The backtest maximum drawdown of -20.3% is large for a 7.5% volatility portfolio. It probably reflects the 2022 rates-and-inflation episode, which is in the 1993+ sample. That suggests the sample is not entirely benign for this portfolio, and the CRO's wording about the regime being excluded may overstate it. The 1970s-style inflation regime is genuinely absent from the sample.",
+      "Tracking error of 5.07% against an equity-heavy benchmark and an active equity position of -36.8% mean it will lag badly in equity-led expansions. The case says this is deliberate, but the macro regime is expansion, which is exactly when this lag bites.",
+      "The volatility is below the 8% floor, and the proposed repairs (shifting bond weight toward equity, or blending) change the risk-contribution structure that justifies the method. The repaired portfolio would no longer be ERC, so the 'diversified risk base' is only a starting point."
+    ],
+    "technical_errors": [
+      "The write-up says the 14.3 effective assets 'reflect' the even spread of risk contributions. It does not. Meucci effective N here is computed on capital weights, and the capital weights are uneven (3.0% to 16.5%). Risk contributions would need their own entropy or dispersion measure.",
+      "The case says the 0.37 Sharpe 'comes from diversification across many risk sources rather than from a forecast edge'. The numerator is the judged CMA return of 6.43%, so the figure is forecast-dependent. Diversification only lowers the denominator. The case itself concedes elsewhere that the stats use the judged CMAs.",
+      "The '14.3 of 18' denominator is inconsistent with the construction. The method ran on a 16-asset universe with cash and short Treasuries excluded, so 14.3 of 16 is the apt comparison. The '16 of 18 held' line is the same thing, not a sparsity result."
+    ],
+    "score": 0.62,
+    "rationale": "As an ERC execution this looks like the method working, not a degenerate input. The weights have the expected direction by volatility and correlation, the arithmetic reconciles, and the 14.3 effective-N figure reproduces. The proposal also handles the cash exclusion and the volatility breach honestly. The IPS breach is small and, by the proposal's own account, structural (no leverage). I treat it as information about what the portfolio can add to an ensemble, not as a defect in execution. The score is held back by three things. The proposal never shows risk contributions, so the signature claim is unverified. It conflates capital-weight entropy with risk diversification and attributes the Sharpe to diversification when the numerator is forecast-based. The ERC allocation is also sensitive to overlapping equity and credit sleeves, which inflates apparent diversification. Substantively, the 61% rates-sensitive weighting, large tracking error, and reliance on an era of negative stock-bond correlation make it a regime-dependent bet. That bet is acceptable in a blend but weak standing alone, particularly when the volatility floor is missed and the likely fixes depart from ERC."
+  }
+}

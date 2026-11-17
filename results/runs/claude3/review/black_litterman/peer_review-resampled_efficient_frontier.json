@@ -1,0 +1,182 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-black-litterman",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.317059Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/resampled_efficient_frontier/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/resampled_efficient_frontier/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3851,
+        "output_tokens": 2790,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.036282800000000004,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "black_litterman",
+    "reviewer_category": "return_optimized",
+    "reviewed_agent_id": "resampled_efficient_frontier",
+    "reviewed_category": "return_optimized",
+    "kind": "intra_category",
+    "strengths": [
+      "The execution looks like resampling working as designed. The weights sum to 100%, and the stated Herfindahl of 0.088 reproduces from the table (sum of squares is about 0.0879). The entropy-based effective N of 13.1 is above 1/HHI of about 11.4, as it should be. Averaging has produced a diffuse portfolio rather than a few concentrated bets.",
+      "The gamma tuning is disclosed openly. Risk aversion is moved to 5.327 inside every draw before averaging, not applied afterwards by scaling. The proposal states plainly that the 0.67 to 0.42 Sharpe drop is the price of reaching the IPS volatility band, not a property of the method.",
+      "Ex-ante volatility of 8.00% matches the CRO's backtest volatility of 7.96%. Active weights and tracking error are consistent with a 60/30/10 benchmark: large cap -59.6, intermediate Treasuries -24.5, IG corporates -5.4, and about -29% active equity. The stated numbers reconcile with each other.",
+      "The self-critique is specific and correct. Resampling captures only sampling noise and cannot fix a systematic bias in the CMAs. The invalidation conditions are concrete (positive stock-bond correlation, overstated value/REIT/duration forecasts) and match the CRO's identified risks.",
+      "The portfolio passes the ex-ante IPS limits and the CRO's backtest-inclusive check under the ratified IPS."
+    ],
+    "weaknesses": [
+      "The drawdown of -24.84% sits about 16bp inside the -25% limit. Compliance rests on one historical path and would flip with a different rebalance date or sample window. The proposal waves this off as 'not yet checked by the CRO', but the CRO has checked it and the result is marginal.",
+      "Gamma was tuned to land on exactly 8.00% volatility, so the portfolio sits at the floor. The risk level is a policy-fit choice, not an optimality result. Because it sits at the boundary, a small change in the covariance or CMAs moves it outside the band, which weakens the claim of stability under small CMA changes.",
+      "Diversification is at the name level but not at the thesis level. The value, REIT, long-duration, gold and commodity tilts all come from the same CMAs, and about 25% sits in long Treasuries plus real assets. In a rate shock with a positive equity-Treasury correlation they would all lose together, and this is the scenario that would breach the drawdown limit.",
+      "The long Treasury sleeve (13.7%) next to short Treasuries (15.3%), with intermediates cut to 5.5%, is a barbell. It is a product of the CMAs and the covariance, not an obviously deliberate allocation. Its performance depends on the 1993+ stock-bond diversification regime.",
+      "The claim that max Sharpe 'concentrates in a handful of assets' is asserted, not shown. The comparison to the default 2.27%-vol portfolio is also not evidence that the 8%-vol resampled portfolio is a better use of the CMAs than alternatives.",
+      "The resampling horizon (10-year draws, 200 draws) is a free parameter, and no sensitivity of the averaged weights to it is shown. Monte Carlo noise with only 200 draws could also move small weights, such as the 0.4% large cap and the 1.9% intl corporates."
+    ],
+    "technical_errors": [],
+    "score": 0.62,
+    "rationale": "As an execution audit, this is a competent resampled-frontier implementation. The arithmetic checks out (weights sum to 100%, HHI and effective N are consistent, active weights and tracking error match the benchmark, ex-ante and backtest volatility agree). The tuned-gamma construction is a legitimate way to reach the IPS band and is disclosed honestly. I found no misapplied estimator or number that cannot follow from the stated method, so technical_errors is empty. The score is held down by three things. First, the -24.84% drawdown is only 16bp inside the limit, so compliance is fragile. Second, the portfolio sits exactly at the volatility floor by tuning. Third, the tilts all share one CMA source, so the apparent name-level diversification does not protect against a common CMA bias or a stock-bond correlation flip. The breach-free compliance is real but marginal. In an ensemble, the drawdown component matters more than the moderate composite risk score of 0.45, which understates how close this candidate is to a limit."
+  }
+}

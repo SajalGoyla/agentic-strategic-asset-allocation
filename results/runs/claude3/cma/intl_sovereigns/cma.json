@@ -1,0 +1,88 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "cma",
+    "agent": "cma-judge",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:24:42.489423Z",
+    "produced_by": "hybrid",
+    "provenance": {},
+    "inputs": [
+      {
+        "contract": "cma_methods",
+        "path": "cma/intl_sovereigns/cma_methods.json",
+        "sha256": null
+      },
+      {
+        "contract": "signals",
+        "path": "cma/intl_sovereigns/signals.json",
+        "sha256": null
+      },
+      {
+        "contract": "historical_stats",
+        "path": "cma/intl_sovereigns/historical_stats.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-opus-5-5",
+        "tier": "flagship",
+        "effort": "high",
+        "input_tokens": 3761,
+        "output_tokens": 2325,
+        "cache_read_tokens": 7059,
+        "cost_usd": 0.0643676,
+        "attempts": 1
+      }
+    ],
+    "report_path": "cma/intl_sovereigns/cma.md",
+    "seed": null
+  },
+  "body": {
+    "asset_id": "intl_sovereigns",
+    "horizon_years": 3,
+    "expected_return_pct": 4.13,
+    "volatility_pct": 8.4545,
+    "method_range": [
+      3.55,
+      5.3234
+    ],
+    "judgment": {
+      "selection": "custom_blend",
+      "method_weights": [
+        {
+          "method": "yield_building_block",
+          "weight": 0.6
+        },
+        {
+          "method": "regime_adjusted",
+          "weight": 0.2
+        },
+        {
+          "method": "bl_equilibrium",
+          "weight": 0.2
+        },
+        {
+          "method": "historical_erp",
+          "weight": 0.0
+        }
+      ],
+      "expected_return_pct": 4.13,
+      "confidence": "low",
+      "dispersion": "tight",
+      "regime_logic": "Stage 1 calls a fragile, late-cycle-adjacent expansion at low confidence (0.35), with a 20-30% recession probability. Exhibit 4 tilts late-cycle judgments toward regime-adjusted and valuation-anchored methods and away from long-run averages. For this asset that means the starting-yield builder plus the regime-adjusted candidate. After past expansion months, unhedged ex-US sovereigns returned -0.84% a year in excess of T-bills over the next three years, consistent with a strong-dollar expansion pattern. Its credibility weight is a healthy 0.72 on 155 months, but the 0.25 confidence and the low-confidence regime call argue for only a minority weight (20%). In the recession branch, foreign duration would rally. The USD is a typical haven in a US-led slowdown, though, so the currency leg could offset local bond gains. Regime logic therefore does not justify moving far from the yield anchor in either direction.",
+      "valuation_context": "The valuation lens is local long yields. The five-market mean (Germany, Japan, UK, France, Canada) is 3.64%, and the yield_level signal (+0.45) says this is high against the index's own post-2014 history. That makes the carry starting point the best single predictor of the local-currency return over a 3-year horizon near duration. Key consideration 2 applies directly: the 1990-2026 history was earned through a secular fall in yields and a decade of zero or negative JGB and Bund yields. That pattern cannot repeat from here in the same form, so historical_erp (5.32%, built on a 1.29% average excess return) gets zero weight despite its 0.30 confidence. The local yield sits about 40bp below the 4.03% US T-bill, so the asset carries negative carry against cash before any currency move. Per consideration 4, this is the unhedged index. A hedged version would pick up the US-foreign short-rate differential as hedge carry and run at far lower volatility. I have not mixed hedged evidence into this estimate. The 0.36pp variance add-back in the yield builder uses the full 8.45% unhedged volatility, which is mostly currency.",
+      "signal_alignment": "The composite signal is roughly neutral at +0.03, but it splits sharply by category. Valuation is supportive (yield_level +0.45). Technicals are clearly negative: trend -0.43, 12-1 momentum -0.27, and relative momentum -0.78, near the bottom of the 18 asset classes. The 1-year return of -5.73% and 5-year return of -4.22% are largely dollar-driven. The macro alignment signals are all near zero, confirming that local-rate and growth factors explain little of this asset's USD return. The negative technicals and the negative regime_fit (-0.06) argue against leaning on the higher BL or historical figures. The supportive yield signal argues against going to the regime-adjusted floor. Both point toward a final number modestly above the yield builder and below the auto-blend, so the estimate sits between the anchor and the blend.",
+      "rationale": "Selected a custom blend: 60% yield_building_block (4.00%), 20% regime_adjusted (3.55%), 20% bl_equilibrium (5.11%), and 0% historical_erp. The result is 4.13%, within the [3.55, 5.32] range and 38bp below the 4.51% auto-blend. The auto-blend gave 21% to historical_erp, which key consideration 2 rules out because the falling-yield, zero-rate history cannot repeat; I removed that weight entirely. The yield builder is the anchor per the fixed-income guidance. Per consideration 1, though, this is a currency position wearing a bond label: exchange rates supply most of the 8.45% volatility, and the yield builder does not forecast them. My explicit dollar assumption is a flat trade-weighted USD over the 3-year horizon (zero expected FX return). I neither assume uncovered interest parity, which would credit foreign currencies with appreciating by the roughly 40bp carry shortfall, nor extrapolate the recent dollar strength the momentum signals reflect. BL keeps a 20% weight because it is the only candidate that prices this asset's covariance with the broader portfolio. Its 0.08% market weight makes its +1.08% premium thinly grounded, so it does not get its full confidence share. Per consideration 3, the result is the weakest risk-adjusted profile in the universe. At 4.13% against a 4.03% T-bill and 8.45% volatility, the ex-ante Sharpe is about 0.01, below even the roughly 0.05 the auto-blend would imply. That near-zero compensation for currency risk should be stated plainly to portfolio construction. Per consideration 5, the currency leg overlaps intl_corporates, so the two line items diversify each other less than they appear to. Confidence is low: the dispersion is tight at 1.77pp, but the dominant risk driver, the dollar, is unforecast by every candidate. Governing policy is config/ips.yaml, reported as ratified for this run."
+    }
+  }
+}

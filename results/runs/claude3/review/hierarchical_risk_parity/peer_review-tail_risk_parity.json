@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-hierarchical-risk-parity",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.340006Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/tail_risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/tail_risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 4082,
+        "output_tokens": 5179,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.0606348,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "hierarchical_risk_parity",
+    "reviewer_category": "risk_structured",
+    "reviewed_agent_id": "tail_risk_parity",
+    "reviewed_category": "non_traditional",
+    "kind": "inter_category",
+    "strengths": [
+      "The proposal is candid about its premise. It names the 1993-onward downside co-movement as its only input and states plainly that it reads no expected returns. It lists its own invalidation conditions (stock-bond correlation shock, no compliant blending partner, a drawdown the model did not anticipate), and these are the right tests.",
+      "Return-agnosticism has real value in an expansion regime, where return forecasts are likely to be crowded and noisy. The portfolio's risk budget does not inherit CMA error, so it is a different kind of input from forecast-driven candidates.",
+      "Weight diversification is genuine: effective N is 14.4, HHI is about 0.077 (this checks against the table), and no sleeve exceeds 14.2%. The concentration in intermediate Treasuries is what equal downside-risk contribution should produce once cash is removed, not a degenerate-matrix artefact.",
+      "It is disclosed honestly. The Decision 61 exclusion of cash and short Treasuries is stated openly and the weights are framed accordingly. The vol-floor breach (7.67% vs 8.0%) is called a real policy breach, not a draft technicality, and it is narrow. Ex-ante return, tracking error (4.96% vs the 6% budget) and the other limits comply.",
+      "Using downside semicovariance (Estrada) rather than full covariance targets what the IPS cares about, losses. It lets the portfolio treat assets that co-move on the upside differently from assets that fall together."
+    ],
+    "weaknesses": [
+      "The core premise is that 1993-onward downside co-movement predicts future stress co-movement. This is weakest exactly where the portfolio leans on it. About 41% sits in rate-sensitive ballast (Treasuries, IG, international sovereigns) and only about 10% in inflation offsets (gold, commodities). In a sustained inflation or rate shock where stocks and bonds fall together, the hedge fails and the risk budget was set on the wrong correlations. The sample has 2022 but no multi-year inflation regime.",
+      "The backtest does not clearly support the 'tail-aware' claim. A 7.67%-vol portfolio drew down 20.91%, about 84% of the -25% IPS limit, which is a large ratio to volatility. A method built to balance tail losses should leave more headroom. The proposer names this test as an invalidation condition, and the result sits close to the line.",
+      "Weight-based diversification overstates economic diversification. The CRO's roll-up puts about 53% of the weight in assets that fall together in a credit or liquidity shock (equities, HY, international corporates, EM debt, commodities, REITs), and credit spread sleeves total 31.6%, more than equities at 23.5%. Effective N of 14.4 counts weights, not independent risk drivers. The portfolio is economically closer to two or three factors: duration, credit/growth and a small real-asset sleeve. The 'not a view on credit' framing is fair mechanically, but it ends up long credit in size.",
+      "The output depends heavily on the investable set. The proposer says that unrestricted, the method would hold most of the portfolio in cash and short Treasuries at under 3% volatility. Removing those assets by design is what hands intermediate Treasuries 14.2% and sets the risk level. Equal-risk-contribution allocation relative to whatever is the lowest-risk asset available is a property of the universe, not a finding about the assets.",
+      "Equalising risk contributions implicitly assumes comparable reward per unit of downside risk across assets, which is itself a return view, only an unstated one. In an expansion with 23.5% in equities, a 55.6-point underweight to US large cap, and a tracking error using about 83% of its 6% budget, the cost is felt as sustained relative shortfall if equities keep rallying. The 0.37 ex-ante Sharpe shows this return-blindness.",
+      "Semicovariance is estimated from a small number of tail months, so the Treasury-versus-credit split is noisy. Per-asset-threshold semicovariance (shortfalls below each asset's own mean) is also only an approximation to the portfolio's true downside semivariance, since the portfolio's shortfall is not the sum of the assets' shortfalls. Both are acknowledged in part, but not quantified.",
+      "The volatility breach is narrow but not free to repair. The proposer's 'blend with a higher-risk candidate' remedy assumes a partner exists that lifts volatility to at least 8.0% without raising tracking error or drawdown past their limits. With drawdown at 84% of its limit and tracking error at 83% of its budget, that headroom is thin, and the case rests on an untested ensemble assumption."
+    ],
+    "technical_errors": [],
+    "score": 0.55,
+    "rationale": "Judged on its own premise, this is a coherent and honestly argued proposal. The method is applied sensibly: semicovariance feeds an ERC solve, the arithmetic reconciles (HHI, active weights, the benchmark implied by the tilts, the ex-ante and backtest volatility), and the cash exclusion and the vol-floor breach are disclosed. I found nothing that is actually wrong, so technical_errors is empty. The score is held to the middle of the range for four reasons. First, the premise that past downside co-movement carries forward is untested against the regime that most threatens a bond-heavy hedge, an inflation shock. Second, the backtest drawdown (-20.91% against a -25% limit) undercuts the tail-aware framing, since a 7.67%-vol portfolio should not need that much of the limit. Third, the output depends strongly on the investable set. Fourth, the 'broad diversification' is mostly weight-based, with about half the portfolio exposed to a joint credit/growth shock. The volatility breach is evidence rather than a verdict. The portfolio is narrowly below the floor, and its value to an ensemble depends on a compatible partner that would need to be found within thin drawdown and tracking-error headroom. Return-agnosticism is a real virtue in an expansion with noisy forecasts, but it comes with an unstated assumption of equal reward per unit of downside risk. A reader should treat this as a defensible, regime-dependent diversifier and not as a standalone recommendation."
+  }
+}

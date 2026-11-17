@@ -1,0 +1,186 @@
+{
+  "header": {
+    "schema_version": "5.2.0",
+    "contract": "peer_review",
+    "agent": "review-adversarial-diversifier",
+    "pipeline_run_id": "claude3",
+    "as_of": "2026-10-01",
+    "generated_at": "2026-11-17T23:33:57.328664Z",
+    "produced_by": "llm",
+    "provenance": {
+      "macro/fred_observations": {
+        "run_id": "20261117T223225Z",
+        "sha256": "261eb0f717eeb650b7f84cfbac9ffd7b8084dfb05ce2e025468e6c3a95615959"
+      },
+      "wrds/etf_market_caps": {
+        "run_id": "20261117T223225Z",
+        "sha256": "cf71c6e0d17300628ca9d1ae9932fa6fa05f615dc703ea07d342bdfb1592e10e"
+      },
+      "market/fund_snapshot": {
+        "run_id": "20261117T223225Z",
+        "sha256": "89ec20c45d4b7ac7b9c15bf09bf26e334d863c5f1cc69477d63e868a63ff9ec8"
+      },
+      "market/asset_returns_monthly": {
+        "run_id": "20261117T223225Z",
+        "sha256": "0d47a4e81f265896b69dd49e6f3e98f82a8ea25e259cee8f61cc0e2ad9bdd368"
+      }
+    },
+    "inputs": [
+      {
+        "contract": "covariance",
+        "path": "pc/covariance.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_large_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_small_cap/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_value/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/us_growth/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_developed/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/emerging_markets/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/short_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intermediate_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/long_treasuries/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/ig_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/hy_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_sovereigns/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/intl_corporates/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/usd_em_debt/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/reits/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/gold/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/commodities/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "cma",
+        "path": "cma/cash/cma.json",
+        "sha256": null
+      },
+      {
+        "contract": "macro_view",
+        "path": "macro/macro-view.json",
+        "sha256": null
+      },
+      {
+        "contract": "pc_proposal",
+        "path": "pc/risk_parity/pc_proposal.json",
+        "sha256": null
+      },
+      {
+        "contract": "cro_report",
+        "path": "review/risk_parity/cro_report.json",
+        "sha256": null
+      }
+    ],
+    "ips_version": 0.2,
+    "ips_status": "ratified",
+    "model_calls": [
+      {
+        "model": "claude-sonnet-5-5",
+        "tier": "low_cost",
+        "effort": "high",
+        "input_tokens": 3737,
+        "output_tokens": 4048,
+        "cache_read_tokens": 3404,
+        "cost_usd": 0.048634800000000006,
+        "attempts": 1
+      }
+    ],
+    "report_path": null,
+    "seed": 533368684
+  },
+  "body": {
+    "reviewer_agent_id": "adversarial_diversifier",
+    "reviewer_category": "non_traditional",
+    "reviewed_agent_id": "risk_parity",
+    "reviewed_category": "risk_structured",
+    "kind": "inter_category",
+    "strengths": [
+      "The premise is stated openly: risk contributions can be equalised without a return forecast, and the method's key assumption and invalidation conditions are written down (stock-bond correlation turning persistently positive, an unstable covariance matrix). A reader can test the case against them.",
+      "It does not depend on the CMAs, which is a defensible position in an expansion, when return forecasts are most likely to be extrapolated from recent strength.",
+      "It is candid about the one IPS breach: volatility of 7.56% against the 8.0-12.0% floor. It does not claim a tuned fit, and it says the method cannot reach the band without leverage, which the IPS forbids. The breach is small (about 0.44 points) and sits on the low-risk side, so it is a gap the CIO can repair by blending, not a sign of hidden risk.",
+      "It discloses decision 61: cash and short Treasuries were excluded from the universe, so their zero weight is a construction choice and not a view on liquidity. This stops a reader mistaking the zeros for a signal.",
+      "The weights are internally coherent. Active weights are consistent with a 60/30/10-style benchmark, the sleeve totals (about 23% equity, 61% fixed income, 16% real assets) match the stated active tilts, and ex-ante volatility (7.56%) matches the backtest (7.55%).",
+      "As an ensemble ingredient it adds a different return driver. Gold and commodities (12% combined) and the broad spread across credit and sovereign sleeves give it diversification that a pure equity-led book lacks."
+    ],
+    "weaknesses": [
+      "Equal risk contribution is optimal only if Sharpe ratios and correlations are roughly equal across sleeves. The proposal's own notes concede the CMAs do not support equal return per unit of risk. 'No forecast' is therefore still an implicit forecast: that long Treasuries, HY, commodities and equities all earn the same reward per unit of risk. It also puts 61% of capital in the sleeves where volatility is lowest, not where compensation is highest.",
+      "The covariance matrix carries the whole thesis, and it was estimated on 1993-onward data dominated by negative stock-bond correlation. The method does not remove forecast error. It moves it into the covariance inputs. The agreement between ex-ante and backtest volatility is not independent evidence, since both use the same history. Both should be read as lower bounds under an inflation shock.",
+      "The regime fit is weaker than the case suggests. In an expansion, with growth and risk assets rewarded, the portfolio is 37 points underweight equities versus the benchmark and 21 points overweight fixed income. It is also long duration (long Treasuries 9.3%, intermediate Treasuries 16.5%, international sovereigns 7.6%). Late-expansion conditions with rising rates or inflation are exactly the path where bonds and equities fall together. The 'no CMA error' argument applies to returns but not to the stability of the stock-bond correlation, which is the real exposure.",
+      "Risk is less diversified than the weights suggest. Four US equity sleeves (large cap, small cap, value, growth) plus international developed are largely one equity driver. HY, USD EM debt and corporate credit carry equity-beta spread risk. Intermediate Treasuries, long Treasuries and sovereigns share a rates driver. Equalising contributions across correlated assets does not equalise contributions across underlying risk factors.",
+      "The backtest drawdown of -20.3% is large for a 7.5% volatility portfolio. If, as seems likely for a 1993-onward sample, it reflects the 2022 rates-and-inflation episode, then the stress the CRO says is outside the sample may already be partly in it, and this is the portfolio's demonstrated failure mode, not a hypothetical one. A drawdown this deep, against volatility that is already too low, means the portfolio gives up the volatility band without buying much protection.",
+      "The portfolio is not usable on its own. It breaches the volatility floor and has 5.07% tracking error against an equity-heavy benchmark. Lifting volatility into the band means adding equities or return-aware sleeves, which dilutes the equal-risk structure that is the method's only justification. The repair the proposal suggests (a little weight toward equity) is a different portfolio, so the value delivered is the ingredient, not the answer."
+    ],
+    "technical_errors": [
+      "The written case says the Sharpe of 0.37 'comes from diversification across many risk sources rather than from a forecast edge', but the same text says the 6.43% expected return and 0.37 Sharpe use the judged CMAs. The ratio is a CMA-based figure computed on weights that ignore the CMAs. It is not evidence that equal risk spread generates Sharpe, and the CRO's realised 0.57 is on a different basis.",
+      "The 14.3 effective assets (entropy of capital weights) is offered as reflecting an even spread of risk contributions. It measures capital dispersion, not risk dispersion or independent risk drivers, so it cannot support the claim of diversified risk. The CRO makes the same point."
+    ],
+    "score": 0.52,
+    "rationale": "I judge the proposal on its own logic. It is coherent, honestly caveated and cleanly executed. The weights match the stated sleeves and active tilts, the ex-ante and backtest volatility agree, and the proposer owns the volatility breach. The breach is small and on the conservative side, so I treat it as evidence about what the portfolio contributes and not as disqualifying. The weakness is the premise. Skipping return forecasts does not remove assumptions. It assumes equal reward per unit of risk across sleeves, which the proposal's own notes concede is unsupported. It also relies on a covariance structure, negative stock-bond correlation, that was typical of the estimation window but is the least safe assumption if inflation or rates are the next shock. An expansion is also not a regime in which a 61% fixed-income, 23% equity book is obviously well placed. The written case misattributes the Sharpe ratio and uses capital-weight entropy as proof of risk diversification, which overstates the evidence. The portfolio looks more like a useful, low-risk ensemble ingredient than a standalone candidate, and its value depends on what it is blended with. I score it in the middle: a well-argued method whose key assumptions the current regime does not clearly support."
+  }
+}
