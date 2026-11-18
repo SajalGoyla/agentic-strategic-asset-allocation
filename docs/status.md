@@ -362,19 +362,20 @@ for the PC agents, CRO, reviews and ballots (decision 51). Every run folder is c
 - **`claude3`** (all six stages afresh, $5.49), after the faculty's reply of 2026-11-10: the
   risk-only methods without cash-like assets (61), the reweighting repair (62) and the
   covariance agent (63), plus Shambhawi's per-asset descriptions and 13-section cases (57-58).
-  Its CIO stage ran before the repair priced increases by the vote (62, amended); replayed free
-  with that change, the deterministic pick is regime-conditional at 6.74% / 8.00% / 0.39.
+  Its CIO stage was rerun after the repair priced increases by the vote (62, amended; $0.20):
+  the CIO chose the regime-conditional ensemble, 6.74% / 8.00% / Sharpe 0.39, repaired by
+  moving 13.6% of ensemble weight (6.1% of the portfolio) toward CVaR and inverse volatility.
 
 | | `claude1` | `claude2` | `claude3` | 60/30/10 benchmark | Paper §4.4 |
 |---|---|---|---|---|---|
-| CIO's ensemble | meta-optimisation | composite score | composite score | – | inverse TE |
-| Expected return | 7.26% | 6.94% | 6.73% | 6.68% | 6.87% |
+| CIO's ensemble | meta-optimisation | composite score | regime-conditional | – | inverse TE |
+| Expected return | 7.26% | 6.94% | 6.74% | 6.68% | 6.87% |
 | Volatility | 8.00% | 8.00% | 8.00% | 9.37% | 7.54% |
 | Sharpe | 0.43 | 0.39 | 0.39 | 0.31 | 0.43 |
-| Effective assets (entropy) | 9.9 | 14.5 | 14.9 | – | 11.2 |
+| Effective assets (entropy) | 9.9 | 14.5 | 14.8 | – | 11.2 |
 | Backtest max drawdown | −23.1% | −23.2% | −23.3% | – | −25.6% |
 | Cash + short Treasuries | 5.7% | 18.4% | 5.1% | – | 15.4% |
-| Moved to meet the IPS | none | 13.5% (assets) | 5.6% (reweighted) | – | – |
+| Moved to meet the IPS | none | 13.5% (assets) | 6.1% (reweighted) | – | – |
 | Candidates >50% cash-like | – | 8 of 15 | 2 of 15 | – | – |
 
 `claude3` also: the covariance agent kept Ledoit-Wolf (records within 0.016; regime confidence
