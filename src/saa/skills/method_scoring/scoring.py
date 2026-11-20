@@ -63,12 +63,18 @@ class CmaUtilizationSettings(_Model):
     uses_cmas_share: float = Field(ge=0.0, le=1.0)
 
 
+class CioSettings(_Model):
+    # One-way turnover, as a fraction, beyond which a repaired ensemble is not offered.
+    max_repair_turnover: float = Field(default=0.20, gt=0.0, le=1.0)
+
+
 class ScoringSettings(_Model):
     sharpe_anchors: tuple[float, float]
     ips_compliance: IpsComplianceSettings
     regime_fit: RegimeFitSettings
     estimation_robustness: RobustnessSettings
     cma_utilization: CmaUtilizationSettings
+    cio: CioSettings = Field(default_factory=CioSettings)
 
 
 def load_scoring_settings(config: Config, path: Path | str | None = None) -> ScoringSettings:

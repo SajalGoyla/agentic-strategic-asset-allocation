@@ -29,13 +29,26 @@ the evidence say so (decision 63).
 - **exponential**: a 60-month half-life, so recent years weigh more. Reacts to a change in
   volatility or correlation regime, at the cost of more estimation noise.
 - **regime_conditional**: Ledoit-Wolf on only the months the macro scoring labelled with the
-  current regime. The "macro forecasts" route of §3.1: it says how assets moved in regimes like
-  this one. It rests on fewer months, and a regime label is itself uncertain.
+  current regime. It says how assets moved in regimes like this one. It rests on fewer months,
+  treats the label as certain, and in a calm regime sees too little risk: on the `claude3`
+  inputs it pushed the risk-only portfolios to 4.8-6.4% volatility (decision 64).
+- **regime_blend** (decision 65): every regime's matrix, mixed by probability -- your
+  confidence on the current regime, the remainder by how often each regime has occurred, and
+  recession at the macro agent's recession probability -- plus the spread between the regimes'
+  mean returns. The "macro forecasts" route of §3.1 that keeps the uncertainty of the call: a
+  25% recession probability puts a quarter of the stress-period co-movement back in.
+- **recent_volatility** (decision 65): Ledoit-Wolf correlations with each asset's volatility
+  from the last few years (6-month half-life), the RiskMetrics practice. Forward-looking in the
+  sense that volatility clusters: it raises risk after a turbulent stretch and lowers it after a
+  calm one, while correlations stay long-run.
 
 ## The evidence you are given
 
 - **The estimators now**: months used, shrinkage, average correlation, the US large cap /
-  intermediate Treasuries correlation, the benchmark's volatility, the condition number.
+  intermediate Treasuries correlation, the benchmark's volatility, the condition number, and
+  *risk parity vol*: the volatility the risk-only PC methods will reach under that matrix. Below
+  the 8% floor the CIO's repair has to make up the gap, and a large repair disqualifies an
+  ensemble (decision 64).
 - **Volatility by estimator** for the assets where the choice matters most.
 - **The out-of-sample record**, fitted at each year-end on data to that date only:
   - *realised / forecast* for the benchmark's volatility over the next 12 months (1.0 unbiased;
@@ -53,7 +66,7 @@ the evidence say so (decision 63).
    case for the regime-conditional estimator, if it rests on enough months; a low-confidence
    call is a reason not to condition on it. Evidence that correlations have recently shifted
    (the estimators disagree on the stock-bond correlation) is the case for exponential.
-3. **Then what it does downstream.** A higher volatility estimate pushes the risk-based
+3. **Then what it does downstream.** Read the risk parity column. A higher volatility estimate pushes the risk-based
    portfolios toward bonds and makes the 8% floor harder to reach; a lower one does the
    opposite. Say which way your choice moves them, without choosing an estimator to make the IPS
    easier to meet.

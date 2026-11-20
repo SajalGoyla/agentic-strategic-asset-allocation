@@ -58,7 +58,14 @@ def main(argv: list[str] | None = None) -> int:
     cv.add_argument("--as-of", help="information date YYYY-MM-DD (default: today)")
     cv.add_argument(
         "--method",
-        choices=["sample", "ledoit_wolf", "exponential", "regime_conditional"],
+        choices=[
+            "sample",
+            "ledoit_wolf",
+            "exponential",
+            "regime_conditional",
+            "recent_volatility",
+            "regime_blend",
+        ],
         help="estimator written to covariance.json (default: ledoit_wolf)",
     )
     cv.add_argument("--window-years", type=float, help="estimation window (default: all history)")
@@ -148,6 +155,7 @@ def main(argv: list[str] | None = None) -> int:
         from saa.skills.covariance import (
             CovarianceSettings,
             compare_estimators,
+            estimators,
             regime_labels_from,
             render_report,
             write_outputs,
@@ -164,11 +172,19 @@ def main(argv: list[str] | None = None) -> int:
         regime = args.regime or (str(labels.iloc[-1]) if labels is not None else None)
 
         store = DataStore(config)
+        # Without the macro agent's confidence and recession probability the skill blends by
+        # base rates alone; the covariance agent passes its own (decision 65).
+        weights = estimators.blend_weights(labels, None, None) if labels is not None else None
         estimates = compare_estimators(
-            store, as_of=args.as_of, settings=settings, regime=regime, regime_labels=labels
+            store,
+            as_of=args.as_of,
+            settings=settings,
+            regime=regime,
+            regime_labels=labels,
+            regime_weights=weights,
         )
         if settings.method not in estimates:
-            parser.error("regime_conditional needs --regime-history")
+            parser.error(f"{settings.method.value} needs --regime-history")
         run = RunContext.create(config, as_of=args.as_of, run_id=args.run_id, root=args.run_dir)
         written = write_outputs(settings.method, estimates, run, store.provenance())
         print(render_report(settings.method, estimates, run.as_of))

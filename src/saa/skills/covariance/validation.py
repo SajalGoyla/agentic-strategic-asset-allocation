@@ -32,6 +32,8 @@ VALIDATED = (
     CovarianceMethod.LEDOIT_WOLF,
     CovarianceMethod.EXPONENTIAL,
     CovarianceMethod.REGIME_CONDITIONAL,
+    CovarianceMethod.RECENT_VOLATILITY,
+    CovarianceMethod.REGIME_BLEND,
 )
 STOCK, BOND = "us_large_cap", "intermediate_treasuries"
 FIRST_YEAR = 1999  # six years of the 1993-06 panel behind the first forecast
@@ -42,8 +44,13 @@ CORRELATION_HORIZON_MONTHS = 36
 @dataclass(frozen=True)
 class ValidationSettings:
     halflife_months: float = 60.0
+    volatility_halflife_months: float = 6.0
     min_regime_months: int = 24
     first_year: int = FIRST_YEAR
+    # The blend's confidence in the label current at each past year-end. The macro agent's own
+    # confidence is not on record for past dates, so the record uses a neutral 0.5 and no
+    # recession override; the live blend uses the agent's figures.
+    blend_confidence: float = 0.5
 
 
 def _fit(
@@ -57,13 +64,28 @@ def _fit(
         return est.ledoit_wolf(train)[0]
     if method is CovarianceMethod.EXPONENTIAL:
         return est.exponential_covariance(train, settings.halflife_months)
+    if method is CovarianceMethod.RECENT_VOLATILITY:
+        return est.recent_volatility_covariance(train, settings.volatility_halflife_months)[0]
     if labels is None:
         return None
     months = train.index.to_period("M")
     known = labels[labels.index <= months[-1]]
     if known.empty:
         return None
-    window = train[np.asarray(months.map(known.to_dict()) == known.iloc[-1], dtype=bool)]
+    aligned = months.map(known.to_dict())
+    if method is CovarianceMethod.REGIME_BLEND:
+        has = np.asarray(aligned.notna(), dtype=bool)
+        weights = est.blend_weights(known, str(known.iloc[-1]), settings.blend_confidence)
+        try:
+            return est.regime_blend_covariance(
+                train[has],
+                pd.Series(np.asarray(aligned)[has]),
+                weights,
+                settings.min_regime_months,
+            )[0]
+        except ValueError:
+            return None
+    window = train[np.asarray(aligned == known.iloc[-1], dtype=bool)]
     if len(window) < settings.min_regime_months:
         return None
     return est.ledoit_wolf(window)[0]

@@ -42,7 +42,9 @@ from saa.skills.covariance import (
     validate_estimators,
 )
 from saa.skills.covariance.analysis import REPORT
+from saa.skills.covariance.estimators import blend_weights
 from saa.skills.covariance.validation import BOND, STOCK
+from saa.skills.portfolio_construction import PortfolioInputs, risk_parity
 from saa.skills.portfolio_construction.analysis import benchmark_weights
 
 log = logging.getLogger(__name__)
@@ -88,13 +90,30 @@ def judgment_model(eligible: list[CovarianceMethod]) -> type[CovarianceJudgment]
     return create_model("CovarianceJudgmentFor", __base__=CovarianceJudgment, method=(choice, ...))
 
 
-def _macro(run: RunContext) -> tuple[str | None, float | None, str | None]:
-    """The macro agent's regime, confidence and qualifier, if this run has a macro view."""
+def _macro(run: RunContext) -> tuple[str | None, float | None, str | None, float | None]:
+    """The macro agent's regime, confidence, qualifier and recession probability (the midpoint
+    of its range, as a fraction), if this run has a macro view."""
     path = run.path("macro_view")
     if not path.exists():
-        return None, None, None
+        return None, None, None, None
     j = read("macro_view", path).body.judgment
-    return j.regime.value, j.confidence_score, getattr(j, "regime_qualifier", None)
+    rp = j.recession_probability
+    return (
+        j.regime.value,
+        j.confidence_score,
+        getattr(j, "regime_qualifier", None),
+        (rp.low_pct + rp.high_pct) / 200.0,
+    )
+
+
+def risk_parity_volatility(body: CovarianceBody, cash_like: list[str]) -> float:
+    """What the risk-only PC methods will see: the volatility of equal-risk-contribution over
+    the non-cash-like assets (decision 61) under this matrix. Below the 8% floor, the CIO's
+    repair has to make up the difference (decisions 62, 64)."""
+    ids = [a for a in body.asset_ids if a not in cash_like]
+    cov = pd.DataFrame(body.matrix, index=body.asset_ids, columns=body.asset_ids)
+    w = risk_parity(PortfolioInputs(asset_ids=ids, covariance=cov))
+    return _volatility(body, w)
 
 
 def _correlation(body: CovarianceBody, a: str, b: str) -> float | None:
@@ -120,12 +139,13 @@ def build_prompt(
     qualifier: str | None,
     as_of,
     ips_status: str,
+    cash_like: list[str] | None = None,
 ) -> str:
     eligible = list(estimates)
     rows = [
         "| Estimator | Months | Shrinkage | Avg corr | Stock-bond corr | Benchmark vol % | "
-        "Condition no. |",
-        "|---|---|---|---|---|---|---|",
+        "Risk parity vol % | Condition no. |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for m, e in estimates.items():
         b = e.body
@@ -135,7 +155,8 @@ def build_prompt(
             + (f"{b.shrinkage:.2f}" if b.shrinkage is not None else "-")
             + f" | {e.average_correlation:.2f} | "
             + ("-" if corr is None else f"{corr:+.2f}")
-            + f" | {_volatility(b, benchmark):.2f} | {e.condition_number:,.0f} |"
+            + f" | {_volatility(b, benchmark):.2f} | "
+            + f"{risk_parity_volatility(b, cash_like or []):.2f} | {e.condition_number:,.0f} |"
         )
     vols = [
         "| Asset | " + " | ".join(m.value for m in eligible) + " |",
@@ -163,6 +184,17 @@ def build_prompt(
         else "The regime-conditional estimator is not on offer: there is no regime call, or too "
         "few months carry its label."
     )
+    blend = estimates.get(CovarianceMethod.REGIME_BLEND)
+    if blend is not None and blend.body.regime_weights:
+        regime_note += (
+            " The regime blend mixes the regimes' matrices with probabilities "
+            + ", ".join(
+                f"{r} {w:.0%}"
+                for r, w in sorted(blend.body.regime_weights.items(), key=lambda x: -x[1])
+            )
+            + " (your confidence on the current regime, the rest by how often each regime has "
+            + ("occurred, and recession at the macro agent's probability).")
+        )
     return f"""Choose the covariance estimator the portfolio-construction agents will receive.
 
 As-of date: {as_of}
@@ -203,8 +235,8 @@ def fallback_judgment(
             + (f" The regime call ({regime}) was not used." if regime else "")
         ),
         what_would_change_it=(
-            "A model-backed run weighs the regime and the estimators' records and may choose the "
-            "exponential or the regime-conditional estimator instead."
+            "A model-backed run weighs the regime and the estimators' records and may choose "
+            "another validated estimator instead."
         ),
     )
 
@@ -219,11 +251,19 @@ def run_covariance(
 ) -> CovarianceResult:
     """Compute and validate every estimator, choose one, and write ``pc/covariance.json``."""
     config = config or load_config()
-    regime, confidence, qualifier = _macro(run)
+    regime, confidence, qualifier, recession = _macro(run)
     if regime is None and regime_labels is not None and not regime_labels.empty:
         regime = str(regime_labels.iloc[-1])
+    weights = None
+    if regime_labels is not None and not regime_labels.empty:
+        known = regime_labels[pd.DatetimeIndex(regime_labels.index) <= pd.Timestamp(run.as_of)]
+        weights = blend_weights(known, regime, confidence, recession)
     estimates_all = compare_estimators(
-        store, as_of=run.as_of, regime=regime, regime_labels=regime_labels
+        store,
+        as_of=run.as_of,
+        regime=regime,
+        regime_labels=regime_labels,
+        regime_weights=weights,
     )
     estimates = {
         m: estimates_all[m]
@@ -262,6 +302,7 @@ def run_covariance(
                 qualifier=qualifier,
                 as_of=run.as_of,
                 ips_status=run.ips_status,
+                cash_like=config.universe.cash_like_ids,
             ),
             tier=tier_for(AGENT),
             effort="medium",
