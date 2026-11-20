@@ -47,6 +47,21 @@
           "default": null,
           "title": "Regime"
         },
+        "regime_weights": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Regime Weights"
+        },
         "shrinkage": {
           "anyOf": [
             {
@@ -119,7 +134,9 @@
         "sample",
         "ledoit_wolf",
         "exponential",
-        "regime_conditional"
+        "regime_conditional",
+        "recent_volatility",
+        "regime_blend"
       ],
       "title": "CovarianceMethod",
       "type": "string"
@@ -260,7 +277,7 @@
           "title": "Report Path"
         },
         "schema_version": {
-          "default": "5.2.0",
+          "default": "5.3.0",
           "title": "Schema Version",
           "type": "string"
         },

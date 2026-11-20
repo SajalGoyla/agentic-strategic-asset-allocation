@@ -5,7 +5,9 @@
         "sample",
         "ledoit_wolf",
         "exponential",
-        "regime_conditional"
+        "regime_conditional",
+        "recent_volatility",
+        "regime_blend"
       ],
       "title": "CovarianceMethod",
       "type": "string"

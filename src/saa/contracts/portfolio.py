@@ -28,6 +28,10 @@ class CovarianceMethod(StrEnum):
     LEDOIT_WOLF = "ledoit_wolf"
     EXPONENTIAL = "exponential"
     REGIME_CONDITIONAL = "regime_conditional"
+    # Decision 65: long-run correlations with recent volatilities, and a mixture of the regimes'
+    # covariances weighted by the macro view.
+    RECENT_VOLATILITY = "recent_volatility"
+    REGIME_BLEND = "regime_blend"
 
 
 class CovarianceJudgment(Contract):
@@ -75,6 +79,8 @@ class CovarianceBody(Contract):
     # Set when the estimate was conditioned on the macro agent's regime call.
     regime: str | None = None
     shrinkage: float | None = Field(default=None, ge=0.0, le=1.0)
+    # The regime probabilities a regime_blend estimate mixed (decision 65).
+    regime_weights: dict[str, float] | None = None
     # Set when the covariance agent chose the estimator (decision 63); None from the skill alone.
     judgment: CovarianceJudgment | None = None
     validation: list[EstimatorValidation] = Field(default_factory=list)

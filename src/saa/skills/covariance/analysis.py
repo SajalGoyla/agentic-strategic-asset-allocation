@@ -36,6 +36,9 @@ class CovarianceSettings:
     method: CovarianceMethod = CovarianceMethod.LEDOIT_WOLF
     window_years: float | None = None
     halflife_months: float = 60.0  # exponential estimator only; beat 12, 24 and 36
+    # recent_volatility only: the half-life of its volatilities. 6 months had the lowest
+    # out-of-sample error of 3, 6, 9, 12 and 24 (0.346 against 0.351-0.370; decision 65)
+    volatility_halflife_months: float = 6.0
     min_regime_months: int = 24  # regime-conditional estimator only
 
 
@@ -83,6 +86,7 @@ def _build(
     method: CovarianceMethod,
     shrinkage: float | None,
     regime: str | None,
+    regime_weights: dict[str, float] | None = None,
 ) -> CovarianceEstimate:
     annual = est.annualise(monthly)
     annual = (annual + annual.T) / 2  # remove floating-point asymmetry before validation
@@ -95,6 +99,7 @@ def _build(
         volatilities_pct={a: float(100 * np.sqrt(annual[i, i])) for i, a in enumerate(ids)},
         regime=regime,
         shrinkage=shrinkage,
+        regime_weights=regime_weights,
     )
     return CovarianceEstimate(
         body=body,
@@ -115,6 +120,7 @@ def estimate_covariance(
     settings: CovarianceSettings | None = None,
     regime: str | None = None,
     regime_labels: pd.Series | None = None,
+    regime_weights: dict[str, float] | None = None,
 ) -> CovarianceEstimate:
     """One estimator, using only returns available on ``as_of`` (default: today).
 
@@ -140,6 +146,29 @@ def estimate_covariance(
             )
         monthly, shrinkage = est.ledoit_wolf(window)
         return _build(window, monthly, method, shrinkage, regime)
+
+    if method is CovarianceMethod.REGIME_BLEND:
+        if regime_labels is None or not regime_weights:
+            raise ValueError("regime_blend needs regime_labels and regime_weights")
+        labels = pd.Series(regime_labels.to_numpy(), index=_month_key(regime_labels.index))
+        aligned = _month_key(returns.index).map(labels.to_dict())
+        known = np.asarray(aligned.notna(), dtype=bool)
+        window = returns[known]
+        monthly, used = est.regime_blend_covariance(
+            window,
+            pd.Series(np.asarray(aligned)[known]),
+            regime_weights,
+            settings.min_regime_months,
+        )
+        return _build(window, monthly, method, None, regime, regime_weights=used)
+
+    if method is CovarianceMethod.RECENT_VOLATILITY:
+        if len(returns) < MIN_MONTHS:
+            raise ValueError(f"window has {len(returns)} months; need at least {MIN_MONTHS}")
+        monthly, shrinkage = est.recent_volatility_covariance(
+            returns, settings.volatility_halflife_months
+        )
+        return _build(returns, monthly, method, shrinkage, None)
 
     if settings.window_years is None:
         window = returns
@@ -168,11 +197,20 @@ def compare_estimators(
     settings: CovarianceSettings | None = None,
     regime: str | None = None,
     regime_labels: pd.Series | None = None,
+    regime_weights: dict[str, float] | None = None,
 ) -> dict[CovarianceMethod, CovarianceEstimate]:
-    """Every estimator on the same data; regime-conditional only when labels are supplied."""
-    methods = [CovarianceMethod.SAMPLE, CovarianceMethod.LEDOIT_WOLF, CovarianceMethod.EXPONENTIAL]
+    """Every estimator on the same data; the regime estimators only when labels (and, for the
+    blend, its weights) are supplied."""
+    methods = [
+        CovarianceMethod.SAMPLE,
+        CovarianceMethod.LEDOIT_WOLF,
+        CovarianceMethod.EXPONENTIAL,
+        CovarianceMethod.RECENT_VOLATILITY,
+    ]
     if regime is not None and regime_labels is not None:
         methods.append(CovarianceMethod.REGIME_CONDITIONAL)
+    if regime_labels is not None and regime_weights:
+        methods.append(CovarianceMethod.REGIME_BLEND)
     return {
         m: estimate_covariance(
             store,
@@ -181,6 +219,7 @@ def compare_estimators(
             settings=settings,
             regime=regime,
             regime_labels=regime_labels,
+            regime_weights=regime_weights,
         )
         for m in methods
     }

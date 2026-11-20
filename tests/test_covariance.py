@@ -194,6 +194,7 @@ def test_compare_returns_every_estimator_on_the_same_window(store):
         CovarianceMethod.SAMPLE,
         CovarianceMethod.LEDOIT_WOLF,
         CovarianceMethod.EXPONENTIAL,
+        CovarianceMethod.RECENT_VOLATILITY,
     }
     assert len({r.end for r in results.values()}) == 1
 
@@ -281,7 +282,8 @@ def test_validation_uses_only_data_known_at_each_year_end(store, tmp_config):
     assert {r.method for r in records} == {
         CovarianceMethod.LEDOIT_WOLF,
         CovarianceMethod.EXPONENTIAL,
-    }  # no labels, no regime-conditional record
+        CovarianceMethod.RECENT_VOLATILITY,
+    }  # no labels, no regime record
     assert all(r.years == 2008 - 1999 + 1 for r in records)
 
 
@@ -317,6 +319,8 @@ def test_the_agent_hands_on_the_estimator_the_model_chose(store, tmp_config, tmp
     assert out.header.produced_by.value == "hybrid" and out.header.model_calls
     prompt = fake.messages.calls[0]["messages"][0]["content"]
     assert "Out-of-sample record" in prompt and "Stock-bond corr" in prompt
+    assert "Risk parity vol" in prompt  # what the risk-only methods will see (decision 65)
+    assert "recent_volatility" in prompt and "regime_blend" in prompt
     assert "regime_conditional" in prompt  # on offer: the labels have enough months
 
 
@@ -326,3 +330,80 @@ def test_the_model_may_choose_only_an_estimator_on_offer():
     assert isinstance(model.model_validate(ok), CovarianceJudgment)
     with pytest.raises(ValidationError):
         model.model_validate({**ok, "method": "sample"})
+
+
+# ------------------------------------------------------------ decision 65 estimators
+def test_recent_volatility_keeps_long_run_correlations_and_tracks_recent_volatility():
+    calm = correlated_returns(300, seed=4)
+    stormy = calm.copy()
+    stormy.iloc[-24:, 0] *= 3.0  # the first asset's last two years are three times as volatile
+    cov, shrinkage = estimators.recent_volatility_covariance(stormy, halflife_months=6)
+    long_run, lw_shrinkage = estimators.ledoit_wolf(stormy)
+    np.testing.assert_allclose(
+        estimators.correlation_from(cov), estimators.correlation_from(long_run), atol=1e-12
+    )
+    assert shrinkage == lw_shrinkage
+    assert np.sqrt(cov[0, 0]) > 1.5 * np.sqrt(long_run[0, 0])  # recent turbulence shows
+    assert np.sqrt(cov[-1, -1]) == pytest.approx(np.sqrt(long_run[-1, -1]), rel=0.5)
+
+
+def test_a_blend_with_all_weight_on_one_regime_is_that_regimes_ledoit_wolf():
+    x = correlated_returns(240, seed=5)
+    labels = pd.Series(np.where(np.arange(240) < 120, "expansion", "recession"))
+    cov, used = estimators.regime_blend_covariance(x, labels, {"recession": 1.0}, 24)
+    expected, _ = estimators.ledoit_wolf(x.iloc[120:])
+    np.testing.assert_allclose(cov, expected)
+    assert used == {"recession": 1.0}
+
+
+def test_the_blend_adds_the_spread_between_regime_means():
+    """Law of total covariance: two regimes with different means co-move through the switch."""
+    x = correlated_returns(240, seed=6)
+    x.iloc[120:] += 0.03  # every asset returns 3% a month more in the second regime
+    labels = pd.Series(np.where(np.arange(240) < 120, "a", "b"))
+    cov, _ = estimators.regime_blend_covariance(x, labels, {"a": 0.5, "b": 0.5}, 24)
+    within = (
+        0.5 * estimators.ledoit_wolf(x.iloc[:120])[0]
+        + 0.5 * estimators.ledoit_wolf(x.iloc[120:])[0]
+    )
+    gap = x.iloc[120:].mean().to_numpy() - x.iloc[:120].mean().to_numpy()  # about 3% each
+    np.testing.assert_allclose(cov - within, 0.25 * np.outer(gap, gap), atol=1e-12)
+    assert (np.diag(cov - within) > 0.25 * 0.02**2).all()
+
+
+def test_a_regime_with_too_few_months_is_dropped_and_the_rest_renormalised():
+    x = correlated_returns(120, seed=7)
+    labels = pd.Series(["expansion"] * 110 + ["recession"] * 10)
+    _, used = estimators.regime_blend_covariance(
+        x, labels, {"expansion": 0.6, "recession": 0.4}, 24
+    )
+    assert used == {"expansion": pytest.approx(1.0)}
+    with pytest.raises(ValueError, match="no regime"):
+        estimators.regime_blend_covariance(x, labels, {"recession": 1.0}, 24)
+
+
+def test_blend_weights_follow_the_macro_view():
+    labels = pd.Series(["expansion"] * 50 + ["late_cycle"] * 30 + ["recession"] * 20)
+    base = estimators.blend_weights(labels, None, None)
+    assert base == pytest.approx({"expansion": 0.5, "late_cycle": 0.3, "recession": 0.2})
+    w = estimators.blend_weights(labels, "late_cycle", 0.6)
+    assert w["late_cycle"] == pytest.approx(0.6 + 0.4 * 0.3)
+    assert sum(w.values()) == pytest.approx(1.0)
+    r = estimators.blend_weights(labels, "late_cycle", 0.6, recession_probability=0.25)
+    assert r["recession"] == pytest.approx(0.25)
+    assert sum(r.values()) == pytest.approx(1.0)
+    # The non-recession regimes keep their proportions.
+    assert r["late_cycle"] / r["expansion"] == pytest.approx(w["late_cycle"] / w["expansion"])
+
+
+def test_compare_offers_the_new_estimators(store):
+    dates = pd.date_range("1994-01-31", "2026-07-31", freq="ME")
+    labels = regime_labels(dates)
+    weights = estimators.blend_weights(labels, "expansion", 0.5)
+    estimates = compare_estimators(
+        store, as_of="2026-09-15", regime="expansion", regime_labels=labels, regime_weights=weights
+    )
+    assert CovarianceMethod.RECENT_VOLATILITY in estimates
+    blend = estimates[CovarianceMethod.REGIME_BLEND]
+    assert blend.positive_definite
+    assert blend.body.regime_weights == pytest.approx(weights)

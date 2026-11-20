@@ -3,7 +3,8 @@
 Where the project stands against `Agentic_SAA_12Week_Project_Plan.md`. Update this when a phase
 item lands; it is the first thing a new session should read after `CLAUDE.md`.
 
-**As of 2026-11-18.** Phases 1-3 are complete: every stage runs end to end on Claude, and three
+**As of 2026-11-20.** Phases 1-3 are complete (Phase 3 closed with decisions 61-65, after the
+faculty agreed on 2026-11-19 to move on): every stage runs end to end on Claude, and three
 paid runs (`claude1`, `claude2`, `claude3`) have produced board memos. `claude3` is the first
 with the faculty's cash fix, the reweighting repair and the covariance agent (decisions 61-63). Phase 4 (out-of-sample backtests,
 historical as-of runs, stress tests, visualisation) is next and passes to Shambhawi; see

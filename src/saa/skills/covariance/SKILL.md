@@ -26,7 +26,9 @@ uv run saa-skill covariance --method regime_conditional \
 | `ledoit_wolf` (default) | Sample covariance shrunk toward a constant-correlation target: each asset keeps its own variance, correlations are pulled toward their average by an analytically optimal amount (Ledoit & Wolf 2004) | Always safe; repairs singular samples |
 | `sample` | Unbiased sample covariance over the window | Long windows with no shared proxies |
 | `exponential` | Recent months weigh more; a month `halflife_months` old counts half | Reacting to a change in volatility regime |
-| `regime_conditional` | Ledoit-Wolf on only the months the macro agent labelled with the given regime | The "macro forecasts" route of §3.1: e.g. recession-state correlations |
+| `regime_conditional` | Ledoit-Wolf on only the months the macro agent labelled with the given regime | How assets moved in regimes like this one; in a calm regime it sees too little risk (decision 64) |
+| `regime_blend` | Each regime's Ledoit-Wolf matrix mixed by probability, plus the spread between the regimes' means (law of total covariance). Probabilities: the macro agent's confidence on its regime, the rest by base rates, recession at its recession probability | The "macro forecasts" route of §3.1 that keeps the call's uncertainty (decision 65) |
+| `recent_volatility` | Ledoit-Wolf correlations with exponentially weighted volatilities (6-month half-life), the RiskMetrics practice | Volatility clusters; correlations need a long sample (decision 65) |
 
 The constant-correlation target matters here: asset-class volatilities run from 0.6% (cash) to
 over 20% (equities, REITs), and an identity-style target would drag them toward each other.
@@ -83,8 +85,15 @@ with the one realised over the next 36. As of 2026-10-01, year-ends 1999-2024:
 | ledoit_wolf | 26 | 0.83 | 0.380 | 0.36 |
 | exponential (60m) | 26 | 0.83 | 0.385 | 0.30 |
 | regime_conditional | 22 | 0.91 | 0.369 | 0.43 |
+| recent_volatility (6m) | 26 | 0.82 | **0.346** | 0.36 |
+| regime_blend | 26 | 0.86 | 0.356 | 0.42 |
 
-All three forecast more benchmark risk than followed, by about a fifth at the median, because
+(The record fits the blend with a neutral 0.5 confidence on the label current at each year-end
+and no recession override, since the macro agent's figures are not on record for past dates.
+Recent volatility's half-life was chosen on this record: 3, 6, 9, 12 and 24 months gave
+0.370, 0.346, 0.351, 0.358 and 0.370.)
+
+The three original estimators forecast more benchmark risk than followed, by about a fifth at the median, because
 the long windows include 2008 and 2020 (the caveat below). The exponential estimator tracks the
 stock-bond correlation best -- the full-history estimate sat at -0.02 to -0.17 throughout,
 against realised -0.4 in the 2000s-2010s and +0.5 to +0.7 after 2020 -- and the
