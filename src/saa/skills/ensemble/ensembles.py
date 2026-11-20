@@ -534,12 +534,46 @@ def _projected(ensemble: Ensemble, x: EnsembleInputs, config: Config) -> Ensembl
     return ensemble
 
 
+def offerable(
+    ensembles: dict[EnsembleMethod, Ensemble], max_repair_turnover: float
+) -> list[EnsembleMethod]:
+    """The compliant ensembles the CIO may choose from (decision 64).
+
+    A repair that moves more than ``max_repair_turnover`` of the portfolio makes the allocation
+    the repair's rather than the ensemble's, so such an ensemble is withheld -- unless every
+    compliant ensemble needed one that large, in which case all are offered rather than none.
+    Withheld ensembles are noted, so the report says why they were not chosen.
+    """
+    compliant = [m for m, e in ensembles.items() if e.compliant]
+    within = [m for m in compliant if ensembles[m].projection_turnover <= max_repair_turnover]
+    if not within:
+        if compliant:
+            log.warning(
+                "every compliant ensemble needed a repair above %.0f%% of the portfolio; "
+                "offering them all",
+                100 * max_repair_turnover,
+            )
+        return compliant
+    for m in compliant:
+        if m not in within:
+            e = ensembles[m]
+            e.note = (f"{e.note}; " if e.note else "") + (
+                f"not offered: its repair moved {e.projection_turnover:.0%} of the portfolio, "
+                f"over the {max_repair_turnover:.0%} limit"
+            )
+    return within
+
+
 def default_choice(
-    ensembles: dict[EnsembleMethod, Ensemble], scores: dict[EnsembleMethod, float]
+    ensembles: dict[EnsembleMethod, Ensemble],
+    scores: dict[EnsembleMethod, float],
+    eligible: list[EnsembleMethod] | None = None,
 ) -> EnsembleMethod:
-    """The deterministic choice among compliant ensembles: the best six-dimension composite
-    (``method_scoring.score_mix``), the rubric the candidates are scored on."""
-    eligible = [e for e in ensembles.values() if e.compliant]
+    """The deterministic choice among the offered ensembles (``offerable``; every compliant one
+    when not given): the best six-dimension composite (``method_scoring.score_mix``), the rubric
+    the candidates are scored on."""
+    offered = eligible if eligible is not None else [m for m, e in ensembles.items() if e.compliant]
+    eligible = [ensembles[m] for m in offered if ensembles[m].compliant]
     if not eligible:
         raise ValueError("no ensemble is IPS-compliant; the CIO cannot recommend an allocation")
     return max(eligible, key=lambda e: (scores.get(e.method, 0.0), e.method.value)).method

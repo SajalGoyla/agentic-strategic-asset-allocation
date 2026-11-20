@@ -1140,3 +1140,36 @@ It writes `pc/covariance.json` with its `judgment` and the `validation` record (
 Not adopted: a covariance the model writes or adjusts itself, which would put an unvalidated
 matrix under every optimiser; the arithmetic stays in the skill (decision 8).
 
+### 64. An ensemble that needed a large repair is not offered to the CIO — settled, 2026-11-20
+Faculty asked (2026-11-19) whether the alternative covariance estimators change the results.
+Stages 4-6 were rerun free (`--no-llm`) on `claude3`'s inputs with only the matrix changed:
+
+| | Ledoit-Wolf | exponential (60m) | regime-conditional (expansion) |
+|---|---|---|---|
+| return / volatility / Sharpe | 6.71% / 8.00% / 0.39 | 6.57% / 8.09% / 0.37 | 6.69% / 8.00% / 0.38 |
+| effective assets | 15.3 | 15.7 | 4.9 |
+| equity / bonds / cash-like / real | 35 / 46 / 5 / 15 | 32 / 43 / 11 / 14 | 52 / 30 / 0 / 18 |
+| holdings different from Ledoit-Wolf's | - | 10% | 49% |
+| portfolio moved by the IPS repair | 6% | none | 59% |
+
+Exponential barely matters. The regime-conditional matrix, fitted on calmer expansion months,
+sees less risk everywhere (US large cap 12.7% against 14.8%), so the risk-only methods fall to
+4.8-6.4%, every averaging ensemble starts at 5.8-6.6%, and reaching the hard 8% floor needed
+56-59% of the portfolio to move. The deterministic choice ignored that and picked one. The
+estimator therefore matters chiefly through the volatility floor: a matrix that sees less risk
+makes the floor bind harder.
+
+`config/method_scoring.yaml` `cio.max_repair_turnover` (0.20, proposed) now withholds from the
+CIO, both the model and the `--no-llm` rule, any ensemble whose repair moved more than that
+share of the portfolio, unless every compliant ensemble did. The prompt lists what was withheld
+and why. Repairs on decision 62's candidates move 3-11%, so the limit does not bind in normal
+runs. Under the regime-conditional matrix the CIO then takes the meta-optimisation, which needs
+no repair; it is still concentrated (90% CVaR minimisation, 4.6 effective assets), because with
+that matrix CVaR is nearly the only candidate risky enough to reach 8% without leverage. The
+limit stops a disguised repair; it cannot create diversification the candidates do not offer.
+
+Next, not done here: a regime-probability-weighted covariance (each regime's matrix weighted by
+the macro agent's probabilities) for the covariance agent's menu, so the "macro forecasts" route
+does not mean conditioning on calm months alone; and showing the covariance agent each
+estimator's downstream effect on the risk-only portfolios' volatility.
+

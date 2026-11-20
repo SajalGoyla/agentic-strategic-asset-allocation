@@ -373,3 +373,38 @@ def test_reweighting_will_not_lean_on_a_method_the_vote_rejected(ensemble_inputs
     rejected = dataclasses.replace(flat, tally_composite={**flat.tally_composite, favourite: 0.0})
     b = reweight_to_policy(recipe, rejected, config)
     assert b[favourite] - recipe[favourite] < 0.5 * (a[favourite] - recipe[favourite])
+
+
+# ------------------------------------------------------------- the repair limit (decision 64)
+def test_ensembles_whose_repair_is_too_large_are_not_offered(ensemble_inputs, config):
+    from saa.skills.ensemble import offerable
+
+    ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
+    repaired = [m for m, e in ensembles.items() if e.policy_adjusted]
+    clean = [m for m, e in ensembles.items() if e.compliant and not e.policy_adjusted]
+    assert repaired and clean, "the fixture has both repaired and unrepaired ensembles"
+    offered = offerable(ensembles, max_repair_turnover=1e-6)
+    assert set(offered) == set(clean)
+    for m in repaired:
+        assert "not offered" in ensembles[m].note
+    assert default_choice(ensembles, {m: 1.0 for m in ensembles}, offered) in clean
+
+
+def test_with_every_ensemble_over_the_limit_all_are_offered(ensemble_inputs, config):
+    from saa.skills.ensemble import offerable
+
+    ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
+    only_repaired = {m: e for m, e in ensembles.items() if e.policy_adjusted}
+    assert set(offerable(only_repaired, max_repair_turnover=1e-6)) == set(only_repaired)
+
+
+def test_a_generous_limit_offers_every_compliant_ensemble(ensemble_inputs, config):
+    from saa.skills.ensemble import offerable
+
+    ensembles, _ = build_ensembles(ensemble_inputs, config, compliant_candidates=[])
+    compliant = {m for m, e in ensembles.items() if e.compliant}
+    assert set(offerable(ensembles, max_repair_turnover=1.0)) == compliant
+
+
+def test_the_repair_limit_is_configured(config):
+    assert load_scoring_settings(config).cio.max_repair_turnover == pytest.approx(0.20)

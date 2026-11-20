@@ -53,7 +53,8 @@ with no leverage something has to move:
   allocation itself was moved to the nearest compliant one, which can add exposures no
   candidate proposed.
 
-Treat either as a real cost, in proportion to its size: it is the ensemble adjusted, not the
+An ensemble whose repair moved more than 20% of the portfolio is not offered at all (decision
+64); the prompt lists any withheld. Treat either as a real cost, in proportion to its size: it is the ensemble adjusted, not the
 ensemble. The meta-optimisation and a single compliant method need neither.
 
 ## What you are judging

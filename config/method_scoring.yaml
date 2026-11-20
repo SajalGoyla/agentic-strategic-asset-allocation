@@ -71,3 +71,11 @@ cma_utilization:
   # toward the assets the CMAs favour: the rank correlation between its active weights (against
   # equal weight) and each asset's CMA Sharpe ratio, mapped from [-1, 1] to [0, 1] [proposed].
   uses_cmas_share: 0.5
+
+cio:
+  # An ensemble whose IPS repair moved more than this share of the portfolio is not offered to
+  # the CIO, unless no ensemble is within it (decision 64). Repairs on decision 62's candidates
+  # move 3-11% of the portfolio; under a regime-conditional covariance that sees calm-month risk,
+  # the chosen repair moved 59% and left 4.9 effective assets. At that size the allocation is the
+  # repair's, not the ensemble's [proposed].
+  max_repair_turnover: 0.20

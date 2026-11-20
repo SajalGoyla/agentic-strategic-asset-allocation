@@ -73,6 +73,12 @@ the methods proposed. An increase in a candidate's ensemble weight is priced at 
 composite (a cut at 1), so the repair leans on the methods the peers approved rather than on
 whichever offers the cheapest volatility (`reweight_costs`).
 
+**Since decision 64 a large repair disqualifies.** `offerable` withholds any ensemble whose
+repair moved more than `cio.max_repair_turnover` (20%, `config/method_scoring.yaml`) of the
+portfolio, unless every compliant ensemble did. At that size the allocation is the repair's, not
+the technique's. It binds when the covariance matrix sees little risk: under a regime-conditional
+(expansion) matrix on `claude3`'s inputs, every averaging ensemble needed 56-59%.
+
 ## The free-run choice
 
 Every ensemble is scored on the candidates' six-dimension rubric by

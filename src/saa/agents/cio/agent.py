@@ -51,6 +51,7 @@ from saa.skills.ensemble import (
     EnsembleInputs,
     build_ensembles,
     default_choice,
+    offerable,
 )
 from saa.skills.method_scoring import (
     ScoringResult,
@@ -305,12 +306,15 @@ def build_prompt(
     regime: str | None,
     ips_status: str,
     confidence: float | None = None,
+    offered: list[EnsembleMethod] | None = None,
 ) -> str:
+    # The ensembles the CIO may choose: compliant, and within the repair limit (decision 64).
+    offered = offered if offered is not None else [m for m, e in ensembles.items() if e.compliant]
     triggered = escalations(config, confidence=confidence, composite=None)
     below = [
         f"{m.value} ({s.composite:.3f})"
         for m, s in scores.items()
-        if ensembles[m].compliant
+        if m in offered
         and any(
             e.condition == "cio_selects_below_composite"
             and e.threshold is not None
@@ -336,7 +340,7 @@ def build_prompt(
         "|---|---|---|---|---|---|---|---|",
     ]
     for method, e in ensembles.items():
-        if not e.compliant:
+        if method not in offered:
             continue
         p, s = e.profile, scores[method]
         top = ", ".join(f"{a} {w:.0%}" for a, w in _top(e.final_weights, 3))
@@ -354,6 +358,11 @@ def build_prompt(
             f"{s.cma_utilization:.2f} | {s.composite:.3f} |"
         )
     excluded = [m.value for m, e in ensembles.items() if not e.compliant]
+    withheld = [
+        f"{m.value} (repair moved {e.projection_turnover:.0%} of the portfolio)"
+        for m, e in ensembles.items()
+        if e.compliant and m not in offered
+    ]
     tally_rows = "\n".join(
         f"| {r.rank} | {r.agent_id} | {r.category.value} | {r.vote_points} | {r.composite:.3f} |"
         for r in tally.rows
@@ -379,6 +388,7 @@ the entropy-based effective number of them. "Projection" is how far the ensemble
 to comply with the IPS, from the figures it had before.
 
 {"Not offered, because no compliant allocation could be found: " + ", ".join(excluded) if excluded else ""}
+{"Not offered, because the repair needed to comply was larger than the policy allows (decision 64): " + ", ".join(withheld) if withheld else ""}
 
 ### The same six-dimension score as the candidates (§4.4)
 What the allocation has is measured on it: backtest Sharpe, IPS compliance, diversification,
@@ -535,7 +545,7 @@ def run_cio(
     )
     compliant = [a for a in candidates if reports.get(a) and reports[a].ips_compliance.compliant]
     ensembles, failed = build_ensembles(x, config, compliant_candidates=compliant)
-    eligible = [m for m, e in ensembles.items() if e.compliant]
+    eligible = offerable(ensembles, settings.cio.max_repair_turnover)
     if not eligible:
         raise ValueError(
             "no ensemble of the candidates satisfies the IPS; the CIO cannot recommend an "
@@ -548,7 +558,7 @@ def run_cio(
 
     call = None
     if llm is None:
-        chosen = ensembles[default_choice(ensembles, composites)]
+        chosen = ensembles[default_choice(ensembles, composites, eligible)]
         judgment = fallback_judgment(
             chosen,
             stage,
@@ -582,6 +592,7 @@ def run_cio(
                 regime=scoring.regime,
                 ips_status=run.ips_status,
                 confidence=confidence,
+                offered=eligible,
             ),
             tier=tier_for("cio"),
             check=check,
